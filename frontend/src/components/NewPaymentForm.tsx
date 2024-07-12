@@ -1,7 +1,7 @@
 import type { DatePickerProps, FormProps } from 'antd'
 import { Alert, message, Button, DatePicker, Form, Input, InputNumber, Select } from 'antd'
 
-const IP = "node-app"
+const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
@@ -28,7 +28,7 @@ function NewPaymentForm(): JSX.Element {
 	
 	async function sendPaymentData(paymentData: FieldType): Promise<string> {
 		
-			const response = await fetch('http://127.20.0.4:3000/v1/payments', {
+			const response = await fetch(HOST + '/v1/payments', {
 				method: 'POST', // Specify the method
 				headers: {
 					'Content-Type': 'application/json' // Specify the content type as JSON
@@ -56,7 +56,8 @@ function NewPaymentForm(): JSX.Element {
 		dni?: string
 		business_name?: string
 		amount: number,
-		account: string
+		account: string,
+		paymentDate: Date
 	}
 
 	const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
@@ -186,7 +187,7 @@ function NewPaymentForm(): JSX.Element {
 						name='account'
 					>
 						<Select
-							defaultValue={accounts[0].value}
+							defaultValue={`${accounts[0].value}`}
 							optionFilterProp='label'
 							// onChange={onChange}
 							// onSearch={onSearch}

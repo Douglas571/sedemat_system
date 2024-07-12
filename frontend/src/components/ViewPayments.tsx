@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from 'antd';
+import { Table, Button } from 'antd';
 import axios from 'axios';
 
-const IP = "node-app"
+const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
@@ -14,46 +14,51 @@ interface Payment {
   account: string;
   paymentDate: string;
 }
+
 async function getPayments(): Promise<Array<Payment>> {
-    let payments: Array<Payment> = [];
-  
-    try {
-      const response = await axios.get(`${HOST}/v1/payments`);
-      payments = response.data.data;
-      console.log({data: response.data})
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error:', error.response?.data || error.message);
-      } else {
-        console.error('Unknown error:', error);
-      }
-      throw error;
+  console.log({HOST})
+  let payments: Array<Payment> = [];
+
+  try {
+    const response = await fetch(`${HOST}/v1/payments`);
+    if (!response.ok) {
+      throw new Error(`Error fetching payments: ${response.statusText}`);
     }
-  
-    return payments;
+    const data = await response.json();
+    console.log('I got the data...');
+    payments = data.data;
+    console.log({ data });
+  } catch (error) {
+    console.log("I got an error...");
+    console.error('Fetch error:', error);
+    throw error;
   }
+
+  return payments;
+}
 
 function ViewPayments(): JSX.Element {
     const [dataSource, setDataSource] = useState<Array<any>>([]);
-  
-    useEffect(() => {
-      const fetchPayments = async () => {
-        try {
-          const payments = await getPayments();
-          const mappedData = payments.map(payment => ({
-            key: payment.id.toString(),
-            amount: payment.amount,
-            reference: payment.reference,
-            dni: payment.dni,
-            account: payment.account,
-            paymentDate: payment.paymentDate,
-          }));
-          setDataSource(mappedData);
-        } catch (error) {
-          console.error('Error fetching payments:', error);
-        }
-      };
-  
+
+    const fetchPayments = async () => {
+      console.log("Cargando pagos...")
+      try {
+        const payments = await getPayments();
+        const mappedData = payments.map(payment => ({
+          key: payment.id.toString(),
+          amount: payment.amount,
+          reference: payment.reference,
+          dni: payment.dni,
+          account: payment.account,
+          paymentDate: payment.paymentDate,
+        }));
+        setDataSource(mappedData);
+      } catch (error) {
+        console.error('Error fetching payments:', error);
+      }
+    };
+
+    useEffect(() => {  
       fetchPayments();
     }, []);
   
@@ -85,7 +90,16 @@ function ViewPayments(): JSX.Element {
       },
     ];
   
-    return <Table dataSource={dataSource} columns={columns} />;
+    return (
+      <div>
+        <Button onClick={() => fetchPayments()}>
+          Cargar pagos
+        </Button>
+        <Table dataSource={dataSource} columns={columns} />;
+      </div>
+    )
+    
+    
   };
 
 export default ViewPayments
