@@ -1,0 +1,23 @@
+# Dockerfile.dev
+
+# Use the Node.js image
+FROM node:20-alpine
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Install dependencies
+COPY package.json ./
+
+RUN npm install cypress --save-dev --ignore-scripts --verbose
+RUN npm i vite@5.2.8 -D
+
+RUN npm install
+
+# Copy source files
+COPY . .
+
+EXPOSE 5173
+
+# Start the React development server
+CMD ["npm", "run", "dev"]

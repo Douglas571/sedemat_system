@@ -1,0 +1,64 @@
+version: '3.8' # or the appropriate version for your setup
+
+services:
+  database:
+    image: docker.io/library/mariadb:11.4.2
+    container_name: mariadb
+    environment:
+      MARIADB_DATABASE: 'sedemat'
+      MARIADB_USER: 'sedemat_server'
+      MARIADB_PASSWORD: '12345'
+      MYSQL_ROOT_PASSWORD: '12345'
+      
+    ports:
+      - "3307:3306"
+
+    networks:
+      - mynet
+    volumes:
+      - ./backup/database:/var/lib/mysql
+      - ./mariadb/initdb:/docker-entrypoint-initdb.d
+    
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    
+    container_name: node-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+    networks:
+      - mynet
+    volumes:
+      - ./backup/backend:/app/data
+      - ./backend/:/app
+      - /node_modules
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: ./dockerfile.dev
+
+    container_name: frontend
+
+    ports:
+      - "5173:5173"
+
+    networks:
+      - mynet
+    volumes:
+      - ./frontend:/app # Mounts the current directory to /app in the container
+      - /app/node_modules # Prevents conflicts with node_modules on the host
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Enables file change detection in Docker for Windows/Mac
+
+networks:
+  # The presence of these objects is sufficient to define them
+  mynet: {}
+
+
+# volumes:
+#   myvol:
