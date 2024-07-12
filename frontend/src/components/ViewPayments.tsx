@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import axios from 'axios';
 
-const IP = "127.20.0.4"
+const IP = "node-app"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 

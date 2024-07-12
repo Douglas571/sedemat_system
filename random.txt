@@ -40,3 +40,7 @@ si lo registro con "%", ahi si me deja ingresar
 
 si no proporciono una ip al agregar privilegios, el usuario adquiere los privilegios 
     
+
+
+mkdir sedemat_system && cd sedemat_system && git clone https://github.com/Douglas571/sedemat_system.git .
+docker compose up --build

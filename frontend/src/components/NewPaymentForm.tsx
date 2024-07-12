@@ -1,7 +1,7 @@
 import type { DatePickerProps, FormProps } from 'antd'
 import { Alert, message, Button, DatePicker, Form, Input, InputNumber, Select } from 'antd'
 
-const IP = "127.20.0.4"
+const IP = "node-app"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
