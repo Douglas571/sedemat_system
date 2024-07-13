@@ -9,8 +9,16 @@ const sequelize = new Sequelize('sedemat', 'sedemat_server', '12345', {
         acquire: 30000,
         idle: 10000
     },
-    dialectOptions: { 
-        connectTimeout: 10000, 
+    retry: {
+        match: [
+            /ETIMEDOUT/,
+            /EHOSTUNREACH/,
+            /ECONNREFUSED/,
+            /ECONNRESET/,
+            /ENOTFOUND/,
+            /EAI_AGAIN/
+        ],
+        max: 5 // Number of retry attempts
     },
     logging: false // Set to true if you want to see the SQL queries
 });
