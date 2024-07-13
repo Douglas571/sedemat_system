@@ -6,7 +6,7 @@ const sequelize = new Sequelize('sedemat', 'sedemat_server', '12345', {
     pool: {
         max: 5,
         min: 0,
-        acquire: 30000,
+        acquire: 100*1000,
         idle: 10000
     },
     retry: {
