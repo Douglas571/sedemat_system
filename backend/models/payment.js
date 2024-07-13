@@ -9,6 +9,9 @@ const sequelize = new Sequelize('sedemat', 'sedemat_server', '12345', {
         acquire: 30000,
         idle: 10000
     },
+    dialectOptions: { 
+        connectTimeout: 10000, 
+    },
     logging: false // Set to true if you want to see the SQL queries
 });
 
