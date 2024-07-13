@@ -9,9 +9,6 @@ WORKDIR /app
 # Install dependencies
 COPY package.json ./
 
-RUN npm install cypress --save-dev --ignore-scripts --verbose
-RUN npm i vite@5.2.8 -D
-
 RUN npm install
 
 # Copy source files
