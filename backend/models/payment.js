@@ -63,6 +63,9 @@ const Payment = sequelize.define('Payment', {
 
 async function testConnection() {
     try {
+        console.log("waithing for database...")
+        await new Promise(resolve => setTimeout(resolve, 15000));
+        console.log("testing the connection")
         await sequelize.authenticate();
         await sequelize.sync();
         console.log('Connection to the database has been established successfully.');
