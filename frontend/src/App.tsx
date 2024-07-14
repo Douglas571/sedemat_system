@@ -17,6 +17,9 @@ function App(): JSX.Element {
 						{/* Using path="*"" means "match anything", so this route
 								acts like a catch-all for URLs that we don't have explicit
 								routes for. */}
+
+						<Route path='business' element={<h1>Contribuyentes</h1>}/>
+						<Route path='business/new' element={<h1>Nuevo Contribuyentes</h1>}/>
 						<Route path="*" element={<NoMatch />} />
 					</Route>
 				</Routes>
@@ -40,6 +43,12 @@ function Layout() {
 			</li>
 			<li>
 			  <Link to="/payments/new">Nuevo Pago</Link>
+			</li>
+			<li>
+				<Link to="/business/">Contribuyentes</Link>
+			</li>
+			<li>
+				<Link to="/business/new">Nuevo Contribuyente</Link>
 			</li>
 		  </ul>
 		</nav>

@@ -52,6 +52,9 @@ const Payment = sequelize.define('Payment', {
         unique: true
     },
     paymentDate: DataTypes.DATE,
+    image: DataTypes.STRING ,
+    state: DataTypes.STRING,
+    business_name: DataTypes.STRING,
     // don't add the timestamp attributes (updatedAt, createdAt)
     // add liquidation date
     // add state 
