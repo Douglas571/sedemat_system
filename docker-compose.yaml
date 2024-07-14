@@ -33,7 +33,7 @@ services:
     networks:
       - mynet
     volumes:
-      - ./backup/backend:/app/data
+      - ./backup/backend/images:/app/uploads
       - ./backend/:/app
       - /app/node_modules
 
