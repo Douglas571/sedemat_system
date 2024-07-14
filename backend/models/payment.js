@@ -74,7 +74,8 @@ async function testConnection() {
     }
 }
 
-testConnection();
+// this is just to test the connection, the client will wait until the server is ready anyways
+// testConnection();
 
 
 
