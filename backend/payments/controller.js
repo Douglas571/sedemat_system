@@ -27,9 +27,11 @@ router.post('/', async (req, res) => {
         account: req.body.account,
         paymentDate: req.body.paymentDate,
         liquidationDate: req.body.liquidationDate,
-        state: req.body.state
+        state: req.body.state,
+        business_name: req.body.business_name
     };
 
+    console.log("I got here")
     try {
         const newPayment = await paymentService.createPayment(newPaymentData);
         res.status(201).json(newPayment);
@@ -37,9 +39,18 @@ router.post('/', async (req, res) => {
         let msg = "error random"
         let code = 0
         if (error.name == "SequelizeUniqueConstraintError"){
-            msg = "Esta referencia ya existe."
+            // console.log({gotanerror: error})
+
+            console.log({ keys: error.fields})
+            if (error.fields.hasOwnProperty("reference")) {
+                console.log("referencia duplicada")
+                msg = "Esta referencia ya existe."
+            }
+            
         }
-        res.status(500).json({ error: { msg, code: 1 } });
+        let errorResponse = { error: { msg, code: 1 } }
+        console.log({errorResponse})
+        res.status(500).json(errorResponse);
     }
 });
 

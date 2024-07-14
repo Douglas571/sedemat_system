@@ -30,7 +30,10 @@ CREATE TABLE Payments (
     reference VARCHAR(255) NOT NULL UNIQUE,
     dni VARCHAR(15) NOT NULL,
     account VARCHAR(30) NOT NULL,
-    paymentDate DATE NOT NULL
+    paymentDate DATE NOT NULL,
+    image VARCHAR(255),
+    state VARCHAR(50),
+    business_name VARCHAR(255)
 );
 
 -- Insert dummy data into the Payments table

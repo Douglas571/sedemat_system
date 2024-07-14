@@ -22,6 +22,8 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = errorInfo => {
 function NewPaymentForm(): JSX.Element {
 
 	const [messageApi, contextHolder] = message.useMessage()
+	const [form] = Form.useForm();
+
 
 	const throwError = () => {
 		messageApi.open({
@@ -38,22 +40,20 @@ function NewPaymentForm(): JSX.Element {
 			const response = await fetch(HOST + '/v1/payments', {
 				method: 'POST', // Specify the method
 				headers: {
-					'Content-Type': 'application/json' // Specify the content type as JSON
+					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify(paymentData) // Convert the object to a JSON string
+				body: JSON.stringify(paymentData)
 			})
 
 			if (!response.ok) {
-				console.log({error: response.body})
-				throw new Error(`Hubo un error al registrar pago`)
+				const data = await response.json()
+				console.log({data})
+				throw new Error(data.error.msg)
 			}
 
-			const data = await response.json() // Parse the JSON response
-			console.log('Success:', data)
+			const data = await response.json()
 			console.log({ data })
 			return JSON.stringify(data)
-
-			
 	}
 
 	interface FieldType {
@@ -86,6 +86,11 @@ function NewPaymentForm(): JSX.Element {
 			// send the image to the server
 			// get the id of the image
 			let boucherImageUrl = await handleUploadBoucher()
+			console.log("continua despues de la imagen")
+
+			if (!boucherImageUrl) {
+				return ""
+			}
 			
 			// map all values to a ready to ship payment object
 			let payment: Payment = {
@@ -97,6 +102,7 @@ function NewPaymentForm(): JSX.Element {
 				paymentDate: values.paymentDate,
 				image: boucherImageUrl
 			}
+			console.log({sending: payment})
 
 			// send the payment
 			await sendPaymentData(payment)
@@ -176,16 +182,14 @@ function NewPaymentForm(): JSX.Element {
 	}
 
 	const [businessName, setBusinessName] = React.useState('');
+	const [businessRif, setBusinessRif] = React.useState('hola');
 	const [businessNameOptions, setBusinessNameOptions] = React.useState<Array<Option>>([])
 
-	const onSelect = (data: string) => {
-		console.log('onSelect', data);
-	};
-	
-	const onChangeBusinessName = (data: string) => {
-		setBusinessName(data);
-	};
-	
+	const [fileList, setFileList] = React.useState<UploadFile[]>([]);
+	const [uploading, setUploading] = React.useState(false);
+
+	const [boucherUrl, setBoucherUrl] = React.useState("")
+
 	interface Business {
 		id: number;
 		businessName: string;
@@ -193,13 +197,35 @@ function NewPaymentForm(): JSX.Element {
 	}
 
 	const businesses: Business[] = [
-		{ id: 1, businessName: "Tech Solutions", rif: "J-12345678-9" },
-		{ id: 2, businessName: "Green Landscaping", rif: "J-98765432-1" },
-		{ id: 3, businessName: "Sunny Side Bakery", rif: "J-56473829-4" },
-		{ id: 4, businessName: "Blue Ocean Travel", rif: "J-10987654-3" },
-		{ id: 5, businessName: "Tech Innovators", rif: "J-34567890-1" },
-		{ id: 6, businessName: "Red Mountain Coffee", rif: "J-11223344-5" }
+		{ id: 1, businessName: "TELEFONICA VENEZUELA, C.A", rif: "J-00343994-0" },
+		{ id: 2, businessName: "INDUSTRIA VENEZOLANA DE CEMENTO (INVECEM), S.A. ", rif: "G-20011588-2" },
+		{ id: 3, businessName: "CASA CHEN, C.A", rif: "E-8228509-0" },
+		{ id: 4, businessName: "JC SPORT, C.A", rif: "J-29730365-0" },
+		{ id: 5, businessName: "LABORATORIO CLINICO BACTERIOLOGICO DIVINA PASTORA, C.A", rif: "J-29855687-0" },
+		{ id: 6, businessName: "SUPERMERCADO LO MEJOR, C.A", rif: "J-29875756-6" }
 	];
+
+	const onSelect = (data: string) => {
+		console.log('onSelect', data);
+
+		// get the rif
+		let dni = businesses.find(b => b.businessName == data)?.rif
+		console.log({dni})
+
+		if (dni) {
+			// set the rif
+			console.log("setting rif")
+			form.setFieldValue('dni', dni)
+			setBusinessRif(dni)
+			// set the name btw
+			setBusinessName(data)
+		}
+	};
+	
+	const onChangeBusinessName = (data: string) => {
+		setBusinessName(data);
+	};
+	
 
 	function filterBusinessNames(businesses: Business[], searchText: string): Business[] {
 		// Convert the search text to lowercase for case-insensitive search
@@ -219,11 +245,6 @@ function NewPaymentForm(): JSX.Element {
 		}))
 	}
 
-	const [fileList, setFileList] = React.useState<UploadFile[]>([]);
-	const [uploading, setUploading] = React.useState(false);
-
-	const [boucherUrl, setBoucherUrl] = React.useState("")
-
 	const uploadProps: UploadProps = {
 		onRemove: (file) => {
 			const index = fileList.indexOf(file);
@@ -242,9 +263,13 @@ function NewPaymentForm(): JSX.Element {
 
 	type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-	const handleUploadBoucher = async (): Promise<string> => {
+	const handleUploadBoucher = async (): Promise<string | undefined> => {
 		try {
 			console.log("sending files")
+
+			if (fileList.length == 0) {
+				throw Error("Selecciona un boucher")
+			}
 			const formData = new FormData()
 			fileList.forEach((file) => {
 				formData.append('image', file as FileType);
@@ -264,16 +289,20 @@ function NewPaymentForm(): JSX.Element {
 
 		} catch (error) {
 			console.log({error})
-		}
+			console.log("hubo un error con la imagen")
 
-		return ""
+			messageApi.open({
+				type: 'error',
+				content: error.message,
+			});
+		}
 	}
 
 	return (
 		<div>
 			<div>
 				{contextHolder}
-				<Form
+				<Form form={form}
 					initialValues={{}}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
@@ -283,7 +312,7 @@ function NewPaymentForm(): JSX.Element {
 					<Form.Item<FieldType>
 						rules={[{ 
 							required: true, 
-							message: 'introduce la razon social!' 
+							message: 'Por favor, introduzca la razón social!' 
 						}]}
 						label='Razón Social'
 						name='business_name'
@@ -298,28 +327,33 @@ function NewPaymentForm(): JSX.Element {
 					</Form.Item>
 
 					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Please input your username!' }]}
 						label='Rif o Cédula'
 						name='dni'
+
+						
 					>
-						<Select
+						<Input disabled/>
+						{/* <Select
 							showSearch
 							placeholder='Select a person'
 							optionFilterProp='label'
 							// onChange={onChange}
 							// onSearch={onSearch}
 							options={options}
-						/>
+						/> */}
 					</Form.Item>
 
 					<Form.Item<FieldType>
+						rules={[{ required: true, message: 'Por favor, introduzca una referencia' }]}
 						label='Referencia' 
 						name='reference'
+
 					>
 						<Input type='number' maxLength={6} />
 					</Form.Item>
 
 					<Form.Item<FieldType>
+						rules={[{ required: true, message: 'Por favor, introduzca el monto' }]}
 						label='Monto'
 						name='amount'
 					>
@@ -333,6 +367,7 @@ function NewPaymentForm(): JSX.Element {
 					</Form.Item>
 
 					<Form.Item<FieldType>
+						rules={[{ required: true, message: 'Por favor, seleccione una referencia' }]}
 						label='Fecha de Pago' 
 						name="paymentDate">
 						<DatePicker onChange={onChange} />
@@ -341,9 +376,9 @@ function NewPaymentForm(): JSX.Element {
 					<Form.Item<FieldType> 
 						label='Cuentas' 
 						name='account'
+						initialValue={accounts[0].value}
 					>
 						<Select
-							defaultValue={`${accounts[0].value}`}
 							optionFilterProp='label'
 							// onChange={onChange}
 							// onSearch={onSearch}

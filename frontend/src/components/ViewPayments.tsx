@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Space } from 'antd';
 import axios from 'axios';
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -13,6 +13,8 @@ interface Payment {
   dni: string;
   account: string;
   paymentDate: string;
+  businessName: string;
+  image: string;
 }
 
 async function getPayments(): Promise<Array<Payment>> {
@@ -51,6 +53,8 @@ function ViewPayments(): JSX.Element {
           dni: payment.dni,
           account: payment.account,
           paymentDate: payment.paymentDate,
+          businessName: payment.business_name,
+          image: payment.image
         }));
         setDataSource(mappedData);
       } catch (error) {
@@ -61,6 +65,44 @@ function ViewPayments(): JSX.Element {
     useEffect(() => {  
       fetchPayments();
     }, []);
+
+    function verify(id){
+
+    }
+
+    function liquidate(id){
+
+    }
+
+    function showBoucher(imageUrl) {
+      window.open(`${HOST}/${imageUrl}`, '_blank', 'noopener,noreferrer');
+    }
+
+    async function deletePayment(id){
+      const url = `${HOST}/v1/payments/${id}`;
+
+      console.log('deleting payment ' + id)
+
+      try {
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Payment deleted successfully:', result);
+
+          fetchPayments();
+        } else {
+          console.error('Failed to delete payment:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
   
     const columns = [
       {
@@ -79,6 +121,11 @@ function ViewPayments(): JSX.Element {
         key: 'dni',
       },
       {
+        title: 'Razón Social',
+        dataIndex: 'businessName',
+        key: 'businessName',
+      },
+      {
         title: 'Account',
         dataIndex: 'account',
         key: 'account',
@@ -87,6 +134,18 @@ function ViewPayments(): JSX.Element {
         title: 'Payment Date',
         dataIndex: 'paymentDate',
         key: 'paymentDate',
+      },
+      {
+        title: 'Acciones',
+        key: 'action',
+        render: (_, record) => (
+          <Space size="middle">
+            <Button>Verificar</Button>
+            <Button>Liquidar</Button>
+            <Button onClick={() => deletePayment(record.key)}>Eliminar</Button>
+            <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
+          </Space>
+        ),
       },
     ];
   

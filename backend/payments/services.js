@@ -35,7 +35,7 @@ exports.createPayment = async (paymentData) => {
         console.log('Payment created:', payment);
         return payment;
     } catch (error) {
-        console.error('Error creating payment:', error);
+        console.error('Error creating payment:', error.name);
         throw error;
     }
 };
