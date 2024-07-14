@@ -2,6 +2,23 @@ const express = require("express");
 const cors = require('cors');
 const path = require('path');
 
+const fs = require('fs');
+const path = require('path');
+
+// ensure that the uploads folder exists
+const ensureDirectoryExists = (dirPath) => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Directory created: ${dirPath}`);
+  } else {
+    console.log(`Directory already exists: ${dirPath}`);
+  }
+};
+
+// Example usage
+const directoryPath = path.join(__dirname, 'uploads');
+ensureDirectoryExists(directoryPath);
+
 
 const paymentsRouter = require("./payments/controller")
 
