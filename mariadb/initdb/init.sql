@@ -24,6 +24,20 @@ select 'This is a comment' AS '';
 
 USE sedemat;
 
+CREATE TABLE Payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    business_name VARCHAR(255) NOT NULL,
+    dni VARCHAR(15) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    reference VARCHAR(255) NOT NULL UNIQUE,
+    account VARCHAR(30) NOT NULL,
+    paymentDate DATE NOT NULL,
+    isVerified BOOLEAN DEFAULT false,
+    image VARCHAR(255),
+    state VARCHAR(30)
+);
+
+-- Insert dummy data into the Payments table
 INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDate) VALUES ('CASA CHEN, C.A', 100.50, '122345', 'E-8228509-0', '0102-0123-4500-0001', '2024-01-01');
 INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDate) VALUES ('COMERCIAL SOL CARIBE', 200.75, '677890', 'E-82288744-1', '0102-0123-4500-0002', '2024-02-01');
 INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDate) VALUES ('CARNICERIA TAICO', 50.00, '115121', 'E-84417324-8', '0102-0123-4500-0003', '2024-03-01');
