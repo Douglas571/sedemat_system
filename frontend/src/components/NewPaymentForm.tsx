@@ -33,10 +33,22 @@ function NewPaymentForm(): JSX.Element {
 	};
 
 	
+	function cleanDataFromForm(){
+		// get the form
+		// set values to empty 
 	
+		
+		form.setFieldValue('business_name', '')
+		form.setFieldValue('dni', '')
+		form.setFieldValue('reference', '')
+		form.setFieldValue('amount', 0)
+		form.setFieldValue('account', accounts[0].value )
+
+		// TODO: when i call this method, i will set a variable to modify a date variable
+		// paymentDate: Date
+	}
 
 	async function sendPaymentData(paymentData: Payment): Promise<string> {
-		
 			const response = await fetch(HOST + '/v1/payments', {
 				method: 'POST', // Specify the method
 				headers: {
@@ -51,8 +63,10 @@ function NewPaymentForm(): JSX.Element {
 				throw new Error(data.error.msg)
 			}
 
+			// the payment was saved successfully was successful 
 			const data = await response.json()
 			console.log({ data })
+
 			return JSON.stringify(data)
 	}
 
@@ -106,6 +120,15 @@ function NewPaymentForm(): JSX.Element {
 
 			// send the payment
 			await sendPaymentData(payment)
+
+			
+			messageApi.open({
+				type: 'success',
+				content: "Pago guardado exitosamente",
+			});
+
+			cleanDataFromForm()
+
 		} catch(error) {
 			// process errors
 
@@ -279,7 +302,7 @@ function NewPaymentForm(): JSX.Element {
 				method: 'POST',
 				body: formData,
 			})
-
+			
 			console.log("response")
 			const data = await response.json()
 			console.log({data})
@@ -312,7 +335,7 @@ function NewPaymentForm(): JSX.Element {
 					<Form.Item<FieldType>
 						rules={[{ 
 							required: true, 
-							message: 'Por favor, introduzca la razón social!' 
+							message: 'Introduzca la razón social' 
 						}]}
 						label='Razón Social'
 						name='business_name'
@@ -329,8 +352,6 @@ function NewPaymentForm(): JSX.Element {
 					<Form.Item<FieldType>
 						label='Rif o Cédula'
 						name='dni'
-
-						
 					>
 						<Input disabled/>
 						{/* <Select
@@ -344,7 +365,7 @@ function NewPaymentForm(): JSX.Element {
 					</Form.Item>
 
 					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Por favor, introduzca una referencia' }]}
+						rules={[{ required: true, message: 'Introduzca una referencia' }]}
 						label='Referencia' 
 						name='reference'
 
@@ -353,7 +374,7 @@ function NewPaymentForm(): JSX.Element {
 					</Form.Item>
 
 					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Por favor, introduzca el monto' }]}
+						rules={[{ required: true, message: 'Introduzca el monto' }]}
 						label='Monto'
 						name='amount'
 					>
@@ -367,7 +388,7 @@ function NewPaymentForm(): JSX.Element {
 					</Form.Item>
 
 					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Por favor, seleccione una referencia' }]}
+						rules={[{ required: true, message: 'Seleccione una referencia' }]}
 						label='Fecha de Pago' 
 						name="paymentDate">
 						<DatePicker onChange={onChange} />
@@ -396,6 +417,16 @@ function NewPaymentForm(): JSX.Element {
 						/>
 					</Form.Item>
 
+					<div>
+						<Upload 
+							name='boucher'
+							{...uploadProps}
+						>
+							<Button>Seleccionar Boucher</Button>
+						</Upload>
+						<br/>
+					</div>
+
 					<Form.Item>
 						<Button type='primary' htmlType='submit'>
 							Guardar
@@ -404,17 +435,6 @@ function NewPaymentForm(): JSX.Element {
 
 				</Form>
 			</div>
-
-			<div>
-						<Upload 
-							name='boucher'
-							{...uploadProps}
-						>
-							<Button>Seleccionar Boucher</Button>
-						</Upload>
-						<Button onClick={() => handleUploadBoucher()}>Cargar Boucher</Button>
-					</div>
-
 
 			<Button onClick={throwError}>Error</Button>
 		</div>
