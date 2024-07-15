@@ -32,7 +32,7 @@ CREATE TABLE Payments (
     account VARCHAR(30) NOT NULL,
     paymentDate DATE NOT NULL,
     image VARCHAR(255),
-    state VARCHAR(50),
+    state ENUM('received', 'verified', 'liquidated') NOT NULL DEFAULT 'received',
     business_name VARCHAR(255)
 );
 
