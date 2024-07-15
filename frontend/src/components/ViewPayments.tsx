@@ -3,6 +3,9 @@ import type { PopconfirmProps } from 'antd';
 import { Table, Button, Space, message, Popconfirm, Select } from 'antd';
 import axios from 'axios';
 
+import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
+
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -16,6 +19,8 @@ interface Payment {
   paymentDate: string;
   businessName: string;
   image: string;
+  isVerified: boolean,
+  liquidationDate?: Date
 }
 
 async function getPayments(): Promise<Array<Payment>> {
@@ -48,16 +53,34 @@ function ViewPayments(): JSX.Element {
       console.log("Cargando pagos...")
       try {
         const payments = await getPayments();
-        const mappedData = payments.map(payment => ({
-          key: payment.id.toString(),
-          amount: payment.amount,
-          reference: payment.reference,
-          dni: payment.dni,
-          account: payment.account,
-          paymentDate: payment.paymentDate,
-          businessName: payment.business_name,
-          image: payment.image
-        }));
+        const mappedData = payments.map(payment => {
+          const newPayment = {
+            key: payment.id.toString(),
+            amount: payment.amount,
+            reference: payment.reference,
+            dni: payment.dni,
+            account: payment.account,
+            paymentDate: payment.paymentDate,
+            businessName: payment.business_name,
+            image: payment.image,
+            isVerified: payment.isVerified,
+            status: '',
+          }
+
+          if (payment.isVerified) {
+            newPayment.status = "Verificado"
+          } else {
+            newPayment.status = "Recibido"
+          }
+
+          if (payment.liquidationDate) {
+            newPayment.status = "Liquidado"
+          }
+
+          console.log({newPayment})
+
+          return newPayment
+        });
         setDataSource(mappedData);
       } catch (error) {
         console.error('Error fetching payments:', error);
@@ -68,8 +91,40 @@ function ViewPayments(): JSX.Element {
       fetchPayments();
     }, []);
 
-    function verify(id: string ){
 
+    async function sendUpdateVerifiedStatus(paymentId: string, isVerified: boolean) {
+      const url = `${HOST}/v1/payments/${paymentId}`;
+  
+      try {
+          const response = await fetch(url, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({isVerified})
+          });
+  
+          if (response.ok) {
+              const result = await response.json();
+              console.log('Payment status updated successfully:', result);
+          } else {
+              const error = await response.json();
+              console.error('Failed to update payment status:', error);
+          }
+      } catch (error) {
+          console.error('Error making request:', error);
+      }
+  }
+
+
+    async function updateVerifiedStatus(id: string, isVerified: boolean){
+      try {
+        await sendUpdateVerifiedStatus(id, isVerified)
+
+        fetchPayments()
+      } catch (error) {
+        console.log({error})
+      }
     }
 
     function liquidate(id: string ){
@@ -128,35 +183,41 @@ function ViewPayments(): JSX.Element {
     }
   
     const columns = [
-      {
-        title: 'Amount',
-        dataIndex: 'amount',
-        key: 'amount',
-      },
-      {
-        title: 'Reference',
-        dataIndex: 'reference',
-        key: 'reference',
-      },
-      {
-        title: 'DNI',
-        dataIndex: 'dni',
-        key: 'dni',
-      },
+           
       {
         title: 'Razón Social',
         dataIndex: 'businessName',
         key: 'businessName',
       },
       {
-        title: 'Account',
+        title: 'Rif o Cédula',
+        dataIndex: 'dni',
+        key: 'dni',
+      },
+      {
+        title: 'Referencia',
+        dataIndex: 'reference',
+        key: 'reference',
+      },
+      {
+        title: 'Monto',
+        dataIndex: 'amount',
+        key: 'amount',
+      },
+      {
+        title: 'Cuenta Destino',
         dataIndex: 'account',
         key: 'account',
       },
       {
-        title: 'Payment Date',
+        title: 'Fecha de Pago',
         dataIndex: 'paymentDate',
         key: 'paymentDate',
+      },
+      {
+        title: 'Estado',
+        dataIndex: 'status',
+        key: 'status'
       },
       {
         title: 'Acciones',
@@ -164,16 +225,11 @@ function ViewPayments(): JSX.Element {
         render: (_, record) => (
           <Space size="middle">
             
-            <Select
-              defaultValue="Recibido"
-              style={{ width: 120 }}
-              options={[
-                { value: 'received', label: 'Recibido' },
-                { value: 'liquidado', label: 'Verificado' },
-                { value: 'verified', label: 'Liquidado' },
-              ]}
-            />
-            
+            <Button 
+              onClick={() => updateVerifiedStatus(record.key, !record.isVerified)}  
+              shape="circle"
+            >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>
+
             <Popconfirm
               title="Eliminar Pago"
               description="¿Estás seguro de que deseas eliminar el pago?"
@@ -181,10 +237,10 @@ function ViewPayments(): JSX.Element {
                 console.log("the payment will be deleted")
                 deletePayment(record.key) }}
               //onCancel={cancel}
-              okText="Yes"
+              okText="Si"
               cancelText="No"
             >
-              <Button danger>Eliminar</Button>
+              <Button danger shape="circle"><DeleteFilled /></Button>
             </Popconfirm>
 
             

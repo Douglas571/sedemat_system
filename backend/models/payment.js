@@ -55,6 +55,7 @@ const Payment = sequelize.define('Payment', {
     image: DataTypes.STRING ,
     state: DataTypes.STRING,
     business_name: DataTypes.STRING,
+    isVerified: DataTypes.BOOLEAN
     // don't add the timestamp attributes (updatedAt, createdAt)
     // add liquidation date
     // add state 

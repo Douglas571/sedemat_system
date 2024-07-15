@@ -25,12 +25,6 @@ function NewPaymentForm(): JSX.Element {
 	const [form] = Form.useForm();
 
 
-	const throwError = () => {
-		messageApi.open({
-			type: 'error',
-			content: 'This is an error message',
-		});
-	};
 
 	
 	function cleanDataFromForm(){
@@ -91,6 +85,8 @@ function NewPaymentForm(): JSX.Element {
 		paymentDate: Date
 		image: string
 		state?: string
+		isVerified?: boolean
+
 	}
 	const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
 		
@@ -114,7 +110,8 @@ function NewPaymentForm(): JSX.Element {
 				amount: values.amount,
 				account: values.account,
 				paymentDate: values.paymentDate,
-				image: boucherImageUrl
+				image: boucherImageUrl,
+				state: 'received',
 			}
 			console.log({sending: payment})
 
@@ -435,8 +432,6 @@ function NewPaymentForm(): JSX.Element {
 
 				</Form>
 			</div>
-
-			<Button onClick={throwError}>Error</Button>
 		</div>
 	)
 }

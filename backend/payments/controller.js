@@ -76,7 +76,8 @@ router.put('/:id', async (req, res) => {
         account: req.body.account,
         paymentDate: req.body.paymentDate,
         liquidationDate: req.body.liquidationDate,
-        state: req.body.state
+        state: req.body.state,
+        isVerified: req.body.isVerified
     };
 
     try {

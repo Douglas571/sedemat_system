@@ -32,8 +32,9 @@ CREATE TABLE Payments (
     account VARCHAR(30) NOT NULL,
     paymentDate DATE NOT NULL,
     image VARCHAR(255),
-    state ENUM('received', 'verified', 'liquidated') NOT NULL DEFAULT 'received',
-    business_name VARCHAR(255)
+    state VARCHAR(30),
+    business_name VARCHAR(255),
+    isVerified BOOLEAN DEFAULT false
 );
 
 -- Insert dummy data into the Payments table
