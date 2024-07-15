@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space } from 'antd';
+import type { PopconfirmProps } from 'antd';
+import { Table, Button, Space, message, Popconfirm, Select } from 'antd';
 import axios from 'axios';
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -40,7 +41,8 @@ async function getPayments(): Promise<Array<Payment>> {
 }
 
 function ViewPayments(): JSX.Element {
-    const [dataSource, setDataSource] = useState<Array<any>>([]);
+  const [messageApi, contextHolder] = message.useMessage()
+  const [dataSource, setDataSource] = useState<Array<any>>([]);
 
     const fetchPayments = async () => {
       console.log("Cargando pagos...")
@@ -66,19 +68,19 @@ function ViewPayments(): JSX.Element {
       fetchPayments();
     }, []);
 
-    function verify(id){
+    function verify(id: string ){
 
     }
 
-    function liquidate(id){
+    function liquidate(id: string ){
 
     }
 
-    function showBoucher(imageUrl) {
+    function showBoucher(imageUrl: string) {
       window.open(`${HOST}/${imageUrl}`, '_blank', 'noopener,noreferrer');
     }
 
-    async function deletePayment(id){
+    async function sendRequestToDeletePayment(id){
       const url = `${HOST}/v1/payments/${id}`;
 
       console.log('deleting payment ' + id)
@@ -91,16 +93,37 @@ function ViewPayments(): JSX.Element {
           }
         });
 
+        const result = await response.json();
         if (response.ok) {
-          const result = await response.json();
           console.log('Payment deleted successfully:', result);
-
-          fetchPayments();
         } else {
-          console.error('Failed to delete payment:', response.status, response.statusText);
+          console.log({result})
+          throw Error('Error al eliminar el pago');
         }
       } catch (error) {
         console.error('Error:', error);
+
+        throw error
+      }
+    }
+
+
+    const deletePayment = async (id: string) => {
+      try {
+        // send the request
+        await sendRequestToDeletePayment(id)
+
+        // deleted successfully, reload payments
+        fetchPayments()
+      }
+      catch(error) {
+        // if it fail
+        // show error
+
+        messageApi.open({
+          type: "error",
+          content: error.message
+        })
       }
     }
   
@@ -140,9 +163,31 @@ function ViewPayments(): JSX.Element {
         key: 'action',
         render: (_, record) => (
           <Space size="middle">
-            <Button>Verificar</Button>
-            <Button>Liquidar</Button>
-            <Button onClick={() => deletePayment(record.key)}>Eliminar</Button>
+            
+            <Select
+              defaultValue="Recibido"
+              style={{ width: 120 }}
+              options={[
+                { value: 'received', label: 'Recibido' },
+                { value: 'liquidado', label: 'Verificado' },
+                { value: 'verified', label: 'Liquidado' },
+              ]}
+            />
+            
+            <Popconfirm
+              title="Eliminar Pago"
+              description="¿Estás seguro de que deseas eliminar el pago?"
+              onConfirm={() => { 
+                console.log("the payment will be deleted")
+                deletePayment(record.key) }}
+              //onCancel={cancel}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>Eliminar</Button>
+            </Popconfirm>
+
+            
             <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
           </Space>
         ),
