@@ -23,6 +23,8 @@ interface Payment {
   liquidationDate?: Date
 }
 
+
+
 async function getPayments(): Promise<Array<Payment>> {
   console.log({HOST})
   let payments: Array<Payment> = [];

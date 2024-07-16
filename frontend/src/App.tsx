@@ -1,6 +1,8 @@
 import NewPaymentForm from 'components/NewPaymentForm'
 import ViewPayments from 'components/ViewPayments'
 
+import BusinessView from 'pages/BusinessView'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from "react-router-dom";
 
 
@@ -18,7 +20,7 @@ function App(): JSX.Element {
 								acts like a catch-all for URLs that we don't have explicit
 								routes for. */}
 
-						<Route path='business' element={<h1>Contribuyentes</h1>}/>
+						<Route path='business' element={<BusinessView/>}/>
 						<Route path='business/new' element={<h1>Nuevo Contribuyentes</h1>}/>
 						<Route path="*" element={<NoMatch />} />
 					</Route>
