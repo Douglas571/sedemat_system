@@ -32,7 +32,5 @@ async function sync() {
     await Payment.sync({ force: true })
 }
 
-sync()
-
 
 module.exports = Payment

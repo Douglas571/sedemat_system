@@ -1,4 +1,4 @@
-const Business = require('../models/businessModel');
+const Business = require('../models/business');
 
 // Get all businesses
 exports.getAllBusinesses = async () => {
@@ -12,9 +12,9 @@ exports.getBusinessById = async (id) => {
 
 // Register a new business
 exports.createBusiness = async (businessData) => {
-    return await Business.create(businessData);
+    const newBusiness = await Business.create(businessData);
+    return newBusiness;
 };
-
 // Update a business
 exports.updateBusiness = async (id, businessData) => {
     const business = await Business.findByPk(id);

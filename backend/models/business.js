@@ -7,14 +7,18 @@ const Business = sequelize.define('Business', {
         autoIncrement: true,
         primaryKey: true,
     },
-    business_name: {
+    businessName: {
         type: DataTypes.STRING,
         unique: true
     },
-    dni: DataTypes.STRING,
+    dni: DataTypes.STRING, 
+    email: DataTypes.STRING,
+    establishmentDate: DataTypes.DATE,
+    expirationDate: DataTypes.DATE,
+    boardExpirationDate: DataTypes.DATE
     
-
 }, {
+    underscored: true,
     timestamps: false,
     createdAt: false,
     updatedAt: false,
@@ -23,7 +27,5 @@ const Business = sequelize.define('Business', {
 async function sync() {
     await Business.sync({ force: true })
 }
-
-sync()
 
 module.exports = Business

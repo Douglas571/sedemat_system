@@ -1,27 +1,3 @@
--- CREATE DATABASE my_database;
--- USE my_database;
-
--- CREATE TABLE users (
---     id INT AUTO_INCREMENT PRIMARY KEY,
---     name VARCHAR(255) NOT NULL,
---     email VARCHAR(255) NOT NULL UNIQUE
--- );
-
--- INSERT INTO users (name, email) VALUES ('John Doe', 'john@example.com');
--- INSERT INTO users (name, email) VALUES ('Jane Doe', 'jane@example.com');
-
---  CREATE USER "sedemat_server"@"%" IDENTIFIED BY "12345";
--- GRANT ALL ON "sedemat.*" TO "sedemat_server";
-
-
-select 'This is a comment' AS '';
-
--- DROP DATABASE testingdb;
-
--- CREATE DATABASE testingdb;
-
--- USE testingdb;
-
 USE sedemat;
 
 CREATE TABLE Payments (
@@ -35,6 +11,18 @@ CREATE TABLE Payments (
     isVerified BOOLEAN DEFAULT false,
     image VARCHAR(255),
     state VARCHAR(30)
+);
+
+CREATE TABLE Businesses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    business_name VARCHAR(255) UNIQUE NOT NULL,
+    dni VARCHAR(30) NOT NULL,
+    email VARCHAR(50),
+    establishment_date DATE, -- the day that the business was registered
+    expiration_date DATE, -- the day that the business will be disolved
+    board_expiration_date DATE, -- the day that the business board will be disolved
+
+    filcal_id INT
 );
 
 -- Insert dummy data into the Payments table

@@ -21,6 +21,7 @@ ensureDirectoryExists(directoryPath);
 
 
 const paymentsRouter = require("./payments/controller")
+const businessesRouter = require("./businesses/controller")
 
 const app = express ();
 app.use(express.json());
@@ -44,6 +45,7 @@ app.use(requestLogger);
 
 
 app.use("/v1/payments", paymentsRouter)
+app.use("/v1/businesses", businessesRouter)
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/image/:filename', (req, res) => {
