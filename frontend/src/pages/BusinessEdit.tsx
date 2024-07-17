@@ -1,10 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FormProps } from 'antd'
 import { Form, Input, Button, message } from 'antd'
+import { useParams } from 'react-router-dom';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
+
+type Business = {
+    businessName: string
+    dni: string 
+    email: string 
+}
 
 type FormFields = {
     businessName: string
@@ -12,10 +19,32 @@ type FormFields = {
     email: string
 }
 
-async function sendBusinessData(business: FormFields) {
-    const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
+async function fetchBusiness(businessId: number): Promise<Business> {
+    const url = `${HOST}/v1/businesses/${businessId}`;  // Replace HOST with your actual host URL
+
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error(`Business with ID ${businessId} does not exist`);
+            } else {
+                throw new Error(`Failed to fetch business data: ${response.statusText}`);
+            }
+        }
+
+        const business: Business = await response.json();
+        return business;
+    } catch (error) {
+        console.error('Error fetching business data:', error);
+        throw error;
+    }
+}
+
+async function updateBusinessData(id: number, business: Business) {
+    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
     const requestOptions = {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(business)
     };
@@ -38,25 +67,56 @@ function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
 
+    //const [business, setBusiness] = React.useState<Business>()
+    let { businessId } = useParams();
+
+
     function clearForm(){
 		form.setFieldValue('businessName', '')
 		form.setFieldValue('dni', '')
         form.setFieldValue('email', '')
 	}
 
+    // get the business by the id in the url 
+    useEffect(() => {
+        // first load of data
+        loadBusinessData()
+    }, [])
 
+    async function loadBusinessData() {
+        // get the business data 
+        // feed the form with the business data
+        if (businessId) {
+            let business = await fetchBusiness(Number(businessId))
+
+            form.setFieldValue('businessName', business?.businessName)
+            form.setFieldValue('dni', business?.dni)
+            form.setFieldValue('email', business?.email)
+        }
+    }
 
     const onFinish: FormProps<FiledType>['onFinish'] = async (values) => {
+        // when saved, send the business data to the server
+
+        // if error
+            // show error
+        // if not
+            // show the business was saved successfully
         try {
+
+            const updatedBusiness: Business = {
+                id: businessId,
+                ...values
+            }
             
-            let response = await sendBusinessData(values)
+            let response = await updateBusinessData(Number(businessId), updatedBusiness)
             // everything fine 
             messageApi.open({
                 type: 'success',
                 content: "Contribuyente guardado exitosamente",
             });
 
-            clearForm()
+            //clearForm()
         } catch (error) {
             console.log({error})
             let msg = "Hubo un error"
@@ -72,7 +132,7 @@ function BusinessNew(): JSX.Element {
     return (
         <div>
             {contextHolder}
-            <h1>Nuevo Contribuyente</h1>
+            
             <Form form={form}
                 onFinish={onFinish}
             >

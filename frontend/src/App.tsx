@@ -3,6 +3,7 @@ import ViewPayments from 'components/ViewPayments'
 
 import BusinessView from 'pages/BusinessView'
 import BusinessNew from 'pages/BusinessNew'
+import BusinessEdit from 'pages/BusinessEdit'
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from "react-router-dom";
 
@@ -23,6 +24,7 @@ function App(): JSX.Element {
 
 						<Route path='business' element={<BusinessView/>}/>
 						<Route path='business/new' element={<BusinessNew/>}/>
+						<Route path='business/edit/:businessId' element={<BusinessEdit/>}/>
 						<Route path="*" element={<NoMatch />} />
 					</Route>
 				</Routes>

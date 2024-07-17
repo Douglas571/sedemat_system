@@ -322,6 +322,7 @@ function NewPaymentForm(): JSX.Element {
 		<div>
 			<div>
 				{contextHolder}
+				<h1>Nuevo Pago</h1>
 				<Form form={form}
 					initialValues={{}}
 					onFinish={onFinish}

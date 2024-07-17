@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react'
-import { Button, Table } from 'antd'
+import { Button, Popconfirm, Table } from 'antd'
+import { EditFilled, DeleteFilled } from '@ant-design/icons';
+import { useNavigate } from "react-router-dom";
 import _ from 'lodash'
 
-import { EditFilled } from '@ant-design/icons';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 type Business = {
+    id: number
     businessName: string // Razón Social
     dni: string // Rif o Cédula
     email: string // Correo
@@ -17,15 +19,18 @@ type Business = {
 function BusinessView(): JSX.Element {
 
     const [business, setBusiness] = React.useState([])
+    const navigate = useNavigate();
 
     
     async function fetchBusiness() {
+        console.log("fetching business api")
         try {
             const response = await fetch(`${HOST}/v1/businesses`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch data. Status: ${response.status}`);
             }
             const data = await response.json();
+            console.log({data})
             return data;
         } catch (error) {
             console.error('Error fetching business data:', error);
@@ -34,7 +39,28 @@ function BusinessView(): JSX.Element {
     }
 
     async function loadBusiness() {
+        console.log("before fetching business")
         setBusiness(await fetchBusiness())
+        console.log("after fetching business")
+    }
+
+    async function deleteBusiness(id: number): Promise<void> {
+        const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
+    
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE'
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to delete business: ${response.statusText}`);
+            }
+    
+            console.log(`Business with ID ${id} deleted successfully.`);
+        } catch (error) {
+            console.error('Error deleting business:', error);
+            throw error;
+        }
     }
 
     useEffect(() => {
@@ -69,12 +95,39 @@ function BusinessView(): JSX.Element {
         {
             title: '',
             key: 'actions',
-            render: (_, business) => {
+            render: (_, business: Business) => {
                 return (
-                    <Button
-                        shape="circle"
-                        onClick={() => console.log("editing", business.businessName)}
-                    ><EditFilled /></Button>
+                    <div>
+                        <Button
+                            shape="circle"
+                            onClick={() => 
+                                {
+                                    console.log({goingTo: business.id})
+                                    navigate(`edit/${business.id}`)
+                                }
+                            }
+                        ><EditFilled /></Button>
+
+                        <Popconfirm
+                            title="Eliminar Pago"
+                            description="¿Estás seguro de que deseas eliminar esta empresa?"
+                            onConfirm={async () => { 
+                                console.log("the business will be deleted")
+                                await deleteBusiness(business.id)
+                                loadBusiness()
+                            }}
+                            //onCancel={cancel}
+                            okText="Si"
+                            cancelText="No"
+                        >
+                            <Button
+                                danger
+                                shape="circle"
+                            >
+                                <DeleteFilled/>
+                            </Button>
+                        </Popconfirm>
+                    </div>
                 )
             }
         }

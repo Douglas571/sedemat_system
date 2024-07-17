@@ -254,6 +254,7 @@ function ViewPayments(): JSX.Element {
   
     return (
       <div>
+        <h1>Pago</h1>
         <Button onClick={() => fetchPayments()}>
           Cargar pagos
         </Button>
