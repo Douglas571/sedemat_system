@@ -25,6 +25,13 @@ CREATE TABLE Businesses (
     filcal_id INT
 );
 
+CREATE TABLE BranchOffices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    address VARCHAR(255) NOT NULL,
+    phone VARCHAR(30)
+    FOREIGN KEY (business_id) REFERENCES Businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- Insert dummy data into the Payments table
 INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDate) VALUES ('CASA CHEN, C.A', 100.50, '122345', 'E-8228509-0', '0102-0123-4500-0001', '2024-01-01');
 INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDate) VALUES ('COMERCIAL SOL CARIBE', 200.75, '677890', 'E-82288744-1', '0102-0123-4500-0002', '2024-02-01');
