@@ -70,14 +70,7 @@ router.put('/:id', async (req, res) => {
     try {
         
         // verify the request body is well formed
-        const parsedBusiness = {
-            business_name: res.body.businessName,
-            dni: res.body.dni,
-            email: res.body.email,
-            establishment_date: res.body.establishmentDate,
-            expiration_date: res.body.expirationDate,
-            board_expiration_date: res.body.boardExpirationDate
-        }
+        console.log({businessToUpdate: req.body})
 
         const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body);
         res.json(updatedBusiness);
