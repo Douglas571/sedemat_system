@@ -2,6 +2,7 @@ import NewPaymentForm from 'components/NewPaymentForm'
 import ViewPayments from 'components/ViewPayments'
 
 import BusinessView from 'pages/BusinessView'
+import BusinessNew from 'pages/BusinessNew'
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from "react-router-dom";
 
@@ -21,7 +22,7 @@ function App(): JSX.Element {
 								routes for. */}
 
 						<Route path='business' element={<BusinessView/>}/>
-						<Route path='business/new' element={<h1>Nuevo Contribuyentes</h1>}/>
+						<Route path='business/new' element={<BusinessNew/>}/>
 						<Route path="*" element={<NoMatch />} />
 					</Route>
 				</Routes>
