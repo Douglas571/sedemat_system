@@ -1,15 +1,23 @@
 import React from 'react'
 import { FormProps } from 'antd'
 import { Form, Input, Button, message } from 'antd'
+import _ from 'lodash'
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+type BranchOfficeFormFields = {
+    address: string 
+    phone: string
+}
+
 type FormFields = {
     businessName: string
     dni: string
     email: string
+
+    branchOffices: Array<BranchOfficeFormFields>
 }
 
 async function sendBusinessData(business: FormFields) {
@@ -36,6 +44,7 @@ async function sendBusinessData(business: FormFields) {
 
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
+    const [brachOfficesForm] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
 
     function clearForm(){
@@ -49,7 +58,23 @@ function BusinessNew(): JSX.Element {
     const onFinish: FormProps<FiledType>['onFinish'] = async (values) => {
         try {
             
-            let response = await sendBusinessData(values)
+            /*
+                I need value to have a list of branch offices
+                branchOffices {
+
+                    codeName,
+                    address,
+                    phone,
+
+                }
+
+
+            */
+
+            // in this case, everything is new, so the business should be send first
+            // then, i will asing the branch offices to the business
+            
+            let response = await sendBusinessData(_.omit(values, ['branchOffices']))
             // everything fine 
             messageApi.open({
                 type: 'success',
@@ -75,6 +100,11 @@ function BusinessNew(): JSX.Element {
             <h1>Nuevo Contribuyente</h1>
             <Form form={form}
                 onFinish={onFinish}
+                initialValues={{
+                    branchOffices: [
+                        {}
+                    ]
+                }}
             >
                 <Form.Item<FormFields>
                     rules={[
@@ -106,6 +136,37 @@ function BusinessNew(): JSX.Element {
                 >
                     <Input/>
                 </Form.Item>
+
+                <Form.List<FormFields>
+                    name='branchOffices'>
+                        {(fields, { add, remove }) => {
+                            return (
+                                <div>
+                                    <h3>Sucursales</h3>
+                                    {
+                                        fields.map(field => {
+                                            return (
+                                                <div>
+                                                    <span>
+                                                        <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
+                                                        <Form.Item label="Dirección" name={[field.name, 'address']}>
+                                                          <Input />
+                                                        </Form.Item>
+                                                        <Form.Item label="Teléfono" name={[field.name, 'phone']}>
+                                                          <Input />
+                                                        </Form.Item>
+                                                    </span>
+                                                </div>
+                                            )
+                                        })
+                                    }
+                                    <Button onClick={() => add()}>Agregar Sucursal</Button>
+                                    <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button>
+                                </div>
+                            )
+                        }}
+                </Form.List>
+
                 <Form.Item>
                     <Button type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
