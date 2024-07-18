@@ -25,10 +25,11 @@ CREATE TABLE Businesses (
     filcal_id INT
 );
 
-CREATE TABLE BranchOffices (
+CREATE TABLE Branch_offices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
-    phone VARCHAR(30)
+    phone VARCHAR(30),
+    business_id INT, 
     FOREIGN KEY (business_id) REFERENCES Businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
