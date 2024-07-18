@@ -12,6 +12,13 @@ type BranchOfficeFormFields = {
     phone: string
 }
 
+type BranchOffice = {
+    id?: number
+    address: string 
+    phone: string
+    businessId: number
+}
+
 type FormFields = {
     businessName: string
     dni: string
@@ -36,10 +43,36 @@ async function sendBusinessData(business: FormFields) {
         }
         console.log('Business data posted successfully');
         // Optionally handle response data here
+        let data = await response.json()
+        return data
     } catch (error) {
         console.error('Error posting business data:', error.message);
         // Handle error state in your application
+        throw Error(error.message)
     }
+}
+
+async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
+    console.log({branchOffice})
+    const url = `${HOST}/v1/branchOffices`
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(branchOffice),
+    });
+    console.log("after fetch")
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to register branch office: ${errorData.error?.msg || response.statusText}`);
+    }
+
+    console.log('Branch office registered successfully');
+
+    const data = await response.json()
+    return data
 }
 
 function BusinessNew(): JSX.Element {
@@ -55,7 +88,7 @@ function BusinessNew(): JSX.Element {
 
 
 
-    const onFinish: FormProps<FiledType>['onFinish'] = async (values) => {
+    const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
         try {
             
             /*
@@ -73,18 +106,27 @@ function BusinessNew(): JSX.Element {
 
             // in this case, everything is new, so the business should be send first
             // then, i will asing the branch offices to the business
-            
+
             let response = await sendBusinessData(_.omit(values, ['branchOffices']))
+            console.log({response})
+            let businessId = response.id
             // everything fine 
             messageApi.open({
                 type: 'success',
                 content: "Contribuyente guardado exitosamente",
             });
 
+            values.branchOffices.forEach( async (office) => {
+                let officeToRegister = { ...office, businessId}
+                let newOffice = await registerBranchOffice(officeToRegister)
+                console.log({registeredOffice: newOffice})
+            })
+
             clearForm()
         } catch (error) {
             console.log({error})
             let msg = "Hubo un error"
+            msg = error.message
 
 
             messageApi.open({
