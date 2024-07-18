@@ -16,10 +16,24 @@ router.post('/', async (req, res) => {
 // Get all Branch Offices
 router.get('/', async (req, res) => {
     try {
-        const branchOffices = await branchOfficeService.getAllBranchOffices();
-        res.json(branchOffices);
+        
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+
+    try {
+        const { businessid: businessId } = req.query; // Extract businessId from query params
+
+        if (businessId) {
+            const branchOffices = await branchOfficeService.getBranchOfficesByBusinessId(businessId);
+            return res.status(200).json(branchOffices);
+        }
+
+        const branchOffices = await branchOfficeService.getAllBranchOffices();
+        res.json(branchOffices);
+        
+    } catch (error) {
+        res.status(500).json({ error: { msg: error.message, code: 1 } });
     }
 });
 

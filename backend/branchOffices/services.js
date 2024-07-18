@@ -18,6 +18,19 @@ exports.getAllBranchOffices = async () => {
     return await BranchOffice.findAll();
 };
 
+exports.getBranchOfficesByBusinessId = async (businessId) => {
+    try {
+        const branchOffices = await BranchOffice.findAll({
+            where: {
+                businessId: businessId
+            }
+        });
+        return branchOffices;
+    } catch (error) {
+        throw new Error('Error fetching branch offices');
+    }
+};
+
 // Get a Branch Office by ID
 exports.getBranchOfficeById = async (id) => {
     const branchOffice = await BranchOffice.findByPk(id);

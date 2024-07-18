@@ -91,36 +91,22 @@ function BusinessNew(): JSX.Element {
     const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
         try {
             
-            /*
-                I need value to have a list of branch offices
-                branchOffices {
-
-                    codeName,
-                    address,
-                    phone,
-
-                }
-
-
-            */
-
-            // in this case, everything is new, so the business should be send first
-            // then, i will asing the branch offices to the business
-
             let response = await sendBusinessData(_.omit(values, ['branchOffices']))
             console.log({response})
             let businessId = response.id
             // everything fine 
-            messageApi.open({
-                type: 'success',
-                content: "Contribuyente guardado exitosamente",
-            });
+            
 
             values.branchOffices.forEach( async (office) => {
                 let officeToRegister = { ...office, businessId}
                 let newOffice = await registerBranchOffice(officeToRegister)
                 console.log({registeredOffice: newOffice})
             })
+
+            messageApi.open({
+                type: 'success',
+                content: "Contribuyente guardado exitosamente",
+            });
 
             clearForm()
         } catch (error) {
