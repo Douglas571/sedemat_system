@@ -32,3 +32,18 @@ export async function registerBranchOffice(branchOffice: BranchOffice): Promise<
     return data
 }
 
+export async function fetchBusiness() {
+    console.log("fetching business api")
+    try {
+        const response = await fetch(`${HOST}/v1/businesses`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log({data})
+        return data;
+    } catch (error) {
+        console.error('Error fetching business data:', error);
+        throw error;
+    }
+}

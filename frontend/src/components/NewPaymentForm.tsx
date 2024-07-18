@@ -1,14 +1,15 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import type { DatePickerProps, FormProps } from 'antd'
 import { Upload, Switch , message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
 
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 
+import * as api from '../util/api'
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
-
 
 
 const onChange: DatePickerProps['onChange'] = (date, dateString) => {
@@ -23,8 +24,26 @@ function NewPaymentForm(): JSX.Element {
 
 	const [messageApi, contextHolder] = message.useMessage()
 	const [form] = Form.useForm();
+	const [businessOptions, setBusinessOptions] = React.useState<Array<{label: string, value: number}>>()
+	const [businesses, setBusinesses] = React.useState<Business[]>([])
 
+	// i will get all business
+	// i will map business to { lable: business.businessName, value: business.id}
 
+	async function loadBusiness() {
+		let fetchedBusiness = await api.fetchBusiness()
+
+		setBusinesses(fetchedBusiness)
+		setBusinessOptions(fetchedBusiness.map((b) => ({ label: b.businessName, value: b.businessName})))
+	}
+	
+	useEffect(() => {
+		loadBusiness()
+	}, [])
+
+	useEffect(() => {
+		console.log({businessOptions})
+	}, [businessOptions])
 
 	
 	function cleanDataFromForm(){
@@ -216,20 +235,11 @@ function NewPaymentForm(): JSX.Element {
 		rif: string;
 	}
 
-	const businesses: Business[] = [
-		{ id: 1, businessName: "TELEFONICA VENEZUELA, C.A", rif: "J-00343994-0" },
-		{ id: 2, businessName: "INDUSTRIA VENEZOLANA DE CEMENTO (INVECEM), S.A. ", rif: "G-20011588-2" },
-		{ id: 3, businessName: "CASA CHEN, C.A", rif: "E-8228509-0" },
-		{ id: 4, businessName: "JC SPORT, C.A", rif: "J-29730365-0" },
-		{ id: 5, businessName: "LABORATORIO CLINICO BACTERIOLOGICO DIVINA PASTORA, C.A", rif: "J-29855687-0" },
-		{ id: 6, businessName: "SUPERMERCADO LO MEJOR, C.A", rif: "J-29875756-6" }
-	];
-
 	const onSelect = (data: string) => {
 		console.log('onSelect', data);
 
 		// get the rif
-		let dni = businesses.find(b => b.businessName == data)?.rif
+		let dni = businesses.find(b => b.businessName == data)?.dni
 		console.log({dni})
 
 		if (dni) {

@@ -185,7 +185,6 @@ function ViewPayments(): JSX.Element {
     }
   
     const columns = [
-           
       {
         title: 'Razón Social',
         dataIndex: 'businessName',
@@ -195,16 +194,25 @@ function ViewPayments(): JSX.Element {
         title: 'Rif o Cédula',
         dataIndex: 'dni',
         key: 'dni',
+        showSorterTooltip: false,
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        sorter: (a, b) => a.dni.localeCompare(b.dni),
       },
       {
         title: 'Referencia',
         dataIndex: 'reference',
         key: 'reference',
+        showSorterTooltip: false,
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        sorter: (a, b) => a.reference.localeCompare(b.reference),
       },
       {
         title: 'Monto',
         dataIndex: 'amount',
         key: 'amount',
+        showSorterTooltip: false,
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        sorter: (a, b) => a.amount - b.amount,
       },
       {
         title: 'Cuenta Destino',
@@ -215,6 +223,9 @@ function ViewPayments(): JSX.Element {
         title: 'Fecha de Pago',
         dataIndex: 'paymentDate',
         key: 'paymentDate',
+        showSorterTooltip: false,
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        sorter: (a, b) => a.paymentDate.localeCompare(b.paymentDate),
       },
       {
         title: 'Estado',
