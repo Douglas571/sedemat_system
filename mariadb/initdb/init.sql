@@ -25,12 +25,32 @@ CREATE TABLE Businesses (
     filcal_id INT
 );
 
-CREATE TABLE Branch_offices (
+CREATE TABLE BranchOffices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
     phone VARCHAR(30),
     business_id INT, 
     FOREIGN KEY (business_id) REFERENCES Businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE EconomicActivities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    alicuota DECIMAL(5, 2) NOT NULL,
+    minimum_tax DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE EconomicLicenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    branch_office_id INT NOT NULL,
+    economic_activity_id INT NOT NULL,
+    open_at TIME NOT NULL,
+    close_at TIME NOT NULL,
+    issued_date DATE NOT NULL,
+    expiration_date DATE NOT NULL,
+    FOREIGN KEY (branch_office_id) REFERENCES BranchOffices(id),
+    FOREIGN KEY (economic_activity_id) REFERENCES EconomicActivities(id)
 );
 
 -- Insert dummy data into the Payments table
@@ -54,3 +74,14 @@ VALUES
     ('CARBON ACTIVADO, C.A', 'J-00270015-7', 'info@carbonactivo.com', '2015-08-24', '2065-08-24', '2060-08-24'),
     ('TELEFONICA VENEZUELA, C.A', 'J-00343994-0', 'support@telefonica.com', '2000-11-05', '2050-11-05', '2048-11-05'),
     ('TRANSPORTE F-TADEO C.A', 'J-29394010-9', 'info@ftadeo.com', '2018-01-01', '2068-01-01', '2065-01-01');
+
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1001, 'Comercio al por menor', 1.50, 5.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1002, 'Comercio al por mayor', 2.00, 6.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1003, 'Servicios financieros', 2.50, 7.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1004, 'Transporte y almacenamiento', 1.75, 5.50);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1005, 'Construcción', 2.25, 6.50);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1006, 'Servicios profesionales', 3.00, 8.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1007, 'Educación', 1.00, 5.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1008, 'Salud', 2.75, 9.00);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1009, 'Agricultura', 1.25, 5.75);
+INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1010, 'Tecnología de la información', 2.50, 10.00);
