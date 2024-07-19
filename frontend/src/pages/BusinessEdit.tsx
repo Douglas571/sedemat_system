@@ -15,6 +15,12 @@ type Business = {
     email: string 
 }
 
+type BranchOffice = {
+    id?: number
+    address: string 
+    phone: string
+}
+
 type FormFields = {
     businessName: string
     dni: string
@@ -22,24 +28,24 @@ type FormFields = {
 }
 
 async function fetchBusiness(businessId: number): Promise<Business> {
-    const url = `${HOST}/v1/businesses/${businessId}`;  // Replace HOST with your actual host URL
+    const url = `${HOST}/v1/businesses/${businessId}`
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url)
         
         if (!response.ok) {
             if (response.status === 404) {
-                throw new Error(`Business with ID ${businessId} does not exist`);
+                throw new Error(`Business with ID ${businessId} does not exist`)
             } else {
-                throw new Error(`Failed to fetch business data: ${response.statusText}`);
+                throw new Error(`Failed to fetch business data: ${response.statusText}`)
             }
         }
 
-        const business: Business = await response.json();
-        return business;
+        const business: Business = await response.json()
+        return business
     } catch (error) {
-        console.error('Error fetching business data:', error);
-        throw error;
+        console.error('Error fetching business data:', error)
+        throw error
     }
 }
 
@@ -49,15 +55,15 @@ async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
         headers: {
             'Content-Type': 'application/json',
         },
-    });
+    })
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to fetch branch offices: ${errorData.error?.msg || response.statusText}`);
+        const errorData = await response.json()
+        throw new Error(`Failed to fetch branch offices: ${errorData.error?.msg || response.statusText}`)
     }
 
-    const branchOffices = await response.json();
-    return branchOffices;
+    const branchOffices = await response.json()
+    return branchOffices
 }
 
 async function updateBusinessData(id: number, business: Business) {

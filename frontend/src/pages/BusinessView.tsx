@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Button, Popconfirm, Table } from 'antd'
 import { EditFilled, DeleteFilled } from '@ant-design/icons';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import _ from 'lodash'
 
 
@@ -127,6 +127,10 @@ function BusinessView(): JSX.Element {
                                 <DeleteFilled/>
                             </Button>
                         </Popconfirm>
+
+                        <Link to = {`/business/${business.id}`}>
+                            Ver Más
+                        </Link>
                     </div>
                 )
             }

@@ -33,7 +33,6 @@ export async function registerBranchOffice(branchOffice: BranchOffice): Promise<
 }
 
 export async function fetchBusiness() {
-    console.log("fetching business api")
     try {
         const response = await fetch(`${HOST}/v1/businesses`);
         if (!response.ok) {
@@ -45,5 +44,44 @@ export async function fetchBusiness() {
     } catch (error) {
         console.error('Error fetching business data:', error);
         throw error;
+    }
+}
+
+export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
+    const response = await fetch(`${HOST}/v1/branchoffices?businessid=${businessId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+
+    if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Failed to fetch branch offices: ${errorData.error?.msg || response.statusText}`)
+    }
+
+    const branchOffices = await response.json()
+    return branchOffices
+}
+
+export async function fetchBusinessById(businessId: number): Promise<Business> {
+    const url = `${HOST}/v1/businesses/${businessId}`
+
+    try {
+        const response = await fetch(url)
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error(`Business with ID ${businessId} does not exist`)
+            } else {
+                throw new Error(`Failed to fetch business data: ${response.statusText}`)
+            }
+        }
+
+        const business: Business = await response.json()
+        return business
+    } catch (error) {
+        console.error('Error fetching business data:', error)
+        throw error
     }
 }
