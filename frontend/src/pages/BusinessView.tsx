@@ -95,7 +95,7 @@ function BusinessView(): JSX.Element {
         {
             title: '',
             key: 'actions',
-            render: (_, business: Business) => {
+            render: (notuse, business: Business) => {
                 return (
                     <div>
                         <Button
