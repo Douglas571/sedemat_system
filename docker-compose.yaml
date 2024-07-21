@@ -36,6 +36,7 @@ services:
       - ./backup/backend/images:/app/uploads
       - ./backend/:/app
       - /app/node_modules
+      - ./backup/backend/logs:/app/data/logs
 
   frontend-dev:
     build:

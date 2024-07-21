@@ -18,6 +18,8 @@
     "multer": "^1.4.5-lts.1",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7",
+    "winston": "^3.13.1",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

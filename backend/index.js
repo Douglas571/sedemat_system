@@ -4,6 +4,8 @@ const path = require('path');
 
 const fs = require('fs');
 
+const logger = require('./utils/logger')
+
 
 // ensure that the uploads folder exists
 const ensureDirectoryExists = (dirPath) => {
@@ -68,8 +70,9 @@ app.get("status", (request, response) => {
     response.send(status);
 });
 
+logger.info('index.js - Routes mounted')
+
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:", PORT);
+    logger.info("server listening on PORT:", PORT)
 });
-
-// c
