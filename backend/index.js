@@ -21,11 +21,14 @@ const ensureDirectoryExists = (dirPath) => {
 const directoryPath = path.join(__dirname, 'uploads');
 ensureDirectoryExists(directoryPath);
 
-
 const paymentsRouter = require("./payments/controller")
+
 const businessesRouter = require("./businesses/controller")
+
 const branchOfficesRouter = require("./branchOffices/controller")
+
 const economicActivitiesRouter = require("./economicActivities/controller")
+
 
 const app = express ();
 app.use(express.json());

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const economicActivityService = require('./economicActivityService');
+const economicActivityService = require('./services');
 
 // Create a new economic activity
 router.post('/', async (req, res) => {
@@ -21,6 +21,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Get an economic activity by ID
 router.get('/:id', async (req, res) => {
