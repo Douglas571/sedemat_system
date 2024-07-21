@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import _ from 'lodash'
 
 
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -75,6 +76,7 @@ function BusinessView(): JSX.Element {
             key: 'businessName',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
+            render: (text, record) => <Link to={`/business/${record.id}`}>{text}</Link>,
             sorter: (a, b) => a.businessName.localeCompare(b),
         },
         {
