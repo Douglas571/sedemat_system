@@ -6,6 +6,8 @@ import BusinessNew from 'pages/BusinessNew'
 import BusinessEdit from 'pages/BusinessEdit'
 import BusinessViewDetails from 'pages/BusinessViewDetails'
 
+import BranchOfficeLicenseNew from 'pages/BranchOfficeLicenseNew'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from "react-router-dom";
 
 
@@ -17,16 +19,18 @@ function App(): JSX.Element {
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Home />} />
 						<Route path="payments" element={<ViewPayments />} />
-						<Route path="payments/new" element={<NewPaymentForm />} />
-
-						{/* Using path="*"" means "match anything", so this route
-								acts like a catch-all for URLs that we don't have explicit
-								routes for. */}
+						<Route path="payments/new" element={<NewPaymentForm />} />					
 
 						<Route path='business' element={<BusinessView/>}/>
 						<Route path='business/new' element={<BusinessNew/>}/>
 						<Route path='business/edit/:businessId' element={<BusinessEdit/>}/>
 						<Route path='business/:businessId' element={<BusinessViewDetails/>}/>
+						<Route path='business/:businessId/branch-office/:branchOfficeId/license/new' element={<BranchOfficeLicenseNew/>}/>
+						
+
+						{/* Using path="*"" means "match anything", so this route
+						acts like a catch-all for URLs that we don't have explicit
+						routes for. */}	
 						<Route path="*" element={<NoMatch />} />
 					</Route>
 				</Routes>

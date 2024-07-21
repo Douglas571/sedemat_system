@@ -85,3 +85,4 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
         throw error
     }
 }
+
