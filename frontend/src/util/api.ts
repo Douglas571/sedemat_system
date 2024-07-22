@@ -86,3 +86,26 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
     }
 }
 
+
+
+export async function updateBusinessData(id: number, business: Business) {
+    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(business)
+    };
+
+    try {
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error.msg || 'Failed to post business data');
+        }
+        console.log('Business data posted successfully');
+        // Optionally handle response data here
+    } catch (error) {
+        console.error('Error posting business data:', error.message);
+        // Handle error state in your application
+    }
+}

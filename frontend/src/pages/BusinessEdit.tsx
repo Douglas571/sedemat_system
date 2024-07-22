@@ -49,45 +49,6 @@ async function fetchBusiness(businessId: number): Promise<Business> {
     }
 }
 
-async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
-    const response = await fetch(`${HOST}/v1/branchoffices?businessid=${businessId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Failed to fetch branch offices: ${errorData.error?.msg || response.statusText}`)
-    }
-
-    const branchOffices = await response.json()
-    return branchOffices
-}
-
-async function updateBusinessData(id: number, business: Business) {
-    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
-    const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(business)
-    };
-
-    try {
-        const response = await fetch(url, requestOptions);
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error.msg || 'Failed to post business data');
-        }
-        console.log('Business data posted successfully');
-        // Optionally handle response data here
-    } catch (error) {
-        console.error('Error posting business data:', error.message);
-        // Handle error state in your application
-    }
-}
-
 async function updateBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
     const response = await fetch(`${HOST}/v1/branchOffices/${branchOffice.id}`, {
         method: 'PUT',
@@ -131,7 +92,7 @@ function BusinessNew(): JSX.Element {
         // feed the form with the business data
         if (businessId) {
             let business = await fetchBusiness(Number(businessId))
-            let branchOffices = await fetchBranchOffices(Number(businessId))
+            let branchOffices = await api.fetchBranchOffices(Number(businessId))
 
             form.setFieldValue('businessName', business?.businessName)
             form.setFieldValue('dni', business?.dni)
@@ -155,7 +116,7 @@ function BusinessNew(): JSX.Element {
                 ...values
             }
             
-            let response = await updateBusinessData(Number(businessId), updatedBusiness)
+            let response = await api.updateBusinessData(Number(businessId), updatedBusiness)
 
             values.branchOffices.forEach( async (office) => {
                 if (!office.businessId) {
