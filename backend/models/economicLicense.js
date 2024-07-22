@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./sequelize"); // Adjust the path to your sequelize instance
+const EconomicActivity = require("./economicActivity");
 
 const EconomicLicense = sequelize.define('EconomicLicense', {
     id: {
@@ -46,5 +47,16 @@ const EconomicLicense = sequelize.define('EconomicLicense', {
     createdAt: false,
     updatedAt: false,
 });
+
+EconomicLicense.belongsTo(EconomicActivity, {
+    foreignKey: "economicActivityId"
+})
+
+EconomicActivity.hasMany(EconomicLicense, {
+    foreignKey: "economicActivityId"
+})
+
+// EconomicLicense.sync()
+
 
 module.exports = EconomicLicense;

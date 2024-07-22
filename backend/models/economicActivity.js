@@ -32,4 +32,10 @@ const EconomicActivity = sequelize.define('EconomicActivity', {
     updatedAt: false,
 });
 
+// EconomicActivity.hasMany(EconomicLicense, {
+//     foreignKey: "economicActivityId"
+// });
+
+// EconomicActivity.sync()
+
 module.exports = EconomicActivity;
