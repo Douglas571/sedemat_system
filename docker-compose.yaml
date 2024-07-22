@@ -4,19 +4,16 @@ services:
   mariadb:
     image: docker.io/library/mariadb:11.4.2
     container_name: mariadb
-    environment:
-      MARIADB_DATABASE: 'sedemat'
-      MARIADB_USER: 'sedemat_server'
-      MARIADB_PASSWORD: '12345'
-      MYSQL_ROOT_PASSWORD: '12345'
-      
+    env_file:
+      - .env
+
     ports:
       - "3307:3306"
 
     networks:
       - mynet
     volumes:
-      - ./backup/database:/var/lib/mysql
+      - ./backup/database_${NODE_ENV}:/var/lib/mysql
       - ./mariadb/initdb:/docker-entrypoint-initdb.d
     
 
@@ -26,6 +23,10 @@ services:
       dockerfile: Dockerfile
     
     container_name: backend
+
+    env_file:
+      - .env
+
     ports:
       - "3000:3000"
     depends_on:

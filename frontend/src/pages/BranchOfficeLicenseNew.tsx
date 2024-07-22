@@ -3,7 +3,6 @@ import type { DatePickerProps } from 'antd'
 
 import * as api from '../util/api'
 
-
 export default function BranchOfficeLicenseNew(): JSX.Element {
     const [form] = Form.useForm()
 

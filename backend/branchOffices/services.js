@@ -1,4 +1,5 @@
 const BranchOffice = require('../models/branchOffice');
+const logger = require('../utils/logger');
 
 // Create a new Branch Office
 exports.createBranchOffice = async (branchOfficeData) => {
@@ -27,6 +28,7 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
         });
         return branchOffices;
     } catch (error) {
+        logger.error(error)
         throw new Error('Error fetching branch offices');
     }
 };

@@ -28,7 +28,6 @@ const BranchOffice = sequelize.define('BranchOffice', {
     timestamps: false,
     createdAt: false,
     updatedAt: false,
-    tableName: 'BranchOffices'
 });
 
 async function sync() {

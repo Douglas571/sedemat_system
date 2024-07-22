@@ -28,11 +28,12 @@ const businessesRouter = require("./businesses/controller")
 const branchOfficesRouter = require("./branchOffices/controller")
 
 const economicActivitiesRouter = require("./economicActivities/controller");
-const EconomicLicensesRouter = require("./economicLicenses/controller")
+const economicLicensesRouter = require("./economicLicenses/controller")
 
 const app = express ();
 app.use(express.json());
 app.use(cors());
+
 
 const PORT = process.env.PORT || 3000;
 console.log({PORT})
@@ -55,7 +56,8 @@ app.use("/v1/payments", paymentsRouter)
 app.use("/v1/businesses", businessesRouter)
 app.use("/v1/branchOffices", branchOfficesRouter) // todo: fix this url to use hyphens instead of camelCase
 app.use("/v1/economic-activities", economicActivitiesRouter)
-// app.use("/v1/economic-licenses", EconomicLicenseRouter)
+app.use("/v1/economic-licenses", economicLicensesRouter)
+
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/image/:filename', (req, res) => {

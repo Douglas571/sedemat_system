@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const businessService = require('./services');
+const logger = require('../utils/logger')
 
 // Get all businesses
 router.get('/', async (req, res) => {
@@ -21,6 +22,7 @@ router.get('/:id', async (req, res) => {
         }
         res.json(business);
     } catch (error) {
+        logger.error(error)
         res.status(500).json({ error: error.message });
     }
 });

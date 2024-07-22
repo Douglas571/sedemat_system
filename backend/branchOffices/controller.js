@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const branchOfficeService = require('./services');
+const logger = require('../utils/logger')
 
 // Create a new Branch Office
 router.post('/', async (req, res) => {
@@ -33,6 +34,7 @@ router.get('/', async (req, res) => {
         res.json(branchOffices);
         
     } catch (error) {
+        logger.error(error)
         res.status(500).json({ error: { msg: error.message, code: 1 } });
     }
 });

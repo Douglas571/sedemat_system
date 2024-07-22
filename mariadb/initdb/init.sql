@@ -13,7 +13,7 @@ CREATE TABLE Payments (
     state VARCHAR(30)
 );
 
-CREATE TABLE Businesses (
+CREATE TABLE businesses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     business_name VARCHAR(255) UNIQUE NOT NULL,
     dni VARCHAR(30) NOT NULL,
@@ -25,15 +25,15 @@ CREATE TABLE Businesses (
     filcal_id INT
 );
 
-CREATE TABLE BranchOffices (
+CREATE TABLE branch_offices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
     phone VARCHAR(30),
     business_id INT, 
-    FOREIGN KEY (business_id) REFERENCES Businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE EconomicActivities (
+CREATE TABLE economic_activities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code INT NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE EconomicActivities (
     minimum_tax DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE EconomicLicenses (
+CREATE TABLE economic_licenses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     branch_office_id INT NOT NULL,
     economic_activity_id INT NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE EconomicLicenses (
     close_at TIME NOT NULL,
     issued_date DATE NOT NULL,
     expiration_date DATE NOT NULL,
-    FOREIGN KEY (branch_office_id) REFERENCES BranchOffices(id),
-    FOREIGN KEY (economic_activity_id) REFERENCES EconomicActivities(id)
+    FOREIGN KEY (branch_office_id) REFERENCES branch_offices(id),
+    FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
 );
 
 -- Insert dummy data into the Payments table
@@ -62,7 +62,7 @@ INSERT INTO Payments (business_name, amount, reference, dni, account, paymentDat
 
 
 -- Insert dummy data into the Businesses table
-INSERT INTO Businesses (business_name, dni, email, establishment_date, expiration_date, board_expiration_date) 
+INSERT INTO businesses (business_name, dni, email, establishment_date, expiration_date, board_expiration_date) 
 VALUES 
     ('CASA CHEN, C.A', 'E-8228509-0', 'contact@casachen.com', '2000-01-01', '2025-01-01', '2024-01-01'),
     ('COMERCIAL SOL CARIBE', 'E-82288744-1', 'info@solcaribe.com', '2010-05-15', '2030-05-15', '2028-05-15'),
@@ -75,13 +75,13 @@ VALUES
     ('TELEFONICA VENEZUELA, C.A', 'J-00343994-0', 'support@telefonica.com', '2000-11-05', '2050-11-05', '2048-11-05'),
     ('TRANSPORTE F-TADEO C.A', 'J-29394010-9', 'info@ftadeo.com', '2018-01-01', '2068-01-01', '2065-01-01');
 
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1001, 'Comercio al por menor', 1.50, 5.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1002, 'Comercio al por mayor', 2.00, 6.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1003, 'Servicios financieros', 2.50, 7.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1004, 'Transporte y almacenamiento', 1.75, 5.50);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1005, 'Construcción', 2.25, 6.50);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1006, 'Servicios profesionales', 3.00, 8.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1007, 'Educación', 1.00, 5.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1008, 'Salud', 2.75, 9.00);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1009, 'Agricultura', 1.25, 5.75);
-INSERT INTO EconomicActivities (code, title, alicuota, minimum_tax) VALUES (1010, 'Tecnología de la información', 2.50, 10.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1001, 'Comercio al por menor', 1.50, 5.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1002, 'Comercio al por mayor', 2.00, 6.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1003, 'Servicios financieros', 2.50, 7.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1004, 'Transporte y almacenamiento', 1.75, 5.50);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1005, 'Construcción', 2.25, 6.50);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1006, 'Servicios profesionales', 3.00, 8.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1007, 'Educación', 1.00, 5.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1008, 'Salud', 2.75, 9.00);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1009, 'Agricultura', 1.25, 5.75);
+INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1010, 'Tecnología de la información', 2.50, 10.00);
