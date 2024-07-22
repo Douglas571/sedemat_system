@@ -17,12 +17,13 @@ const Payment = sequelize.define('Payment', {
     paymentDate: DataTypes.DATE,
     image: DataTypes.STRING ,
     state: DataTypes.STRING,
-    business_name: DataTypes.STRING,
+    businessName: DataTypes.STRING,
     isVerified: DataTypes.BOOLEAN,
     // don't add the timestamp attributes (updatedAt, createdAt)
     // add liquidation date
     // add state 
 }, {
+    underscored: true,
     timestamps: false,
     createdAt: false,
     updatedAt: false,

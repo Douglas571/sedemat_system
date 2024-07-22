@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const businessService = require('./services');
+const businessService = require('../services/businesses');
 const logger = require('../utils/logger')
 
 // Get all businesses
@@ -34,7 +34,6 @@ router.get('/:id', async (req, res) => {
 // Register a new business
 router.post('/', async (req, res) => {
     try {
-        console.log({body: req.body})
         // todo: verify the request body is well formed
         // const parsedBusiness = {
         //     business_name: req.body.businessName,
@@ -46,11 +45,13 @@ router.post('/', async (req, res) => {
         // }
 
         // create a dto so i can use camelCase for the api, and snake_case for the backend
+        logger.info({message: "Creating new business", body: req.body})
         const newBusiness = await businessService.createBusiness(req.body);
         res.status(201).json(newBusiness);
     } catch (error) {
         let msg = "error random"
         let code = 0
+        console.log({error})
         if (error.name == "SequelizeUniqueConstraintError"){
             // console.log({gotanerror: error})
 
@@ -72,7 +73,7 @@ router.put('/:id', async (req, res) => {
     try {
         
         // verify the request body is well formed
-        console.log({businessToUpdate: req.body})
+        logger.info({message: "Updating business", body: req.body, businessId: req.params.id})
 
         const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body);
         res.json(updatedBusiness);
@@ -85,9 +86,11 @@ router.put('/:id', async (req, res) => {
 // Delete a business
 router.delete('/:id', async (req, res) => {
     try {
+        logger.info({message: "Deleting business", businessId: req.params.id})
         await businessService.deleteBusiness(req.params.id);
-        res.status(204).send();
+        res.status(200).send();
     } catch (error) {
+        console.log({error})
         res.status(500).json({ error: error.message });
     }
 });

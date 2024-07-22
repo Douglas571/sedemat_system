@@ -1,12 +1,5 @@
 const { Sequelize } = require("sequelize")
 
-console.log({DB: {
-    ENV: process.env.ENV,
-    DB_DATA_BASE_NAME: process.env.DB_DATA_BASE_NAME
-}})
-
-console.log({env: process.env})
-
 console.log("Connecting to Database")
 const sequelize = new Sequelize('sedemat', 'sedemat_server', '12345', {
     host: 'mariadb', // replace with your host

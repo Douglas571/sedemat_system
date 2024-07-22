@@ -1,7 +1,7 @@
 // routes/economicLicenseRouter.js
 const express = require('express');
 const router = express.Router();
-const economicLicenseService = require('./services');
+const economicLicenseService = require('../services/economicLicenses');
 
 // Create a new economic license
 router.post('/', async (req, res) => {

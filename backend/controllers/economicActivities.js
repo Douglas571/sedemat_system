@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const economicActivityService = require('./services');
+const economicActivityService = require('../services/economicActivities');
 
 // Create a new economic activity
 router.post('/', async (req, res) => {
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
 // Get all economic activities
 router.get('/', async (req, res) => {
     try {
-        const economicActivities = await economicActivityService.getAllEconomicActivities();
+        const economicActivities = await economicActivityService.getEconomicActivities();
         res.status(200).json(economicActivities);
     } catch (error) {
         res.status(500).json({ error: error.message });

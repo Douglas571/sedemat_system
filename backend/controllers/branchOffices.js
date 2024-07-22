@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const branchOfficeService = require('./services');
+const branchOfficeService = require('../services/branchOffices');
 const logger = require('../utils/logger')
 
 // Create a new Branch Office
 router.post('/', async (req, res) => {
     try {
-        console.log({body: req.body})
         const newBranchOffice = await branchOfficeService.createBranchOffice(req.body);
         res.status(201).json(newBranchOffice);
     } catch (error) {

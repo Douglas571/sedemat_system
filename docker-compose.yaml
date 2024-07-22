@@ -39,6 +39,8 @@ services:
       - /app/node_modules
       - ./backup/backend/logs:/app/data/logs
 
+    command: npm run start:dev
+
   frontend-dev:
     build:
       context: ./frontend
