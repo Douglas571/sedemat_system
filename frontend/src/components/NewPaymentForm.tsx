@@ -97,7 +97,7 @@ function NewPaymentForm(): JSX.Element {
 	type Payment = {
 		id?: number
 		reference: string
-		business_name: string
+		businessName: string
 		dni: string
 		amount: number
 		account: string
@@ -124,7 +124,7 @@ function NewPaymentForm(): JSX.Element {
 			// map all values to a ready to ship payment object
 			let payment: Payment = {
 				reference: values.reference,
-				business_name: values.business_name,
+				businessName: values.business_name,
 				dni: values.dni,
 				amount: values.amount,
 				account: values.account,

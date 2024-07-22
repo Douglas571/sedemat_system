@@ -11,7 +11,7 @@ type BranchOffice = {
 
 export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
     console.log({newOfficeInApi: branchOffice})
-    const url = `${HOST}/v1/branchOffices`
+    const url = `${HOST}/v1/branch-offices`
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -48,7 +48,7 @@ export async function fetchBusiness() {
 }
 
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
-    const response = await fetch(`${HOST}/v1/branchoffices?businessid=${businessId}`, {
+    const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

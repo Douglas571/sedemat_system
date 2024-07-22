@@ -36,7 +36,7 @@ async function getPayments(): Promise<Array<Payment>> {
     }
     const data = await response.json();
     console.log('I got the data...');
-    payments = data.data;
+    payments = data;
     console.log({ data });
   } catch (error) {
     console.log("I got an error...");
@@ -63,7 +63,7 @@ function ViewPayments(): JSX.Element {
             dni: payment.dni,
             account: payment.account,
             paymentDate: payment.paymentDate,
-            businessName: payment.business_name,
+            businessName: payment.businessName,
             image: payment.image,
             isVerified: payment.isVerified,
             status: '',
