@@ -1,5 +1,7 @@
-const BranchOffice = require('../models/branchOffice');
-const logger = require('../utils/logger');
+const BranchOffice = require('../models/branchOffice')
+const EconomicLicense = require('../models/economicLicense')
+const EconomicActivity = require('../models/economicActivity')
+const logger = require('../utils/logger')
 
 // Create a new Branch Office
 exports.createBranchOffice = async (branchOfficeData) => {
@@ -16,7 +18,11 @@ exports.createBranchOffice = async (branchOfficeData) => {
 
 // Get all Branch Offices
 exports.getAllBranchOffices = async () => {
-    return await BranchOffice.findAll();
+    const branchOffices = await BranchOffice.findAll({});
+
+    console.log({branchOffices})
+
+    return branchOffices
 };
 
 exports.getBranchOfficesByBusinessId = async (businessId) => {
@@ -24,6 +30,10 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
         const branchOffices = await BranchOffice.findAll({
             where: {
                 businessId: businessId
+            },
+            include: {
+                model: EconomicLicense,
+                include: EconomicActivity
             }
         });
         return branchOffices;

@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./sequelize");
-
+const EconomicLicense = require("./economicLicense")
 const BranchOffice = sequelize.define('BranchOffice', {
     id: {
         type: DataTypes.INTEGER,
@@ -29,6 +29,10 @@ const BranchOffice = sequelize.define('BranchOffice', {
     createdAt: false,
     updatedAt: false,
 });
+
+BranchOffice.hasMany(EconomicLicense, {
+    foreignKey: "branchOfficeId"
+})
 
 async function sync() {
     await BranchOffice.sync({ force: true });

@@ -33,9 +33,9 @@ const logger = winston.createLogger({
         }),
     ],
     // NOTE: When you enable this options, uncaught errors are throw to those files, and not to the console
-    exceptionHandlers: [
-        new winston.transports.File({ filename: './data/logs/exception.log' }),
-    ],
+    // exceptionHandlers: [
+    //     new winston.transports.File({ filename: './data/logs/exception.log' }),
+    // ],
     // rejectionHandlers: [
     //     new winston.transports.File({ filename: './data/logs/rejections.log' }),
     // ],

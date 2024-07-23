@@ -3,12 +3,16 @@ const express = require('express');
 const router = express.Router();
 const economicLicenseService = require('../services/economicLicenses');
 
+const logger = require('../utils/logger')
+
 // Create a new economic license
 router.post('/', async (req, res) => {
     try {
         const newLicense = await economicLicenseService.createEconomicLicense(req.body);
         res.status(201).json(newLicense);
     } catch (error) {
+        console.log({error})
+        logger.error(error)
         res.status(500).json({ error: error.message });
     }
 });
@@ -19,6 +23,7 @@ router.get('/', async (req, res) => {
         const licenses = await economicLicenseService.getEconomicLicenses();
         res.status(200).json(licenses);
     } catch (error) {
+        logger.error(error)
         res.status(500).json({ error: error.message });
     }
 });
