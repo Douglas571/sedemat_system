@@ -1,6 +1,6 @@
 import React from 'react'
-import { FormProps } from 'antd'
-import { Form, Input, Button, message, Typography } from 'antd'
+import { DatePicker, FormProps } from 'antd'
+import { Form, Input, Button, message, Typography, Space, Flex } from 'antd'
 import _ from 'lodash'
 
 import * as api from '../util/api'
@@ -97,41 +97,80 @@ function BusinessNew(): JSX.Element {
                     ]
                 }}
             >
-                <Form.Item<FormFields>
-                    rules={[
-                        {
-                            required: true,
-                            message: "Introduzca la razón social"
-                        }
-                    ]}
-                    label='Razón Social'
-                    name='businessName'
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item<FormFields>
-                    rules={[
-                        {
-                            required: true,
-                            message: "Introduzca el rif o la cédula"
-                        }
-                    ]}
-                    label='Rif o Cédula'
-                    name='dni'
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item<FormFields>
+                <Flex gap='middle'>
+                    <Form.Item<FormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "Introduzca la razón social"
+                            }
+                        ]}
+                        label='Razón Social'
+                        name='businessName'
+                        style={{
+                            width: '70%'
+                        }}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item<FormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "Introduzca el rif o la cédula"
+                            }
+                        ]}
+                        label='Rif'
+                        name='dni'
+                        style={{
+                            width: '30%'
+                        }}
+                    >
+                        <Input/>
+                    </Form.Item>
+                </Flex>
+                {/* <Form.Item<FormFields>
                     label='Correo Electrónico'
                     name='email'
                 >
                     <Input/>
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item
-                    // if it is normal or special 
+                    // it can be normal or special 
                     label='Tipo: '
                     name='type'
+                >
+                    <Input/>
+                </Form.Item>
+
+                <Space>
+                    {/* Define good names */}
+                    <Form.Item
+                        label='Fecha Constitución: '
+                        name='a'
+                    >
+                        <DatePicker/>
+                    </Form.Item>
+
+                    <Form.Item
+                        label='Fecha Vencimiento de la Empresa: '
+                        name='b'
+                    >
+                        <DatePicker/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Fecha Vencimiento Junta Directiva: '
+                        name='c'
+                    >
+                        <DatePicker/>
+                    </Form.Item>
+                </Space>
+
+                <Form.Item
+                    // it can be normal or special 
+                    label='Actividad Económica: '
+                    name='economicActivity'
                 >
                     <Input/>
                 </Form.Item>
@@ -139,24 +178,26 @@ function BusinessNew(): JSX.Element {
                 <Title level={3}>
                     Propietario
                 </Title>
-                <Form.Item
-                    label='Nombre: '
-                    name={["owner", "firstName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Apellido: '
-                    name={["owner", "lastName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Cédula'
-                    name={["owner", "dni"]}
-                >
-                    <Input/>
-                </Form.Item>
+                <Space>
+                    <Form.Item
+                        label='Nombre: '
+                        name={["owner", "firstName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Apellido: '
+                        name={["owner", "lastName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Cédula'
+                        name={["owner", "dni"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                </Space>
                 <Form.Item
                     label='Teléfono: '
                     name={["owner", "phone"]}
@@ -179,24 +220,26 @@ function BusinessNew(): JSX.Element {
                 <Title level={3}>
                     Contador
                 </Title>
-                <Form.Item
-                    label='Nombre: '
-                    name={["accountant", "firstName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Apellido: '
-                    name={["accountant", "lastName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Cédula: '
-                    name={["accountant", "dni"]}
-                >
-                    <Input/>
-                </Form.Item>
+                <Space>
+                    <Form.Item
+                        label='Nombre: '
+                        name={["accountant", "firstName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Apellido: '
+                        name={["accountant", "lastName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Cédula: '
+                        name={["accountant", "dni"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                </Space>
                 <Form.Item
                     label='Teléfono: '
                     name={["accountant", "phone"]}
@@ -219,24 +262,26 @@ function BusinessNew(): JSX.Element {
                 <Title level={3}>
                     Administrador
                 </Title>
-                <Form.Item
-                    label='Nombre: '
-                    name={["administrator", "firstName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Apellido: '
-                    name={["administrator", "lastName"]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Cédula: '
-                    name={["administrator", "dni"]}
-                >
-                    <Input/>
-                </Form.Item>
+                <Space>
+                    <Form.Item
+                        label='Nombre: '
+                        name={["administrator", "firstName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Apellido: '
+                        name={["administrator", "lastName"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Cédula: '
+                        name={["administrator", "dni"]}
+                    >
+                        <Input/>
+                    </Form.Item>
+                </Space>
                 <Form.Item
                     label='Teléfono: '
                     name={["administrator", "phone"]}
@@ -278,9 +323,15 @@ function BusinessNew(): JSX.Element {
                                                             <Input />
                                                         </Form.Item>
 
-                                                        <Form.Item label="Dimensiones (Mts2)" name={[field.name, 'dimensions']}>
-                                                            <Input />
-                                                        </Form.Item>
+                                                        <Space>
+                                                            <Form.Item label="Dimensiones (Mts2)" name={[field.name, 'dimensions']}>
+                                                                <Input />
+                                                            </Form.Item>
+
+                                                            <Form.Item label="Tipo" name={[field.name, 'type']}>
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Space>
                                                     </span>
                                                 </div>
                                             )
