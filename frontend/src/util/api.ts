@@ -159,7 +159,6 @@ export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
 }
 
 // Branch Offices (Comercial Establishments)
-
 export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
     console.log({newOfficeInApi: branchOffice})
     const url = `${HOST}/v1/branch-offices`
