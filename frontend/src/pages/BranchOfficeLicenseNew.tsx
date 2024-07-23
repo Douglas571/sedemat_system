@@ -1,37 +1,55 @@
+import React, { useEffect, useState } from 'react'
+
+import { FormProps } from 'antd'
 import { Form, Input, Button, message, Select, TimePicker, DatePicker } from 'antd'
 import type { DatePickerProps } from 'antd'
+
+import type { EconomicActivity, Business, BranchOffice } from '../util/api';
+
+import { useParams } from 'react-router-dom';
 
 import * as api from '../util/api'
 
 export default function BranchOfficeLicenseNew(): JSX.Element {
     const [form] = Form.useForm()
+    let { businessId, branchOfficeId } = useParams();
 
-    const economicActivities = [
-        {
-            value: 'Comercio al por menor de productos alimenticios',
-            label: 'Comercio al por menor de productos alimenticios',
-        },
-        {
-            value: 'Servicios de transporte terrestre',
-            label: 'Servicios de transporte terrestre',
-        },
-        {
-            value: 'Actividades de esparcimiento y recreación',
-            label: 'Actividades de esparcimiento y recreación',
-        },
-        {
-            value: 'Servicios de comidas y bebidas',
-            label: 'Servicios de comidas y bebidas',
-        },
-        {
-            value: 'Venta de productos electrónicos',
-            label: 'Venta de productos electrónicos',
-        },
-        {
-            value: 'Consultoría en tecnología',
-            label: 'Consultoría en tecnología',
-        },
-    ];
+    const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
+    const [business, setBusiness] = useState<Business>();
+    const [branchOffice, setBranchOffice] = useState<BranchOffice>();
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    async function loadData() {
+        try {
+            // Load economic activities
+            const economicActivities = await api.getEconomicActivities();
+            console.log({economicActivities})
+            setEconomicActivities(economicActivities);
+
+            // Fetch the business
+            const business = await api.fetchBusinessById(Number(businessId));
+            console.log({business})
+            setBusiness(business);
+
+            // Fetch the branch office
+            const branchOffice = await api.getBranchOfficeById(Number(branchOfficeId));
+            console.log({branchOffice})
+            if (branchOffice) {
+                setBranchOffice(branchOffice);
+            }
+
+            form.setFieldsValue({
+                taxpayer: business.businessName,
+                branchOffice: branchOffice?.address
+            })
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
 
     const establishments = [
         {
@@ -55,6 +73,10 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         })
     }
 
+    const registerlicense: FormProps<FiledType>['onFinish'] = async (values) => {
+
+    }
+
     interface FormFields {
         taxpayer: string
     }
@@ -64,16 +86,23 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
             Nueva Licencia
             <Form 
                 form={form}
-                
+                onSubmit={registerLicense}
             >
                 <Form.Item<FormFields> 
                     label='Contribuyente: ' 
-                    name='taxpayer'>
-                    <Input>
+                    name='taxpayer'
+                >
+                    <Input
+                        disabled
+                    >
                     </Input>
                 </Form.Item>
-                <Form.Item label='Sede o Establecimiento: '>
+                <Form.Item 
+                    label='Sede o Establecimiento: '
+                    name="branchOffice"
+                >
                     <Select
+                        disabled
                         defaultValue={establishments[0].value}
                         optionFilterProp='label'
                             // onChange={onChange}
@@ -83,11 +112,11 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 </Form.Item>
                 <Form.Item label='Actividad Económica: '>
                     <Select
-                        defaultValue={economicActivities[0].value}
+                        defaultValue={economicActivities[0]?.value}
                         optionFilterProp='label'
                             // onChange={onChange}
                             // onSearch={onSearch}
-                        options={economicActivities}
+                        options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
                     />
                 </Form.Item>
                 {/* <Form.Item label='Horario'>

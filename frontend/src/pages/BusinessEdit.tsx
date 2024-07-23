@@ -5,15 +5,11 @@ import { useParams } from 'react-router-dom';
 
 import * as api from '../util/api'
 
+import type { Business } from '../util/api'
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
-
-type Business = {
-    businessName: string
-    dni: string 
-    email: string 
-}
 
 type BranchOffice = {
     id?: number

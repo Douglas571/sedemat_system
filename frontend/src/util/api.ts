@@ -2,34 +2,11 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-type BranchOffice = {
-    id?: number;
-    address: string;
-    phone: string;
-    businessId: number; // Assuming you have a reference to the business ID
-};
-
-export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
-    console.log({newOfficeInApi: branchOffice})
-    const url = `${HOST}/v1/branch-offices`
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(branchOffice),
-    });
-    console.log("after fetch")
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to register branch office: ${errorData.error?.msg || response.statusText}`);
-    }
-
-    console.log('Branch office registered successfully');
-
-    const data = await response.json()
-    return data
+export type Business = {
+    id?: number
+    businessName: string
+    dni: string 
+    email: string 
 }
 
 export async function fetchBusiness() {
@@ -108,4 +85,105 @@ export async function updateBusinessData(id: number, business: Business) {
         console.error('Error posting business data:', error.message);
         // Handle error state in your application
     }
+}
+
+// Economic Activities
+export type EconomicActivity = {
+    id: number
+    code: string
+    title: string
+    alicuota: number
+    minimiunTax: number
+}
+
+export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
+    let economicActivities = [];
+
+    try {
+        const response = await fetch(`${HOST}/v1/economic-activities`);
+        const data = await response.json();
+
+        if (response.status !== 200) {
+            throw new Error(data.error || 'Failed to fetch economic activities');
+        }
+
+        economicActivities = data
+
+        return economicActivities;
+    } catch (error) {
+        
+        console.log({error})
+        console.error('Error fetching economic activities:', error);
+        throw error;
+    }
+}
+
+// Branch Offices (Comercial Establishments)
+export type BranchOffice = {
+    id?: number;
+    address: string;
+    phone: string;
+    businessId: number; // Assuming you have a reference to the business ID
+};
+
+export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
+    console.log({newOfficeInApi: branchOffice})
+    const url = `${HOST}/v1/branch-offices`
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(branchOffice),
+    });
+    console.log("after fetch")
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to register branch office: ${errorData.error?.msg || response.statusText}`);
+    }
+
+    console.log('Branch office registered successfully');
+
+    const data = await response.json()
+    return data
+}
+
+export async function getBranchOfficeById(id: number): Promise<BranchOffice | undefined> {
+    let branchOffice: BranchOffice | undefined = undefined;
+
+    try {
+        const response = await fetch(`${HOST}/v1/branch-offices/${id}`);
+        const data = await response.json();
+
+        if (response.status !== 200) {
+            throw new Error(data.error || 'Failed to fetch branch office');
+        }
+
+        branchOffice = data;
+    } catch (error) {
+        console.error('Error fetching branch office:', error);
+        throw error;
+    }
+
+    return branchOffice;
+}
+
+export type License = {
+    id?: number 
+    branchOfficeId: number 
+    economicActivityId: number
+    openAt?: String 
+    closeAt?: String
+    issuedDate: Date 
+    expirationDate: Date
+}
+
+// Economic Licenses
+export async function registerLicense(license: License): Promise<License> {
+    // register license with post requesto to `${HOST}/v1/economic-licenses`
+    // if status != 200
+        // parse the json error form response and throw it (data.error)
+    // parse the json from response into newLicense of type License
+    // return newLicense
 }
