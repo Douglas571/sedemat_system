@@ -4,13 +4,15 @@ import { FormProps } from 'antd'
 import { Form, Input, Button, message, Select, TimePicker, DatePicker } from 'antd'
 import type { DatePickerProps } from 'antd'
 
-import type { EconomicActivity, Business, BranchOffice } from '../util/api';
+import type { EconomicActivity, Business, BranchOffice, License } from '../util/api';
 
 import { useParams } from 'react-router-dom';
+
 
 import * as api from '../util/api'
 
 export default function BranchOfficeLicenseNew(): JSX.Element {
+    const [messageApi, contextHolder] = message.useMessage()
     const [form] = Form.useForm()
     let { businessId, branchOfficeId } = useParams();
 
@@ -73,20 +75,71 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         })
     }
 
-    const registerlicense: FormProps<FiledType>['onFinish'] = async (values) => {
 
+    function cleanForm() {
+        form.setFieldsValue({
+            economicActivity: '',
+            issuedDate: '',
+            expirationDate: ''
+        })
+    }
+    const registerlicense: FormProps<FiledType>['onFinish'] = async (values) => {
+        // get businessId
+        // get branchOfficeId
+        // create a license object
+
+        try {
+            const economicActivityId = economicActivities.find( e => e.title === values.economicActivity )?.id
+            console.log({economicActivityId})
+
+            if (!branchOfficeId || !economicActivityId){
+                return null
+            }
+
+            let newLicense = {
+                branchOfficeId: Number(branchOfficeId),
+                economicActivityId,
+                issuedDate: values.issuedDate,
+                expirationDate: values.expirationDate,
+
+            }
+            console.log({newLicense})
+            let registeredLicense = await api.registerLicense(newLicense)
+            console.log({registeredLicense})
+
+            messageApi.open({
+                type: 'success',
+                content: "Licencia Otorgada Exitosamente.",
+            });
+
+            cleanForm()
+
+
+        } catch (error) {
+            console.error({error})
+
+            messageApi.open({
+                type: 'error',
+                content: "Hubo un error.",
+            });
+        }
     }
 
     interface FormFields {
-        taxpayer: string
+        taxpayer: string,
+        branchOffice: string,
+        economicActivity: string,
+        issuedDate: Date,
+        expirationDate: Date
     }
 
     return (
         <div>
+            {contextHolder}
             Nueva Licencia
             <Form 
                 form={form}
-                onSubmit={registerLicense}
+                onFinish={registerlicense}
             >
                 <Form.Item<FormFields> 
                     label='Contribuyente: ' 
@@ -110,7 +163,14 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                         options={establishments}
                     />
                 </Form.Item>
-                <Form.Item label='Actividad Económica: '>
+                <Form.Item<FormFields>
+                    rules={[
+                        {required: true,
+                            message: "Por favor seleccionar una Actividad Económica"
+                        }
+                    ]}
+                    label='Actividad Económica: '
+                    name='economicActivity'>
                     <Select
                         defaultValue={economicActivities[0]?.value}
                         optionFilterProp='label'
@@ -122,12 +182,19 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 {/* <Form.Item label='Horario'>
                     <TimePicker.RangePicker />
                 </Form.Item> */}
-                <Form.Item 
+                <Form.Item<FormFields>
+                    rules={[
+                        {required: true}
+                    ]}
                     label='Fecha de Emisión'
+                    name='issuedDate'
                 >
                     <DatePicker onChange={handleIssueDateChange}/>
                 </Form.Item>
-                <Form.Item 
+                <Form.Item<FormFields>
+                    rules={[
+                        {required: true}
+                    ]}
                     label='Fecha de Expiración' 
                     name='expirationDate'>
                     <DatePicker/>

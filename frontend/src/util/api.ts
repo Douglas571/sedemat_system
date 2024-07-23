@@ -181,9 +181,21 @@ export type License = {
 
 // Economic Licenses
 export async function registerLicense(license: License): Promise<License> {
-    // register license with post requesto to `${HOST}/v1/economic-licenses`
-    // if status != 200
-        // parse the json error form response and throw it (data.error)
-    // parse the json from response into newLicense of type License
-    // return newLicense
+    const response = await fetch(`${HOST}/v1/economic-licenses`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(license)
+    });
+
+    if (response.status !== 201) {
+        console.log(response.status)
+        const data = await response.json();
+        console.log({data})
+        throw new Error(data.error);
+    }
+
+    const newLicense: License = await response.json();
+    return newLicense;
 }

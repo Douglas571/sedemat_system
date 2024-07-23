@@ -12,11 +12,13 @@ const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 type EconomicActivity = {
-    title: string
+    title: string,
+    alicuota: number 
+    minimumTax: number
 }
 
 type License = {
-    economicActivity: EconomicActivity
+    EconomicActivity: EconomicActivity
     openAt: Date
     closeAt: Date
     issuedDate: Date
@@ -27,8 +29,8 @@ type BranchOffice = {
     id: number
     address: string
     phone: string
-    licenses?: Array<License>
-    lastLicense?: License;
+    EconomicLicenses?: Array<License>
+    lastEconomicLicense?: License;
 }
 type Business = {
     businessName: string
@@ -56,6 +58,7 @@ function BusinessViewDetails(): JSX.Element {
         if (businessId) {
             let fetchedBusiness = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
+            // TODO: Add case when there is not branch office
             console.log({branchOffices})
             setBusiness({...fetchedBusiness, branchOffices})       
         }
@@ -83,9 +86,11 @@ function BusinessViewDetails(): JSX.Element {
     }
 
     function renderLicenseButton(office: BranchOffice): JSX.Element {
-        if (!office.lastLicense || isLicenseExpired(office.lastLicense, 4)) {
+        const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
+
+        if (!lastEconomicLicense || isLicenseExpired(lastEconomicLicense, 4)) {
             return <Link to={`branch-office/${office.id}/license/new`}>Otorgar Licencia</Link>;
-        } else if (isLicenseExpired(office.lastLicense, 0)) {
+        } else if (isLicenseExpired(lastEconomicLicense, 0)) {
             return <Link to={`branch-office/${office.id}/license/renovate`}>Renovar Licencia</Link>;
         } else {
             return <span>Licencia vigente</span>;
@@ -104,29 +109,48 @@ function BusinessViewDetails(): JSX.Element {
                 <Paragraph>
                     RIF: {business?.dni}
                 </Paragraph>
+                <Paragraph>
+                    Actividad Económica: 
+                </Paragraph>
+{/*                 
 
-
+                <Title level={3}>
+                    Datos del dueño
+                </Title>
+                <Paragraph>
+                    Nombres y Apellidos: 
+                </Paragraph>
+                <Paragraph>
+                    Cédula: 
+                </Paragraph> */}
                 {/*<Title level={3}>
                     Licencias
                 </Title> */}
                 {
-                    business?.branchOffices.map( office => (
-                        <>
-                        <Title level={4}>
-                            Sede #1 {renderLicenseButton(office)}
-                        </Title>
-                        <Paragraph>Actividad Económica: </Paragraph>
+                    business?.branchOffices.map( office => {
+                        const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
+                        console.log({office})
+                        console.log({lastEconomicLicense})
 
-                        <Paragraph>Dirección: {office.address}</Paragraph>
-                        <Paragraph>Teléfono: {office.phone} </Paragraph>
+                        return (
+                            <>
+                                <Title level={4}>
+                                    Sede #1 {renderLicenseButton(office)}
+                                </Title>
+                                <Paragraph>Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}</Paragraph>
+                                <Paragraph>Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}</Paragraph>
+                                <Paragraph>Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}</Paragraph>
 
-                        <Paragraph>Horario</Paragraph>
+                                <Paragraph>Dirección: {office.address}</Paragraph>
+                                <Paragraph>Teléfono: {office.phone} </Paragraph>
 
-                        <Paragraph>Fecha de Emisión</Paragraph>
+                                {/* <Paragraph>Horario</Paragraph> */}
 
-                        <Paragraph>Fecha de Vencimiento</Paragraph>
-                        </>
-                    ))
+                                <Paragraph>Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}</Paragraph>
+                                <Paragraph>Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}</Paragraph>
+                            </>
+                        )
+                    })
                 }
 
 
