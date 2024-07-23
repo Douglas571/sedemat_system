@@ -2,6 +2,31 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+export type EconomicActivity = {
+    id: number
+    code: string
+    title: string
+    alicuota: number
+    minimiunTax: number
+}
+
+export type License = {
+    id?: number 
+    branchOfficeId: number 
+    economicActivityId: number
+    openAt?: String 
+    closeAt?: String
+    issuedDate: Date 
+    expirationDate: Date
+}
+
+export type BranchOffice = {
+    id?: number;
+    address: string;
+    phone: string;
+    businessId: number; // Assuming you have a reference to the business ID
+};
+
 export type Business = {
     id?: number
     businessName: string
@@ -63,7 +88,30 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
     }
 }
 
+export async function sendBusinessData(business: Business) {
+    const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(business)
+    };
 
+    try {
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error.msg || 'Failed to post business data');
+        }
+        console.log('Business data posted successfully');
+        // Optionally handle response data here
+        let data = await response.json()
+        return data
+    } catch (error) {
+        console.error('Error posting business data:', error.message);
+        // Handle error state in your application
+        throw Error(error.message)
+    }
+}
 
 export async function updateBusinessData(id: number, business: Business) {
     const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
@@ -88,14 +136,6 @@ export async function updateBusinessData(id: number, business: Business) {
 }
 
 // Economic Activities
-export type EconomicActivity = {
-    id: number
-    code: string
-    title: string
-    alicuota: number
-    minimiunTax: number
-}
-
 export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
     let economicActivities = [];
 
@@ -119,12 +159,6 @@ export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
 }
 
 // Branch Offices (Comercial Establishments)
-export type BranchOffice = {
-    id?: number;
-    address: string;
-    phone: string;
-    businessId: number; // Assuming you have a reference to the business ID
-};
 
 export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
     console.log({newOfficeInApi: branchOffice})
@@ -167,16 +201,6 @@ export async function getBranchOfficeById(id: number): Promise<BranchOffice | un
     }
 
     return branchOffice;
-}
-
-export type License = {
-    id?: number 
-    branchOfficeId: number 
-    economicActivityId: number
-    openAt?: String 
-    closeAt?: String
-    issuedDate: Date 
-    expirationDate: Date
 }
 
 // Economic Licenses

@@ -3,6 +3,9 @@ import { FormProps } from 'antd'
 import { Form, Input, Button, message } from 'antd'
 import _ from 'lodash'
 
+import * as api from '../util/api'
+import type { Business } from '../util/api'
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -10,13 +13,6 @@ const HOST = "http://" + IP + ":" + PORT
 type BranchOfficeFormFields = {
     address: string 
     phone: string
-}
-
-type BranchOffice = {
-    id?: number
-    address: string 
-    phone: string
-    businessId: number
 }
 
 type FormFields = {
@@ -27,57 +23,8 @@ type FormFields = {
     branchOffices: Array<BranchOfficeFormFields>
 }
 
-async function sendBusinessData(business: FormFields) {
-    const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(business)
-    };
-
-    try {
-        const response = await fetch(url, requestOptions);
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error.msg || 'Failed to post business data');
-        }
-        console.log('Business data posted successfully');
-        // Optionally handle response data here
-        let data = await response.json()
-        return data
-    } catch (error) {
-        console.error('Error posting business data:', error.message);
-        // Handle error state in your application
-        throw Error(error.message)
-    }
-}
-
-async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
-    console.log({branchOffice})
-    const url = `${HOST}/v1/branchOffices`
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(branchOffice),
-    });
-    console.log("after fetch")
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to register branch office: ${errorData.error?.msg || response.statusText}`);
-    }
-
-    console.log('Branch office registered successfully');
-
-    const data = await response.json()
-    return data
-}
-
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
-    const [brachOfficesForm] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
 
     function clearForm(){
@@ -86,12 +33,10 @@ function BusinessNew(): JSX.Element {
         form.setFieldValue('email', '')
 	}
 
-
-
     const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
         try {
             
-            let response = await sendBusinessData(_.omit(values, ['branchOffices']))
+            let response = await api.sendBusinessData(_.omit(values, ['branchOffices']))
             console.log({response})
             let businessId = response.id
             // everything fine 
@@ -99,7 +44,7 @@ function BusinessNew(): JSX.Element {
 
             values.branchOffices.forEach( async (office) => {
                 let officeToRegister = { ...office, businessId}
-                let newOffice = await registerBranchOffice(officeToRegister)
+                let newOffice = await api.registerBranchOffice(officeToRegister)
                 console.log({registeredOffice: newOffice})
             })
 
@@ -178,10 +123,10 @@ function BusinessNew(): JSX.Element {
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
-                                                          <Input />
+                                                            <Input />
                                                         </Form.Item>
                                                         <Form.Item label="Teléfono" name={[field.name, 'phone']}>
-                                                          <Input />
+                                                            <Input />
                                                         </Form.Item>
                                                     </span>
                                                 </div>
