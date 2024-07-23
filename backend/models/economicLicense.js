@@ -27,11 +27,11 @@ const EconomicLicense = sequelize.define('EconomicLicense', {
     },
     openAt: {
         type: DataTypes.TIME,
-        allowNull: false
+        // allowNull: false,
     },
     closeAt: {
         type: DataTypes.TIME,
-        allowNull: false
+        // allowNull: false
     },
     issuedDate: {
         type: DataTypes.DATE,
