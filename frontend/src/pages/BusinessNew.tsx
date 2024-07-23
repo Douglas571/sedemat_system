@@ -1,10 +1,13 @@
 import React from 'react'
 import { FormProps } from 'antd'
-import { Form, Input, Button, message } from 'antd'
+import { Form, Input, Button, message, Typography } from 'antd'
 import _ from 'lodash'
 
 import * as api from '../util/api'
 import type { Business } from '../util/api'
+
+
+const { Title, Paragraph } = Typography
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -15,12 +18,25 @@ type BranchOfficeFormFields = {
     phone: string
 }
 
-type FormFields = {
+interface ContactForm {
+    firstName: string 
+    lastName: string 
+    dni: string
+    phone: string
+    whatsapp: string 
+    email: string 
+}
+
+// TODO: create the needed classes 
+interface FormFields {
     businessName: string
     dni: string
     email: string
-
     branchOffices: Array<BranchOfficeFormFields>
+
+    owner: ContactForm
+    accountant: ContactForm
+    administrator: ContactForm
 }
 
 function BusinessNew(): JSX.Element {
@@ -35,12 +51,14 @@ function BusinessNew(): JSX.Element {
 
     const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
         try {
+            console.log({values})
+
+            return
             
             let response = await api.sendBusinessData(_.omit(values, ['branchOffices']))
             console.log({response})
             let businessId = response.id
             // everything fine 
-            
 
             values.branchOffices.forEach( async (office) => {
                 let officeToRegister = { ...office, businessId}
@@ -110,22 +128,157 @@ function BusinessNew(): JSX.Element {
                     <Input/>
                 </Form.Item>
 
-                <Form.List<FormFields>
+                <Form.Item
+                    // if it is normal or special 
+                    label='Tipo: '
+                    name='type'
+                >
+                    <Input/>
+                </Form.Item>
+
+                <Title level={3}>
+                    Propietario
+                </Title>
+                <Form.Item
+                    label='Nombre: '
+                    name={["owner", "firstName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Apellido: '
+                    name={["owner", "lastName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Cédula'
+                    name={["owner", "dni"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Teléfono: '
+                    name={["owner", "phone"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Whatsapp: '
+                    name={["owner", "whatsapp"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Correo: '
+                    name={["owner", "email"]}
+                >
+                    <Input/>
+                </Form.Item>
+
+                <Title level={3}>
+                    Contador
+                </Title>
+                <Form.Item
+                    label='Nombre: '
+                    name={["accountant", "firstName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Apellido: '
+                    name={["accountant", "lastName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Cédula: '
+                    name={["accountant", "dni"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Teléfono: '
+                    name={["accountant", "phone"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Whatsapp: '
+                    name={["accountant", "whatsapp"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Correo: '
+                    name={["accountant", "email"]}
+                >
+                    <Input/>
+                </Form.Item>
+
+                <Title level={3}>
+                    Administrador
+                </Title>
+                <Form.Item
+                    label='Nombre: '
+                    name={["administrator", "firstName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Apellido: '
+                    name={["administrator", "lastName"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Cédula: '
+                    name={["administrator", "dni"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Teléfono: '
+                    name={["administrator", "phone"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Whatsapp: '
+                    name={["administrator", "whatsapp"]}
+                >
+                    <Input/>
+                </Form.Item>
+                <Form.Item
+                    label='Correo: '
+                    name={["administrator", "email"]}
+                >
+                    <Input/>
+                </Form.Item>
+
+                <Form.List
                     name='branchOffices'>
                         {(fields, { add, remove }) => {
                             return (
                                 <div>
-                                    <h3>Sucursales</h3>
+                                    <Title level={3}>
+                                        Sucursales
+                                    </Title>
                                     {
                                         fields.map(field => {
                                             return (
                                                 <div>
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
+                                                        <Form.Item label="Zona" name={[field.name, 'zone']}>
+                                                            <Input />
+                                                        </Form.Item>
+
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
                                                             <Input />
                                                         </Form.Item>
-                                                        <Form.Item label="Teléfono" name={[field.name, 'phone']}>
+
+                                                        <Form.Item label="Dimensiones (Mts2)" name={[field.name, 'dimensions']}>
                                                             <Input />
                                                         </Form.Item>
                                                     </span>
@@ -134,7 +287,7 @@ function BusinessNew(): JSX.Element {
                                         })
                                     }
                                     <Button onClick={() => add()}>Agregar Sucursal</Button>
-                                    <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button>
+                                    {/* <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button> */}
                                 </div>
                             )
                         }}
