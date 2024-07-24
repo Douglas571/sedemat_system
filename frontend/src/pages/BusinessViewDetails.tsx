@@ -113,7 +113,7 @@ function BusinessViewDetails(): JSX.Element {
                 <Paragraph>
                     Actividad Económica: {business?.economicActivity?.title} <br/>
                     Alicuota: {business?.economicActivity?.alicuota}% <br/>
-                    Mínimo Tributario: {business?.economicActivity?.alicuota}TCMMV-BCV
+                    Mínimo Tributario: {business?.economicActivity?.alicuota} TCMMV-BCV
                 </Paragraph>
 
 {/*                 
