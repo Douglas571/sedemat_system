@@ -172,7 +172,7 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                     label='Actividad Económica: '
                     name='economicActivity'>
                     <Select
-                        defaultValue={economicActivities[0]?.value}
+                        defaultValue={economicActivities[0]?.title}
                         optionFilterProp='label'
                             // onChange={onChange}
                             // onSearch={onSearch}

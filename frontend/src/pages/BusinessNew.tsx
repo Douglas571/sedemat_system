@@ -1,10 +1,10 @@
-import React from 'react'
-import { DatePicker, FormProps } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { DatePicker, FormProps, Select } from 'antd'
 import { Form, Input, Button, message, Typography, Space, Flex } from 'antd'
 import _ from 'lodash'
 
 import * as api from '../util/api'
-import type { Business } from '../util/api'
+import type { Business, EconomicActivity } from '../util/api'
 
 
 const { Title, Paragraph } = Typography
@@ -42,12 +42,29 @@ interface FormFields {
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
+    const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
 
     function clearForm(){
 		form.setFieldValue('businessName', '')
 		form.setFieldValue('dni', '')
         form.setFieldValue('email', '')
 	}
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    async function loadData() {
+        try {
+            // Load economic activities
+            const economicActivities = await api.getEconomicActivities();
+            console.log({economicActivities})
+            setEconomicActivities(economicActivities);
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
 
     const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
         try {
@@ -141,10 +158,16 @@ function BusinessNew(): JSX.Element {
                     label='Tipo: '
                     name='type'
                 >
-                    <Input/>
+                    <Select
+                        defaultValue={'Normal'}
+                        options={[
+                            {label: "Especial", value: "Especial"},
+                            {lable: "Normal", value: "Normal"}
+                        ]}
+                    />
                 </Form.Item>
 
-                <Space>
+                <Flex>
                     {/* Define good names */}
                     <Form.Item
                         label='Fecha Constitución: '
@@ -165,14 +188,18 @@ function BusinessNew(): JSX.Element {
                     >
                         <DatePicker/>
                     </Form.Item>
-                </Space>
+                </Flex>
 
                 <Form.Item
                     // it can be normal or special 
                     label='Actividad Económica: '
                     name='economicActivity'
                 >
-                    <Input/>
+                    <Select
+                        //defaultValue={economicActivities[0]?.title}
+                        showSearch
+                        options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
+                    />
                 </Form.Item>
 
                 <Title level={3}>
