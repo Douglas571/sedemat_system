@@ -17,9 +17,10 @@ describe('Business API', () => {
                 businessName: `Test Business ${Date.now()}`,
                 dni: '12345678',
                 email: 'test@business.com',
-                establishmentDate: '2020-01-01',
-                expirationDate: '2030-01-01',
-                board_expirationDate: '2025-01-01',
+                companyIncorporationDate: '2020-01-01',
+                companyExpirationDate: '2030-01-01',
+                directorsBoardExpirationDate: '2025-01-01',
+                economicActivityId: 1, // supposing there is economic activities already registered
             });
 
         expect(res.status).to.equal(201);
@@ -48,9 +49,10 @@ describe('Business API', () => {
                 businessName: 'Updated Business',
                 dni: '87654321',
                 email: 'updated@business.com',
-                establishmentDate: '2021-01-01',
-                expirationDate: '2031-01-01',
-                boardExpirationDate: '2026-01-01',
+                companyIncorporationDate: '2021-01-01',
+                companyExpirationDate: '2031-01-01',
+                directorsBoardExpirationDate: '2026-01-01',
+                economicActivityId: 1,
             });
 
         expect(res.status).to.equal(200);
