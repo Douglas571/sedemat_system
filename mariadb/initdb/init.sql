@@ -55,6 +55,16 @@ CREATE TABLE economic_licenses (
     FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
 );
 
+CREATE TABLE contacts (
+    id SERIAL PRIMARY KEY,
+    dni VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    phone VARCHAR(50),
+    whatsapp VARCHAR(50),
+    email VARCHAR(255)
+);
+
 
 INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1001, 'Comercio al por menor', 1.50, 5.00);
 INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1002, 'Comercio al por mayor', 2.00, 6.00);
