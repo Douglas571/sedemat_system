@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DatePicker, FormProps, Select } from 'antd'
+import { DatePicker, FormProps, Select, Switch } from 'antd'
 import { Form, Input, Button, message, Typography, Space, Flex } from 'antd'
 import _ from 'lodash'
 
@@ -70,7 +70,6 @@ function BusinessNew(): JSX.Element {
         try {
             console.log({values})
 
-            return
             
             let response = await api.sendBusinessData(_.omit(values, ['branchOffices']))
             console.log({response})
@@ -153,38 +152,47 @@ function BusinessNew(): JSX.Element {
                     <Input/>
                 </Form.Item> */}
 
-                <Form.Item
-                    // it can be normal or special 
-                    label='Tipo: '
-                    name='type'
-                >
-                    <Select
-                        defaultValue={'Normal'}
-                        options={[
-                            {label: "Especial", value: "Especial"},
-                            {lable: "Normal", value: "Normal"}
-                        ]}
-                    />
-                </Form.Item>
+                <Space>
+                    <Form.Item
+                        // it can be normal or special 
+                        label='Tipo: '
+                        name='type'
+                    >
+                        <Select
+                            defaultValue={'Normal'}
+                            options={[
+                                {label: "Especial", value: "Especial"},
+                                {lable: "Normal", value: "Normal"}
+                            ]}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Es Alquilado?" name='e'>
+                        <Switch checkedChildren="SÍ" unCheckedChildren="NO"></Switch>
+                    </Form.Item>
+                </Space>
 
                 <Flex>
                     {/* Define good names */}
+                    
+
+
                     <Form.Item
                         label='Fecha Constitución: '
-                        name='a'
+                        name='companyIncorporationDate'
                     >
                         <DatePicker/>
                     </Form.Item>
 
                     <Form.Item
                         label='Fecha Vencimiento de la Empresa: '
-                        name='b'
+                        name='companyExpirationDate'
                     >
                         <DatePicker/>
                     </Form.Item>
                     <Form.Item
                         label='Fecha Vencimiento Junta Directiva: '
-                        name='c'
+                        name='directorsBoardExpirationDate'
                     >
                         <DatePicker/>
                     </Form.Item>

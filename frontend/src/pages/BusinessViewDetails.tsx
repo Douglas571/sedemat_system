@@ -37,6 +37,7 @@ type Business = {
     dni: string 
     email: string,
     branchOffices: Array<BranchOffice>
+    economicActivity: EconomicActivity
 }
 
 function BusinessViewDetails(): JSX.Element {
@@ -110,10 +111,12 @@ function BusinessViewDetails(): JSX.Element {
                     RIF: {business?.dni}
                 </Paragraph>
                 <Paragraph>
-                    Actividad Económica: 
+                    Actividad Económica: {business?.economicActivity?.title} <br/>
+                    Alicuota: {business?.economicActivity?.alicuota}% <br/>
+                    Mínimo Tributario: {business?.economicActivity?.alicuota}TCMMV-BCV
                 </Paragraph>
-{/*                 
 
+{/*                 
                 <Title level={3}>
                     Datos del dueño
                 </Title>
