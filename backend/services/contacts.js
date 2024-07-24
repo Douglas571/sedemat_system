@@ -15,6 +15,7 @@ const createContact = async (contactData) => {
             }
             console.log(error.message)
         }
+        
         console.log({error})
         throw new Error(`Could not create contact: ${error.message}`);
     }
