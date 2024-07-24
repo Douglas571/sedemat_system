@@ -34,6 +34,17 @@ export type Business = {
     email: string 
 }
 
+export type Contact = {
+    id?: number
+    firstName: string 
+    lastName: string 
+    dni: string
+    phone: string
+    whatsapp: string 
+    email: string 
+}
+
+// Business
 export async function fetchBusiness() {
     try {
         const response = await fetch(`${HOST}/v1/businesses`);
@@ -221,4 +232,58 @@ export async function registerLicense(license: License): Promise<License> {
 
     const newLicense: License = await response.json();
     return newLicense;
+}
+
+// Contacts
+
+export async function registerContact(contact: Contact): Promise<Contact> {
+    const response = await fetch(`${HOST}/v1/contacts`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contact),
+    });
+
+    const data = await response.json();
+    console.log({data})
+
+    if (response.status !== 201) {
+        throw new Error(data.error || 'Failed to register contact', { value: data.value });
+    }
+
+    return data;
+}
+
+export async function getContactById(id: number): Promise<Contact> {
+    const response = await fetch(`${HOST}/v1/contacts/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const data = await response.json();
+
+    if (response.status !== 200) {
+        throw new Error(data.error || 'Failed to fetch contact');
+    }
+
+    return data;
+}
+
+export async function deleteContact(id: number): Promise<boolean> {
+    const response = await fetch(`${HOST}/v1/contacts/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (response.status !== 204) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete contact');
+    }
+
+    return true;
 }

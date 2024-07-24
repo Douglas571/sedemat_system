@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
         const newContact = await contactService.createContact(req.body);
         res.status(201).json(newContact);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, value: error.value });
     }
 });
 

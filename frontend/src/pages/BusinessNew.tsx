@@ -70,12 +70,31 @@ function BusinessNew(): JSX.Element {
         try {
             console.log({values})
 
+            const economicActivityObject = economicActivities.find( e => e.title === values?.economicActivity)
+            const economicActivityId = economicActivityObject?.id
+
+            // register contacts
+            const { owner, accountant, administrator } = values
             
-            let response = await api.sendBusinessData(_.omit(values, ['branchOffices']))
+            // upload the owner and get the id before sending the business
+            const registeredOwner = await api.registerContact(owner)
+            console.log({registeredOwner})
+
+
+
+            // upload the accountant if it exists 
+            // upload the administrator 
+            
+            const newBusiness = {
+                ..._.omit(values, ['branchOffices']), 
+                economicActivityId,
+                ownerContactId: registeredOwner.id
+            }
+            let response = await api.sendBusinessData(newBusiness)
             console.log({response})
             let businessId = response.id
-            // everything fine 
-
+            
+            // everything fine
             values.branchOffices.forEach( async (office) => {
                 let officeToRegister = { ...office, businessId}
                 let newOffice = await api.registerBranchOffice(officeToRegister)
@@ -93,6 +112,14 @@ function BusinessNew(): JSX.Element {
             let msg = "Hubo un error"
             msg = error.message
 
+            if (error.message === "duplicated dni") {
+                messageApi.open({
+                    type: 'error',
+                    content: `Cédula ya está registrada`,
+                });
+
+                return
+            }
 
             messageApi.open({
                 type: 'error',
@@ -104,7 +131,10 @@ function BusinessNew(): JSX.Element {
     return (
         <div>
             {contextHolder}
-            <h1>Nuevo Contribuyente</h1>
+            <Title level={2}>
+                Nuevo Contribuyente
+            </Title>
+            
             <Form form={form}
                 onFinish={onFinish}
                 initialValues={{
@@ -127,7 +157,7 @@ function BusinessNew(): JSX.Element {
                             width: '70%'
                         }}
                     >
-                        <Input/>
+                        <Input data-test='business-name-input'/>
                     </Form.Item>
                     <Form.Item<FormFields>
                         rules={[
@@ -142,7 +172,7 @@ function BusinessNew(): JSX.Element {
                             width: '30%'
                         }}
                     >
-                        <Input/>
+                        <Input data-test='business-dni-input'/>
                     </Form.Item>
                 </Flex>
                 {/* <Form.Item<FormFields>
@@ -159,6 +189,7 @@ function BusinessNew(): JSX.Element {
                         name='type'
                     >
                         <Select
+                            showSearch
                             defaultValue={'Normal'}
                             options={[
                                 {label: "Especial", value: "Especial"},
@@ -181,29 +212,36 @@ function BusinessNew(): JSX.Element {
                         label='Fecha Constitución: '
                         name='companyIncorporationDate'
                     >
-                        <DatePicker/>
+                        <DatePicker data-test="business-incorporation-date-input"/>
                     </Form.Item>
 
                     <Form.Item
                         label='Fecha Vencimiento de la Empresa: '
                         name='companyExpirationDate'
                     >
-                        <DatePicker/>
+                        <DatePicker data-test="business-expiration-date-input"/>
                     </Form.Item>
                     <Form.Item
                         label='Fecha Vencimiento Junta Directiva: '
                         name='directorsBoardExpirationDate'
                     >
-                        <DatePicker/>
+                        <DatePicker data-test="business-board-expiration-date-input"/>
                     </Form.Item>
                 </Flex>
 
                 <Form.Item
+                    rules={[
+                        {
+                            required: true,
+                            message: "Seleccione una actividad económica"
+                        }
+                    ]}
                     // it can be normal or special 
                     label='Actividad Económica: '
                     name='economicActivity'
                 >
                     <Select
+                        data-test='business-economic-activity-input'
                         //defaultValue={economicActivities[0]?.title}
                         showSearch
                         options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
@@ -214,42 +252,72 @@ function BusinessNew(): JSX.Element {
                     Propietario
                 </Title>
                 <Space>
-                    <Form.Item
+                    <Form.Item<FormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "El nombre del propietario es requerido"
+                            }
+                        ]}
                         label='Nombre: '
                         name={["owner", "firstName"]}
                     >
-                        <Input/>
+                        <Input data-test='owner-first-name-input'/>
                     </Form.Item>
                     <Form.Item
+                        rules={[
+                            {
+                                required: true,
+                                message: "El apellido del propietario es requerido"
+                            }
+                        ]}
                         label='Apellido: '
                         name={["owner", "lastName"]}
                     >
-                        <Input/>
+                        <Input data-test="owner-last-name-input"/>
                     </Form.Item>
                     <Form.Item
+                        rules={[
+                            {
+                                required: true,
+                                message: "La cédula del propietario es requerida"
+                            }
+                        ]}
                         label='Cédula'
                         name={["owner", "dni"]}
                     >
-                        <Input/>
+                        <Input data-test="owner-dni-input"/>
                     </Form.Item>
                 </Space>
                 <Form.Item
+                    rules={[
+                        {
+                            required: true,
+                            message: "El teléfono del propietario es requerido"
+                        }
+                    ]}
                     label='Teléfono: '
                     name={["owner", "phone"]}
                 >
-                    <Input/>
+                    <Input data-test="owner-phone-input"/>
                 </Form.Item>
                 <Form.Item
                     label='Whatsapp: '
                     name={["owner", "whatsapp"]}
                 >
-                    <Input/>
+                    <Input data-test="owner-whatsapp-input"/>
                 </Form.Item>
                 <Form.Item
+                    rules={[
+                        {
+                            required: true,
+                            message: "El correo del propietario es requerido"
+                        }
+                    ]}
                     label='Correo: '
                     name={["owner", "email"]}
                 >
-                    <Input/>
+                    <Input data-test="owner-email-input"/>
                 </Form.Item>
 
                 <Title level={3}>
@@ -351,20 +419,20 @@ function BusinessNew(): JSX.Element {
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
                                                         <Form.Item label="Zona" name={[field.name, 'zone']}>
-                                                            <Input />
+                                                            <Input data-test={`branch-office-${field.name}-zone`}/>
                                                         </Form.Item>
 
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
-                                                            <Input />
+                                                            <Input data-test={`branch-office-${field.name}-address`}/>
                                                         </Form.Item>
 
                                                         <Space>
                                                             <Form.Item label="Dimensiones (Mts2)" name={[field.name, 'dimensions']}>
-                                                                <Input />
+                                                                <Input data-test={`branch-office-${field.name}-dimensions`}/>
                                                             </Form.Item>
 
                                                             <Form.Item label="Tipo" name={[field.name, 'type']}>
-                                                                <Input />
+                                                                <Input data-test={`branch-office-${field.name}-origin`}/>
                                                             </Form.Item>
                                                         </Space>
                                                     </span>
@@ -372,7 +440,9 @@ function BusinessNew(): JSX.Element {
                                             )
                                         })
                                     }
-                                    <Button onClick={() => add()}>Agregar Sucursal</Button>
+                                    <Button 
+                                        data-test='branch-office-add-button'
+                                        onClick={() => add()}>Agregar Sucursal</Button>
                                     {/* <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button> */}
                                 </div>
                             )
@@ -380,7 +450,9 @@ function BusinessNew(): JSX.Element {
                 </Form.List>
 
                 <Form.Item>
-                    <Button type='primary' htmlType='submit'>Guardar</Button>
+                    <Button 
+                        data-test='submit-button'
+                        type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
             </Form>
         </div>

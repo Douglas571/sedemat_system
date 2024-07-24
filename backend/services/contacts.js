@@ -7,6 +7,15 @@ const createContact = async (contactData) => {
         return newContact;
     } catch (error) {
         logger.error(error)
+        if (error.name === "SequelizeUniqueConstraintError") {
+            // valores duplicados
+
+            if (error.fields.dni) {
+                throw new Error("duplicated dni", { value: error.fields.dni})
+            }
+            console.log(error.message)
+        }
+        console.log({error})
         throw new Error(`Could not create contact: ${error.message}`);
     }
 };
