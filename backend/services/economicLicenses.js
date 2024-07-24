@@ -14,7 +14,7 @@ exports.createEconomicLicense = async (licenseData) => {
 exports.getEconomicLicenses = async () => {
     try {
         const licenses = await EconomicLicense.findAll({
-            include: EconomicActivity
+            include: EconomicActivity,
         });
         return licenses;
     } catch (error) {

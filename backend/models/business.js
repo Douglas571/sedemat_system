@@ -35,7 +35,8 @@ const Business = sequelize.define('Business', {
 })
 
 Business.belongsTo(EconomicActivity, {
-    foreignKey: "economicActivityId"
+    foreignKey: "economicActivityId",
+    as: 'economicActivity'
 })
 
 EconomicActivity.hasMany(Business, {
