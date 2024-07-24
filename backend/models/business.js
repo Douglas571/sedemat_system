@@ -13,9 +13,9 @@ const Business = sequelize.define('Business', {
     },
     dni: DataTypes.STRING, 
     email: DataTypes.STRING,
-    establishmentDate: DataTypes.DATE,
-    expirationDate: DataTypes.DATE,
-    boardExpirationDate: DataTypes.DATE
+    companyIncorporationDate: DataTypes.DATE,
+    companyExpirationDate: DataTypes.DATE,
+    directorsBoardExpirationDate: DataTypes.DATE
     
 }, {
     underscored: true,

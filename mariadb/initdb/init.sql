@@ -18,9 +18,9 @@ CREATE TABLE businesses (
     business_name VARCHAR(255) UNIQUE NOT NULL,
     dni VARCHAR(30) NOT NULL,
     email VARCHAR(50),
-    establishment_date DATE, -- the day that the business was registered
-    expiration_date DATE, -- the day that the business will be disolved
-    board_expiration_date DATE, -- the day that the business board will be disolved
+    company_incorporation_date DATE, -- the day that the business was registered
+    company_expiration_date DATE, -- the day that the business will be disolved
+    directors_aboard_expiration_date DATE, -- the day that the business board will be disolved
 
     filcal_id INT
 );
