@@ -20,7 +20,7 @@ CREATE TABLE businesses (
     email VARCHAR(50),
     company_incorporation_date DATE, -- the day that the business was registered
     company_expiration_date DATE, -- the day that the business will be disolved
-    directors_aboard_expiration_date DATE, -- the day that the business board will be disolved
+    directors_board_expiration_date DATE, -- the day that the business board will be disolved
 
     filcal_id INT
 );
@@ -60,9 +60,8 @@ INSERT INTO payments (business_name, amount, reference, dni, account, payment_da
 INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('ALCALDÍA DE ZAMORA', 300.20, '141251', 'G-200006366', '0102-0123-4500-0004', '2024-04-01');
 INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('BANCO BICENTENARIO DEL PUEBLO DE LA CLASE OBRERA, MUJER Y COMUNAS, BANCO UNIVERSAL, C.A', 120.99, '161371', 'G-20009148-7', '0102-0123-4500-0005', '2024-05-01');
 
-
 -- Insert dummy data into the Businesses table
-INSERT INTO businesses (business_name, dni, email, establishment_date, expiration_date, board_expiration_date) 
+INSERT INTO businesses (business_name, dni, email, company_incorporation_date, company_expiration_date, directors_board_expiration_date) 
 VALUES 
     ('CASA CHEN, C.A', 'E-8228509-0', 'contact@casachen.com', '2000-01-01', '2025-01-01', '2024-01-01'),
     ('COMERCIAL SOL CARIBE', 'E-82288744-1', 'info@solcaribe.com', '2010-05-15', '2030-05-15', '2028-05-15'),
