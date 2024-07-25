@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./sequelize"); // Adjust the path to your sequelize instance
 
-const Contact = sequelize.define('Contact', {
+const Person = sequelize.define('Person', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -28,7 +28,7 @@ const Contact = sequelize.define('Contact', {
     },
     email: {
         type: DataTypes.STRING,
-    },
+    }
 }, {
     underscored: true,
     timestamps: false,
@@ -37,7 +37,7 @@ const Contact = sequelize.define('Contact', {
 });
 
 async function sync() {
-    await Contact.sync({ force: true });
+    await Person.sync({ force: true });
 }
 
-module.exports = Contact;
+module.exports = Person;

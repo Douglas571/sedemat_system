@@ -1,10 +1,10 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const Contact = require('../models/contact'); // Adjust the path to your model
+const Person = require('../models/person'); // Adjust the path to your model
 
-describe('Contact API', () => {
+describe('Person API', () => {
     let expect;
-    let contactId;
+    let personId;
 
     before(async () => {
         // Dynamically import chai
@@ -13,14 +13,14 @@ describe('Contact API', () => {
 
     after(async () => {
         // Clean up any data created during the tests
-        if (contactId) {
-            await Contact.destroy({ where: { id: contactId } });
+        if (personId) {
+            await Person.destroy({ where: { id: personId } });
         }
     });
 
-    it('should create a new contact', async () => {
+    it('should create a new person', async () => {
         const res = await request(app)
-            .post('/v1/contacts')
+            .post('/v1/people')
             .send({
                 dni: Date.now(), // Using timestamp as unique DNI for test
                 firstName: 'John',
@@ -32,26 +32,26 @@ describe('Contact API', () => {
 
         expect(res.status).to.equal(201);
         expect(res.body).to.have.property('id');
-        contactId = res.body.id;
+        personId = res.body.id;
     });
 
-    it('should get all contacts', async () => {
-        const res = await request(app).get('/v1/contacts');
+    it('should get all persons', async () => {
+        const res = await request(app).get('/v1/people');
 
         expect(res.status).to.equal(200);
         expect(res.body).to.be.an('array');
     });
 
-    it('should get a contact by id', async () => {
-        const res = await request(app).get(`/v1/contacts/${contactId}`);
+    it('should get a person by id', async () => {
+        const res = await request(app).get(`/v1/people/${personId}`);
 
         expect(res.status).to.equal(200);
-        expect(res.body).to.have.property('id', contactId);
+        expect(res.body).to.have.property('id', personId);
     });
 
-    it('should update a contact', async () => {
+    it('should update a person', async () => {
         const res = await request(app)
-            .put(`/v1/contacts/${contactId}`)
+            .put(`/v1/people/${personId}`)
             .send({
                 firstName: 'Jane',
                 lastName: 'Doe',
@@ -64,8 +64,8 @@ describe('Contact API', () => {
         expect(res.body).to.have.property('firstName', 'Jane');
     });
 
-    it('should delete a contact', async () => {
-        const res = await request(app).delete(`/v1/contacts/${contactId}`);
+    it('should delete a person', async () => {
+        const res = await request(app).delete(`/v1/people/${personId}`);
 
         expect(res.status).to.equal(204);
     });

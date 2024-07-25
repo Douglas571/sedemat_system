@@ -27,6 +27,10 @@ const Business = sequelize.define('Business', {
             key: 'id'
         }
     },
+
+    // ownerPersonId: {
+    //     type: DataType.INTEGER
+    // }
 }, {
     underscored: true,
     timestamps: false,

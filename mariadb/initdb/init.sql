@@ -55,7 +55,7 @@ CREATE TABLE economic_licenses (
     FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
 );
 
-CREATE TABLE contacts (
+CREATE TABLE people (
     id SERIAL PRIMARY KEY,
     dni VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255),

@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const contactService = require('../services/contacts');
+const personService = require('../services/people');
 
 router.post('/', async (req, res) => {
     try {
-        const newContact = await contactService.createContact(req.body);
-        res.status(201).json(newContact);
+        const newPerson = await personService.createPerson(req.body);
+        res.status(201).json(newPerson);
     } catch (error) {
         res.status(500).json({ error: error.message, value: error.value });
     }
@@ -13,8 +13,8 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const contacts = await contactService.getContacts();
-        res.status(200).json(contacts);
+        const people = await personService.getPeople();
+        res.status(200).json(people);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -22,8 +22,8 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const contact = await contactService.getContactById(req.params.id);
-        res.status(200).json(contact);
+        const person = await personService.getPersonById(req.params.id);
+        res.status(200).json(person);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -31,8 +31,8 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const updatedContact = await contactService.updateContact(req.params.id, req.body);
-        res.status(200).json(updatedContact);
+        const updatedPerson = await personService.updatePerson(req.params.id, req.body);
+        res.status(200).json(updatedPerson);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -40,7 +40,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        await contactService.deleteContact(req.params.id);
+        await personService.deletePerson(req.params.id);
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: error.message });
