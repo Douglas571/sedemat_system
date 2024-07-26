@@ -21,8 +21,12 @@ describe('EconomicLicense API', () => {
                 address: '123 Main St',
                 phone: '123-456-7890',
                 businessId: 1, // Assuming a business with ID 1 exists in the database
+                origin: 'Alquilado',
+                zone: 'Centro',
+                dimensions: 49,
+                type: "I"
             });
-
+            
         branchOfficeId = branchOfficeRes.body.id;
 
         // Create a new economic activity

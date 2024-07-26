@@ -14,14 +14,15 @@ describe('BranchOffice API', () => {
 
         // Create a new business
         const businessRes = await request(app)
-            .post('/v1/business')
+            .post('/v1/businesses')
             .send({
-                business_name: `Test Business ${Date.now()}`,
+                businessName: `Test Business ${Date.now()}`,
                 dni: '12345678',
                 email: 'test@business.com',
-                establishment_date: '2020-01-01',
-                expiration_date: '2030-01-01',
-                board_expiration_date: '2025-01-01',
+                companyIncorporationDate: '2020-01-01',
+                companyExpirationDate: '2030-01-01',
+                directorsBoardExpirationDate: '2025-01-01',
+                economicActivityId: 1
             });
 
         businessId = businessRes.body.id;

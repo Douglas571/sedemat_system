@@ -20,12 +20,6 @@ router.post('/', async (req, res) => {
 // Get all Branch Offices
 router.get('/', async (req, res) => {
     try {
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-
-    try {
         const { businessid: businessId } = req.query; // Extract businessId from query params
 
         if (businessId) {

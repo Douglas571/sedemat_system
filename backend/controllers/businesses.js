@@ -52,6 +52,7 @@ router.post('/', async (req, res) => {
         let msg = "error random"
         let code = 0
         console.log({error})
+        logger.error({message: "Error creating business", error})
         if (error.name == "SequelizeUniqueConstraintError"){
             // console.log({gotanerror: error})
 

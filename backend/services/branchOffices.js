@@ -20,8 +20,6 @@ exports.createBranchOffice = async (branchOfficeData) => {
 exports.getAllBranchOffices = async () => {
     const branchOffices = await BranchOffice.findAll({});
 
-    console.log({branchOffices})
-
     return branchOffices
 };
 
