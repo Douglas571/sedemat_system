@@ -45,6 +45,10 @@ describe('BranchOffice API', () => {
                 address: '123 Main St',
                 phone: '123-456-7890',
                 businessId: businessId,
+                origin: 'Alquilado',
+                zone: 'Centro',
+                dimensions: 49,
+                type: "I"
             });
 
         expect(res.status).to.equal(201);
@@ -74,6 +78,10 @@ describe('BranchOffice API', () => {
                 address: '456 Another St',
                 phone: '987-654-3210',
                 businessId: businessId,
+                origin: 'Propio',
+                zone: 'Centro',
+                dimensions: 100,
+                type: "II"
             });
 
         expect(res.status).to.equal(200);

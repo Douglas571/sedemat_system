@@ -38,8 +38,12 @@ CREATE TABLE businesses (
 CREATE TABLE branch_offices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
+    zone VARCHAR(200) NOT NULL,
     phone VARCHAR(30),
-    business_id INT, 
+    business_id INT NOT NULL, 
+    dimensions INT NOT NULL,
+    type VARCHAR(30),
+    origin VARCHAR(30), -- convert into some kind of constant
     FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -88,12 +92,12 @@ INSERT INTO payments (business_name, amount, reference, dni, account, payment_da
 INSERT INTO businesses (business_name, dni, email, company_incorporation_date, company_expiration_date, directors_board_expiration_date, economic_activity_id) 
 VALUES 
     ('CASA CHEN, C.A', 'E-8228509-0', 'contact@casachen.com', '2000-01-01', '2025-01-01', '2024-01-01', 1),
-    ('COMERCIAL SOL CARIBE', 'E-82288744-1', 'info@solcaribe.com', '2010-05-15', '2030-05-15', '2028-05-15', 1),
-    ('CARNICERIA TAICO', 'E-84417324-8', 'support@taico.com', '2012-07-20', '2032-07-20', '2030-07-20', 1),
-    ('ALCALDÍA DE ZAMORA', 'G-200006366', 'contact@zamora.gob.ve', '1998-10-10', '2048-10-10', '2045-10-10', 1),
-    ('BANCO BICENTENARIO DEL PUEBLO DE LA CLASE OBRERA, MUJER Y COMUNAS, BANCO UNIVERSAL, C.A', 'G-20009148-7', 'bicentenario@banco.com', '2005-02-14', '2055-02-14', '2050-02-14', 2),
-    ('BANCO DE VENEZUELA AGENCIA 769 PUERTO CUMAREBO, C.A', 'G-20009997-6', 'venezuela@banco.com', '1995-03-12', '2045-03-12', '2040-03-12', 2),
-    ('INDUSTRIA VENEZOLANA DE CEMENTO (INVECEM), S.A.', 'G-20011588-2', 'contact@invecem.com', '2003-06-18', '2053-06-18', '2050-06-18', 2),
-    ('CARBON ACTIVADO, C.A', 'J-00270015-7', 'info@carbonactivo.com', '2015-08-24', '2065-08-24', '2060-08-24', 3),
-    ('TELEFONICA VENEZUELA, C.A', 'J-00343994-0', 'support@telefonica.com', '2000-11-05', '2050-11-05', '2048-11-05', 3),
-    ('TRANSPORTE F-TADEO C.A', 'J-29394010-9', 'info@ftadeo.com', '2018-01-01', '2068-01-01', '2065-01-01', 3);
+    ('COMERCIAL SOL CARIBE', 'E-82288744-1', 'info@solcaribe.com', '2010-05-15', '2030-05-15', '2028-05-15', 1);
+    -- ('CARNICERIA TAICO', 'E-84417324-8', 'support@taico.com', '2012-07-20', '2032-07-20', '2030-07-20', 1),
+    -- ('ALCALDÍA DE ZAMORA', 'G-200006366', 'contact@zamora.gob.ve', '1998-10-10', '2048-10-10', '2045-10-10', 1),
+    -- ('BANCO BICENTENARIO DEL PUEBLO DE LA CLASE OBRERA, MUJER Y COMUNAS, BANCO UNIVERSAL, C.A', 'G-20009148-7', 'bicentenario@banco.com', '2005-02-14', '2055-02-14', '2050-02-14', 2),
+    -- ('BANCO DE VENEZUELA AGENCIA 769 PUERTO CUMAREBO, C.A', 'G-20009997-6', 'venezuela@banco.com', '1995-03-12', '2045-03-12', '2040-03-12', 2),
+    -- ('INDUSTRIA VENEZOLANA DE CEMENTO (INVECEM), S.A.', 'G-20011588-2', 'contact@invecem.com', '2003-06-18', '2053-06-18', '2050-06-18', 2),
+    -- ('CARBON ACTIVADO, C.A', 'J-00270015-7', 'info@carbonactivo.com', '2015-08-24', '2065-08-24', '2060-08-24', 3),
+    -- ('TELEFONICA VENEZUELA, C.A', 'J-00343994-0', 'support@telefonica.com', '2000-11-05', '2050-11-05', '2048-11-05', 3),
+    -- ('TRANSPORTE F-TADEO C.A', 'J-29394010-9', 'info@ftadeo.com', '2018-01-01', '2068-01-01', '2065-01-01', 3);

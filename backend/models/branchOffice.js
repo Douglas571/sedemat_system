@@ -23,6 +23,10 @@ const BranchOffice = sequelize.define('BranchOffice', {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
     },
+    zone: DataTypes.STRING,
+    dimensions: DataTypes.INTEGER,
+    type: DataTypes.STRING, // it can be I, II, III
+
 }, {
     underscored: true,
     timestamps: false,

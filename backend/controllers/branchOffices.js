@@ -6,9 +6,13 @@ const logger = require('../utils/logger')
 // Create a new Branch Office
 router.post('/', async (req, res) => {
     try {
+
+        logger.info({ message: "Creating branch Office", branchOffice: req.body})
         const newBranchOffice = await branchOfficeService.createBranchOffice(req.body);
         res.status(201).json(newBranchOffice);
     } catch (error) {
+        logger.error({ message: "Error creating branch office", error})
+        console.log({error})
         res.status(500).json({ error: { msg: error.message, code: 1 } });
     }
 });
