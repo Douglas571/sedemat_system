@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DatePicker, FormProps, Select, Switch } from 'antd'
+import { DatePicker, FormProps, InputNumber, Select, Switch } from 'antd'
 import { Form, Input, Button, message, Typography, Space, Flex } from 'antd'
 import _ from 'lodash'
 
@@ -45,9 +45,48 @@ function BusinessNew(): JSX.Element {
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
 
     function clearForm(){
-		form.setFieldValue('businessName', '')
-		form.setFieldValue('dni', '')
-        form.setFieldValue('email', '')
+        form.setFieldsValue({
+            businessName: "",
+            dni: "",
+            type: "Normal",
+            e: false,
+            companyIncorporationDate: null,
+            companyExpirationDate: null,
+            directorsBoardExpirationDate: null,
+            economicActivity: "",
+            owner: {
+                firstName: "",
+                lastName: "",
+                dni: "",
+                phone: "",
+                whatsapp: "",
+                email: ""
+            },
+            accountant: {
+                firstName: "",
+                lastName: "",
+                dni: "",
+                phone: "",
+                whatsapp: "",
+                email: ""
+            },
+            administrator: {
+                firstName: "",
+                lastName: "",
+                dni: "",
+                phone: "",
+                whatsapp: "",
+                email: ""
+            },
+            branchOffices: [
+                {
+                    zone: "",
+                    address: "",
+                    dimensions: "",
+                    type: ""
+                }
+            ]
+        });
 	}
 
     useEffect(() => {
@@ -77,25 +116,38 @@ function BusinessNew(): JSX.Element {
             const { owner, accountant, administrator } = values
             
             // upload the owner and get the id before sending the business
-            const registeredOwner = await api.registerContact(owner)
+            const registeredOwner = await api.registerPerson(owner)
             console.log({registeredOwner})
 
-
-
             // upload the accountant if it exists 
+            let registeredAccountant
+            if (accountant.firstName) {
+                registeredAccountant = await api.registerPerson(accountant)
+                console.log({registeredOwner})
+            }
             // upload the administrator 
+            let registeredAdministrator
+            if (administrator.firstName) {
+                registeredAdministrator = await api.registerPerson(administrator)
+                console.log({registeredAdministrator})
+            }
             
             const newBusiness = {
                 ..._.omit(values, ['branchOffices']), 
                 economicActivityId,
-                ownerContactId: registeredOwner.id
+                ownerId: registeredOwner.id,
+                accountantId: registeredAccountant?.id,
+                administratorId: registeredAdministrator?.id,
             }
+
+            console.log({IWillRegister: newBusiness})
             let response = await api.sendBusinessData(newBusiness)
             console.log({response})
             let businessId = response.id
             
             // everything fine
             values.branchOffices.forEach( async (office) => {
+                console.log({IWillRegisterThisBranchOffice: office})
                 let officeToRegister = { ...office, businessId}
                 let newOffice = await api.registerBranchOffice(officeToRegister)
                 console.log({registeredOffice: newOffice})
@@ -106,7 +158,7 @@ function BusinessNew(): JSX.Element {
                 content: "Contribuyente guardado exitosamente",
             });
 
-            clearForm()
+            //clearForm()
         } catch (error) {
             console.log({error})
             let msg = "Hubo un error"
@@ -115,7 +167,7 @@ function BusinessNew(): JSX.Element {
             if (error.message === "duplicated dni") {
                 messageApi.open({
                     type: 'error',
-                    content: `Cédula ya está registrada`,
+                    content: `Cédula ya registrada`,
                 });
 
                 return
@@ -126,6 +178,62 @@ function BusinessNew(): JSX.Element {
                 content: msg,
             });
         }
+    }
+
+    function tipoTerreno(mts2: number): number {
+        // Return type 3 if mts2 is greater than or equal to 300
+        if (mts2 >= 300) {
+            return 3;
+        }
+    
+        // Return type 2 if mts2 is greater than or equal to 50
+        if (mts2 >= 50) {
+            return 2;
+        }
+    
+        // Return type 1 if mts2 is greater than or equal to 0
+        if (mts2 >= 0) {
+            return 1;
+        }
+    
+        // Return 0 if none of the conditions are met
+        return 0;
+    }
+
+    function romanize (num: number): string {
+        if (isNaN(num))
+            return '';
+
+        let digits = String(+num).split("")
+        let key = ["","C","CC","CCC","CD","D","DC","DCC","DCCC","CM",
+                   "","X","XX","XXX","XL","L","LX","LXX","LXXX","XC",
+                   "","I","II","III","IV","V","VI","VII","VIII","IX"]
+        let roman = ""
+        let i = 3;
+
+        while (i--)
+            roman = (key[+digits.pop() + (i * 10)] || "") + roman;
+
+        return Array(+digits.join("") + 1).join("M") + roman;
+    }
+
+    function handleDimensionsChange(officeIndex: number, dimensions: string) {
+        // Convert dimensions to a number
+        const newDimensions = Number(dimensions);
+
+        // Calculate the new type using tipoTerreno
+        const newType = tipoTerreno(newDimensions);
+
+        // Retrieve the current branch offices from the form
+        const branchOffices = form.getFieldsValue(['branchOffices']).branchOffices;
+
+        // Update the type of the specific branch office
+        if (branchOffices[officeIndex]) {
+            branchOffices[officeIndex].type = romanize(newType); // Convert newType to string
+        }
+
+        // Update the form with the new branch offices data
+        form.setFieldsValue({ branchOffices });
     }
 
     return (
@@ -196,10 +304,6 @@ function BusinessNew(): JSX.Element {
                                 {lable: "Normal", value: "Normal"}
                             ]}
                         />
-                    </Form.Item>
-
-                    <Form.Item label="Es Alquilado?" name='e'>
-                        <Switch checkedChildren="SÍ" unCheckedChildren="NO"></Switch>
                     </Form.Item>
                 </Space>
 
@@ -418,23 +522,51 @@ function BusinessNew(): JSX.Element {
                                                 <div>
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
-                                                        <Form.Item label="Zona" name={[field.name, 'zone']}>
-                                                            <Input data-test={`branch-office-${field.name}-zone`}/>
-                                                        </Form.Item>
-
+                                                        
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
                                                             <Input data-test={`branch-office-${field.name}-address`}/>
                                                         </Form.Item>
 
-                                                        <Space>
-                                                            <Form.Item label="Dimensiones (Mts2)" name={[field.name, 'dimensions']}>
-                                                                <Input data-test={`branch-office-${field.name}-dimensions`}/>
+                                                        <Flex wrap gap='middle'>
+                                                            <Form.Item style={{width: "40%"}} label="Zona" name={[field.name, 'zone']}>
+                                                                <Select
+                                                                    data-test={`branch-office-${field.name}-zone`}
+                                                                    showSearch
+                                                                    options={ZONES}
+                                                                />
+                                                                
+                                                            </Form.Item>
+
+                                                            <Form.Item label="Dimensiones (m2)" name={[field.name, 'dimensions']} style={{width: "20%"}} >
+                                                                <InputNumber
+                                                                    data-test={`branch-office-${field.name}-dimensions`}
+                                                                    onChange={(dimensions) => {handleDimensionsChange(field.name, dimensions)}}
+                                                                />
                                                             </Form.Item>
 
                                                             <Form.Item label="Tipo" name={[field.name, 'type']}>
-                                                                <Input data-test={`branch-office-${field.name}-origin`}/>
+                                                                <Select
+                                                                    data-test="branch-office-${index}-zone"
+                                                                    showSearch
+                                                                    options={[
+                                                                        {label: "I", value: "I"},
+                                                                        {lable: "II", value: "II"},
+                                                                        {label: "III", value: "III"},
+                                                                    ]}
+                                                                />
                                                             </Form.Item>
-                                                        </Space>
+
+                                                            <Form.Item label="Procedencia" name={[field.name, 'origin']}>
+                                                                <Select
+                                                                    data-test={`branch-office-${field.name}-origin`}
+                                                                    showSearch
+                                                                    options={[
+                                                                        {label: "Propio", value: "Propio"},
+                                                                        {lable: "Alquilado", value: "Alquilado"}
+                                                                    ]}
+                                                                />
+                                                            </Form.Item>
+                                                        </Flex>
                                                     </span>
                                                 </div>
                                             )
@@ -460,3 +592,33 @@ function BusinessNew(): JSX.Element {
 }
 
 export default BusinessNew
+
+
+const ZONES = [
+    { id: 1, label: "ALTA VISTA", value: "ALTA VISTA" },
+    { id: 2, label: "AVENDA BELLA VISTA", value: "AVENDA BELLA VISTA" },
+    { id: 3, label: "AVENIDA", value: "AVENIDA" },
+    { id: 4, label: "AVENIDA BELLA VISTA", value: "AVENIDA BELLA VISTA" },
+    { id: 5, label: "BARRIALITO", value: "BARRIALITO" },
+    { id: 6, label: "CALLE BOLIVAR", value: "CALLE BOLIVAR" },
+    { id: 7, label: "CALLE INDUSTRIA", value: "CALLE INDUSTRIA" },
+    { id: 8, label: "CALLE LA PAZ", value: "CALLE LA PAZ" },
+    { id: 9, label: "CALLE ZAMORA", value: "CALLE ZAMORA" },
+    { id: 10, label: "CARRETERA NACIONAL MORON-CORO", value: "CARRETERA NACIONAL MORON-CORO" },
+    { id: 11, label: "CENTRO", value: "CENTRO" },
+    { id: 12, label: "CERRO", value: "CERRO" },
+    { id: 13, label: "CIRO CALDERA", value: "CIRO CALDERA" },
+    { id: 14, label: "CORO", value: "CORO" },
+    { id: 15, label: "CUMAREBITO", value: "CUMAREBITO" },
+    { id: 16, label: "DELICIAS", value: "DELICIAS" },
+    { id: 17, label: "INAVI", value: "INAVI" },
+    { id: 18, label: "LA CAÑADA", value: "LA CAÑADA" },
+    { id: 19, label: "LAS DELICIAS", value: "LAS DELICIAS" },
+    { id: 20, label: "PUENTE PIEDRA", value: "PUENTE PIEDRA" },
+    { id: 21, label: "QUEBRADA DE HUTTEN", value: "QUEBRADA DE HUTTEN" },
+    { id: 22, label: "SANTA ELENA", value: "SANTA ELENA" },
+    { id: 23, label: "SANTA TERESA", value: "SANTA TERESA" },
+    { id: 24, label: "SECTOR LAS DELICIAS", value: "SECTOR LAS DELICIAS" },
+    { id: 25, label: "TRANSEUNTE", value: "TRANSEUNTE" },
+    { id: 26, label: "URBANIZACION CIRO CALDERA", value: "URBANIZACION CIRO CALDERA" }
+];

@@ -34,7 +34,7 @@ export type Business = {
     email: string 
 }
 
-export type Contact = {
+export type Person = {
     id?: number
     firstName: string 
     lastName: string 
@@ -236,27 +236,27 @@ export async function registerLicense(license: License): Promise<License> {
 
 // Contacts
 
-export async function registerContact(contact: Contact): Promise<Contact> {
-    const response = await fetch(`${HOST}/v1/contacts`, {
+export async function registerPerson(person: Person): Promise<Person> {
+    const response = await fetch(`${HOST}/v1/people`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(contact),
+        body: JSON.stringify(person),
     });
 
     const data = await response.json();
     console.log({data})
 
     if (response.status !== 201) {
-        throw new Error(data.error || 'Failed to register contact', { value: data.value });
+        throw new Error(data.error || 'Failed to register person', { value: data.value });
     }
 
     return data;
 }
 
-export async function getContactById(id: number): Promise<Contact> {
-    const response = await fetch(`${HOST}/v1/contacts/${id}`, {
+export async function getPersonById(id: number): Promise<Person> {
+    const response = await fetch(`${HOST}/v1/people/${id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -266,14 +266,14 @@ export async function getContactById(id: number): Promise<Contact> {
     const data = await response.json();
 
     if (response.status !== 200) {
-        throw new Error(data.error || 'Failed to fetch contact');
+        throw new Error(data.error || 'Failed to fetch person');
     }
 
     return data;
 }
 
-export async function deleteContact(id: number): Promise<boolean> {
-    const response = await fetch(`${HOST}/v1/contacts/${id}`, {
+export async function deletePerson(id: number): Promise<boolean> {
+    const response = await fetch(`${HOST}/v1/people/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -282,7 +282,7 @@ export async function deleteContact(id: number): Promise<boolean> {
 
     if (response.status !== 204) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to delete contact');
+        throw new Error(data.error || 'Failed to delete person');
     }
 
     return true;
