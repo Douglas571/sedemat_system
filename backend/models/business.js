@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize")
 const sequelize = require("./sequelize")
 
 const EconomicActivity = require("./economicActivity");
+const Person = require("./person")
 
 const Business = sequelize.define('Business', {
     id: {
@@ -23,14 +24,20 @@ const Business = sequelize.define('Business', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'EconomicActivity', // Adjust this to your actual model name
+            model: 'EconomicActivity',
             key: 'id'
         }
     },
+    
+    ownerPersonId: {
+        type: DataTypes.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+            model: 'Person', 
+            key: 'id'
+        }
+    }
 
-    // ownerPersonId: {
-    //     type: DataType.INTEGER
-    // }
 }, {
     underscored: true,
     timestamps: false,
@@ -45,6 +52,15 @@ Business.belongsTo(EconomicActivity, {
 
 EconomicActivity.hasMany(Business, {
     foreignKey: "economicActivityId"
+})
+
+Business.belongsTo(Person, {
+    foreignKey: "ownerPersonId",
+    as: 'owner'
+})
+
+Person.hasMany(Business, {
+    foreignKey: "ownerPersonId"
 })
 
 async function sync() {

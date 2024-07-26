@@ -46,13 +46,15 @@ describe('SEDEMAT app', () => {
       zone: 'CENTRO',
       address: '123 Main St',
       dimensions: '39',
-      origin: 'Propio'
+      origin: 'Propio',
+      type: "I"
     },
     {
       zone: 'LA CAÑADA',
       address: '456 Another St',
       dimensions: '60',
-      origin: 'Alquilado'
+      origin: 'Alquilado',
+      type: "II"
     }
   ];
 

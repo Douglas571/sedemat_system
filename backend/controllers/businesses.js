@@ -16,13 +16,15 @@ router.get('/', async (req, res) => {
 // Get business by ID
 router.get('/:id', async (req, res) => {
     try {
+        logger.info({message: `Lookinf for business by id: ${req.params.id}`})
         const business = await businessService.getBusinessById(req.params.id);
         if (!business) {
             return res.status(404).json({ error: 'Business not found' });
         }
         res.json(business);
     } catch (error) {
-        logger.error(error)
+        logger.error({message: "Error looking for business", error})
+        console.log({error})
         res.status(500).json({ error: error.message });
     }
 });

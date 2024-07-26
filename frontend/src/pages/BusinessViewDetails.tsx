@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
-import { FormProps } from 'antd'
-import { Form, Input, Button, message, Typography } from 'antd'
+import { FormProps, Space } from 'antd'
+import { Form, Input, Button, message, Typography, Select} from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link } from 'react-router-dom';
+
+import type {Business, BranchOffice, License, EconomicActivity} from '../util/api'
 
 import * as api from '../util/api'
 import { TypeIcon } from 'antd/es/message/PurePanel';
@@ -11,38 +13,11 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-type EconomicActivity = {
-    title: string,
-    alicuota: number 
-    minimumTax: number
-}
-
-type License = {
-    EconomicActivity: EconomicActivity
-    openAt: Date
-    closeAt: Date
-    issuedDate: Date
-    expirationDate: Date
-}
-
-type BranchOffice = {
-    id: number
-    address: string
-    phone: string
-    EconomicLicenses?: Array<License>
-    lastEconomicLicense?: License;
-}
-type Business = {
-    businessName: string
-    dni: string 
-    email: string,
-    branchOffices: Array<BranchOffice>
-    economicActivity: EconomicActivity
-}
-
 function BusinessViewDetails(): JSX.Element {
     let [business, setBusiness] = React.useState<Business>()
     let { businessId } = useParams();
+
+    let [shouldUpdatePreferredChanel, setShouldUpdatePreferredChanel] = React.useState<boolean>(false)
 
     useEffect(() => {
         // first load of data
@@ -64,10 +39,6 @@ function BusinessViewDetails(): JSX.Element {
             setBusiness({...fetchedBusiness, branchOffices})       
         }
     }
-
-    const license = {
-        expirationDate: '2022-12-31'
-    };
 
     function isLicenseValid(license: License | undefined): boolean {
         if (!license) {
@@ -98,39 +69,102 @@ function BusinessViewDetails(): JSX.Element {
         }
     }
 
+    if (!business) {
+        return (<div>Cargando</div>)
+    }
+
     return (
         <div>
             <Typography>
                 <Title>
                     {business?.businessName || "Cargando..."} <Link to={`/business/edit/${businessId}`}>Editar</Link>
                 </Title>
-                <Title level={3}>
+                <Title level={2}>
                     Detalles
                 </Title>
                 <Paragraph>
-                    RIF: {business?.dni}
+                    RIF: {business?.dni}<br/>
+                    Fecha de constitución: {business.companyIncorporationDate.toString()}<br/>
+                    Fecha de vencimiento: {business.companyExpirationDate.toString()}<br/>
+                    Fecha de vencimiento de la junta directiva: {business.directorsBoardExpirationDate.toString()}
                 </Paragraph>
+                <Title level={5}>
+                    Actividad Económica
+                </Title>
                 <Paragraph>
-                    Actividad Económica: {business?.economicActivity?.title} <br/>
+                    Codigo: {business?.economicActivity.code}<br/>
+                    Ramo: {business?.economicActivity?.title} <br/>
                     Alicuota: {business?.economicActivity?.alicuota}% <br/>
                     Mínimo Tributario: {business?.economicActivity?.alicuota} TCMMV-BCV
                 </Paragraph>
 
-{/*                 
-                <Title level={3}>
-                    Datos del dueño
+                <Title level={2}>
+                    Encargados
                 </Title>
-                <Paragraph>
-                    Nombres y Apellidos: 
-                </Paragraph>
-                <Paragraph>
-                    Cédula: 
-                </Paragraph> */}
-                {/*<Title level={3}>
-                    Licencias
-                </Title> */}
+                <Space>
+                    Agente encargado de finanzas: 
+                    Medio preferido de comunicación: 
+                    <Select
+                         
+                    />
+                    <Button>Guardar</Button>
+                </Space>
+                <Title level={4}>
+                    Propietario
+                </Title>
+                { business.owner ? (
+                    <>
+                        <Paragraph>
+                            Nombres y Apellidos: {business.owner.firstName + " " + business.owner.lastName}<br/>
+                            Cédula: {business.owner.dni}<br/>
+                            Phone: {business.owner.phone}<br/>
+                            Whatsapp: {business.owner.whatsapp}<br/>
+                            Correo: {business.owner.email}<br/>
+                        </Paragraph>
+                    </>
+                )
+                : (
+                    <Paragraph>
+                        Sin datos
+                    </Paragraph>
+                )}
+
+                { business.accountant && (
+                    <>
+                        <Title level={4}>
+                            Contador
+                        </Title>
+                        <Paragraph>
+                            Nombres y Apellidos: {business.accountant.firstName + " " + business.owner.lastName}<br/>
+                            Cédula: {business.accountant.dni}<br/>
+                            Phone: {business.accountant.phone}<br/>
+                            Whatsapp: {business.accountant.whatsapp}<br/>
+                            Correo: {business.accountant.email}<br/>
+                        </Paragraph>
+                    </>
+                )}
+
+                
+                { business.administrator && (
+                    <>
+                        <Title level={4}>
+                            Administrador
+                        </Title>
+                        <Paragraph>
+                            Nombres y Apellidos: {business.administrator.firstName + " " + business.owner.lastName}<br/>
+                            Cédula: {business.administrator.dni}<br/>
+                            Phone: {business.administrator.phone}<br/>
+                            Whatsapp: {business.administrator.whatsapp}<br/>
+                            Correo: {business.administrator.email}<br/>
+                        </Paragraph>
+                    </>
+                )}
+
+                <Title level={2}>
+                    Sedes o Establecimientos
+                </Title>
                 {
-                    business?.branchOffices.map( office => {
+                    business?.branchOffices.map( (office, index) => {
                         const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
                         console.log({office})
                         console.log({lastEconomicLicense})
@@ -138,19 +172,39 @@ function BusinessViewDetails(): JSX.Element {
                         return (
                             <>
                                 <Title level={4}>
-                                    Sede #1 {renderLicenseButton(office)}
+                                    Sede #{index + 1} {renderLicenseButton(office)}
                                 </Title>
-                                <Paragraph>Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}</Paragraph>
-                                <Paragraph>Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}</Paragraph>
-                                <Paragraph>Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}</Paragraph>
+                                <Paragraph>
+                                    {/* Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}<br/>
+                                    Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}<br/>
+                                    Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}<br/> */}
+                                    Zona: {office.zone}<br/>
+                                    Dirección: {office.address}<br/>
+                                    Dimensiones: {office.dimensions}<br/>
+                                    Tipo de terreno: {office.type}<br/>
+                                    Procedencia: {office.origin}<br/>
 
-                                <Paragraph>Dirección: {office.address}</Paragraph>
-                                <Paragraph>Teléfono: {office.phone} </Paragraph>
-
-                                {/* <Paragraph>Horario</Paragraph> */}
-
-                                <Paragraph>Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}</Paragraph>
-                                <Paragraph>Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}</Paragraph>
+                                    
+                                    <Title level={5}>
+                                        Licencia
+                                    </Title>
+                                    {
+                                        lastEconomicLicense?.issuedDate
+                                        ? (
+                                            <>
+                                                Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}<br/>
+                                                Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}
+                                            </>
+                                        ):
+                                        (
+                                            <>
+                                                Sin licencia
+                                            </>
+                                        )
+                                        
+                                    }
+                                    
+                                </Paragraph>
                             </>
                         )
                     })

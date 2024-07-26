@@ -18,20 +18,8 @@ export type License = {
     closeAt?: String
     issuedDate: Date 
     expirationDate: Date
-}
 
-export type BranchOffice = {
-    id?: number;
-    address: string;
-    phone: string;
-    businessId: number; // Assuming you have a reference to the business ID
-};
-
-export type Business = {
-    id?: number
-    businessName: string
-    dni: string 
-    email: string 
+    EconomicActivity: EconomicActivity
 }
 
 export type Person = {
@@ -43,6 +31,35 @@ export type Person = {
     whatsapp: string 
     email: string 
 }
+
+export type BranchOffice = {
+    id?: number;
+    address: string;
+    phone: string;
+    businessId: number; // Assuming you have a reference to the business ID
+
+    EconomicLicenses?: Array<License>
+    lastEconomicLicense?: License;
+};
+
+export type Business = {
+    id?: number
+    businessName: string
+    dni: string 
+    email: string 
+    branchOffices: Array<BranchOffice>
+    economicActivity: EconomicActivity
+
+    companyExpirationDate: Date
+    companyIncorporationDate: Date
+    directorsBoardExpirationDate: Date
+
+
+    owner: Person
+    accountant?: Person 
+    administrator?: Person
+}
+
 
 // Business
 export async function fetchBusiness() {

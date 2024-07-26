@@ -1,5 +1,6 @@
 const Business = require('../models/business');
 const EconomicActivity = require('../models/economicActivity')
+const Person = require("../models/person")
 
 
 // Get all businesses
@@ -9,9 +10,21 @@ exports.getAllBusinesses = async () => {
 
 // Get business by ID
 exports.getBusinessById = async (id) => {
-    return await Business.findByPk(id, {
-        include: 'economicActivity'
+    let business = await Business.findByPk(id, {
+        include: [
+            {
+                model: EconomicActivity,
+                as: 'economicActivity'
+            },
+            {
+                model: Person,
+                as: "owner"
+            }
+        ]
     });
+
+    console.log({business})
+    return business
 };
 
 // Register a new business

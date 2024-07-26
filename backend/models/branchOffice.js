@@ -26,6 +26,7 @@ const BranchOffice = sequelize.define('BranchOffice', {
     zone: DataTypes.STRING,
     dimensions: DataTypes.INTEGER,
     type: DataTypes.STRING, // it can be I, II, III
+    origin: DataTypes.STRING
 
 }, {
     underscored: true,

@@ -135,9 +135,9 @@ function BusinessNew(): JSX.Element {
             const newBusiness = {
                 ..._.omit(values, ['branchOffices']), 
                 economicActivityId,
-                ownerId: registeredOwner.id,
-                accountantId: registeredAccountant?.id,
-                administratorId: registeredAdministrator?.id,
+                ownerPersonId: registeredOwner.id,
+                accountantPersonId: registeredAccountant?.id,
+                administratorPersonId: registeredAdministrator?.id,
             }
 
             console.log({IWillRegister: newBusiness})

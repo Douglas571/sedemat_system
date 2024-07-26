@@ -8,6 +8,17 @@ CREATE TABLE economic_activities (
     minimum_tax DECIMAL(10, 2) NOT NULL
 );
 
+
+CREATE TABLE people (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dni VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    phone VARCHAR(50),
+    whatsapp VARCHAR(50),
+    email VARCHAR(255)
+);
+
 CREATE TABLE payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     business_name VARCHAR(255) NOT NULL,
@@ -31,8 +42,16 @@ CREATE TABLE businesses (
     directors_board_expiration_date DATE, -- the day that the business board will be disolved
 
     economic_activity_id INT NOT NULL,
+
+    owner_person_id INT,
+    accountant_person_id INT,
+    administrator_person_id INT,
+
     filcal_id INT,
-    FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
+    FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id),
+    FOREIGN KEY (owner_person_id) REFERENCES people(id),
+    FOREIGN KEY (accountant_person_id) REFERENCES people(id),
+    FOREIGN KEY (administrator_person_id) REFERENCES people(id)
 );
 
 CREATE TABLE branch_offices (
@@ -57,16 +76,6 @@ CREATE TABLE economic_licenses (
     expiration_date DATE NOT NULL,
     FOREIGN KEY (branch_office_id) REFERENCES branch_offices(id),
     FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
-);
-
-CREATE TABLE people (
-    id SERIAL PRIMARY KEY,
-    dni VARCHAR(255) UNIQUE NOT NULL,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    phone VARCHAR(50),
-    whatsapp VARCHAR(50),
-    email VARCHAR(255)
 );
 
 
