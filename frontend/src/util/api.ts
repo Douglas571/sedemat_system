@@ -54,6 +54,10 @@ export type Business = {
     companyIncorporationDate: Date
     directorsBoardExpirationDate: Date
 
+    preferredChannel: string
+    sentCalculosTo: string
+    preferredContact: string
+
 
     owner: Person
     accountant?: Person 
@@ -135,7 +139,7 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
     }
 }
 
-export async function sendBusinessData(business: Business) {
+export async function sendBusinessData(business: Business): Promise<Business> {
     const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
     const requestOptions = {
         method: 'POST',

@@ -37,7 +37,30 @@ interface FormFields {
     owner: ContactForm
     accountant: ContactForm
     administrator: ContactForm
+
+    preferredChannel: string
+    sentCalculosTo: string
+    preferredContact: string
 }
+
+const contactOptions = [
+    {label: "Propietario", value: "Propietario"},
+    {lable: "Contador", value: "Contador"},
+    {label: "Administrador", value: "Administrador"},
+]
+
+const channelOptions = [
+    {label: "Teléfono", value: "Teléfono"},
+    {lable: "Whatsapp", value: "Whatsapp"},
+    {label: "Correo", value: "Correo"},
+]
+
+const reminderIntervalOptions = [
+    {label: "Una vez al més", value: "Una vez al més"},
+    {label: "Cada 3 días", value: "Cada 3 días"},
+    {label: "Cada 7 días", value: "Cada 7 días"},
+    {lable: "Cada 15 días", value: "Cada 15 días"},
+]
 
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
@@ -105,80 +128,115 @@ function BusinessNew(): JSX.Element {
         }
     }
 
-    const onFinish: FormProps<FiledType>['onFinish'] = async (values: FormFields) => {
+    const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
-            console.log({values})
-
-            const economicActivityObject = economicActivities.find( e => e.title === values?.economicActivity)
-            const economicActivityId = economicActivityObject?.id
-
-            // register contacts
-            const { owner, accountant, administrator } = values
-            
-            // upload the owner and get the id before sending the business
-            const registeredOwner = await api.registerPerson(owner)
-            console.log({registeredOwner})
-
-            // upload the accountant if it exists 
-            let registeredAccountant
-            if (accountant.firstName) {
-                registeredAccountant = await api.registerPerson(accountant)
-                console.log({registeredOwner})
+            console.log({ values });
+      
+            // Early return for testing purposes
+            // return;
+        
+            const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
+            const economicActivityId = economicActivityObject?.id;
+        
+            // Register contacts
+            const { owner, accountant, administrator } = values;
+        
+            // Upload the owner and get the id before sending the business
+            const registeredOwner = await api.registerPerson(owner);
+            console.log({ registeredOwner });
+        
+            // Upload the accountant if it exists
+            let registeredAccountant;
+            if (accountant?.firstName) {
+                registeredAccountant = await api.registerPerson(accountant);
+                console.log({ registeredAccountant });
             }
-            // upload the administrator 
-            let registeredAdministrator
-            if (administrator.firstName) {
-                registeredAdministrator = await api.registerPerson(administrator)
-                console.log({registeredAdministrator})
+
+            // Upload the administrator if it exists
+            let registeredAdministrator;
+            if (administrator?.firstName) {
+                registeredAdministrator = await api.registerPerson(administrator);
+                console.log({ registeredAdministrator });
             }
-            
+      
             const newBusiness = {
-                ..._.omit(values, ['branchOffices']), 
+                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sentCalculosTo', 'preferredContact']),
                 economicActivityId,
                 ownerPersonId: registeredOwner.id,
                 accountantPersonId: registeredAccountant?.id,
                 administratorPersonId: registeredAdministrator?.id,
+            };
+      
+            const response = await api.sendBusinessData(newBusiness);
+            const businessId = response.id;
+
+            if (!businessId) {
+                throw Error("Error al registrar empresa")
+            }
+      
+            // Register branch offices
+            values.branchOffices.forEach(async (office) => {
+                console.log({ IWillRegisterThisBranchOffice: office });
+                const officeToRegister = { ...office, businessId };
+                const newOffice = await api.registerBranchOffice(officeToRegister);
+                console.log({ registeredOffice: newOffice });
+            });
+      
+            // Create an object called businessContactPreference
+            const businessContactPreference: { [key: string]: string } = {};
+      
+            // Map preferredChannel and sentCalculosTo to corresponding values
+            const channelMapping: { [key: string]: string } = {
+                'Telefono': 'PHONE',
+                'Whatsapp': 'WHATSAPP',
+                'Correo': 'EMAIL'
+            };
+
+            // Map preferredContact to corresponding values
+            const contactMapping = {
+                'Administrador': 'ADMINISTRATOR',
+                'Propietario': 'OWNER',
+                'Contador': 'ACCOUNTANT'
             }
 
-            console.log({IWillRegister: newBusiness})
-            let response = await api.sendBusinessData(newBusiness)
-            console.log({response})
-            let businessId = response.id
-            
-            // everything fine
-            values.branchOffices.forEach( async (office) => {
-                console.log({IWillRegisterThisBranchOffice: office})
-                let officeToRegister = { ...office, businessId}
-                let newOffice = await api.registerBranchOffice(officeToRegister)
-                console.log({registeredOffice: newOffice})
-            })
+            if (typeof values.preferredChannel === 'string' 
+                && typeof values.preferredContact === 'string' 
+                && typeof values.sentCalculosTo === 'string') {
+                response.preferredChannel = channelMapping[values.preferredChannel]
+                response.sentCalculosTo = channelMapping[values.sentCalculosTo]
+                response.preferredContact = contactMapping[values.preferredContact]
 
+                console.log("before sending ", JSON.stringify(response))
+                // Update business with the contacts preference data
+                await api.updateBusinessData(businessId, response);
+            }
+        
             messageApi.open({
                 type: 'success',
                 content: "Contribuyente guardado exitosamente",
             });
-
-            //clearForm()
-        } catch (error) {
-            console.log({error})
-            let msg = "Hubo un error"
-            msg = error.message
-
+        
+            // clearForm() // Uncomment if you have a clearForm function defined
+            } catch (error) {
+            console.log({ error });
+            let msg = "Hubo un error";
+            msg = error.message;
+        
             if (error.message === "duplicated dni") {
                 messageApi.open({
-                    type: 'error',
-                    content: `Cédula ya registrada`,
+                type: 'error',
+                content: `Cédula ya registrada`,
                 });
-
-                return
+        
+                return;
             }
-
+        
             messageApi.open({
                 type: 'error',
                 content: msg,
             });
         }
-    }
+    };
 
     function tipoTerreno(mts2: number): number {
         // Return type 3 if mts2 is greater than or equal to 300
@@ -351,6 +409,66 @@ function BusinessNew(): JSX.Element {
                         options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
                     />
                 </Form.Item>
+
+
+                <Title level={3}>
+                    Preferencias de comunicación
+                </Title>
+                
+                <Space>
+                    <Form.Item 
+                        label='Agente encargado de finanzas: '
+                        name='preferredContact'
+                    >
+                        <Select
+                            data-test="communication-options-preferred-contact"
+                            showSearch
+                            defaultValue={contactOptions[0].value}
+                            style={{minWidth: "150px"}}
+                            options={contactOptions}
+                        />
+                    </Form.Item>
+                    <Form.Item 
+                        label='Medio preferido de comunicación: '
+                        name="preferredChannel"
+                    >
+                        <Select
+                            data-test="communication-options-preferred-channel"
+                            showSearch
+                            defaultValue={channelOptions[0].value}
+                            style={{minWidth: "150px"}}
+                            options={channelOptions}
+                        />
+                    </Form.Item>
+
+                    <Form.Item 
+                        label="Recordatorios: "
+                        name="reminderInterval"
+                    >
+                        <Select
+                            data-test="communication-options-reminder-interval"
+                            showSearch
+                            defaultValue={reminderIntervalOptions[0].value}
+                            style={{minWidth: "150px"}}
+                            options={reminderIntervalOptions}
+                        />
+                    </Form.Item>
+
+                    <Form.Item 
+                        label="Enviar cálculos al: "
+                        name="sendCalculosTo"
+                    >
+                        <Select
+                            data-test="communication-options-send-calculos"
+                            showSearch
+                            defaultValue={channelOptions[0].value}
+                            style={{minWidth: "150px"}}
+                            options={channelOptions}
+                        />
+                    </Form.Item>
+                </Space>
+                
+
 
                 <Title level={3}>
                     Propietario

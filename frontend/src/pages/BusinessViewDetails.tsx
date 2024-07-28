@@ -129,14 +129,6 @@ function BusinessViewDetails(): JSX.Element {
                 <Title level={2}>
                     Encargados
                 </Title>
-                <Space>
-                    Agente encargado de finanzas: 
-                    Medio preferido de comunicación: 
-                    <Select
-                         
-                    />
-                    <Button>Guardar</Button>
-                </Space>
                 <Title level={4}>
                     Propietario
                 </Title>
