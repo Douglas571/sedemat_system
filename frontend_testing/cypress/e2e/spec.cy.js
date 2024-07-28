@@ -160,5 +160,25 @@ describe('SEDEMAT app', () => {
       cy.contains(branchOffice.dimensions).should('be.visible');
       cy.contains(branchOffice.type).should('be.visible');
       cy.contains(branchOffice.origin).should('be.visible');
-  });
+    });
+
+    it('should delete the business', () => {
+      cy.visit(`${Cypress.config().baseUrl}/business`);
+      // Find the business in the list and click the link
+      cy.contains(businessData.name).click();
+
+      // Now, delete the business
+      cy.get('[data-test="business-delete-button"]').click();
+
+      // Confirm deletion in the modal
+      cy.get('[data-test="business-delete-modal"]').within(() => {
+          cy.contains('Aceptar').click();
+      });
+
+      // Check that the URL is exactly /business
+      cy.url().should('eq', `${Cypress.config().baseUrl}/business`);
+
+      // Check that the business name is not visible (it is deleted)
+      cy.contains(businessData.name).should('not.exist');
+    })
 })
