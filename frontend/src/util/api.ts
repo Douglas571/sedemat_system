@@ -77,6 +77,25 @@ export async function fetchBusiness() {
     }
 }
 
+export async function deleteBusiness(id: number): Promise<void> {
+    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete business: ${response.statusText}`);
+        }
+
+        console.log(`Business with ID ${id} deleted successfully.`);
+    } catch (error) {
+        console.error('Error deleting business:', error);
+        throw error;
+    }
+}
+
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
     const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {
         method: 'GET',

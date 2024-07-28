@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
-import { FormProps, Space } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { FormProps, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select} from 'antd'
 const { Title, Paragraph } = Typography
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 import type {Business, BranchOffice, License, EconomicActivity} from '../util/api'
 
@@ -14,8 +14,10 @@ const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 function BusinessViewDetails(): JSX.Element {
-    let [business, setBusiness] = React.useState<Business>()
-    let { businessId } = useParams();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [business, setBusiness] = React.useState<Business>()
+    const { businessId } = useParams();
+    const navigate = useNavigate()
 
     let [shouldUpdatePreferredChanel, setShouldUpdatePreferredChanel] = React.useState<boolean>(false)
 
@@ -27,6 +29,28 @@ function BusinessViewDetails(): JSX.Element {
     useEffect(() => {
         console.log({business})
     }, [business])
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteBusiness = async () => {
+        setIsModalOpen(false);
+
+        try {
+            business?.id && await api.deleteBusiness(business.id)
+        } catch (error) {
+            if (error.message.includes("Business not found")) {
+                console.log("La empresa no existe o fue eliminada")
+            }
+        }
+    
+        navigate('/business')
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
 
     async function loadBusinessData() {
         // get the business data 
@@ -77,7 +101,11 @@ function BusinessViewDetails(): JSX.Element {
         <div>
             <Typography>
                 <Title>
-                    {business?.businessName || "Cargando..."} <Link to={`/business/edit/${businessId}`}>Editar</Link>
+                    {business?.businessName || "Cargando..."} 
+                    <Button onClick={() => navigate(`/business/edit/${businessId}`)}>Editar</Button> 
+                    <Button 
+                        data-test="business-delete-button"
+                        onClick={() => business.id && showModal()}>Eliminar</Button>
                 </Title>
                 <Title level={2}>
                     Detalles
@@ -215,6 +243,15 @@ function BusinessViewDetails(): JSX.Element {
                     Calculos
                 </Title>
             </Typography>
+
+
+            <Modal title="Eliminar Contribuyente" 
+                data-test='business-delete-modal'
+                open={isModalOpen} 
+                onOk={handleDeleteBusiness} 
+                onCancel={handleCancel}>
+                <p>¿Seguro que deseas eliminar este contribuyente?</p>
+            </Modal>
         </div>
     )
 }
