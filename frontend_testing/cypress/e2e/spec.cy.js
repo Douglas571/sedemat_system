@@ -105,7 +105,7 @@ describe('SEDEMAT app', () => {
 
 
     // the branch office zone, address, dimensions, type and origin should be visible too.
-    it.skip('should check if the business information exists', () => {
+    it('should check if the business information exists', () => {
       // Navigate to the business list page
       cy.visit('http://localhost:5173/business');
 
@@ -140,7 +140,7 @@ describe('SEDEMAT app', () => {
       cy.contains(branchOffice.origin).should('be.visible');
     });
 
-    it.skip('should delete the business', () => {
+    it('should delete the business', () => {
       cy.visit(`${Cypress.config().baseUrl}/business`);
       // Find the business in the list and click the link
       cy.contains(businessData.name).click();
