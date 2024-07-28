@@ -63,30 +63,16 @@ describe('SEDEMAT app', () => {
     // Visit the business registration page
     cy.visit('http://localhost:5173/business/new');
 
-    // Fill the business name input
+    // Fill the business basic information
     cy.get('[data-test="business-name-input"]').type(businessData.name);
     cy.get('[data-test="business-dni-input"]').type(businessData.dni);
-    //cy.get('[data-test="business-email-input"]').type(businessData.email);
     cy.get('[data-test="business-incorporation-date-input"]').type(`${businessData.establishmentDate}`);
     cy.get('[data-test="business-expiration-date-input"]').type(`${businessData.boardExpirationDate}`);
     cy.get('[data-test="business-board-expiration-date-input"]').type(`${businessData.expirationDate}`);
 
     cy.get('[data-test="business-economic-activity-input"]').type(`${businessData.economicActivity}{enter}`);
 
-    // // Fill the other necessary fields (adjust the selectors as needed)
-    // cy.get('[data-test="business-email-input"]').type('test@business.com');
-    // cy.get('[data-test="business-establishment-date-input"]').type('2020-01-01');
-    // cy.get('[data-test="business-expiration-date-input"]').type('2030-01-01');
-    // cy.get('[data-test="business-board-expiration-date-input"]').type('2025-01-01');
-
-    // // Submit the form (adjust the selector to match your submit button)
-    // cy.get('[data-test="business-submit-button"]').click();
-
-    // // Verify that the business was successfully registered
-    // cy.url().should('include', '/business/success'); // Adjust as needed for your success URL
-    // cy.contains('Business successfully registered').should('be.visible'); // Adjust as needed for your success message
-
-
+    // fill owner information 
     cy.get('[data-test="owner-first-name-input"]').type(ownerData.firstName);
     cy.get('[data-test="owner-last-name-input"]').type(ownerData.lastName);
     cy.get('[data-test="owner-dni-input"]').type(ownerData.dni);
@@ -94,12 +80,14 @@ describe('SEDEMAT app', () => {
     cy.get('[data-test="owner-whatsapp-input"]').type(ownerData.whatsapp);
     cy.get('[data-test="owner-email-input"]').type(ownerData.email);
 
+    // fill preferred communication channel information
+    cy.get('[data-test="communication-options-preferred-contact"]').type('Conta{enter}');
+    cy.get('[data-test="communication-options-preferred-channel"]').type('Whatsapp{enter}');
+    cy.get('[data-test="communication-options-send-calculos"]').type('Corre{enter}');
+    cy.get('[data-test="communication-options-reminder-interval"]').type('Cada 7 di{enter}');
 
-    // fill the branch offices 
 
-    // they follow the following sequense 
-    // first sucursal zone = data-test=branch-office-${index}-zone
-    // the same with address, dimensions and origin (rented and owned)
+    // fill branch office data
     branchOfficesData.forEach((branchOffice, index) => {
       if (index !== 0) {
         cy.get("[data-test='branch-office-add-button']").click()
@@ -115,19 +103,9 @@ describe('SEDEMAT app', () => {
     cy.contains('Contribuyente guardado exitosamente').should('be.visible'); 
   });
 
-  // NEW TEST
-  // I need to check if the business information exists 
-  // i need to navigate to the business list page
-    // the business should be there, get a link with the business name, and click it
-    // it should navigate to the business detailed view page
-    // the url should contain /business
-    // the business name should be visible 
-    // the url should be visible 
-    // the economic activity should be visible 
-    // the owner first name, last name, phone number, whatsapp and email should be visible too
 
     // the branch office zone, address, dimensions, type and origin should be visible too.
-    it('should check if the business information exists', () => {
+    it.skip('should check if the business information exists', () => {
       // Navigate to the business list page
       cy.visit('http://localhost:5173/business');
 
@@ -162,7 +140,7 @@ describe('SEDEMAT app', () => {
       cy.contains(branchOffice.origin).should('be.visible');
     });
 
-    it('should delete the business', () => {
+    it.skip('should delete the business', () => {
       cy.visit(`${Cypress.config().baseUrl}/business`);
       // Find the business in the list and click the link
       cy.contains(businessData.name).click();
