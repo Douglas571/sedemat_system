@@ -35,6 +35,7 @@ exports.createBusiness = async (businessData) => {
 // Update a business
 exports.updateBusiness = async (id, businessData) => {
     const business = await Business.findByPk(id);
+    logger.info({message: "businessService.updateBusiness", businessId: id, businessData})
     if (!business) {
         throw new Error('Business not found');
     }
