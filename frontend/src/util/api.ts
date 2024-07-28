@@ -55,7 +55,7 @@ export type Business = {
     directorsBoardExpirationDate: Date
 
     preferredChannel: string
-    sentCalculosTo: string
+    sendCalculosTo: string
     preferredContact: string
 
 

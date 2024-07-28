@@ -39,7 +39,7 @@ interface FormFields {
     administrator: ContactForm
 
     preferredChannel: string
-    sentCalculosTo: string
+    sendCalculosTo: string
     preferredContact: string
 }
 
@@ -160,7 +160,7 @@ function BusinessNew(): JSX.Element {
             }
       
             const newBusiness = {
-                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sentCalculosTo', 'preferredContact']),
+                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sendCalculosTo', 'preferredContact']),
                 economicActivityId,
                 ownerPersonId: registeredOwner.id,
                 accountantPersonId: registeredAccountant?.id,
@@ -193,23 +193,20 @@ function BusinessNew(): JSX.Element {
             };
 
             // Map preferredContact to corresponding values
-            const contactMapping = {
+            const contactMapping: { [key: string]: string } = {
                 'Administrador': 'ADMINISTRATOR',
                 'Propietario': 'OWNER',
                 'Contador': 'ACCOUNTANT'
             }
 
-            if (typeof values.preferredChannel === 'string' 
-                && typeof values.preferredContact === 'string' 
-                && typeof values.sentCalculosTo === 'string') {
-                response.preferredChannel = channelMapping[values.preferredChannel]
-                response.sentCalculosTo = channelMapping[values.sentCalculosTo]
-                response.preferredContact = contactMapping[values.preferredContact]
+            response.preferredChannel = channelMapping[values.preferredChannel]
+            response.sendCalculosTo = channelMapping[values.sendCalculosTo]
+            response.preferredContact = contactMapping[values.preferredContact]
 
-                console.log("before sending ", JSON.stringify(response))
-                // Update business with the contacts preference data
-                await api.updateBusinessData(businessId, response);
-            }
+            console.log("before sending ", JSON.stringify(response, null, 2))
+            // Update business with the contacts preference data
+            const finalBusiness = await api.updateBusinessData(businessId, response);
+            console.log({finalBusiness})
         
             messageApi.open({
                 type: 'success',
@@ -415,7 +412,6 @@ function BusinessNew(): JSX.Element {
                     Preferencias de comunicación
                 </Title>
                 
-                <Space>
                     <Form.Item 
                         label='Agente encargado de finanzas: '
                         name='preferredContact'
@@ -466,7 +462,6 @@ function BusinessNew(): JSX.Element {
                             options={channelOptions}
                         />
                     </Form.Item>
-                </Space>
                 
 
 
