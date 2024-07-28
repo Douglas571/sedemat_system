@@ -47,6 +47,10 @@ CREATE TABLE businesses (
     accountant_person_id INT,
     administrator_person_id INT,
 
+    preferred_channel VARCHAR(30),
+    send_calculos_to VARCHAR(30),
+    preferred_contact VARCHAR(30),
+
     filcal_id INT,
     FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id),
     FOREIGN KEY (owner_person_id) REFERENCES people(id),
