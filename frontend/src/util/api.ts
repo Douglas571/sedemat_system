@@ -54,16 +54,14 @@ export type Business = {
     companyIncorporationDate: Date
     directorsBoardExpirationDate: Date
 
-    preferredChannel: string
-    sendCalculosTo: string
-    preferredContact: string
-
+    preferredChannel?: string
+    sendCalculosTo?: string
+    preferredContact?: string
 
     owner: Person
     accountant?: Person 
     administrator?: Person
 }
-
 
 // Business
 export async function fetchBusiness() {
@@ -173,13 +171,19 @@ export async function updateBusinessData(id: number, business: Business) {
     };
 
     try {
-        const response = await fetch(url, requestOptions);
+        let response = await fetch(url, requestOptions);
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error.msg || 'Failed to post business data');
         }
-        console.log('Business data posted successfully');
+
+        let updatedBusiness = await response.json()
+        console.log('Business data updated successfully');
         // Optionally handle response data here
+
+        console.log(JSON.stringify(updatedBusiness, null, 2))
+        
+        return updatedBusiness
     } catch (error) {
         console.error('Error posting business data:', error.message);
         // Handle error state in your application
