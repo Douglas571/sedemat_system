@@ -36,7 +36,11 @@ const Business = sequelize.define('Business', {
             model: 'Person', 
             key: 'id'
         }
-    }
+    },
+
+    preferredChannel: DataTypes.STRING,
+    sendCalculosTo: DataTypes.STRING,
+    preferredContact: DataTypes.STRING,
 
 }, {
     underscored: true,
@@ -64,7 +68,9 @@ Person.hasMany(Business, {
 })
 
 async function sync() {
-    await Business.sync({ force: true })
+    await Business.sync()
 }
+
+// sync()
 
 module.exports = Business

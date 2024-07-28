@@ -2,6 +2,8 @@ const Business = require('../models/business');
 const EconomicActivity = require('../models/economicActivity')
 const Person = require("../models/person")
 
+const logger = require('../utils/logger')
+
 
 // Get all businesses
 exports.getAllBusinesses = async () => {
@@ -22,8 +24,6 @@ exports.getBusinessById = async (id) => {
             }
         ]
     });
-
-    console.log({business})
     return business
 };
 
@@ -36,10 +36,13 @@ exports.createBusiness = async (businessData) => {
 exports.updateBusiness = async (id, businessData) => {
     const business = await Business.findByPk(id);
     logger.info({message: "businessService.updateBusiness", businessId: id, businessData})
+
     if (!business) {
         throw new Error('Business not found');
     }
-    return await business.update(businessData);
+
+    let updatedBusiness = await business.update(businessData);
+    return updatedBusiness
 };
 
 // Delete a business
