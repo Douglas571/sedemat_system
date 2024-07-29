@@ -97,6 +97,100 @@ function BusinessViewDetails(): JSX.Element {
         return (<div>Cargando</div>)
     }
 
+    function getCommunicationPreference() {
+        let communicationPreference = {
+            preferredContact: '',
+            preferredChannel: '',
+            sendCalculosTo: ''
+        };
+
+        console.log({business})
+    
+        // Set preferred contact
+        switch (business.preferredContact) {
+            case "OWNER":
+                communicationPreference.preferredContact = "Propietario";
+                break;
+            case "ACCOUNTANT":
+                communicationPreference.preferredContact = "Contador";
+                break;
+            case "ADMIN":
+                communicationPreference.preferredContact = "Administrador";
+                break;
+            default:
+                communicationPreference.preferredContact = "Desconocido";
+        }
+    
+        // Set preferred channel
+        switch (business.preferredChannel) {
+            case "PHONE":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.preferredChannel = business.owner.phone;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.preferredChannel = business.accountant.phone;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.preferredChannel = business.administrator.phone;
+                }
+                break;
+            case "WHATSAPP":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.preferredChannel = business.owner.whatsapp;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.preferredChannel = business.accountant.whatsapp;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.preferredChannel = business.administrator.whatsapp;
+                }
+                break;
+            case "EMAIL":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.preferredChannel = business.owner.email;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.preferredChannel = business.accountant.email;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.preferredChannel = business.administrator.email;
+                }
+                break;
+            default:
+                communicationPreference.preferredChannel = "Desconocido";
+        }
+    
+        // Set sendCalculosTo
+        switch (business.sendCalculosTo) {
+            case "PHONE":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.sendCalculosTo = business.owner.phone;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.sendCalculosTo = business.accountant.phone;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.sendCalculosTo = business.administrator.phone;
+                }
+                break;
+            case "WHATSAPP":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.sendCalculosTo = business.owner.whatsapp;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.sendCalculosTo = business.accountant.whatsapp;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.sendCalculosTo = business.administrator.whatsapp;
+                }
+                break;
+            case "EMAIL":
+                if (business.preferredContact === "OWNER") {
+                    communicationPreference.sendCalculosTo = business.owner.email;
+                } else if (business.preferredContact === "ACCOUNTANT") {
+                    communicationPreference.sendCalculosTo = business.accountant.email;
+                } else if (business.preferredContact === "ADMIN") {
+                    communicationPreference.sendCalculosTo = business.administrator.email;
+                }
+                break;
+            default:
+                communicationPreference.sendCalculosTo = "Desconocido";
+        }
+    
+        console.log({communicationPreference})
+        return communicationPreference;
+    }
+
     return (
         <div>
             <Typography>
@@ -129,6 +223,16 @@ function BusinessViewDetails(): JSX.Element {
                 <Title level={2}>
                     Encargados
                 </Title>
+                <Title level={5}>
+                    Preferencias de Comunicación
+                </Title>
+                <Paragraph>
+                    Contacto: {getCommunicationPreference().preferredContact}<br/>
+                    Comunicados al: {getCommunicationPreference().preferredChannel}<br/>
+                    Enviar Cálculos al: {getCommunicationPreference().sendCalculosTo}<br/>
+                </Paragraph>
+
+
                 <Title level={4}>
                     Propietario
                 </Title>
