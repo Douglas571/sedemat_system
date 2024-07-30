@@ -41,6 +41,7 @@ interface FormFields {
     preferredChannel: string
     sendCalculosTo: string
     preferredContact: string
+    reminderInterval: string
 }
 
 const contactOptions = [
@@ -130,8 +131,8 @@ function BusinessNew(): JSX.Element {
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
-            console.log({ values });
-      
+            console.log(JSON.stringify(values, null, 2) );
+
             // Early return for testing purposes
             // return;
         
@@ -187,7 +188,7 @@ function BusinessNew(): JSX.Element {
       
             // Map preferredChannel and sentCalculosTo to corresponding values
             const channelMapping: { [key: string]: string } = {
-                'Telefono': 'PHONE',
+                'Teléfono': 'PHONE',
                 'Whatsapp': 'WHATSAPP',
                 'Correo': 'EMAIL'
             };
@@ -260,9 +261,7 @@ function BusinessNew(): JSX.Element {
             return '';
 
         let digits = String(+num).split("")
-        let key = ["","C","CC","CCC","CD","D","DC","DCC","DCCC","CM",
-                   "","X","XX","XXX","XL","L","LX","LXX","LXXX","XC",
-                   "","I","II","III","IV","V","VI","VII","VIII","IX"]
+        let key = ["","C","CC","CCC","CD","D","DC","DCC","DCCC","CM", "","X","XX","XXX","XL","L","LX","LXX","LXXX","XC", "","I","II","III","IV","V","VI","VII","VIII","IX"]
         let roman = ""
         let i = 3;
 
@@ -292,18 +291,23 @@ function BusinessNew(): JSX.Element {
     }
 
     return (
-        <div>
+        <>
             {contextHolder}
             <Title level={2}>
                 Nuevo Contribuyente
             </Title>
             
-            <Form form={form}
+            <Form 
+                form={form}
                 onFinish={onFinish}
                 initialValues={{
                     branchOffices: [
                         {}
-                    ]
+                    ],
+                    preferredContact: contactOptions[0]?.value,
+                    preferredChannel: channelOptions[0]?.value,
+                    sendCalculosTo: channelOptions[2]?.value,
+                    reminderInterval: reminderIntervalOptions[0]?.value
                 }}
             >
                 <Flex gap='middle'>
@@ -388,7 +392,7 @@ function BusinessNew(): JSX.Element {
                     </Form.Item>
                 </Flex>
 
-                <Form.Item
+                <Form.Item<FormFields>
                     rules={[
                         {
                             required: true,
@@ -412,54 +416,50 @@ function BusinessNew(): JSX.Element {
                     Preferencias de comunicación
                 </Title>
                 
-                    <Form.Item 
+                    <Form.Item<FormFields> 
                         label='Agente encargado de finanzas: '
                         name='preferredContact'
                     >
                         <Select
                             data-test="communication-options-preferred-contact"
                             showSearch
-                            defaultValue={contactOptions[0].value}
                             style={{minWidth: "150px"}}
                             options={contactOptions}
                         />
                     </Form.Item>
-                    <Form.Item 
+                    <Form.Item<FormFields>
                         label='Medio preferido de comunicación: '
                         name="preferredChannel"
                     >
                         <Select
                             data-test="communication-options-preferred-channel"
                             showSearch
-                            defaultValue={channelOptions[0].value}
                             style={{minWidth: "150px"}}
                             options={channelOptions}
                         />
                     </Form.Item>
 
-                    <Form.Item 
-                        label="Recordatorios: "
-                        name="reminderInterval"
-                    >
-                        <Select
-                            data-test="communication-options-reminder-interval"
-                            showSearch
-                            defaultValue={reminderIntervalOptions[0].value}
-                            style={{minWidth: "150px"}}
-                            options={reminderIntervalOptions}
-                        />
-                    </Form.Item>
-
-                    <Form.Item 
+                    <Form.Item<FormFields>
                         label="Enviar cálculos al: "
                         name="sendCalculosTo"
                     >
                         <Select
                             data-test="communication-options-send-calculos"
                             showSearch
-                            defaultValue={channelOptions[0].value}
                             style={{minWidth: "150px"}}
                             options={channelOptions}
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item<FormFields>
+                        label="Recordatorios: "
+                        name="reminderInterval"
+                    >
+                        <Select
+                            data-test="communication-options-reminder-interval"
+                            showSearch
+                            style={{minWidth: "150px"}}
+                            options={reminderIntervalOptions}
                         />
                     </Form.Item>
                 
@@ -621,8 +621,7 @@ function BusinessNew(): JSX.Element {
                     <Input/>
                 </Form.Item>
 
-                <Form.List
-                    name='branchOffices'>
+                <Form.List name='branchOffices'>
                         {(fields, { add, remove }) => {
                             return (
                                 <div>
@@ -700,7 +699,7 @@ function BusinessNew(): JSX.Element {
                         type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
             </Form>
-        </div>
+        </>
     )
 }
 

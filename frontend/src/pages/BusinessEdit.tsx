@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { FormProps } from 'antd'
-import { Form, Input, Button, message } from 'antd'
+import { Form, Input, Button, message, Flex } from 'antd'
 import { useParams } from 'react-router-dom';
 
 import * as api from '../util/api'
@@ -46,7 +46,7 @@ async function fetchBusiness(businessId: number): Promise<Business> {
 }
 
 async function updateBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
-    const response = await fetch(`${HOST}/v1/branchOffices/${branchOffice.id}`, {
+    const response = await fetch(`${HOST}/v1/branch-offices/${branchOffice.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ function BusinessNew(): JSX.Element {
     }
 
     return (
-        <div>
+        <Flex>
             {contextHolder}
             
             <Form form={form}
@@ -222,7 +222,7 @@ function BusinessNew(): JSX.Element {
                     <Button type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
             </Form>
-        </div>
+        </Flex>
     )
 }
 

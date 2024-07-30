@@ -38,7 +38,12 @@ describe('SEDEMAT app', () => {
     establishmentDate: '2020-01-01',
     expirationDate: '2030-01-01',
     boardExpirationDate: '2025-01-01',
-    economicActivity: 'Salud'
+    economicActivity: 'Salud',
+
+    preferredContact: "Propietario",
+    preferredChanel: "Whatsapp",
+    sendCalculosTo: "Correo",
+    reminderIntervals: "Cada 3 días"
   };
 
   const branchOfficesData = [
@@ -72,6 +77,12 @@ describe('SEDEMAT app', () => {
 
     cy.get('[data-test="business-economic-activity-input"]').type(`${businessData.economicActivity}{enter}`);
 
+      // fill preferred communication channel information
+      cy.get('[data-test="communication-options-preferred-contact"]').type(`${businessData.preferredContact.slice(4)[0]}{enter}`);
+      cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChanel}{enter}`);
+      cy.get('[data-test="communication-options-send-calculos"]').type(`${businessData.sendCalculosTo}{enter}`);
+      cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderIntervals.slice(5)[0]}{enter}`);
+
     // fill owner information 
     cy.get('[data-test="owner-first-name-input"]').type(ownerData.firstName);
     cy.get('[data-test="owner-last-name-input"]').type(ownerData.lastName);
@@ -79,12 +90,6 @@ describe('SEDEMAT app', () => {
     cy.get('[data-test="owner-phone-input"]').type(ownerData.phone);
     cy.get('[data-test="owner-whatsapp-input"]').type(ownerData.whatsapp);
     cy.get('[data-test="owner-email-input"]').type(ownerData.email);
-
-    // fill preferred communication channel information
-    cy.get('[data-test="communication-options-preferred-contact"]').type('Conta{enter}');
-    cy.get('[data-test="communication-options-preferred-channel"]').type('Whatsapp{enter}');
-    cy.get('[data-test="communication-options-send-calculos"]').type('Corre{enter}');
-    cy.get('[data-test="communication-options-reminder-interval"]').type('Cada 7 di{enter}');
 
 
     // fill branch office data
@@ -138,6 +143,13 @@ describe('SEDEMAT app', () => {
       cy.contains(branchOffice.dimensions).should('be.visible');
       cy.contains(branchOffice.type).should('be.visible');
       cy.contains(branchOffice.origin).should('be.visible');
+
+      cy.get('[data-test="communication-options-preferred-contact"]').contains(businessData.preferredContact);
+      cy.get('[data-test="communication-options-preferred-channel"]').contains(ownerData.whatsapp);
+      cy.get('[data-test="communication-options-preferred-channel"]').contains(businessData.preferredChanel);
+
+      cy.get('[data-test="communication-options-send-calculos"]').contains(ownerData.email);
+      cy.get('[data-test="communication-options-reminder-interval"]').contains(businessData.reminderInterval);
     });
 
     it('should delete the business', () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FormProps, Modal, Space } from 'antd'
-import { Form, Input, Button, message, Typography, Select} from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex} from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
@@ -104,6 +104,9 @@ function BusinessViewDetails(): JSX.Element {
             sendCalculosTo: ''
         };
 
+        if (!business) {
+            return communicationPreference
+        }
         console.log({business})
     
         // Set preferred contact
@@ -133,7 +136,9 @@ function BusinessViewDetails(): JSX.Element {
                 }
                 break;
             case "WHATSAPP":
+                console.log("NOTA: El contacto quiere whatsapp")
                 if (business.preferredContact === "OWNER") {
+                    console.log("NOTA: El contacto ES PROPIETARIO")
                     communicationPreference.preferredChannel = business.owner.whatsapp;
                 } else if (business.preferredContact === "ACCOUNTANT") {
                     communicationPreference.preferredChannel = business.accountant.whatsapp;
@@ -190,6 +195,19 @@ function BusinessViewDetails(): JSX.Element {
         console.log({communicationPreference})
         return communicationPreference;
     }
+    
+    function getPreferredChannelName(): String{
+        const mapper:  { [key: string]: string } = {
+            "WHATSAPP": "Whatsapp",
+            "PHONE": "Teléfono",
+            "EMAIL": "Correo"
+        }
+
+        if (!business?.preferredChannel) {
+            return ''
+        }
+        return mapper[business?.preferredChannel]
+    }
 
     return (
         <div>
@@ -227,9 +245,12 @@ function BusinessViewDetails(): JSX.Element {
                     Preferencias de Comunicación
                 </Title>
                 <Paragraph>
-                    Contacto: {getCommunicationPreference().preferredContact}<br/>
-                    Comunicados al: {getCommunicationPreference().preferredChannel}<br/>
-                    Enviar Cálculos al: {getCommunicationPreference().sendCalculosTo}<br/>
+                    {/* {JSON.stringify(business, null, 2)} */}
+                    Contacto: <span data-test="communication-options-preferred-contact">{getCommunicationPreference().preferredContact}</span><br/>
+                    Comunicados al: <span data-test="communication-options-preferred-channel">{`${getCommunicationPreference().preferredChannel} (${getPreferredChannelName()})`}</span><br/>
+                    Enviar Cálculos al: <span data-test="communication-options-send-calculos">{getCommunicationPreference().sendCalculosTo}</span><br/>
+                    Recordar: <span data-test="communication-options-reminder-intervals">{business.reminderInterval}</span><br/>
+                    {/* {JSON.stringify(getCommunicationPreference(), null, 2)} */}
                 </Paragraph>
 
 
@@ -287,6 +308,7 @@ function BusinessViewDetails(): JSX.Element {
                 <Title level={2}>
                     Sedes o Establecimientos
                 </Title>
+                <Flex gap="large">
                 {
                     business?.branchOffices.map( (office, index) => {
                         const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
@@ -294,7 +316,7 @@ function BusinessViewDetails(): JSX.Element {
                         console.log({lastEconomicLicense})
 
                         return (
-                            <>
+                            <Flex key={index} vertical>
                                 <Title level={4}>
                                     Sede #{index + 1} {renderLicenseButton(office)}
                                 </Title>
@@ -329,10 +351,11 @@ function BusinessViewDetails(): JSX.Element {
                                     }
                                     
                                 </Paragraph>
-                            </>
+                            </Flex>
                         )
                     })
                 }
+                </Flex>
 
 
                 <Title level={3}>
