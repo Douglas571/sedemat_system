@@ -43,7 +43,7 @@ describe('SEDEMAT app', () => {
     preferredContact: "Propietario",
     preferredChanel: "Whatsapp",
     sendCalculosTo: "Correo",
-    reminderIntervals: "Cada 3 días"
+    reminderInterval: "Cada 3 días"
   };
 
   const branchOfficesData = [
@@ -81,7 +81,7 @@ describe('SEDEMAT app', () => {
       cy.get('[data-test="communication-options-preferred-contact"]').type(`${businessData.preferredContact.slice(4)[0]}{enter}`);
       cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChanel}{enter}`);
       cy.get('[data-test="communication-options-send-calculos"]').type(`${businessData.sendCalculosTo}{enter}`);
-      cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderIntervals.slice(5)[0]}{enter}`);
+      cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderInterval.slice(5)[0]}{enter}`);
 
     // fill owner information 
     cy.get('[data-test="owner-first-name-input"]').type(ownerData.firstName);
