@@ -42,7 +42,7 @@ const Business = sequelize.define('Business', {
     sendCalculosTo: DataTypes.STRING,
     preferredContact: DataTypes.STRING,
 
-    reminder_interval: DataTypes.INTEGER
+    reminderInterval: DataTypes.INTEGER
 
 }, {
     underscored: true,
