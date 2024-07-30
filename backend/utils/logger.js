@@ -19,6 +19,14 @@ const logger = winston.createLogger({
         json()
     ),
     transports: [
+        new winston.transports.Console({ 
+            name: "MY_CONSOLE",
+            format: combine(
+                errors({ stack: true }),
+                timestamp({ format: venezuelanTimestamp }),
+                customFormat
+            ),
+        }),
         new winston.transports.File({
             filename: './data/logs/backend-combined.log',
         }),
