@@ -57,6 +57,7 @@ export type Business = {
     preferredChannel?: string
     sendCalculosTo?: string
     preferredContact?: string
+    reminderInterval?: number
 
     owner: Person
     accountant?: Person 

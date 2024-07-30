@@ -63,6 +63,13 @@ const reminderIntervalOptions = [
     {lable: "Cada 15 días", value: "Cada 15 días"},
 ]
 
+const reminderIntervalMap: { [key: string]: number } = {
+    "Una vez al més": 30,
+    "Cada 3 días": 3,
+    "Cada 7 días": 7,
+    "Cada 15 días": 15,
+}
+
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
@@ -161,7 +168,7 @@ function BusinessNew(): JSX.Element {
             }
       
             const newBusiness = {
-                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sendCalculosTo', 'preferredContact']),
+                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sendCalculosTo', 'preferredContact', 'reminderInterval']),
                 economicActivityId,
                 ownerPersonId: registeredOwner.id,
                 accountantPersonId: registeredAccountant?.id,
@@ -203,6 +210,7 @@ function BusinessNew(): JSX.Element {
             response.preferredChannel = channelMapping[values.preferredChannel]
             response.sendCalculosTo = channelMapping[values.sendCalculosTo]
             response.preferredContact = contactMapping[values.preferredContact]
+            response.reminderInterval = reminderIntervalMap[values.reminderInterval]
 
             console.log("before sending ", JSON.stringify(response, null, 2))
             // Update business with the contacts preference data
@@ -631,7 +639,7 @@ function BusinessNew(): JSX.Element {
                                     {
                                         fields.map(field => {
                                             return (
-                                                <div>
+                                                <div key={field.name}>
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
                                                         

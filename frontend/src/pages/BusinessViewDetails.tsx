@@ -13,6 +13,13 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+const reminderIntervalMap: { [key: number]: string } = {
+    30: "Una vez al més",
+    3: "Cada 3 días",
+    7: "Cada 7 días",
+    15: "Cada 15 días",
+}
+
 function BusinessViewDetails(): JSX.Element {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [business, setBusiness] = React.useState<Business>()
@@ -249,7 +256,7 @@ function BusinessViewDetails(): JSX.Element {
                     Contacto: <span data-test="communication-options-preferred-contact">{getCommunicationPreference().preferredContact}</span><br/>
                     Comunicados al: <span data-test="communication-options-preferred-channel">{`${getCommunicationPreference().preferredChannel} (${getPreferredChannelName()})`}</span><br/>
                     Enviar Cálculos al: <span data-test="communication-options-send-calculos">{getCommunicationPreference().sendCalculosTo}</span><br/>
-                    Recordar: <span data-test="communication-options-reminder-intervals">{business.reminderInterval}</span><br/>
+                    Recordar: <span data-test="communication-options-reminder-interval">{business.reminderInterval && reminderIntervalMap[business.reminderInterval]}</span><br/>
                     {/* {JSON.stringify(getCommunicationPreference(), null, 2)} */}
                 </Paragraph>
 

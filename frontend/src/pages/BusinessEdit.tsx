@@ -195,7 +195,7 @@ function BusinessNew(): JSX.Element {
                                     {
                                         fields.map(field => {
                                             return (
-                                                <div>
+                                                <div key={field.name}>
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
