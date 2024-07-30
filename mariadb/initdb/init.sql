@@ -51,6 +51,8 @@ CREATE TABLE businesses (
     send_calculos_to VARCHAR(30),
     preferred_contact VARCHAR(30),
 
+    reminder_interval INT,
+
     filcal_id INT,
     FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id),
     FOREIGN KEY (owner_person_id) REFERENCES people(id),
