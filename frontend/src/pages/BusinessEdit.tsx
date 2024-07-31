@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { DatePicker, FormProps, Select } from 'antd'
+import { DatePicker, FormProps, InputNumber, Select, Space } from 'antd'
 import { Form, Input, Button, message, Flex, Typography } from 'antd'
 const { Title } = Typography
 import { useParams } from 'react-router-dom';
@@ -8,9 +8,21 @@ import dayjs from 'dayjs';
 
 import { 
     businessPriority, 
+    channelMapping, 
     channelOptions, 
+    contactMapping, 
     contactOptions, 
-    reminderIntervalOptions 
+    // getCommunicationPreference, 
+    getPreferredChannelName, 
+    getPreferredContactType, 
+    handleDimensionsChange, 
+    reminderIntervalMap, 
+    reminderIntervalMapReverse, 
+    reminderIntervalOptions, 
+    typeOfBranchOffice, 
+    typeOfFieldOptions, 
+    updateBusinessWithDateFromForm, 
+    ZONES
 } from './BusinessShared'
 
 import type { BusinessFormFields } from './BusinessShared';
@@ -19,7 +31,8 @@ import * as api from '../util/api'
 
 import type { 
     Business,
-    BranchOffice
+    BranchOffice,
+    Person
 } from '../util/api'
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -32,13 +45,15 @@ type FormFields = {
     email: string
 }
 
-function BusinessNew(): JSX.Element {
+function BusinessEdit(): JSX.Element {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
 
     const [business, setBusiness] = useState<Business>()
-    const [branchOffices, setBranchOffices] = useState<BranchOffice>()
+    const [branchOffices, setBranchOffices] = useState<BranchOffice[]>()
+
+    const [branchOfficesToDelete, setBranchOfficesToDelete] = useState<number[]>([])
 
     //const [business, setBusiness] = React.useState<Business>()
     let { businessId } = useParams();
@@ -72,19 +87,27 @@ function BusinessNew(): JSX.Element {
 
         form.setFieldValue('branchOffices', branchOffices)
 
+        console.log(JSON.stringify(business, null, 2))
         form.setFieldValue('companyIncorporationDate', dayjs('2040-1-1'))
-        form.setFieldsValue({
+        const formInitData = {
             companyIncorporationDate: dayjs(business.companyIncorporationDate),
             companyExpirationDate: dayjs(business.companyExpirationDate),
             directorsBoardExpirationDate: dayjs(business.directorsBoardExpirationDate),
 
             economicActivity: business.economicActivity.title,
-            preferredContact: 'CONTACT',
-            preferredChannel: "WHATSAPP",
-            sendCalculosTo: "CORRREO",
-            reminderInterval: "CADA 3 DIAS"
-        })
+            preferredContact: getPreferredContactType(business),
+            preferredChannel: getPreferredChannelName(business.preferredChannel),
+            sendCalculosTo: getPreferredChannelName(business.sendCalculosTo),
+            reminderInterval: '',
 
+            owner: business.owner
+        }
+
+        if(business.reminderInterval) {
+            formInitData.reminderInterval = reminderIntervalMapReverse[business.reminderInterval]
+        }
+
+        form.setFieldsValue(formInitData)
     }
 
     async function loadBusinessData() {
@@ -114,53 +137,143 @@ function BusinessNew(): JSX.Element {
     }
 
     const onFinish: FormProps<FiledType>['onFinish'] = async (values) => {
-        // when saved, send the business data to the server
 
-        // if error
-            // show error
-        // if not
-            // show the business was saved successfully
+        console.log(JSON.stringify(values, null, 2))
+
+        if (!business) {
+            return ''
+        }
+    
         try {
-
-            const updatedBusiness: Business = {
-                id: businessId,
-                ...values
-            }
-            
-            let response = await api.updateBusinessData(Number(businessId), updatedBusiness)
-
-            values.branchOffices.forEach( async (office) => {
-                if (!office.businessId) {
-                    console.log("create new office")
-                    let newOffice = { ...office, businessId: Number(businessId)}
-                    console.log({newOfficeApp: newOffice})
-                    let registeredBranchOffice = await api.registerBranchOffice(newOffice)
-                    console.log({registeredBranchOffice})
+            // Log the form values for debugging
+            console.log(JSON.stringify(values, null, 2));
+    
+            // Destructure contacts from values
+            const { owner, accountant, administrator, branchOffices, ...businessData } = values;
+    
+            // Helper function to create or update a contact
+            const upsertContact = async (contact: Person, existingId: number | undefined) => {
+                if (existingId) {
+                    // If contact has an ID, update it
+                    return await api.updatePerson(existingId, contact);
                 } else {
-                    console.log("updating office", office.businessId)
-                    console.log({office})
-                    let updatedBranchOffice = await api.updateBranchOffice(office)
-                    console.log({updatedBranchOffice})
+                    alert("the id is not defined, creating new contact")
+                    // If contact is new, create it
+                    return await api.registerPerson(contact);
                 }
-            })
+            };
+    
+            // Upsert owner
+            const registeredOwner = await upsertContact(owner, business.ownerPersonId);
+    
+            // Upsert accountant
+            let registeredAccountant;
+            if (accountant?.firstName) {
+                registeredAccountant = await upsertContact(accountant, business.accountantPersonId);
+            }
+    
+            // Upsert administrator
+            let registeredAdministrator;
+            if (administrator?.firstName) {
+                registeredAdministrator = await upsertContact(administrator, business.administratorPersonId);
+            }
 
-            // everything fine 
+            // delete branch offices
+            console.log({branchOfficesToDelete})
+            for (const id of branchOfficesToDelete) {
+                await api.deleteBranchOffice(id);
+                console.log(`Deleted branch office with ID: ${id}`);
+            }
+            // Optionally, you can clear the list after deletion
+            setBranchOfficesToDelete([]);
+    
+            // Upsert branch offices
+            for (const office of branchOffices) {
+                if (office.id) {
+                    // If branch office has an ID, update it
+                    await api.updateBranchOffice(office.id, office);
+                } else {
+                    // If branch office is new, create it with the business ID
+                    await api.registerBranchOffice({ ...office, businessId: business.id });
+                }
+            }
+    
+            // Get the economic activity ID
+            const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
+            const economicActivityId = economicActivityObject?.id;
+    
+            // Prepare the business data to be sent
+            const newBusinessData = {
+                ...businessData,
+                economicActivityId,
+                ownerPersonId: registeredOwner.id,
+                accountantPersonId: registeredAccountant?.id,
+                administratorPersonId: registeredAdministrator?.id,
+
+                preferredChannel: '',
+                sendCalculosTo: '',
+                preferredContact: '',
+                reminderInterval: ''
+            }
+
+            newBusinessData.preferredChannel = values.preferredChannel && channelMapping[values.preferredChannel]
+            newBusinessData.sendCalculosTo = values.sendCalculosTo && channelMapping[values.sendCalculosTo]
+            newBusinessData.preferredContact = values.preferredContact && contactMapping[values.preferredContact]
+            newBusinessData.reminderInterval = values.reminderInterval && reminderIntervalMap[values.reminderInterval]
+
+            console.log("before sending the business update")
+            console.log({preferredChannel: values.preferredChannel && channelMapping[values.preferredChannel],
+                a: channelMapping[values.preferredChannel],
+                b: values.preferredChannel
+
+            })
+            console.log(JSON.stringify(newBusinessData, null, 2))
+
+            // Send the updated business data to the server
+            await api.updateBusinessData(business.id, newBusinessData);
+    
+            // Display success message
             messageApi.open({
                 type: 'success',
-                content: "Contribuyente guardado exitosamente",
+                content: "Contribuyente Actualizado exitosamente",
             });
-
-            //clearForm()
+    
+            // Optionally clear the form
+            // clearForm();
         } catch (error) {
-            console.log({error})
-            let msg = "Hubo un error"
-
-
+            console.error('Error saving business:', error);
+    
+            // Handle error messages
+            let msg = "Hubo un error";
+            if (error.message === "duplicated dni") {
+                msg = "Cédula ya registrada";
+            } else {
+                msg = error.message;
+            }
+    
+            // Display error message
             messageApi.open({
                 type: 'error',
                 content: msg,
             });
         }
+    };
+
+    function removeBranchOffice(officeIndex, removeFunction) {
+        // get the office id
+        const branchOffices = form.getFieldsValue().branchOffices
+        console.log({officesInRemoveOffcies: branchOffices})
+
+        const officeIdToDelete = branchOffices[officeIndex]?.id
+
+        if(officeIdToDelete) {
+            console.log({deletingOffice: officeIdToDelete})
+            // save the office id into another list of office to remove
+            setBranchOfficesToDelete([...branchOfficesToDelete, officeIdToDelete])
+        }
+
+        // remove the office with the office index
+        return removeFunction(officeIndex)
     }
 
     return (
@@ -268,9 +381,10 @@ function BusinessNew(): JSX.Element {
                     Preferencias de comunicación
                 </Title>
 
-                <Form.Item<BusinessFormFields> 
-                        label='Agente encargado de finanzas: '
-                        name='preferredContact'
+                <div>
+                    <Form.Item<BusinessFormFields> 
+                            label='Agente encargado de finanzas: '
+                            name='preferredContact'
                     >
                         <Select
                             data-test="communication-options-preferred-contact"
@@ -314,6 +428,81 @@ function BusinessNew(): JSX.Element {
                             options={reminderIntervalOptions}
                         />
                     </Form.Item>
+                </div>
+                
+                <Title level={3}>
+                    Propietario
+                </Title>
+
+                <Space>
+                    <Form.Item<BusinessFormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "El nombre del propietario es requerido"
+                            }
+                        ]}
+                        label='Nombre: '
+                        name={["owner", "firstName"]}
+                    >
+                        <Input data-test='owner-first-name-input'/>
+                    </Form.Item>
+                    <Form.Item<BusinessFormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "El apellido del propietario es requerido"
+                            }
+                        ]}
+                        label='Apellido: '
+                        name={["owner", "lastName"]}
+                    >
+                        <Input data-test="owner-last-name-input"/>
+                    </Form.Item>
+                    <Form.Item<BusinessFormFields>
+                        rules={[
+                            {
+                                required: true,
+                                message: "La cédula del propietario es requerida"
+                            }
+                        ]}
+                        label='Cédula'
+                        name={["owner", "dni"]}
+                    >
+                        <Input data-test="owner-dni-input"/>
+                    </Form.Item>
+                </Space>
+                <Form.Item<BusinessFormFields>
+                    rules={[
+                        {
+                            required: true,
+                            message: "El teléfono del propietario es requerido"
+                        }
+                    ]}
+                    label='Teléfono: '
+                    name={["owner", "phone"]}
+                >
+                    <Input data-test="owner-phone-input"/>
+                </Form.Item>
+                <Form.Item
+                    label='Whatsapp: '
+                    name={["owner", "whatsapp"]}
+                >
+                    <Input data-test="owner-whatsapp-input"/>
+                </Form.Item>
+                <Form.Item
+                    rules={[
+                        {
+                            required: true,
+                            message: "El correo del propietario es requerido"
+                        }
+                    ]}
+                    label='Correo: '
+                    name={["owner", "email"]}
+                >
+                    <Input data-test="owner-email-input"/>
+                </Form.Item>
+
 
                 <Form.List
                     name='branchOffices'>
@@ -326,10 +515,48 @@ function BusinessNew(): JSX.Element {
                                             return (
                                                 <div key={field.name}>
                                                     <span>
-                                                        <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
+                                                        <h4>
+                                                            #{ field.name + 1 } 
+                                                            <Button onClick={() => removeBranchOffice(field.name, remove)}>Eliminar</Button>
+                                                            
+                                                        </h4>
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
                                                             <Input />
                                                         </Form.Item>
+
+                                                        <Flex wrap gap='middle'>
+                                                            <Form.Item style={{width: "40%"}} label="Zona" name={[field.name, 'zone']}>
+                                                                <Select
+                                                                    data-test={`branch-office-${field.name}-zone`}
+                                                                    showSearch
+                                                                    options={ZONES}
+                                                                />
+                                                                
+                                                            </Form.Item>
+
+                                                            <Form.Item label="Dimensiones (m2)" name={[field.name, 'dimensions']} style={{width: "20%"}} >
+                                                                <InputNumber
+                                                                    data-test={`branch-office-${field.name}-dimensions`}
+                                                                    onChange={(dimensions) => { dimensions && handleDimensionsChange(field.name, Number(dimensions), form)}}
+                                                                />
+                                                            </Form.Item>
+
+                                                            <Form.Item label="Tipo" name={[field.name, 'type']}>
+                                                                <Select
+                                                                    data-test="branch-office-${index}-zone"
+                                                                    showSearch
+                                                                    options={typeOfFieldOptions}
+                                                                />
+                                                            </Form.Item>
+
+                                                            <Form.Item label="Procedencia" name={[field.name, 'origin']}>
+                                                                <Select
+                                                                    data-test={`branch-office-${field.name}-origin`}
+                                                                    showSearch
+                                                                    options={typeOfBranchOffice}
+                                                                />
+                                                            </Form.Item>
+                                                        </Flex>
                                                     </span>
                                                 </div>
                                             )
@@ -355,4 +582,4 @@ function BusinessNew(): JSX.Element {
     )
 }
 
-export default BusinessNew
+export default BusinessEdit

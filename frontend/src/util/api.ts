@@ -42,6 +42,8 @@ export type BranchOffice = {
     lastEconomicLicense?: License;
 };
 
+type TypeOfContacts = 'OWNER' | 'ACCOUNTANT' | 'ADMINISTRATOR'
+
 export type Business = {
     id?: number
     businessName: string
@@ -56,8 +58,12 @@ export type Business = {
 
     preferredChannel?: string
     sendCalculosTo?: string
-    preferredContact?: string
+    preferredContact?: TypeOfContacts
     reminderInterval?: number
+
+    ownerPersonId: number 
+    administratorPersonId?: number 
+    accountantPersonId?: number 
 
     owner: Person
     accountant?: Person 
@@ -118,8 +124,6 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
         throw error
     }
 }
-
-
 
 export async function sendBusinessData(business: Business): Promise<Business> {
     const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
@@ -261,8 +265,8 @@ export async function getBranchOfficeById(id: number): Promise<BranchOffice | un
     return branchOffice;
 }
 
-export async function updateBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
-    const response = await fetch(`${HOST}/v1/branch-offices/${branchOffice.id}`, {
+export async function updateBranchOffice(id: number, branchOffice: BranchOffice): Promise<BranchOffice> {
+    const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -277,6 +281,24 @@ export async function updateBranchOffice(branchOffice: BranchOffice): Promise<Br
 
     const updatedBranchOffice = await response.json();
     return updatedBranchOffice;
+}
+
+export async function deleteBranchOffice(id: number): Promise<void> {
+    try {
+        const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete branch office');
+        }
+    } catch (error) {
+        console.error('Error deleting branch office:', error);
+        throw error;
+    }
 }
 
 // Economic Licenses
@@ -319,6 +341,28 @@ export async function registerPerson(person: Person): Promise<Person> {
     }
 
     return data;
+}
+
+export async function updatePerson(id: number, contactData: any): Promise<any> {
+    try {
+        const response = await fetch(`${HOST}/v1/people/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contactData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update person');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error updating person:', error);
+        throw error;
+    }
 }
 
 export async function getPersonById(id: number): Promise<Person> {
