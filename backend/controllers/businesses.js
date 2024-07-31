@@ -3,6 +3,12 @@ const router = express.Router();
 const businessService = require('../services/businesses');
 const logger = require('../utils/logger')
 
+const { z } = require("zod")
+
+const bausinessScheme = z.object({
+    reminderInterval: z.number()
+})
+
 // Get all businesses
 router.get('/', async (req, res) => {
     try {
