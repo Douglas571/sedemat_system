@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
         const businesses = await businessService.getAllBusinesses();
         res.json(businesses);
     } catch (error) {
+        console.log({error})
         res.status(500).json({ error: error.message });
     }
 });
