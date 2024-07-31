@@ -64,41 +64,6 @@ export type Business = {
     administrator?: Person
 }
 
-// Business
-export async function fetchBusiness() {
-    try {
-        const response = await fetch(`${HOST}/v1/businesses`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data. Status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log({data})
-        return data;
-    } catch (error) {
-        console.error('Error fetching business data:', error);
-        throw error;
-    }
-}
-
-export async function deleteBusiness(id: number): Promise<void> {
-    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
-
-    try {
-        const response = await fetch(url, {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to delete business: ${response.statusText}`);
-        }
-
-        console.log(`Business with ID ${id} deleted successfully.`);
-    } catch (error) {
-        console.error('Error deleting business:', error);
-        throw error;
-    }
-}
-
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
     const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {
         method: 'GET',
@@ -114,6 +79,22 @@ export async function fetchBranchOffices(businessId: number): Promise<BranchOffi
 
     const branchOffices = await response.json()
     return branchOffices
+}
+
+// Business
+export async function fetchBusiness() {
+    try {
+        const response = await fetch(`${HOST}/v1/businesses`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log({data})
+        return data;
+    } catch (error) {
+        console.error('Error fetching business data:', error);
+        throw error;
+    }
 }
 
 export async function fetchBusinessById(businessId: number): Promise<Business> {
@@ -137,6 +118,8 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
         throw error
     }
 }
+
+
 
 export async function sendBusinessData(business: Business): Promise<Business> {
     const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
@@ -190,6 +173,26 @@ export async function updateBusinessData(id: number, business: Business) {
         // Handle error state in your application
     }
 }
+
+export async function deleteBusiness(id: number): Promise<void> {
+    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete business: ${response.statusText}`);
+        }
+
+        console.log(`Business with ID ${id} deleted successfully.`);
+    } catch (error) {
+        console.error('Error deleting business:', error);
+        throw error;
+    }
+}
+
 
 // Economic Activities
 export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
@@ -256,6 +259,24 @@ export async function getBranchOfficeById(id: number): Promise<BranchOffice | un
     }
 
     return branchOffice;
+}
+
+export async function updateBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
+    const response = await fetch(`${HOST}/v1/branch-offices/${branchOffice.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(branchOffice),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to update branch office: ${errorData.error?.msg || response.statusText}`);
+    }
+
+    const updatedBranchOffice = await response.json();
+    return updatedBranchOffice;
 }
 
 // Economic Licenses

@@ -114,6 +114,7 @@ function BusinessViewDetails(): JSX.Element {
         if (!business) {
             return communicationPreference
         }
+        
         console.log({business})
     
         // Set preferred contact

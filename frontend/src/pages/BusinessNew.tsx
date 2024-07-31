@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import * as api from '../util/api'
 import type { Business, EconomicActivity } from '../util/api'
+import { BusinessFormFields } from './BusinessShared'
 
 
 const { Title, Paragraph } = Typography
@@ -350,17 +351,11 @@ function BusinessNew(): JSX.Element {
                         <Input data-test='business-dni-input'/>
                     </Form.Item>
                 </Flex>
-                {/* <Form.Item<FormFields>
-                    label='Correo Electrónico'
-                    name='email'
-                >
-                    <Input/>
-                </Form.Item> */}
-
+                
                 <Space>
                     <Form.Item
                         // it can be normal or special 
-                        label='Tipo: '
+                        label='Tipo de Contribuyente: '
                         name='type'
                     >
                         <Select
@@ -377,13 +372,11 @@ function BusinessNew(): JSX.Element {
                 <Flex>
                     {/* Define good names */}
                     
-
-
                     <Form.Item
                         label='Fecha Constitución: '
                         name='companyIncorporationDate'
                     >
-                        <DatePicker data-test="business-incorporation-date-input"/>
+                        <DatePicker data-test="business-constitution-date"/>
                     </Form.Item>
 
                     <Form.Item
@@ -400,7 +393,7 @@ function BusinessNew(): JSX.Element {
                     </Form.Item>
                 </Flex>
 
-                <Form.Item<FormFields>
+                <Form.Item<BusinessFormFields>
                     rules={[
                         {
                             required: true,

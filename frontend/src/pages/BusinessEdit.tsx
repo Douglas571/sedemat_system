@@ -1,21 +1,30 @@
-import React, { useEffect } from 'react'
-import { FormProps } from 'antd'
-import { Form, Input, Button, message, Flex } from 'antd'
+import { useEffect, useState } from 'react'
+import { DatePicker, FormProps, Select } from 'antd'
+import { Form, Input, Button, message, Flex, Typography } from 'antd'
+const { Title } = Typography
 import { useParams } from 'react-router-dom';
+
+import dayjs from 'dayjs';
+
+import { 
+    businessPriority, 
+    channelOptions, 
+    contactOptions, 
+    reminderIntervalOptions 
+} from './BusinessShared'
+
+import type { BusinessFormFields } from './BusinessShared';
 
 import * as api from '../util/api'
 
-import type { Business } from '../util/api'
+import type { 
+    Business,
+    BranchOffice
+} from '../util/api'
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
-
-type BranchOffice = {
-    id?: number
-    address: string 
-    phone: string
-}
 
 type FormFields = {
     businessName: string
@@ -23,49 +32,13 @@ type FormFields = {
     email: string
 }
 
-async function fetchBusiness(businessId: number): Promise<Business> {
-    const url = `${HOST}/v1/businesses/${businessId}`
-
-    try {
-        const response = await fetch(url)
-        
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error(`Business with ID ${businessId} does not exist`)
-            } else {
-                throw new Error(`Failed to fetch business data: ${response.statusText}`)
-            }
-        }
-
-        const business: Business = await response.json()
-        return business
-    } catch (error) {
-        console.error('Error fetching business data:', error)
-        throw error
-    }
-}
-
-async function updateBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
-    const response = await fetch(`${HOST}/v1/branch-offices/${branchOffice.id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(branchOffice),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to update branch office: ${errorData.error?.msg || response.statusText}`);
-    }
-
-    const updatedBranchOffice = await response.json();
-    return updatedBranchOffice;
-}
-
 function BusinessNew(): JSX.Element {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
+    const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
+
+    const [business, setBusiness] = useState<Business>()
+    const [branchOffices, setBranchOffices] = useState<BranchOffice>()
 
     //const [business, setBusiness] = React.useState<Business>()
     let { businessId } = useParams();
@@ -81,20 +54,62 @@ function BusinessNew(): JSX.Element {
     useEffect(() => {
         // first load of data
         loadBusinessData()
+        loadEconomicActivityData()
     }, [])
+
+    useEffect(() => {
+        initFormData()
+    }, [business, branchOffices])
+
+    async function initFormData() {
+        if (!business) {
+            return 
+        }
+
+        form.setFieldValue('businessName', business?.businessName)
+        form.setFieldValue('dni', business?.dni)
+        form.setFieldValue('email', business?.email)
+
+        form.setFieldValue('branchOffices', branchOffices)
+
+        form.setFieldValue('companyIncorporationDate', dayjs('2040-1-1'))
+        form.setFieldsValue({
+            companyIncorporationDate: dayjs(business.companyIncorporationDate),
+            companyExpirationDate: dayjs(business.companyExpirationDate),
+            directorsBoardExpirationDate: dayjs(business.directorsBoardExpirationDate),
+
+            economicActivity: business.economicActivity.title,
+            preferredContact: 'CONTACT',
+            preferredChannel: "WHATSAPP",
+            sendCalculosTo: "CORRREO",
+            reminderInterval: "CADA 3 DIAS"
+        })
+
+    }
 
     async function loadBusinessData() {
         // get the business data 
         // feed the form with the business data
         if (businessId) {
-            let business = await fetchBusiness(Number(businessId))
+            let businessData = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
 
-            form.setFieldValue('businessName', business?.businessName)
-            form.setFieldValue('dni', business?.dni)
-            form.setFieldValue('email', business?.email)
+            setBusiness(businessData)
+            setBranchOffices(branchOffices)
 
-            form.setFieldValue('branchOffices', branchOffices)
+            console.log(JSON.stringify(business, null, 2))
+        }
+    }
+
+    async function loadEconomicActivityData() {
+        try {
+            // Load economic activities
+            const economicActivities = await api.getEconomicActivities();
+            console.log({economicActivities})
+            setEconomicActivities(economicActivities);
+
+        } catch (error) {
+            console.error('Error loading data:', error);
         }
     }
 
@@ -124,7 +139,7 @@ function BusinessNew(): JSX.Element {
                 } else {
                     console.log("updating office", office.businessId)
                     console.log({office})
-                    let updatedBranchOffice = await updateBranchOffice(office)
+                    let updatedBranchOffice = await api.updateBranchOffice(office)
                     console.log({updatedBranchOffice})
                 }
             })
@@ -165,7 +180,9 @@ function BusinessNew(): JSX.Element {
                     label='Razón Social'
                     name='businessName'
                 >
-                    <Input/>
+                    <Input
+                        data-test="business-name-input"
+                    />
                 </Form.Item>
                 <Form.Item<FormFields>
                     rules={[
@@ -177,16 +194,128 @@ function BusinessNew(): JSX.Element {
                     label='Rif o Cédula'
                     name='dni'
                 >
-                    <Input/>
+                    <Input
+                        data-test="business-dni-input"
+                    />
                 </Form.Item>
-                <Form.Item<FormFields>
+                {/* <Form.Item<FormFields>
                     label='Correo Electrónico'
                     name='email'
                 >
                     <Input/>
+                </Form.Item> */}
+
+                <Form.Item
+                    // it can be normal or special 
+                    label='Tipo de Contribuyente: '
+                    name='type'
+                    data-test="business-type-select"
+                >
+                    <Select
+                        
+                        showSearch
+                        defaultValue={'Normal'}
+                        options={businessPriority}
+                    />
                 </Form.Item>
 
-                <Form.List<FormFields>
+                <Flex>
+                    {/* Define good names */}
+                    
+
+
+                    <Form.Item
+                        label='Fecha Constitución: '
+                        name='companyIncorporationDate'
+                    >
+                        <DatePicker data-test="business-incorporation-date-input"/>
+                    </Form.Item>
+
+                    <Form.Item
+                        label='Fecha Vencimiento de la Empresa: '
+                        name='companyExpirationDate'
+                    >
+                        <DatePicker data-test="business-expiration-date-input"/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Fecha Vencimiento Junta Directiva: '
+                        name='directorsBoardExpirationDate'
+                    >
+                        <DatePicker data-test="business-board-expiration-date-input"/>
+                    </Form.Item>
+                </Flex>
+
+                <Form.Item<BusinessFormFields>
+                    rules={[
+                        {
+                            required: true,
+                            message: "Seleccione una actividad económica"
+                        }
+                    ]}
+                    // it can be normal or special 
+                    label='Actividad Económica: '
+                    name='economicActivity'
+                >
+                    <Select
+                        data-test='business-economic-activity-input'
+                        //defaultValue={economicActivities[0]?.title}
+                        showSearch
+                        options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
+                    />
+                </Form.Item>
+
+                <Title level={3}>
+                    Preferencias de comunicación
+                </Title>
+
+                <Form.Item<BusinessFormFields> 
+                        label='Agente encargado de finanzas: '
+                        name='preferredContact'
+                    >
+                        <Select
+                            data-test="communication-options-preferred-contact"
+                            showSearch
+                            style={{minWidth: "150px"}}
+                            options={contactOptions}
+                        />
+                    </Form.Item>
+                    <Form.Item<BusinessFormFields>
+                        label='Medio preferido de comunicación: '
+                        name="preferredChannel"
+                    >
+                        <Select
+                            data-test="communication-options-preferred-channel"
+                            showSearch
+                            style={{minWidth: "150px"}}
+                            options={channelOptions}
+                        />
+                    </Form.Item>
+
+                    <Form.Item<BusinessFormFields>
+                        label="Enviar cálculos al: "
+                        name="sendCalculosTo"
+                    >
+                        <Select
+                            data-test="communication-options-send-calculos"
+                            showSearch
+                            style={{minWidth: "150px"}}
+                            options={channelOptions}
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item<BusinessFormFields>
+                        label="Recordatorios: "
+                        name="reminderInterval"
+                    >
+                        <Select
+                            data-test="communication-options-reminder-interval"
+                            showSearch
+                            style={{minWidth: "150px"}}
+                            options={reminderIntervalOptions}
+                        />
+                    </Form.Item>
+
+                <Form.List
                     name='branchOffices'>
                         {(fields, { add, remove }) => {
                             return (
@@ -199,17 +328,17 @@ function BusinessNew(): JSX.Element {
                                                     <span>
                                                         <h4>#{ field.name + 1 } <Button onClick={() => remove(field.name)}>Eliminar</Button></h4>
                                                         <Form.Item label="Dirección" name={[field.name, 'address']}>
-                                                          <Input />
-                                                        </Form.Item>
-                                                        <Form.Item label="Teléfono" name={[field.name, 'phone']}>
-                                                          <Input />
+                                                            <Input />
                                                         </Form.Item>
                                                     </span>
                                                 </div>
                                             )
                                         })
                                     }
-                                    <Button onClick={() => add()}>Agregar Sucursal</Button>
+                                    <Button 
+                                        data-test="button-add-branch-office"
+                                        onClick={() => add()}
+                                        >Agregar Sucursal</Button>
                                     <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button>
                                 </div>
                             )
