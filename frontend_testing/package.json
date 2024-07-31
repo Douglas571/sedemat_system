@@ -10,5 +10,8 @@
     "react-dom": "^18.3.1",
     "supertest": "^7.0.0",
     "vite": "^5.3.5"
+  },
+  "dependencies": {
+    "@hon2a/cypress-antd": "^0.4.11"
   }
 }
