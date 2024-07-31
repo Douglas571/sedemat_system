@@ -376,7 +376,7 @@ function BusinessNew(): JSX.Element {
                         label='Fecha Constitución: '
                         name='companyIncorporationDate'
                     >
-                        <DatePicker data-test="business-constitution-date"/>
+                        <DatePicker data-test="business-incorporation-date-input"/>
                     </Form.Item>
 
                     <Form.Item
