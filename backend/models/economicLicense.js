@@ -23,7 +23,9 @@ const EconomicLicense = sequelize.define('EconomicLicense', {
         references: {
             model: 'EconomicActivity', // Adjust this to your actual model name
             key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
     },
     openAt: {
         type: DataTypes.TIME,

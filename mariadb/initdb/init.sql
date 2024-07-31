@@ -80,8 +80,8 @@ CREATE TABLE economic_licenses (
     close_at TIME,
     issued_date DATE NOT NULL,
     expiration_date DATE NOT NULL,
-    FOREIGN KEY (branch_office_id) REFERENCES branch_offices(id),
-    FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id)
+    FOREIGN KEY (branch_office_id) REFERENCES branch_offices(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (economic_activity_id) REFERENCES economic_activities(id) ON UPDATE CASCADE
 );
 
 
