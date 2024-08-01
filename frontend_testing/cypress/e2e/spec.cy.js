@@ -31,6 +31,24 @@ describe('SEDEMAT basic workflow', () => {
     email: 'john.doe@example.com'
   };
 
+  const accountantData = {
+    firstName: 'Jane',
+    lastName: 'Smith',
+    dni: String(Date.now() + 1), // Ensuring a unique value
+    phone: '987-654-3210',
+    whatsapp: '987-654-3210',
+    email: 'jane.smith@example.com'
+  };
+  
+  const administratorData = {
+    firstName: 'Alice',
+    lastName: 'Johnson',
+    dni: String(Date.now() + 2), // Ensuring a unique value
+    phone: '555-555-5555',
+    whatsapp: '555-555-5555',
+    email: 'alice.johnson@example.com'
+  };
+
   const businessData = {
     name: `Test Business ${Date.now()}`,
     dni: Date.now(),
@@ -77,11 +95,11 @@ describe('SEDEMAT basic workflow', () => {
 
     cy.get('[data-test="business-economic-activity-input"]').type(`${businessData.economicActivity}{enter}`);
 
-      // fill preferred communication channel information
-      cy.get('[data-test="communication-options-preferred-contact"]').type(`${businessData.preferredContact.slice(4)[0]}{enter}`);
-      cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChanel}{enter}`);
-      cy.get('[data-test="communication-options-send-calculos"]').type(`${businessData.sendCalculosTo}{enter}`);
-      cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderInterval.slice(5)[0]}{enter}`);
+    // fill preferred communication channel information
+    cy.get('[data-test="communication-options-preferred-contact"]').type(`${businessData.preferredContact.slice(4)[0]}{enter}`);
+    cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChanel}{enter}`);
+    cy.get('[data-test="communication-options-send-calculos"]').type(`${businessData.sendCalculosTo}{enter}`);
+    cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderInterval.slice(5)[0]}{enter}`);
 
     // fill owner information 
     cy.get('[data-test="owner-first-name-input"]').type(ownerData.firstName);
@@ -91,6 +109,20 @@ describe('SEDEMAT basic workflow', () => {
     cy.get('[data-test="owner-whatsapp-input"]').type(ownerData.whatsapp);
     cy.get('[data-test="owner-email-input"]').type(ownerData.email);
 
+    // fill accountant information 
+    cy.get('[data-test="accountant-first-name-input"]').type(accountantData.firstName);
+    cy.get('[data-test="accountant-last-name-input"]').type(accountantData.lastName);
+    cy.get('[data-test="accountant-dni-input"]').type(accountantData.dni);
+    cy.get('[data-test="accountant-phone-input"]').type(accountantData.phone);
+    cy.get('[data-test="accountant-whatsapp-input"]').type(accountantData.whatsapp);
+    cy.get('[data-test="accountant-email-input"]').type(accountantData.email);
+
+    cy.get('[data-test="administrator-first-name-input"]').type(administratorData.firstName);
+    cy.get('[data-test="administrator-last-name-input"]').type(administratorData.lastName);
+    cy.get('[data-test="administrator-dni-input"]').type(administratorData.dni);
+    cy.get('[data-test="administrator-phone-input"]').type(administratorData.phone);
+    cy.get('[data-test="administrator-whatsapp-input"]').type(administratorData.whatsapp);
+    cy.get('[data-test="administrator-email-input"]').type(administratorData.email);
 
     // fill branch office data
     branchOfficesData.forEach((branchOffice, index) => {
@@ -136,6 +168,20 @@ describe('SEDEMAT basic workflow', () => {
       cy.contains(ownerData.whatsapp).should('be.visible');
       cy.contains(ownerData.email).should('be.visible');
 
+      // Check the accountant's information is visible
+      cy.contains(accountantData.firstName).should('be.visible');
+      cy.contains(accountantData.lastName).should('be.visible');
+      cy.contains(accountantData.phone).should('be.visible');
+      cy.contains(accountantData.whatsapp).should('be.visible');
+      cy.contains(accountantData.email).should('be.visible');
+
+      // Check the administrator's information is visible
+      cy.contains(administratorData.firstName).should('be.visible');
+      cy.contains(administratorData.lastName).should('be.visible');
+      cy.contains(administratorData.phone).should('be.visible');
+      cy.contains(administratorData.whatsapp).should('be.visible');
+      cy.contains(administratorData.email).should('be.visible');
+
       // Check the branch office information is visible
       const branchOffice = branchOfficesData[0];
       cy.contains(branchOffice.zone).should('be.visible');
@@ -147,7 +193,6 @@ describe('SEDEMAT basic workflow', () => {
       cy.get('[data-test="communication-options-preferred-contact"]').contains(businessData.preferredContact);
       cy.get('[data-test="communication-options-preferred-channel"]').contains(ownerData.whatsapp);
       cy.get('[data-test="communication-options-preferred-channel"]').contains(businessData.preferredChanel);
-
       cy.get('[data-test="communication-options-send-calculos"]').contains(ownerData.email);
       cy.get('[data-test="communication-options-reminder-interval"]').contains(businessData.reminderInterval);
     });

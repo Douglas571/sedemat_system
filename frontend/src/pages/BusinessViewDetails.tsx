@@ -9,6 +9,9 @@ import type {Business, BranchOffice, License, EconomicActivity} from '../util/ap
 import * as api from '../util/api'
 import { TypeIcon } from 'antd/es/message/PurePanel';
 
+
+import { getCommunicationPreference } from './BusinessShared';
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -115,7 +118,7 @@ function BusinessViewDetails(): JSX.Element {
             return communicationPreference
         }
         
-        console.log({business})
+        console.log({a: business})
     
         // Set preferred contact
         switch (business.preferredContact) {
@@ -282,13 +285,15 @@ function BusinessViewDetails(): JSX.Element {
                     </Paragraph>
                 )}
 
+                
+
                 { business.accountant && (
                     <>
                         <Title level={4}>
                             Contador
                         </Title>
                         <Paragraph>
-                            Nombres y Apellidos: {business.accountant.firstName + " " + business.owner.lastName}<br/>
+                            Nombres y Apellidos: {business.accountant.firstName + " " + business.accountant.lastName}<br/>
                             Cédula: {business.accountant.dni}<br/>
                             Phone: {business.accountant.phone}<br/>
                             Whatsapp: {business.accountant.whatsapp}<br/>
@@ -304,7 +309,7 @@ function BusinessViewDetails(): JSX.Element {
                             Administrador
                         </Title>
                         <Paragraph>
-                            Nombres y Apellidos: {business.administrator.firstName + " " + business.owner.lastName}<br/>
+                            Nombres y Apellidos: {business.administrator.firstName + " " + business.administrator.lastName}<br/>
                             Cédula: {business.administrator.dni}<br/>
                             Phone: {business.administrator.phone}<br/>
                             Whatsapp: {business.administrator.whatsapp}<br/>

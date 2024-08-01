@@ -21,6 +21,14 @@ exports.getBusinessById = async (id) => {
             {
                 model: Person,
                 as: "owner"
+            },
+            {
+                model: Person,
+                as: "accountant"
+            },
+            {
+                model: Person,
+                as: "administrator"
             }
         ]
     });

@@ -167,7 +167,7 @@ function BusinessNew(): JSX.Element {
                 registeredAdministrator = await api.registerPerson(administrator);
                 console.log({ registeredAdministrator });
             }
-      
+
             const newBusiness = {
                 ..._.omit(values, ['branchOffices', 'preferredChannel', 'sendCalculosTo', 'preferredContact', 'reminderInterval']),
                 economicActivityId,
@@ -175,14 +175,14 @@ function BusinessNew(): JSX.Element {
                 accountantPersonId: registeredAccountant?.id,
                 administratorPersonId: registeredAdministrator?.id,
             };
-      
+
             const response = await api.sendBusinessData(newBusiness);
             const businessId = response.id;
 
             if (!businessId) {
                 throw Error("Error al registrar empresa")
             }
-      
+
             // Register branch offices
             values.branchOffices.forEach(async (office) => {
                 console.log({ IWillRegisterThisBranchOffice: office });
@@ -190,10 +190,10 @@ function BusinessNew(): JSX.Element {
                 const newOffice = await api.registerBranchOffice(officeToRegister);
                 console.log({ registeredOffice: newOffice });
             });
-      
+
             // Create an object called businessContactPreference
             const businessContactPreference: { [key: string]: string } = {};
-      
+
             // Map preferredChannel and sentCalculosTo to corresponding values
             const channelMapping: { [key: string]: string } = {
                 'Teléfono': 'PHONE',
@@ -546,38 +546,38 @@ function BusinessNew(): JSX.Element {
                         label='Nombre: '
                         name={["accountant", "firstName"]}
                     >
-                        <Input/>
+                        <Input data-test="accountant-first-name-input"/>
                     </Form.Item>
                     <Form.Item
                         label='Apellido: '
                         name={["accountant", "lastName"]}
                     >
-                        <Input/>
+                        <Input data-test="accountant-last-name-input"/>
                     </Form.Item>
                     <Form.Item
                         label='Cédula: '
                         name={["accountant", "dni"]}
                     >
-                        <Input/>
+                        <Input data-test="accountant-dni-input"/>
                     </Form.Item>
                 </Space>
                 <Form.Item
                     label='Teléfono: '
                     name={["accountant", "phone"]}
                 >
-                    <Input/>
+                    <Input data-test="accountant-phone-input" />
                 </Form.Item>
                 <Form.Item
                     label='Whatsapp: '
                     name={["accountant", "whatsapp"]}
                 >
-                    <Input/>
+                    <Input data-test="accountant-whatsapp-input" />
                 </Form.Item>
                 <Form.Item
                     label='Correo: '
                     name={["accountant", "email"]}
                 >
-                    <Input/>
+                    <Input data-test="accountant-email-input" />
                 </Form.Item>
 
                 <Title level={3}>
@@ -585,41 +585,42 @@ function BusinessNew(): JSX.Element {
                 </Title>
                 <Space>
                     <Form.Item
+                    
                         label='Nombre: '
                         name={["administrator", "firstName"]}
                     >
-                        <Input/>
+                        <Input data-test="administrator-first-name-input"/>
                     </Form.Item>
                     <Form.Item
                         label='Apellido: '
                         name={["administrator", "lastName"]}
                     >
-                        <Input/>
+                        <Input data-test="administrator-last-name-input"/>
                     </Form.Item>
                     <Form.Item
                         label='Cédula: '
                         name={["administrator", "dni"]}
                     >
-                        <Input/>
+                        <Input data-test="administrator-dni-input"/>
                     </Form.Item>
                 </Space>
                 <Form.Item
                     label='Teléfono: '
                     name={["administrator", "phone"]}
                 >
-                    <Input/>
+                    <Input data-test="administrator-phone-input"/>
                 </Form.Item>
                 <Form.Item
                     label='Whatsapp: '
                     name={["administrator", "whatsapp"]}
                 >
-                    <Input/>
+                    <Input data-test="administrator-whatsapp-input"/>
                 </Form.Item>
                 <Form.Item
                     label='Correo: '
                     name={["administrator", "email"]}
                 >
-                    <Input/>
+                    <Input data-test="administrator-email-input"/>
                 </Form.Item>
 
                 <Form.List name='branchOffices'>

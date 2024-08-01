@@ -38,6 +38,24 @@ const Business = sequelize.define('Business', {
         }
     },
 
+    accountantPersonId: {
+        type: DataTypes.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+            model: 'Person', 
+            key: 'id'
+        }
+    },
+
+    administratorPersonId: {
+        type: DataTypes.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+            model: 'Person', 
+            key: 'id'
+        }
+    },
+
     preferredChannel: DataTypes.STRING,
     sendCalculosTo: DataTypes.STRING,
     preferredContact: DataTypes.STRING,
@@ -63,6 +81,16 @@ EconomicActivity.hasMany(Business, {
 Business.belongsTo(Person, {
     foreignKey: "ownerPersonId",
     as: 'owner'
+})
+
+Business.belongsTo(Person, {
+    foreignKey: "accountantPersonId",
+    as: 'accountant'
+})
+
+Business.belongsTo(Person, {
+    foreignKey: "administratorPersonId",
+    as: 'administrator'
 })
 
 Person.hasMany(Business, {

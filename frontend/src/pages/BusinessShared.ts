@@ -83,7 +83,7 @@ export const channelMapping: { [key: string]: string } = {
 
 // Map preferredContact to corresponding values
 export const contactMapping: { [key: string]: string } = {
-    'Administrador': 'ADMINISTRATOR',
+    'Administrador': 'ADMIN',
     'Propietario': 'OWNER',
     'Contador': 'ACCOUNTANT'
 }
@@ -95,11 +95,13 @@ export function getCommunicationPreference(business: Business) {
         sendCalculosTo: ''
     };
 
+    console.log({a: business})
+
     if (!business) {
         return communicationPreference
     }
     
-    console.log({business})
+    
 
     // Set preferred contact
     switch (business.preferredContact) {
@@ -109,7 +111,7 @@ export function getCommunicationPreference(business: Business) {
         case "ACCOUNTANT":
             communicationPreference.preferredContact = "Contador";
             break;
-        case "ADMIN":
+        case "ADMINISTRATOR":
             communicationPreference.preferredContact = "Administrador";
             break;
         default:
@@ -204,7 +206,7 @@ export function getPreferredChannelName(channel: string | undefined): string {
 
 export function getPreferredContactType(business: Business): string {
     const mapper: { [key: string]: string } = {
-        'ADMINISTRATOR': 'Administrador',
+        'ADMIN': 'Administrador',
         'OWNER': 'Propietario',
         'ACCOUNTANT': 'Contador'
     }
