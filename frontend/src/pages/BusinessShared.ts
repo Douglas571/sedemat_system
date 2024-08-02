@@ -7,6 +7,7 @@ export interface ContactForm {
     phone: string,
 
 }
+
 export interface BusinessFormFields {
     businessName: string
     dni: string

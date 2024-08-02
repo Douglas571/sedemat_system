@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react'
-import { DatePicker, FormProps, InputNumber, Select, Switch } from 'antd'
-import { Form, Input, Button, message, Typography, Space, Flex } from 'antd'
+import { 
+    DatePicker, 
+    FormProps, 
+    InputNumber, 
+    Select,
+    Form, 
+    Input, 
+    Button, 
+    message, 
+    Typography, 
+    Space, 
+    Flex,
+    Image,
+    Upload,
+} from 'antd'
+import type { 
+    GetProp, 
+    UploadFile, 
+    UploadProps 
+} from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import _ from 'lodash'
 
 import * as api from '../util/api'
 import type { Business, EconomicActivity } from '../util/api'
-import { BusinessFormFields } from './BusinessShared'
+import { BusinessFormFields, channelOptions, contactOptions, reminderIntervalMap, reminderIntervalOptions } from './BusinessShared'
 
 
 const { Title, Paragraph } = Typography
@@ -43,32 +62,6 @@ interface FormFields {
     sendCalculosTo: string
     preferredContact: string
     reminderInterval: string
-}
-
-const contactOptions = [
-    {label: "Propietario", value: "Propietario"},
-    {lable: "Contador", value: "Contador"},
-    {label: "Administrador", value: "Administrador"},
-]
-
-const channelOptions = [
-    {label: "Teléfono", value: "Teléfono"},
-    {lable: "Whatsapp", value: "Whatsapp"},
-    {label: "Correo", value: "Correo"},
-]
-
-const reminderIntervalOptions = [
-    {label: "Una vez al més", value: "Una vez al més"},
-    {label: "Cada 3 días", value: "Cada 3 días"},
-    {label: "Cada 7 días", value: "Cada 7 días"},
-    {lable: "Cada 15 días", value: "Cada 15 días"},
-]
-
-const reminderIntervalMap: { [key: string]: number } = {
-    "Una vez al més": 30,
-    "Cada 3 días": 3,
-    "Cada 7 días": 7,
-    "Cada 15 días": 15,
 }
 
 function BusinessNew(): JSX.Element {
@@ -299,6 +292,48 @@ function BusinessNew(): JSX.Element {
         form.setFieldsValue({ branchOffices });
     }
 
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [fileList, setFileList] = useState<UploadFile[]>([])
+
+    const getBase64 = (file: FileType): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+        }
+    );
+
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Cargar Foto de Perfil</div>
+        </button>
+    )
+
+    const ownerPfpProps: UploadProps = {
+        onPreview: async (file: UploadFile) => {
+            if (!file.url && !file.preview) {
+                file.preview = await getBase64(file.originFileObj as FileType);
+            }
+        
+            setPreviewImage(file.url || (file.preview as string));
+            setPreviewOpen(true);
+        },
+        onChange: ({ fileList: newFileList }) => {
+            setFileList(newFileList)
+        },
+        beforeUpload: (file) => {
+			console.log("adding files")
+			setFileList([...fileList, file]);
+			return false;
+		},
+		fileList,
+        listType: "picture-card",
+        maxCount: 1
+    }
+
     return (
         <>
             {contextHolder}
@@ -469,6 +504,25 @@ function BusinessNew(): JSX.Element {
                 <Title level={3}>
                     Propietario
                 </Title>
+                <Space>
+                    {previewImage && (
+                        <Image
+                            wrapperStyle={{ display: 'none' }}
+                            preview={{
+                                visible: previewOpen,
+                                onVisibleChange: (visible) => setPreviewOpen(visible),
+                                afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                            }}
+                            src={previewImage}
+                        />
+                    )}
+                    <Upload
+                        {...ownerPfpProps}
+                    >
+                        {fileList.length < 5 ? uploadButton : null }
+                    </Upload>
+                </Space>
+
                 <Space>
                     <Form.Item<FormFields>
                         rules={[
