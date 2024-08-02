@@ -68,9 +68,12 @@ CREATE TABLE branch_offices (
     phone VARCHAR(30),
     business_id INT NOT NULL, 
     dimensions INT NOT NULL,
-    type VARCHAR(30),
+    type VARCHAR(30), -- REFACTOR: Be more specific with the name
     origin VARCHAR(30), -- convert into some kind of constant
     FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE ON UPDATE CASCADE
+
+    -- TODO: 
+    -- ADD is_rural column
 );
 
 CREATE TABLE economic_licenses (
