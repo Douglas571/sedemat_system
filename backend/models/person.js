@@ -28,7 +28,9 @@ const Person = sequelize.define('Person', {
     },
     email: {
         type: DataTypes.STRING,
-    }
+    },
+
+    profilePictureUrl: DataTypes.STRING,
 }, {
     underscored: true,
     timestamps: false,

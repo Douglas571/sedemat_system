@@ -59,16 +59,6 @@ app.use("/v1/people", peopleRouter)
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.get('/image/:filename', (req, res) => {
-    const filename = req.params.filename;
-    const filepath = path.join(__dirname, 'uploads', filename);
-    
-    res.sendFile(filepath, (err) => {
-      if (err) {
-        res.status(404).json({ error: 'Image not found' });
-      }
-    });
-  });
 
 app.get("status", (request, response) => {
     const status = {

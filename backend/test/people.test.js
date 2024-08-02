@@ -2,6 +2,9 @@ const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
 const Person = require('../models/person'); // Adjust the path to your model
 
+const fs = require('fs');
+const path = require('path');
+
 describe('Person API', () => {
     let expect;
     let personId;
@@ -68,5 +71,20 @@ describe('Person API', () => {
         const res = await request(app).delete(`/v1/people/${personId}`);
 
         expect(res.status).to.equal(204);
+    });
+
+    it('should upload an image', async () => {
+        const filePath = path.resolve(__dirname, 'test-pfp.png'); // Path to the test image
+    
+        const response = await request(app)
+            .post('/v1/people/pfp')
+            .set('Content-Type', 'multipart/form-data')
+            .attach('image', filePath);
+        
+        const urlRegex = /^\/uploads\/pfp\/\d+\.png$/;
+    
+        expect(response.status).to.equal(200); // Adjust this to your expected status code
+        expect(response.body.url)
+            .match(urlRegex);
     });
 });

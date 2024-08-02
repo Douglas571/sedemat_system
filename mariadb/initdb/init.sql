@@ -16,7 +16,8 @@ CREATE TABLE people (
     last_name VARCHAR(255),
     phone VARCHAR(50),
     whatsapp VARCHAR(50),
-    email VARCHAR(255)
+    email VARCHAR(255),
+    profile_picture_url VARCHAR(255)
 );
 
 CREATE TABLE payments (

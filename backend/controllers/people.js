@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const personService = require('../services/people');
 
+
+const multer = require('multer');
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const fse = require('fs-extra')
+const logger = require('../utils/logger');
+
 router.post('/', async (req, res) => {
     try {
         const newPerson = await personService.createPerson(req.body);
@@ -46,5 +54,40 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Set up multer for file upload
+const PFP_PATH = path.resolve(__dirname, '../uploads/pfp')
+fse.ensureDirSync(PFP_PATH)
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, PFP_PATH);
+    },
+    filename: (req, file, cb) => {
+        const randomCode = crypto.randomInt(100000, 999999);
+        const ext = path.extname(file.originalname);
+        cb(null, `${randomCode}${ext}`);
+    }
+});
+
+const upload = multer({ storage });
+const uploadProfilePicture = (req, res) => {
+    upload.single('image')(req, res, (err) => {
+    if (err) {
+            console.log({err})
+        return res.status(500).json({ message: 'Error in uploading file', error: err.message });
+        }
+
+        if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileUrl = `/uploads/pfp/${req.file.filename}`;
+        res.status(200).json({ url: fileUrl });
+    });
+};
+
+router.post('/pfp', uploadProfilePicture)
+
 
 module.exports = router;
