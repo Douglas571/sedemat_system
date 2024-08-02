@@ -10,7 +10,7 @@ import * as api from '../util/api'
 import { TypeIcon } from 'antd/es/message/PurePanel';
 
 
-import { getCommunicationPreference } from './BusinessShared';
+import { completeUrl, getCommunicationPreference } from './BusinessShared';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -57,6 +57,8 @@ function BusinessViewDetails(): React.FC {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+
+    useEffect(() => console.log({business}), [business])
 
     async function loadBusinessData() {
         // get the business data 
@@ -267,7 +269,7 @@ function BusinessViewDetails(): React.FC {
                         <Image
                             data-test="business-details-owner-pfp"
                             width={250}
-                            src={business?.owner?.profilePictureUrl}
+                            src={completeUrl(business?.owner?.profilePictureUrl)}
                         />
                         <Paragraph>
                             Nombres y Apellidos: {business.owner.firstName + " " + business.owner.lastName}<br/>

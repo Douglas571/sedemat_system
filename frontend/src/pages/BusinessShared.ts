@@ -1,3 +1,7 @@
+const IP = process.env.BACKEND_IP || "localhost"
+const PORT = "3000"
+const HOST = "http://" + IP + ":" + PORT
+
 import type { 
     GetProp, 
     UploadFile, 
@@ -334,7 +338,11 @@ export const getBase64 = (file: FileType): Promise<string> =>
 
 // use image/png
 export async function urlToFile(url: string, filename: string, mimeType: string) {
-    const response = await fetch(url);
+    const response = await fetch(completeUrl(url));
     const buffer = await response.arrayBuffer();
     return new File([buffer], filename, { type: mimeType });
+}
+
+export function completeUrl(url: string): string {
+    return HOST + url
 }

@@ -316,6 +316,8 @@ function BusinessEdit(): JSX.Element {
             return '';
         }
 
+        console.log({URL: fileList[0].url})
+        console.log({file: fileList[0].url})
         if(fileList[0].url === business.owner?.profilePictureUrl) {
             return business.owner?.profilePictureUrl
         }
