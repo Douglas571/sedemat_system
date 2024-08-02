@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { DatePicker, FormProps, InputNumber, Select, Space } from 'antd'
+import { DatePicker, FormProps, InputNumber, Select, Space, Upload, Image } from 'antd'
 import { Form, Input, Button, message, Flex, Typography } from 'antd'
+import { PlusOutlined } from '@ant-design/icons';
+
 const { Title } = Typography
 import { useParams } from 'react-router-dom';
 
@@ -12,6 +14,7 @@ import {
     channelOptions, 
     contactMapping, 
     contactOptions, 
+    getBase64, 
     // getCommunicationPreference, 
     getPreferredChannelName, 
     getPreferredContactType, 
@@ -22,10 +25,17 @@ import {
     typeOfBranchOffice, 
     typeOfFieldOptions, 
     updateBusinessWithDateFromForm, 
+    urlToFile, 
     ZONES
 } from './BusinessShared'
 
 import type { BusinessFormFields } from './BusinessShared';
+
+import type { 
+    GetProp, 
+    UploadFile, 
+    UploadProps 
+} from 'antd';
 
 import * as api from '../util/api'
 
@@ -34,6 +44,8 @@ import type {
     BranchOffice,
     Person
 } from '../util/api'
+
+
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -54,6 +66,12 @@ function BusinessEdit(): JSX.Element {
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>()
 
     const [branchOfficesToDelete, setBranchOfficesToDelete] = useState<number[]>([])
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [fileList, setFileList] = useState<UploadFile[]>([])
+
+    type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
     //const [business, setBusiness] = React.useState<Business>()
     let { businessId } = useParams();
@@ -108,6 +126,18 @@ function BusinessEdit(): JSX.Element {
         }
 
         form.setFieldsValue(formInitData)
+
+        const urlOwnerPfp = business?.owner?.profilePictureUrl
+        if (urlOwnerPfp) {
+            const file = await urlToFile(urlOwnerPfp, urlOwnerPfp.split('/')[-1], 'image/png')
+            setFileList([{
+                uid: String(Date.now()),
+                name: file.name,
+                status: 'done',
+                url: urlOwnerPfp,
+                originFileObj: file,
+            }])
+        }
     }
 
     async function loadBusinessData() {
@@ -138,8 +168,6 @@ function BusinessEdit(): JSX.Element {
 
     const onFinish: FormProps<FiledType>['onFinish'] = async (values) => {
 
-        console.log(JSON.stringify(values, null, 2))
-
         if (!business) {
             return ''
         }
@@ -164,6 +192,8 @@ function BusinessEdit(): JSX.Element {
             };
     
             // Upsert owner
+            const ownerPfpUrl = await handleUpload()
+            owner.profilePictureUrl = ownerPfpUrl
             const registeredOwner = await upsertContact(owner, business.ownerPersonId);
     
             // Upsert accountant
@@ -275,6 +305,76 @@ function BusinessEdit(): JSX.Element {
         // remove the office with the office index
         return removeFunction(officeIndex)
     }
+
+    async function handleUpload (): Promise<string>{
+        if (!business) {
+            return ''
+        }
+
+        if (fileList.length === 0) {
+            message.error('No file selected');
+            return '';
+        }
+
+        if(fileList[0].url === business.owner?.profilePictureUrl) {
+            return business.owner?.profilePictureUrl
+        }
+    
+        const formData = new FormData();
+        formData.append('image', fileList[0].originFileObj);
+    
+        try {
+            const response = await fetch(`${HOST}/v1/people/pfp`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    // 'Content-Type': 'multipart/form-data' is not needed; browser sets it automatically.
+                },
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                message.success(`File uploaded successfully. URL: ${data.url}`);
+                return data.url
+            } else {
+                message.error('Upload failed');
+            }
+        } catch (error) {
+            message.error('Upload failed');
+            
+        }
+        return ''
+    };
+
+    const ownerPfpProps: UploadProps = {
+        onPreview: async (file: UploadFile) => {
+            if (!file.url && !file.preview) {
+                file.preview = await getBase64(file.originFileObj as FileType);
+            }
+        
+            setPreviewImage(file.url || (file.preview as string));
+            setPreviewOpen(true);
+        },
+        onChange: ({ fileList: newFileList }) => {
+            setFileList(newFileList)
+        },
+        beforeUpload: (file) => {
+			console.log("adding files")
+			setFileList([...fileList, file]);
+			return false;
+		},
+		fileList,
+        listType: "picture-card",
+        maxCount: 1
+    }
+
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Cargar Foto de Perfil</div>
+        </button>
+    )
+
 
     return (
         <Flex>
@@ -435,6 +535,24 @@ function BusinessEdit(): JSX.Element {
                 </Title>
 
                 <Space>
+                    {previewImage && (
+                        <Image
+                            wrapperStyle={{ display: 'none' }}
+                            preview={{
+                                visible: previewOpen,
+                                onVisibleChange: (visible) => setPreviewOpen(visible),
+                                afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                            }}
+                            src={previewImage}
+                        />
+                    )}
+                    <Upload
+                        data-test="business-new-owner-pfp"
+                        {...ownerPfpProps}
+                    >
+                        {fileList.length < 5 ? uploadButton : null }
+                    </Upload>
+
                     <Form.Item<BusinessFormFields>
                         rules={[
                             {

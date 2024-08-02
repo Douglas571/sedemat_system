@@ -23,8 +23,20 @@ import { PlusOutlined } from '@ant-design/icons';
 import _ from 'lodash'
 
 import * as api from '../util/api'
-import type { Business, EconomicActivity } from '../util/api'
-import { BusinessFormFields, channelOptions, ContactForm, contactOptions, reminderIntervalMap, reminderIntervalOptions } from './BusinessShared'
+import type { 
+    Business, 
+    EconomicActivity 
+} from '../util/api'
+import { 
+    BusinessFormFields, 
+    channelOptions, 
+    ContactForm, 
+    contactOptions, 
+    getBase64, 
+    reminderIntervalMap, 
+    reminderIntervalOptions, 
+    ZONES
+} from './BusinessShared'
 
 
 
@@ -291,15 +303,6 @@ function BusinessNew(): JSX.Element {
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-
-    const getBase64 = (file: FileType): Promise<string> =>
-        new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = (error) => reject(error);
-        }
-    );
 
     async function handleUpload (): Promise<string>{
         if (fileList.length === 0) {
@@ -789,33 +792,3 @@ function BusinessNew(): JSX.Element {
 }
 
 export default BusinessNew
-
-
-const ZONES = [
-    { id: 1, label: "ALTA VISTA", value: "ALTA VISTA" },
-    { id: 2, label: "AVENDA BELLA VISTA", value: "AVENDA BELLA VISTA" },
-    { id: 3, label: "AVENIDA", value: "AVENIDA" },
-    { id: 4, label: "AVENIDA BELLA VISTA", value: "AVENIDA BELLA VISTA" },
-    { id: 5, label: "BARRIALITO", value: "BARRIALITO" },
-    { id: 6, label: "CALLE BOLIVAR", value: "CALLE BOLIVAR" },
-    { id: 7, label: "CALLE INDUSTRIA", value: "CALLE INDUSTRIA" },
-    { id: 8, label: "CALLE LA PAZ", value: "CALLE LA PAZ" },
-    { id: 9, label: "CALLE ZAMORA", value: "CALLE ZAMORA" },
-    { id: 10, label: "CARRETERA NACIONAL MORON-CORO", value: "CARRETERA NACIONAL MORON-CORO" },
-    { id: 11, label: "CENTRO", value: "CENTRO" },
-    { id: 12, label: "CERRO", value: "CERRO" },
-    { id: 13, label: "CIRO CALDERA", value: "CIRO CALDERA" },
-    { id: 14, label: "CORO", value: "CORO" },
-    { id: 15, label: "CUMAREBITO", value: "CUMAREBITO" },
-    { id: 16, label: "DELICIAS", value: "DELICIAS" },
-    { id: 17, label: "INAVI", value: "INAVI" },
-    { id: 18, label: "LA CAÑADA", value: "LA CAÑADA" },
-    { id: 19, label: "LAS DELICIAS", value: "LAS DELICIAS" },
-    { id: 20, label: "PUENTE PIEDRA", value: "PUENTE PIEDRA" },
-    { id: 21, label: "QUEBRADA DE HUTTEN", value: "QUEBRADA DE HUTTEN" },
-    { id: 22, label: "SANTA ELENA", value: "SANTA ELENA" },
-    { id: 23, label: "SANTA TERESA", value: "SANTA TERESA" },
-    { id: 24, label: "SECTOR LAS DELICIAS", value: "SECTOR LAS DELICIAS" },
-    { id: 25, label: "TRANSEUNTE", value: "TRANSEUNTE" },
-    { id: 26, label: "URBANIZACION CIRO CALDERA", value: "URBANIZACION CIRO CALDERA" }
-];

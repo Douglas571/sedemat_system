@@ -1,3 +1,9 @@
+import type { 
+    GetProp, 
+    UploadFile, 
+    UploadProps 
+} from 'antd';
+
 import type { Business } from "util/api"
 
 export interface ContactForm {
@@ -313,4 +319,22 @@ export async function updateBusinessWithDateFromForm(values, { economicActivitie
     // get the economic activity id
     const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
     const economicActivityId = economicActivityObject?.id;
+}
+
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
+export const getBase64 = (file: FileType): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+    }
+);
+
+// use image/png
+export async function urlToFile(url: string, filename: string, mimeType: string) {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    return new File([buffer], filename, { type: mimeType });
 }
