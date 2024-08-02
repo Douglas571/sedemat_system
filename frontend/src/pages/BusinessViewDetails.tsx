@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FormProps, Modal, Space } from 'antd'
-import { Form, Input, Button, message, Typography, Select, Flex} from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex, Image} from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ const reminderIntervalMap: { [key: number]: string } = {
     15: "Cada 15 días",
 }
 
-function BusinessViewDetails(): JSX.Element {
+function BusinessViewDetails(): React.FC {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [business, setBusiness] = React.useState<Business>()
     const { businessId } = useParams();
@@ -35,10 +35,6 @@ function BusinessViewDetails(): JSX.Element {
         // first load of data
         loadBusinessData()
     }, [])
-
-    useEffect(() => {
-        console.log({business})
-    }, [business])
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -69,7 +65,7 @@ function BusinessViewDetails(): JSX.Element {
             let fetchedBusiness = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
             // TODO: Add case when there is not branch office
-            console.log({branchOffices})
+            // console.log({branchOffices})
             setBusiness({...fetchedBusiness, branchOffices})       
         }
     }
@@ -118,7 +114,6 @@ function BusinessViewDetails(): JSX.Element {
             return communicationPreference
         }
         
-        console.log({a: business})
     
         // Set preferred contact
         switch (business.preferredContact) {
@@ -203,7 +198,6 @@ function BusinessViewDetails(): JSX.Element {
                 communicationPreference.sendCalculosTo = "Desconocido";
         }
     
-        console.log({communicationPreference})
         return communicationPreference;
     }
     
@@ -269,7 +263,12 @@ function BusinessViewDetails(): JSX.Element {
                     Propietario
                 </Title>
                 { business.owner ? (
-                    <>
+                    <Flex> 
+                        <Image
+                            data-test="business-details-owner-pfp"
+                            width={250}
+                            src={business?.owner?.profilePictureUrl}
+                        />
                         <Paragraph>
                             Nombres y Apellidos: {business.owner.firstName + " " + business.owner.lastName}<br/>
                             Cédula: {business.owner.dni}<br/>
@@ -277,7 +276,7 @@ function BusinessViewDetails(): JSX.Element {
                             Whatsapp: {business.owner.whatsapp}<br/>
                             Correo: {business.owner.email}<br/>
                         </Paragraph>
-                    </>
+                    </Flex>
                 )
                 : (
                     <Paragraph>
@@ -325,8 +324,8 @@ function BusinessViewDetails(): JSX.Element {
                 {
                     business?.branchOffices.map( (office, index) => {
                         const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
-                        console.log({office})
-                        console.log({lastEconomicLicense})
+                        // console.log({office})
+                        // console.log({lastEconomicLicense})
 
                         return (
                             <Flex key={index} vertical>

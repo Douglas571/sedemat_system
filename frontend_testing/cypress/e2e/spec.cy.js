@@ -28,7 +28,8 @@ describe('SEDEMAT basic workflow', () => {
     dni: String(Date.now()),
     phone: '123-456-7890',
     whatsapp: '123-456-7890',
-    email: 'john.doe@example.com'
+    email: 'john.doe@example.com',
+    pfpPath: './cypress/e2e/test-pfp.png'
   };
 
   const accountantData = {
@@ -109,6 +110,25 @@ describe('SEDEMAT basic workflow', () => {
     cy.get('[data-test="owner-whatsapp-input"]').type(ownerData.whatsapp);
     cy.get('[data-test="owner-email-input"]').type(ownerData.email);
 
+    cy.get('[data-test="business-new-owner-pfp"]').selectFile(ownerData.pfpPath, {force: true})
+
+    // it('should upload a file to the input with data-test="business-new-owner-pfp"', () => {
+    //   // Visit the page that contains the file input
+    //   cy.visit('/your-page-url'); // Replace with your actual URL
+  
+    //   // Load the file from the fixtures folder
+    //   const fileName = 'test-image.jpg'; // Make sure this file exists in cypress/fixtures
+  
+    //   // Get the file input element and attach the file
+    //   cy.get('[data-test="business-new-owner-pfp"]').attachFile(fileName);
+  
+    //   // You can add assertions here to verify the upload if needed
+    //   // For example, checking if the file name is displayed or if an upload request is sent
+    //   cy.get('[data-test="business-new-owner-pfp"]').then(input => {
+    //     expect(input[0].files[0].name).to.equal(fileName);
+    //   });
+    // });
+
     // fill accountant information 
     cy.get('[data-test="accountant-first-name-input"]').type(accountantData.firstName);
     cy.get('[data-test="accountant-last-name-input"]').type(accountantData.lastName);
@@ -167,6 +187,11 @@ describe('SEDEMAT basic workflow', () => {
       cy.contains(ownerData.phone).should('be.visible');
       cy.contains(ownerData.whatsapp).should('be.visible');
       cy.contains(ownerData.email).should('be.visible');
+
+      cy.get('[data-test="business-details-owner-pfp"] img')
+        .should('have.attr', 'src')
+        .and('not.be.empty')
+        .and('not.include', 'null');
 
       // Check the accountant's information is visible
       cy.contains(accountantData.firstName).should('be.visible');

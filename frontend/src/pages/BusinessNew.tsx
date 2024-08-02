@@ -24,7 +24,8 @@ import _ from 'lodash'
 
 import * as api from '../util/api'
 import type { Business, EconomicActivity } from '../util/api'
-import { BusinessFormFields, channelOptions, contactOptions, reminderIntervalMap, reminderIntervalOptions } from './BusinessShared'
+import { BusinessFormFields, channelOptions, ContactForm, contactOptions, reminderIntervalMap, reminderIntervalOptions } from './BusinessShared'
+
 
 
 const { Title, Paragraph } = Typography
@@ -36,15 +37,6 @@ const HOST = "http://" + IP + ":" + PORT
 type BranchOfficeFormFields = {
     address: string 
     phone: string
-}
-
-interface ContactForm {
-    firstName: string 
-    lastName: string 
-    dni: string
-    phone: string
-    whatsapp: string 
-    email: string 
 }
 
 // TODO: create the needed classes 
@@ -144,6 +136,8 @@ function BusinessNew(): JSX.Element {
             const { owner, accountant, administrator } = values;
         
             // Upload the owner and get the id before sending the business
+            const ownerPfpUrl = await handleUpload()
+            owner.profilePictureUrl = ownerPfpUrl
             const registeredOwner = await api.registerPerson(owner);
             console.log({ registeredOwner });
         
@@ -296,6 +290,8 @@ function BusinessNew(): JSX.Element {
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
+    type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
     const getBase64 = (file: FileType): Promise<string> =>
         new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -304,6 +300,38 @@ function BusinessNew(): JSX.Element {
             reader.onerror = (error) => reject(error);
         }
     );
+
+    async function handleUpload (): Promise<string>{
+        if (fileList.length === 0) {
+            message.error('No file selected');
+            return '';
+        }
+    
+        const formData = new FormData();
+        formData.append('image', fileList[0].originFileObj);
+    
+        try {
+            const response = await fetch(`${HOST}/v1/people/pfp`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    // 'Content-Type': 'multipart/form-data' is not needed; browser sets it automatically.
+                },
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                message.success(`File uploaded successfully. URL: ${data.url}`);
+                return data.url
+            } else {
+                message.error('Upload failed');
+            }
+        } catch (error) {
+            message.error('Upload failed');
+            
+        }
+        return ''
+    };
 
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
@@ -517,6 +545,7 @@ function BusinessNew(): JSX.Element {
                         />
                     )}
                     <Upload
+                        data-test="business-new-owner-pfp"
                         {...ownerPfpProps}
                     >
                         {fileList.length < 5 ? uploadButton : null }

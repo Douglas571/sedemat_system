@@ -1,11 +1,14 @@
 import type { Business } from "util/api"
 
 export interface ContactForm {
-    firstName: string,
-    lastName: string,
-    dni: string,
-    phone: string,
+    firstName: string 
+    lastName: string 
+    dni: string
+    phone: string
+    whatsapp: string 
+    email: string 
 
+    profilePictureUrl?: string
 }
 
 export interface BusinessFormFields {

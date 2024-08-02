@@ -30,6 +30,8 @@ export type Person = {
     phone: string
     whatsapp: string 
     email: string 
+
+    profilePictureUrl?: string
 }
 
 export type BranchOffice = {
@@ -118,6 +120,7 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
         }
 
         const business: Business = await response.json()
+        business.owner.profilePictureUrl = HOST + business.owner.profilePictureUrl
         return business
     } catch (error) {
         console.error('Error fetching business data:', error)
