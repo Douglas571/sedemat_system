@@ -7,21 +7,6 @@ describe('SEDEMAT basic workflow', () => {
       cy.visit('http://localhost:5173/')
   })
 
-  // it("Create a tax payer", () => {
-  //    // Visit the home page
-  //   cy.visit('http://localhost:5173');
-
-  //    // Click the link that contains "Nuevo Contribuyente"
-  //   cy.contains('a', 'Nuevo Contribuyente').click();
-
-  //    // Verify that the URL is correct
-  //   cy.url().should('eq', 'http://localhost:5173/business/new');
-  // })
-
-  // it("Should bring a license to a comercial establishment", () => {
-    
-  // })
-
   const ownerData = {
     firstName: 'John',
     lastName: 'Doe',
@@ -60,7 +45,7 @@ describe('SEDEMAT basic workflow', () => {
     economicActivity: 'Salud',
 
     preferredContact: "Propietario",
-    preferredChanel: "Whatsapp",
+    preferredChannel: "Teléfono",
     sendCalculosTo: "Correo",
     reminderInterval: "Cada 3 días"
   };
@@ -98,7 +83,7 @@ describe('SEDEMAT basic workflow', () => {
 
     // fill preferred communication channel information
     cy.get('[data-test="communication-options-preferred-contact"]').type(`${businessData.preferredContact.slice(4)[0]}{enter}`);
-    cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChanel}{enter}`);
+    cy.get('[data-test="communication-options-preferred-channel"]').type(`${businessData.preferredChannel}{enter}`);
     cy.get('[data-test="communication-options-send-calculos"]').type(`${businessData.sendCalculosTo}{enter}`);
     cy.get('[data-test="communication-options-reminder-interval"]').type(`${businessData.reminderInterval.slice(5)[0]}{enter}`);
 
@@ -111,23 +96,6 @@ describe('SEDEMAT basic workflow', () => {
     cy.get('[data-test="owner-email-input"]').type(ownerData.email);
 
     cy.get('[data-test="business-new-owner-pfp"]').selectFile(ownerData.pfpPath, {force: true})
-
-    // it('should upload a file to the input with data-test="business-new-owner-pfp"', () => {
-    //   // Visit the page that contains the file input
-    //   cy.visit('/your-page-url'); // Replace with your actual URL
-  
-    //   // Load the file from the fixtures folder
-    //   const fileName = 'test-image.jpg'; // Make sure this file exists in cypress/fixtures
-  
-    //   // Get the file input element and attach the file
-    //   cy.get('[data-test="business-new-owner-pfp"]').attachFile(fileName);
-  
-    //   // You can add assertions here to verify the upload if needed
-    //   // For example, checking if the file name is displayed or if an upload request is sent
-    //   cy.get('[data-test="business-new-owner-pfp"]').then(input => {
-    //     expect(input[0].files[0].name).to.equal(fileName);
-    //   });
-    // });
 
     // fill accountant information 
     cy.get('[data-test="accountant-first-name-input"]').type(accountantData.firstName);
@@ -160,6 +128,74 @@ describe('SEDEMAT basic workflow', () => {
     cy.contains('Contribuyente guardado exitosamente').should('be.visible'); 
   });
 
+
+  it('Should edit an existing business', () => {
+    // Navigate to the business list page
+    cy.visit('http://localhost:5173/business');
+  
+    // Find the business in the list and click the link
+    cy.contains(businessData.name).click();
+  
+    // Click the edit button
+    cy.get('[data-test="business-edit-button"]').click();
+    
+    cy.wait(1000)
+  
+    // Define new business data with some changes
+    const newBusinessData = {
+      //...businessData,
+      name: `Updated Business ${Date.now()}`, // Change the name
+      expirationDate: '2040-01-01', // Change the expiration date
+      preferredContact: "Contador", // Change the preferred contact
+      preferredChannel: "Correo", // Change the preferred channel,
+    };
+
+    const newOwnerData = {
+      email: 'updated@business.com',
+      pfpPath: "./cypress/e2e/test-pfp.jpg"
+    }
+  
+    // Fill the business basic information with new data
+    cy.get('[data-test="business-name-input"]').clear({force: true}).type(newBusinessData.name, {force: true});
+    // cy.get('[data-test="business-email-input"]').clear({force: true}).type(newBusinessData.email, {force: true});
+    cy.get('[data-test="business-expiration-date-input"]').clear({force: true}).type(`${newBusinessData.expirationDate}{enter}`);
+  
+    // Fill preferred communication channel information with new data
+    cy.log(
+      [newBusinessData.preferredContact, newBusinessData.preferredChannel]
+    )
+    // cy.get('[data-test="communication-options-preferred-contact"] input').clear({force: true})
+    cy.get('[data-test="communication-options-preferred-contact"]').click().type(`${newBusinessData.preferredContact}{enter}`);
+    // cy.get('[data-test="communication-options-preferred-channel"] input').clear({force: true})
+    cy.get('[data-test="communication-options-preferred-channel"]').click().type(`${newBusinessData.preferredChannel}{enter}`);
+  
+    // Optionally, modify the file by uncommenting the line below
+    cy.get('[data-test="business-new-owner-pfp"]').selectFile(newOwnerData.pfpPath, {force: true});
+  
+    // Submit the form
+    cy.get('[data-test="submit-button"]').click();
+  
+    // Check for a success message
+    cy.contains('Contribuyente actualizado exitosamente').should('be.visible');
+  
+    // Verify the updated business information
+    cy.visit('http://localhost:5173/business');
+    cy.contains(newBusinessData.name).click();
+  
+    cy.url().should('include', '/business');
+    cy.contains(newBusinessData.name).should('be.visible');
+    // cy.contains(newOwner.email).should('be.visible');
+    cy.contains(newBusinessData.expirationDate).should('be.visible');
+    cy.get('[data-test="communication-options-preferred-contact"]').contains(newBusinessData.preferredContact).should('be.visible');
+    cy.get('[data-test="communication-options-preferred-channel"]').contains(newBusinessData.preferredChannel).should('be.visible');
+    
+    cy.get('[data-test="business-details-owner-pfp"] img')
+      .should('have.attr', 'src')
+      .and('not.be.empty')
+      .and('not.include', 'null');
+
+    businessData.name = newBusinessData.name
+  });
 
     // the branch office zone, address, dimensions, type and origin should be visible too.
     it('should check if the business information exists', () => {
@@ -217,7 +253,7 @@ describe('SEDEMAT basic workflow', () => {
 
       cy.get('[data-test="communication-options-preferred-contact"]').contains(businessData.preferredContact);
       cy.get('[data-test="communication-options-preferred-channel"]').contains(ownerData.whatsapp);
-      cy.get('[data-test="communication-options-preferred-channel"]').contains(businessData.preferredChanel);
+      cy.get('[data-test="communication-options-preferred-channel"]').contains(businessData.preferredChannel);
       cy.get('[data-test="communication-options-send-calculos"]').contains(ownerData.email);
       cy.get('[data-test="communication-options-reminder-interval"]').contains(businessData.reminderInterval);
     });
