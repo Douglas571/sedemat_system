@@ -221,7 +221,9 @@ function BusinessViewDetails(): React.FC {
             <Typography>
                 <Title>
                     {business?.businessName || "Cargando..."} 
-                    <Button onClick={() => navigate(`/business/edit/${businessId}`)}>Editar</Button> 
+                    <Button 
+                        data-test="business-edit-button"
+                        onClick={() => navigate(`/business/edit/${businessId}`)}>Editar</Button> 
                     <Button 
                         data-test="business-delete-button"
                         onClick={() => business.id && showModal()}>Eliminar</Button>
@@ -330,7 +332,7 @@ function BusinessViewDetails(): React.FC {
                         // console.log({lastEconomicLicense})
 
                         return (
-                            <Flex key={index} vertical>
+                            <Flex key={office.id} vertical>
                                 <Title level={4}>
                                     Sede #{index + 1} {renderLicenseButton(office)}
                                 </Title>

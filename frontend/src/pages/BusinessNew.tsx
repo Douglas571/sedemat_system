@@ -775,7 +775,6 @@ function BusinessNew(): JSX.Element {
                                     <Button 
                                         data-test='branch-office-add-button'
                                         onClick={() => add()}>Agregar Sucursal</Button>
-                                    {/* <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button> */}
                                 </div>
                             )
                         }}

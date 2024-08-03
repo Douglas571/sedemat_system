@@ -3,6 +3,7 @@ import { Button, Popconfirm, Table } from 'antd'
 import { EditFilled, DeleteFilled } from '@ant-design/icons';
 import { useNavigate, Link } from "react-router-dom";
 import _ from 'lodash'
+import { b } from 'vitest/dist/suite-ynYMzeLu';
 
 
 
@@ -12,9 +13,9 @@ const HOST = "http://" + IP + ":" + PORT
 
 type Business = {
     id: number
-    businessName: string // Razón Social
-    dni: string // Rif o Cédula
-    email: string // Correo
+    businessName: string
+    dni: string
+    email: string
 }
 
 function BusinessView(): JSX.Element {
@@ -32,7 +33,7 @@ function BusinessView(): JSX.Element {
             }
             const data = await response.json();
             console.log({data})
-            return data;
+            return data.map(b => ({...b, key: b.id}));
         } catch (error) {
             console.error('Error fetching business data:', error);
             throw error;
@@ -97,7 +98,7 @@ function BusinessView(): JSX.Element {
         {
             title: '',
             key: 'actions',
-            render: (notuse, business: Business) => {
+            render: (_, business: Business) => {
                 return (
                     <div>
                         <Button

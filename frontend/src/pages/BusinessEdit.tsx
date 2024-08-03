@@ -174,6 +174,7 @@ function BusinessEdit(): JSX.Element {
     
         try {
             // Log the form values for debugging
+            console.log("Business information from form to be updated")
             console.log(JSON.stringify(values, null, 2));
     
             // Destructure contacts from values
@@ -257,6 +258,7 @@ function BusinessEdit(): JSX.Element {
                 b: values.preferredChannel
 
             })
+            console.log("Business information that will be updated")
             console.log(JSON.stringify(newBusinessData, null, 2))
 
             // Send the updated business data to the server
@@ -265,7 +267,7 @@ function BusinessEdit(): JSX.Element {
             // Display success message
             messageApi.open({
                 type: 'success',
-                content: "Contribuyente Actualizado exitosamente",
+                content: "Contribuyente actualizado exitosamente",
             });
     
             // Optionally clear the form
@@ -336,13 +338,16 @@ function BusinessEdit(): JSX.Element {
     
             if (response.ok) {
                 const data = await response.json();
-                message.success(`File uploaded successfully. URL: ${data.url}`);
+                // message.success(`File uploaded successfully. URL: ${data.url}`);
+                console.log(`File uploaded successfully. URL: ${data.url}`)
                 return data.url
             } else {
-                message.error('Upload failed');
+                // message.error('Upload failed');
+                console.log('Upload failed')
             }
         } catch (error) {
-            message.error('Upload failed');
+            // message.error('Upload failed');
+            console.log({error})
             
         }
         return ''
@@ -686,7 +691,7 @@ function BusinessEdit(): JSX.Element {
                                         data-test="button-add-branch-office"
                                         onClick={() => add()}
                                         >Agregar Sucursal</Button>
-                                    <Button onClick={() => console.log({contenido: form.getFieldsValue()})}>Mostrar contenido</Button>
+                                    
                                 </div>
                             )
                         }}
@@ -695,7 +700,10 @@ function BusinessEdit(): JSX.Element {
 
 
                 <Form.Item>
-                    <Button type='primary' htmlType='submit'>Guardar</Button>
+                    <Button 
+                        data-test="submit-button"
+                        type='primary' 
+                        htmlType='submit'>Guardar</Button>
                 </Form.Item>
             </Form>
         </Flex>
