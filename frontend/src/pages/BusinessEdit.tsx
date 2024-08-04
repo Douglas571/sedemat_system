@@ -277,11 +277,7 @@ function BusinessEdit(): JSX.Element {
     
             // Handle error messages
             let msg = "Hubo un error";
-            if (error.message === "duplicated dni") {
-                msg = "Cédula ya registrada";
-            } else {
-                msg = error.message;
-            }
+            msg = error.message === "duplicated dni" ? "Cédula ya registrada" : error.message
     
             // Display error message
             messageApi.open({
@@ -662,13 +658,13 @@ function BusinessEdit(): JSX.Element {
                                                             <Form.Item label="Dimensiones (m2)" name={[field.name, 'dimensions']} style={{width: "20%"}} >
                                                                 <InputNumber
                                                                     data-test={`branch-office-${field.name}-dimensions`}
-                                                                    onChange={(dimensions) => { dimensions && handleDimensionsChange(field.name, Number(dimensions), form)}}
+                                                                    onChange={(dimensions) => dimensions && handleDimensionsChange(field.name, Number(dimensions), form)}
                                                                 />
                                                             </Form.Item>
 
                                                             <Form.Item label="Tipo" name={[field.name, 'type']}>
                                                                 <Select
-                                                                    data-test="branch-office-${index}-zone"
+                                                                    data-test={`branch-office-${field.name}-zone`}
                                                                     showSearch
                                                                     options={typeOfFieldOptions}
                                                                 />
