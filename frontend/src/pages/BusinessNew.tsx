@@ -737,14 +737,22 @@ function BusinessNew(): JSX.Element {
                                                                 
                                                             </Form.Item>
 
-                                                            <Form.Item label="Dimensiones (m2)" name={[field.name, 'dimensions']} style={{width: "20%"}} >
+                                                            <Form.Item 
+                                                                label="Dimensiones (m2)" 
+                                                                name={[field.name, 'dimensions']} 
+                                                                style={{width: "300px"}} 
+                                                            >
                                                                 <InputNumber
                                                                     data-test={`branch-office-${field.name}-dimensions`}
                                                                     onChange={(dimensions) => {handleDimensionsChange(field.name, dimensions)}}
                                                                 />
                                                             </Form.Item>
 
-                                                            <Form.Item label="Tipo" name={[field.name, 'type']}>
+                                                            <Form.Item 
+                                                                label="Tipo" 
+                                                                name={[field.name, 'type']}
+                                                                style={{width: "100px"}} 
+                                                            >
                                                                 <Select
                                                                     data-test="branch-office-${index}-zone"
                                                                     showSearch
@@ -756,7 +764,9 @@ function BusinessNew(): JSX.Element {
                                                                 />
                                                             </Form.Item>
 
-                                                            <Form.Item label="Procedencia" name={[field.name, 'origin']}>
+                                                            <Form.Item label="Procedencia" name={[field.name, 'origin']}
+                                                                style={{width: "240px"}} 
+                                                            >
                                                                 <Select
                                                                     data-test={`branch-office-${field.name}-origin`}
                                                                     showSearch

@@ -23,6 +23,9 @@ function BusinessView(): JSX.Element {
     const [business, setBusiness] = React.useState([])
     const navigate = useNavigate();
 
+    function onNewTaxPayer(){
+        navigate('/business/new')
+    }
     
     async function fetchBusiness() {
         console.log("fetching business api")
@@ -47,8 +50,7 @@ function BusinessView(): JSX.Element {
     }
 
     async function deleteBusiness(id: number): Promise<void> {
-        const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
-    
+        const url = `${HOST}/v1/businesses/${id}`;  
         try {
             const response = await fetch(url, {
                 method: 'DELETE'
@@ -142,7 +144,15 @@ function BusinessView(): JSX.Element {
 
     return (
         <div>
-            <h1>Contribuyentes</h1>
+            <h1>
+                Registro de Contribuyentes
+                <Button
+                    onClick={onNewTaxPayer}
+                >
+                    Nuevo
+                </Button>
+            </h1>
+            
             <Table
                 dataSource={business}
                 columns={columns} 
