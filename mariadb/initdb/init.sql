@@ -20,18 +20,18 @@ CREATE TABLE people (
     profile_picture_url VARCHAR(255)
 );
 
-CREATE TABLE payments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    business_name VARCHAR(255) NOT NULL,
-    dni VARCHAR(15) NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    reference VARCHAR(255) NOT NULL UNIQUE,
-    account VARCHAR(30) NOT NULL,
-    payment_date DATE NOT NULL,
-    is_verified BOOLEAN DEFAULT false,
-    image VARCHAR(255),
-    state VARCHAR(30)
-);
+-- CREATE TABLE payments (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     business_name VARCHAR(255) NOT NULL,
+--     dni VARCHAR(15) NOT NULL,
+--     amount DECIMAL(10, 2) NOT NULL,
+--     reference VARCHAR(255) NOT NULL UNIQUE,
+--     account VARCHAR(30) NOT NULL,
+--     payment_date DATE NOT NULL,
+--     is_verified BOOLEAN DEFAULT false,
+--     image VARCHAR(255),
+--     state VARCHAR(30)
+-- );
 
 CREATE TABLE businesses (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -100,12 +100,12 @@ INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (100
 INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1009, 'Agricultura', 1.25, 5.75);
 INSERT INTO economic_activities (code, title, alicuota, minimum_tax) VALUES (1010, 'Tecnología de la información', 2.50, 10.00);
 
--- Insert dummy data into the Payments table
-INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('CASA CHEN, C.A', 100.50, '122345', 'E-8228509-0', '0102-0123-4500-0001', '2024-01-01');
-INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('COMERCIAL SOL CARIBE', 200.75, '677890', 'E-82288744-1', '0102-0123-4500-0002', '2024-02-01');
-INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('CARNICERIA TAICO', 50.00, '115121', 'E-84417324-8', '0102-0123-4500-0003', '2024-03-01');
-INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('ALCALDÍA DE ZAMORA', 300.20, '141251', 'G-200006366', '0102-0123-4500-0004', '2024-04-01');
-INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('BANCO BICENTENARIO DEL PUEBLO DE LA CLASE OBRERA, MUJER Y COMUNAS, BANCO UNIVERSAL, C.A', 120.99, '161371', 'G-20009148-7', '0102-0123-4500-0005', '2024-05-01');
+-- -- Insert dummy data into the Payments table
+-- INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('CASA CHEN, C.A', 100.50, '122345', 'E-8228509-0', '0102-0123-4500-0001', '2024-01-01');
+-- INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('COMERCIAL SOL CARIBE', 200.75, '677890', 'E-82288744-1', '0102-0123-4500-0002', '2024-02-01');
+-- INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('CARNICERIA TAICO', 50.00, '115121', 'E-84417324-8', '0102-0123-4500-0003', '2024-03-01');
+-- INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('ALCALDÍA DE ZAMORA', 300.20, '141251', 'G-200006366', '0102-0123-4500-0004', '2024-04-01');
+-- INSERT INTO payments (business_name, amount, reference, dni, account, payment_date) VALUES ('BANCO BICENTENARIO DEL PUEBLO DE LA CLASE OBRERA, MUJER Y COMUNAS, BANCO UNIVERSAL, C.A', 120.99, '161371', 'G-20009148-7', '0102-0123-4500-0005', '2024-05-01');
 
 -- Insert dummy data into the Businesses table
 INSERT INTO businesses (business_name, dni, email, company_incorporation_date, company_expiration_date, directors_board_expiration_date, economic_activity_id) 

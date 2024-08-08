@@ -1,0 +1,29 @@
+{
+  "development": {
+    "username": "sedemat_server",
+    "password": "12345",
+    "database": "sedemat",
+    "host": "mariadb",
+    "dialect": "mariadb",
+
+    "logging": false
+  },
+  "test": {
+    "username": "sedemat_server",
+    "password": "12345",
+    "database": "sedemat",
+    "host": "mariadb",
+    "dialect": "mariadb",
+
+    "logging": false
+  },
+  "production": {
+    "username": "sedemat_server",
+    "password": "12345",
+    "database": "sedemat",
+    "host": "mariadb",
+    "dialect": "mariadb",
+
+    "logging": false
+  }
+}

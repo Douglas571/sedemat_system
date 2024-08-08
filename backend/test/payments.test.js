@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const Payment = require('../models/payment'); // Adjust the path to your payment model
+const {Payment} = require('../database/models'); // Adjust the path to your payment model
 
 describe('Payment API', () => {
     let expect;
