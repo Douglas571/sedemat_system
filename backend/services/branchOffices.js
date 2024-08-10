@@ -1,5 +1,4 @@
-const {BranchOffice, EconomicActivity} = require('../database/models')
-const EconomicLicense = require('../models/economicLicense')
+const {BranchOffice, EconomicActivity, EconomicLicense} = require('../database/models')
 const logger = require('../utils/logger')
 
 // Create a new Branch Office
@@ -35,6 +34,7 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
         });
         return branchOffices;
     } catch (error) {
+        console.log({error})
         logger.error(error)
         throw new Error('Error fetching branch offices');
     }

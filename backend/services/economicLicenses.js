@@ -1,6 +1,5 @@
 // services/economicLicenseService.js
-const EconomicLicense = require('../models/economicLicense');
-const EconomicActivity = require('../models/economicActivity')
+const {EconomicLicense, EconomicActivity} = require('../database/models');
 
 exports.createEconomicLicense = async (licenseData) => {
     try {
