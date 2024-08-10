@@ -1,12 +1,12 @@
-USE sedemat;
+-- USE sedemat;
 
-CREATE TABLE economic_activities (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    code INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    alicuota DECIMAL(5, 2) NOT NULL,
-    minimum_tax DECIMAL(10, 2) NOT NULL
-);
+-- CREATE TABLE economic_activities (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     code INT NOT NULL,
+--     title VARCHAR(255) NOT NULL,
+--     alicuota DECIMAL(5, 2) NOT NULL,
+--     minimum_tax DECIMAL(10, 2) NOT NULL
+-- );
 
 
 -- CREATE TABLE people (

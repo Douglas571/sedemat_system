@@ -1,4 +1,4 @@
-const EconomicActivity = require('../models/economicActivity');
+const {EconomicActivity} = require('../database/models');
 
 exports.createEconomicActivity = async (data) => {
     try {

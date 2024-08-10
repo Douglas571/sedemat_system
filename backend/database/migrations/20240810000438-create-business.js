@@ -18,41 +18,41 @@ module.exports = {
       companyExpirationDate: Sequelize.DATE,
       directorsBoardExpirationDate: Sequelize.DATE,
       
-      economicActivityId: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-              model: 'EconomicActivity',
-              key: 'id'
-          }
-      },
+      // economicActivityId: {
+      //     type: Sequelize.INTEGER,
+      //     allowNull: false,
+      //     references: {
+      //         model: 'EconomicActivity',
+      //         key: 'id'
+      //     }
+      // },
       
-      ownerPersonId: {
-          type: Sequelize.INTEGER,
-          //allowNull: false, // just for now...
-          references: {
-              model: 'Person', 
-              key: 'id'
-          }
-      },
+      // ownerPersonId: {
+      //     type: Sequelize.INTEGER,
+      //     //allowNull: false, // just for now...
+      //     references: {
+      //         model: 'Person', 
+      //         key: 'id'
+      //     }
+      // },
   
-      accountantPersonId: {
-          type: Sequelize.INTEGER,
-          //allowNull: false, // just for now...
-          references: {
-              model: 'Person', 
-              key: 'id'
-          }
-      },
+      // accountantPersonId: {
+      //     type: Sequelize.INTEGER,
+      //     //allowNull: false, // just for now...
+      //     references: {
+      //         model: 'Person', 
+      //         key: 'id'
+      //     }
+      // },
   
-      administratorPersonId: {
-          type: Sequelize.INTEGER,
-          //allowNull: false, // just for now...
-          references: {
-              model: 'Person', 
-              key: 'id'
-          }
-      },
+      // administratorPersonId: {
+      //     type: Sequelize.INTEGER,
+      //     //allowNull: false, // just for now...
+      //     references: {
+      //         model: 'Person', 
+      //         key: 'id'
+      //     }
+      // },
   
       preferredChannel: Sequelize.STRING,
       sendCalculosTo: Sequelize.STRING,

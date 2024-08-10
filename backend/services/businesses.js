@@ -1,6 +1,5 @@
-const Business = require('../models/business');
-const EconomicActivity = require('../models/economicActivity')
-const Person = require("../models/person")
+// const EconomicActivity = require('../models/economicActivity')
+const {Person, Business, EconomicActivity} = require("../database/models")
 
 const logger = require('../utils/logger')
 

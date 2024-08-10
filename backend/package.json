@@ -10,8 +10,11 @@
     "start:dev": "nodemon index.js -L",
 
     "db:migrate": "npx sequelize db:migrate",
+    "db:seed": "npx sequelize db:seed:all",
 
-    "tp": "npx mocha test/people.test.js"
+    "tp": "npx mocha test/people.test.js",
+    "tb": "npx mocha test/business.test.js",
+    "te": "npx mocha test/economicActivity.test.js"
   },
   "author": "",
   "license": "ISC",

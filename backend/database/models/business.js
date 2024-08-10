@@ -2,7 +2,7 @@
 const {
   Model
 } = require('sequelize');
-module.exports = (DataTypes, DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
   class Business extends Model {
     /**
      * Helper method for defining associations.
@@ -11,6 +11,34 @@ module.exports = (DataTypes, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      const {EconomicActivity, Person} = models
+      Business.belongsTo(EconomicActivity, {
+          foreignKey: "economicActivityId",
+          as: 'economicActivity'
+      })
+      
+      EconomicActivity.hasMany(Business, {
+          foreignKey: "economicActivityId"
+      })
+
+      Business.belongsTo(Person, {
+        foreignKey: "ownerPersonId",
+        as: 'owner'
+      })
+      
+      Business.belongsTo(Person, {
+          foreignKey: "accountantPersonId",
+          as: 'accountant'
+      })
+      
+      Business.belongsTo(Person, {
+          foreignKey: "administratorPersonId",
+          as: 'administrator'
+      })
+      
+      Person.hasMany(Business, {
+          foreignKey: "ownerPersonId"
+      })
     }
   }
   Business.init({
@@ -80,7 +108,7 @@ module.exports = (DataTypes, DataTypes) => {
       type: DataTypes.DATE
     }
   }, {
-    DataTypes,
+    sequelize,
     modelName: 'Business',
   });
   return Business;

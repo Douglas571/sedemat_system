@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const EconomicActivity = require('../models/economicActivity'); // Adjust the path to your model
+const {EconomicActivity} = require('../database/models'); // Adjust the path to your model
 
 describe('EconomicActivity API', () => {
     let expect;
