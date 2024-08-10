@@ -7,7 +7,11 @@
     "test": "mocha --exit",
     "test:watch": "mocha --watch -L",
     "start": "node index.js",
-    "start:dev": "nodemon index.js -L"
+    "start:dev": "nodemon index.js -L",
+
+    "db:migrate": "npx sequelize db:migrate",
+
+    "tp": "npx mocha test/people.test.js"
   },
   "author": "",
   "license": "ISC",

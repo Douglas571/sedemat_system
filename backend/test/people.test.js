@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const Person = require('../models/person'); // Adjust the path to your model
+const {Person} = require('../database/models'); // Adjust the path to your model
 
 const fs = require('fs');
 const path = require('path');

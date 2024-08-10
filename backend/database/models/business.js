@@ -1,10 +1,19 @@
-const { DataTypes } = require("sequelize")
-const sequelize = require("./sequelize")
-
-const EconomicActivity = require("./economicActivity");
-const {Person} = require("../database/models")
-
-const Business = sequelize.define('Business', {
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (DataTypes, DataTypes) => {
+  class Business extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of DataTypes lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  }
+  Business.init({
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -60,47 +69,19 @@ const Business = sequelize.define('Business', {
     sendCalculosTo: DataTypes.STRING,
     preferredContact: DataTypes.STRING,
 
-    reminderInterval: DataTypes.INTEGER
+    reminderInterval: DataTypes.INTEGER,
 
-}, {
-    underscored: true,
-    timestamps: false,
-    createdAt: false,
-    updatedAt: false,
-})
-
-Business.belongsTo(EconomicActivity, {
-    foreignKey: "economicActivityId",
-    as: 'economicActivity'
-})
-
-EconomicActivity.hasMany(Business, {
-    foreignKey: "economicActivityId"
-})
-
-Business.belongsTo(Person, {
-    foreignKey: "ownerPersonId",
-    as: 'owner'
-})
-
-Business.belongsTo(Person, {
-    foreignKey: "accountantPersonId",
-    as: 'accountant'
-})
-
-Business.belongsTo(Person, {
-    foreignKey: "administratorPersonId",
-    as: 'administrator'
-})
-
-Person.hasMany(Business, {
-    foreignKey: "ownerPersonId"
-})
-
-async function sync() {
-    await Business.sync()
-}
-
-// sync()
-
-module.exports = Business
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE
+    }
+  }, {
+    DataTypes,
+    modelName: 'Business',
+  });
+  return Business;
+};
