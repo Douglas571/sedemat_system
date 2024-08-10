@@ -1,6 +1,5 @@
-const BranchOffice = require('../models/branchOffice')
+const {BranchOffice, EconomicActivity} = require('../database/models')
 const EconomicLicense = require('../models/economicLicense')
-const EconomicActivity = require('../models/economicActivity')
 const logger = require('../utils/logger')
 
 // Create a new Branch Office

@@ -14,7 +14,9 @@
 
     "tp": "npx mocha test/people.test.js",
     "tb": "npx mocha test/business.test.js",
-    "te": "npx mocha test/economicActivity.test.js"
+    "te": "npx mocha test/economicActivity.test.js",
+
+    "tbo": "npx mocha test/economicActivity.test.js"
   },
   "author": "",
   "license": "ISC",

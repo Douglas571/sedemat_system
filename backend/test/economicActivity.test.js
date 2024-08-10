@@ -22,7 +22,7 @@ describe('EconomicActivity API', () => {
         const res = await request(app)
             .post('/v1/economic-activities')
             .send({
-                code: 1234,
+                code: Number(String(Date.now()).slice(5)[1]), // to get an number that fits code
                 title: `Test Activity ${Date.now()}`,
                 alicuota: 10.00,
                 minimumTax: 100.00,
