@@ -8,6 +8,10 @@ import BusinessViewDetails from 'pages/BusinessViewDetails'
 
 import BranchOfficeLicenseNew from 'pages/BranchOfficeLicenseNew'
 
+import Contacts from 'pages/Contacts'
+import ContactsView from 'pages/ContactsView'
+import ContactEdit from 'pages/ContactsEdit'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
 import MainLayout from 'layout/main'
@@ -39,6 +43,24 @@ function App(): JSX.Element {
 							path='business/:businessId/branch-office/:branchOfficeId/license/new'
 							element={<BranchOfficeLicenseNew />}
 						/>
+
+						<Route 
+							path='contacts'
+							element={<Contacts/>}
+						/>
+						<Route 
+							path='contacts/:id'
+							element={<ContactsView/>}
+						/>
+						<Route 
+							path='contacts/new'
+							element={<ContactEdit/>}
+						/>
+						<Route 
+							path='contacts/:id/edit'
+							element={<ContactEdit/>}
+						/>
+
 
 						{/* Using path="*"" means "match anything", so this route
 						acts like a catch-all for URLs that we don't have explicit

@@ -157,7 +157,6 @@ function BusinessView(): JSX.Element {
                 dataSource={business}
                 columns={columns} 
             />
-
         </div>
     )
 }

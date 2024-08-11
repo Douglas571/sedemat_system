@@ -32,6 +32,8 @@ export type Person = {
     email: string 
 
     profilePictureUrl?: string
+
+    fullName?: string
 }
 
 export type BranchOffice = {
@@ -382,6 +384,32 @@ export async function getPersonById(id: number): Promise<Person> {
     }
 
     return data;
+}
+
+export async function getPeople(): Promise<Person[]> {
+
+    let people: Person[] 
+    try {
+        const response = await fetch(`${HOST}/v1/people`, {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+        });
+    
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+    
+        const data = await response.json();
+        people = data.body 
+
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch people:', error);
+    }
+
+    return []
 }
 
 export async function deletePerson(id: number): Promise<boolean> {

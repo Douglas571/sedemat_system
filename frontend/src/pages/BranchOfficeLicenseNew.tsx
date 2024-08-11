@@ -8,7 +8,6 @@ import type { EconomicActivity, Business, BranchOffice, License } from '../util/
 
 import { useParams } from 'react-router-dom';
 
-
 import * as api from '../util/api'
 
 export default function BranchOfficeLicenseNew(): JSX.Element {

@@ -74,6 +74,11 @@ const items: MenuProp['items'] = [
 		key: '/collection',
 		icon: '',
 		label: 'Recaudación'
+	},
+	{
+		key: '/contacts',
+		icon: '',
+		label: 'Contactos'
 	}
 ]
 
