@@ -324,14 +324,17 @@ function BusinessNew(): JSX.Element {
     
             if (response.ok) {
                 const data = await response.json();
-                message.success(`File uploaded successfully. URL: ${data.url}`);
+                // message.success(`File uploaded successfully. URL: ${data.url}`);
+                console.log("File uploaded successfully. URL: ${data.url}")
                 return data.url
             } else {
-                message.error('Upload failed');
+                // message.error('Upload failed');
+                console.error("Upload failed")
             }
         } catch (error) {
-            message.error('Upload failed');
-            
+            // message.error('Upload failed');
+            console.error({message: "Upload failed", error})
+            throw error
         }
         return ''
     };
