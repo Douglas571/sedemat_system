@@ -1,9 +1,11 @@
-const EconomicActivity = require('../models/economicActivity');
+const {EconomicActivity} = require('../database/models');
+const logger = require("../utils/logger")
 
 exports.createEconomicActivity = async (data) => {
     try {
         return await EconomicActivity.create(data);
     } catch (error) {
+        logger.error("Error in economic activity create service")
         throw new Error(error.message);
     }
 };

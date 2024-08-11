@@ -25,6 +25,7 @@ router.post('/', async (req, res) => {
         const newPayment = await paymentService.createPayment(req.body);
         res.status(201).json(newPayment);
     } catch (error) {
+        // console.log({error})
         let msg = "error random"
         let code = 0
         if (error.name == "SequelizeUniqueConstraintError"){

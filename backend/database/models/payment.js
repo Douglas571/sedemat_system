@@ -1,7 +1,19 @@
-const { DataTypes } = require("sequelize")
-const sequelize = require("./sequelize")
-
-const Payment = sequelize.define('Payment', {
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Payment extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  }
+  Payment.init({
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -22,16 +34,10 @@ const Payment = sequelize.define('Payment', {
     // don't add the timestamp attributes (updatedAt, createdAt)
     // add liquidation date
     // add state 
-}, {
-    underscored: true,
-    timestamps: false,
-    createdAt: false,
-    updatedAt: false,
-})
+  }, {
+    sequelize,
+    modelName: 'Payment',
+  });
 
-async function sync() {
-    await Payment.sync({ force: true })
-}
-
-
-module.exports = Payment
+  return Payment;
+};

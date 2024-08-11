@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize")
 const sequelize = require("./sequelize")
 
 const EconomicActivity = require("./economicActivity");
-const Person = require("./person")
+const {Person} = require("../database/models")
 
 const Business = sequelize.define('Business', {
     id: {

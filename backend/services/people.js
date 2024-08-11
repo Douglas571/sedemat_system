@@ -1,4 +1,4 @@
-const Person = require('../models/person');
+const {Person} = require('../database/models');
 const logger = require('../utils/logger');
 
 const createPerson = async (personData) => {

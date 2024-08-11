@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 const economicActivityService = require('../services/economicActivities');
 
+const logger = require("../utils/logger")
+
 // Create a new economic activity
 router.post('/', async (req, res) => {
     try {
         const newEconomicActivity = await economicActivityService.createEconomicActivity(req.body);
         res.status(201).json(newEconomicActivity);
     } catch (error) {
+        logger.error("Error creating economic activity")
+        
         res.status(500).json({ error: error.message });
     }
 });

@@ -1,4 +1,5 @@
-const PaymentModel = require("../models/payment")
+const db = require("../database/models")
+const PaymentModel = db.Payment
 
 const logger = require('../utils/logger')
 

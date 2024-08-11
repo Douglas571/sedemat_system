@@ -1,7 +1,6 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const BranchOffice = require('../models/branchOffice'); // Adjust the path to your model
-const Business = require('../models/business'); // Adjust the path to your business model
+const {BranchOffice, Business} = require('../database/models'); // Adjust the path to your model
 
 describe('BranchOffice API', () => {
     let expect;

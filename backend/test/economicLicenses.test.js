@@ -1,8 +1,6 @@
 const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
-const BranchOffice = require('../models/branchOffice'); // Adjust the path to your branch office model
-const EconomicActivity = require('../models/economicActivity'); // Adjust the path to your economic activity model
-const EconomicLicense = require('../models/economicLicense'); // Adjust the path to your economic license model
+const {EconomicActivity, EconomicLicense, BranchOffice} = require('../database/models');
 
 describe('EconomicLicense API', () => {
     let expect;
@@ -33,7 +31,7 @@ describe('EconomicLicense API', () => {
         const economicActivityRes = await request(app)
             .post('/v1/economic-activities')
             .send({
-                code: 1234,
+                code: Number(String(Date.now()).slice(5)[1]),
                 title: `Test Activity ${Date.now()}`,
                 alicuota: 10.00,
                 minimumTax: 100.00,
