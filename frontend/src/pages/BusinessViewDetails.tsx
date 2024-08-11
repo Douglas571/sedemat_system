@@ -23,7 +23,7 @@ const reminderIntervalMap: { [key: number]: string } = {
     15: "Cada 15 días",
 }
 
-function BusinessViewDetails(): React.FC {
+function BusinessViewDetails(): JSX.Element {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [business, setBusiness] = React.useState<Business>()
     const { businessId } = useParams();
