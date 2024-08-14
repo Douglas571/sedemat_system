@@ -27,7 +27,8 @@ import _ from 'lodash'
 import * as api from '../util/api'
 import type { 
     Business, 
-    EconomicActivity 
+    EconomicActivity, 
+    Person
 } from '../util/api'
 import { 
     BusinessFormFields, 
@@ -61,9 +62,9 @@ interface FormFields {
     email: string
     branchOffices: Array<BranchOfficeFormFields>
 
-    owner: ContactForm
-    accountant: ContactForm
-    administrator: ContactForm
+    owner: string
+    accountant: string
+    administrator: string
 
     preferredChannel: string
     sendCalculosTo: string
@@ -139,7 +140,7 @@ function BusinessNew(): JSX.Element {
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
-            console.log(JSON.stringify(values, null, 2) );
+            // console.log(JSON.stringify(values, null, 2) );
 
             // Early return for testing purposes
             // return;
@@ -148,35 +149,37 @@ function BusinessNew(): JSX.Element {
             const economicActivityId = economicActivityObject?.id;
         
             // Register contacts
-            const { owner, accountant, administrator } = values;
-        
-            // Upload the owner and get the id before sending the business
-            const ownerPfpUrl = await handleUpload()
-            owner.profilePictureUrl = ownerPfpUrl
-            const registeredOwner = await api.registerPerson(owner);
-            console.log({ registeredOwner });
-        
-            // Upload the accountant if it exists
-            let registeredAccountant;
-            if (accountant?.firstName) {
-                registeredAccountant = await api.registerPerson(accountant);
-                console.log({ registeredAccountant });
-            }
+            const { 
+                owner: ownerString, 
+                accountant: accountantString, 
+                administrator: administratorString } = values;
 
-            // Upload the administrator if it exists
-            let registeredAdministrator;
-            if (administrator?.firstName) {
-                registeredAdministrator = await api.registerPerson(administrator);
-                console.log({ registeredAdministrator });
-            }
-
+            const owner = getSelectedPerson(ownerString)
+            const accountant = getSelectedPerson(accountantString)
+            const administrator = getSelectedPerson(administratorString)
+        
             const newBusiness = {
-                ..._.omit(values, ['branchOffices', 'preferredChannel', 'sendCalculosTo', 'preferredContact', 'reminderInterval']),
+                ..._.omit(values, [
+                    'branchOffices', 
+                    'preferredChannel', 
+                    'sendCalculosTo', 
+                    'preferredContact', 
+                    'reminderInterval',
+                    'owner',
+                    'accountant',
+                    'administrator'
+                ]),
                 economicActivityId,
-                ownerPersonId: registeredOwner.id,
-                accountantPersonId: registeredAccountant?.id,
-                administratorPersonId: registeredAdministrator?.id,
+                // : owner.id,
+                // accountantPersonId: registeredAccountant?.id,
+                // administratorPersonId: registeredAdministrator?.id,
             };
+
+            if (owner) newBusiness.ownerPersonId = owner.id
+            if (accountant) newBusiness.accountantPersonId = accountant.id
+            if (administrator) newBusiness.administratorPersonId = administrator.id
+
+            console.log({newBusiness})
 
             const response = await api.sendBusinessData(newBusiness);
             const businessId = response.id;
@@ -247,78 +250,58 @@ function BusinessNew(): JSX.Element {
         }
     };
 
+
+    function showFormData() {
+        const formData = form.getFieldsValue()
+        console.log({formData})
+    }
+
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-    async function handleUpload (): Promise<string>{
-        if (fileList.length === 0) {
-            message.error('No file selected');
-            return '';
-        }
-    
-        const formData = new FormData();
-        formData.append('image', fileList[0].originFileObj);
-    
-        try {
-            const response = await fetch(`${HOST}/v1/people/pfp`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    // 'Content-Type': 'multipart/form-data' is not needed; browser sets it automatically.
-                },
-            });
-    
-            if (response.ok) {
-                const data = await response.json();
-                // message.success(`File uploaded successfully. URL: ${data.url}`);
-                console.log("File uploaded successfully. URL: ${data.url}")
-                return data.url
-            } else {
-                // message.error('Upload failed');
-                console.error("Upload failed")
-            }
-        } catch (error) {
-            // message.error('Upload failed');
-            console.error({message: "Upload failed", error})
-            throw error
-        }
-        return ''
-    };
-
-    const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Cargar Foto de Perfil</div>
-        </button>
-    )
-
-    const ownerPfpProps: UploadProps = {
-        onPreview: async (file: UploadFile) => {
-            if (!file.url && !file.preview) {
-                file.preview = await getBase64(file.originFileObj as FileType);
-            }
-        
-            setPreviewImage(file.url || (file.preview as string));
-            setPreviewOpen(true);
-        },
-        onChange: ({ fileList: newFileList }) => {
-            setFileList(newFileList)
-        },
-        beforeUpload: (file) => {
-			console.log("adding files")
-			setFileList([...fileList, file]);
-			return false;
-		},
-		fileList,
-        listType: "picture-card",
-        maxCount: 1
-    }
-
     function handleBranchOfficesUpdate(newBranchOfficeData) {
         console.log({newBranchOfficeData})
+    }
+
+    const [people, setPeople] = useState<api.Person[]>()
+    const [peopleOptions, setPeopleOptions] = useState()
+
+    useEffect(() => {
+        loadPeople()
+    }, [])
+
+    async function loadPeople() {
+        const peopleData = await api.getPeople()
+
+        console.log({peopleData})
+
+        setPeople(peopleData)
+
+        const po = peopleData.map( p => {
+            // i need to convert to format that is valid for select
+
+            return {
+                label: p.dni + ' - ' + p?.fullName, 
+                value: p.dni + ' - ' + p?.fullName,
+                key: p.id,
+            }
+        })
+
+        console.log({po})
+
+        setPeopleOptions(po)
+    }
+
+    function getSelectedPerson(personString: string): Person | undefined {
+        // divide the string and get the dni
+        const dni = personString.split(' - ')[0]
+        // find the person with that dni 
+        const selectedPerson = people?.find( p => p.dni === dni )
+        // return that person
+        return selectedPerson
     }
 
     return (
@@ -434,6 +417,7 @@ function BusinessNew(): JSX.Element {
                     />
                 </Form.Item>
 
+                <Divider/>
 
                 <Title level={3}>
                     Preferencias de comunicación
@@ -485,185 +469,12 @@ function BusinessNew(): JSX.Element {
                             options={reminderIntervalOptions}
                         />
                     </Form.Item>
-                
 
+                <PropietaryPickerForm
+                    peopleOptions={peopleOptions}
+                />
 
-                <Title level={3}>
-                    Propietario
-                </Title>
-                <Space>
-                    {previewImage && (
-                        <Image
-                            wrapperStyle={{ display: 'none' }}
-                            preview={{
-                                visible: previewOpen,
-                                onVisibleChange: (visible) => setPreviewOpen(visible),
-                                afterOpenChange: (visible) => !visible && setPreviewImage(''),
-                            }}
-                            src={previewImage}
-                        />
-                    )}
-                    <Upload
-                        data-test="business-new-owner-pfp"
-                        {...ownerPfpProps}
-                    >
-                        {fileList.length < 5 ? uploadButton : null }
-                    </Upload>
-                </Space>
-
-                <Space>
-                    <Form.Item<FormFields>
-                        rules={[
-                            {
-                                required: true,
-                                message: "El nombre del propietario es requerido"
-                            }
-                        ]}
-                        label='Nombre: '
-                        name={["owner", "firstName"]}
-                    >
-                        <Input data-test='owner-first-name-input'/>
-                    </Form.Item>
-                    <Form.Item
-                        rules={[
-                            {
-                                required: true,
-                                message: "El apellido del propietario es requerido"
-                            }
-                        ]}
-                        label='Apellido: '
-                        name={["owner", "lastName"]}
-                    >
-                        <Input data-test="owner-last-name-input"/>
-                    </Form.Item>
-                    <Form.Item
-                        rules={[
-                            {
-                                required: true,
-                                message: "La cédula del propietario es requerida"
-                            }
-                        ]}
-                        label='Cédula'
-                        name={["owner", "dni"]}
-                    >
-                        <Input data-test="owner-dni-input"/>
-                    </Form.Item>
-                </Space>
-                <Form.Item
-                    rules={[
-                        {
-                            required: true,
-                            message: "El teléfono del propietario es requerido"
-                        }
-                    ]}
-                    label='Teléfono: '
-                    name={["owner", "phone"]}
-                >
-                    <Input data-test="owner-phone-input"/>
-                </Form.Item>
-                <Form.Item
-                    label='Whatsapp: '
-                    name={["owner", "whatsapp"]}
-                >
-                    <Input data-test="owner-whatsapp-input"/>
-                </Form.Item>
-                <Form.Item
-                    rules={[
-                        {
-                            required: true,
-                            message: "El correo del propietario es requerido"
-                        }
-                    ]}
-                    label='Correo: '
-                    name={["owner", "email"]}
-                >
-                    <Input data-test="owner-email-input"/>
-                </Form.Item>
-
-                <Title level={3}>
-                    Contador
-                </Title>
-                <Space>
-                    <Form.Item
-                        label='Nombre: '
-                        name={["accountant", "firstName"]}
-                    >
-                        <Input data-test="accountant-first-name-input"/>
-                    </Form.Item>
-                    <Form.Item
-                        label='Apellido: '
-                        name={["accountant", "lastName"]}
-                    >
-                        <Input data-test="accountant-last-name-input"/>
-                    </Form.Item>
-                    <Form.Item
-                        label='Cédula: '
-                        name={["accountant", "dni"]}
-                    >
-                        <Input data-test="accountant-dni-input"/>
-                    </Form.Item>
-                </Space>
-                <Form.Item
-                    label='Teléfono: '
-                    name={["accountant", "phone"]}
-                >
-                    <Input data-test="accountant-phone-input" />
-                </Form.Item>
-                <Form.Item
-                    label='Whatsapp: '
-                    name={["accountant", "whatsapp"]}
-                >
-                    <Input data-test="accountant-whatsapp-input" />
-                </Form.Item>
-                <Form.Item
-                    label='Correo: '
-                    name={["accountant", "email"]}
-                >
-                    <Input data-test="accountant-email-input" />
-                </Form.Item>
-
-                <Title level={3}>
-                    Administrador
-                </Title>
-                <Space>
-                    <Form.Item
-                    
-                        label='Nombre: '
-                        name={["administrator", "firstName"]}
-                    >
-                        <Input data-test="administrator-first-name-input"/>
-                    </Form.Item>
-                    <Form.Item
-                        label='Apellido: '
-                        name={["administrator", "lastName"]}
-                    >
-                        <Input data-test="administrator-last-name-input"/>
-                    </Form.Item>
-                    <Form.Item
-                        label='Cédula: '
-                        name={["administrator", "dni"]}
-                    >
-                        <Input data-test="administrator-dni-input"/>
-                    </Form.Item>
-                </Space>
-                <Form.Item
-                    label='Teléfono: '
-                    name={["administrator", "phone"]}
-                >
-                    <Input data-test="administrator-phone-input"/>
-                </Form.Item>
-                <Form.Item
-                    label='Whatsapp: '
-                    name={["administrator", "whatsapp"]}
-                >
-                    <Input data-test="administrator-whatsapp-input"/>
-                </Form.Item>
-                <Form.Item
-                    label='Correo: '
-                    name={["administrator", "email"]}
-                >
-                    <Input data-test="administrator-email-input"/>
-                </Form.Item>
+                <Divider/>
 
                 <BranchOfficeForm
                     onUpdate={handleBranchOfficesUpdate}
@@ -674,6 +485,10 @@ function BusinessNew(): JSX.Element {
                         data-test='submit-button'
                         type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
+
+                <Button onClick={() => showFormData()}>
+                    Show form data
+                </Button>
             </Form>
         </>
     )
@@ -682,6 +497,44 @@ function BusinessNew(): JSX.Element {
 export default BusinessNew
 
 
+
+function PropietaryPickerForm({peopleOptions}): JSX.Element{
+
+    return (
+        <>
+            <Title level={3}>
+                Contactos
+            </Title>
+
+            <Form.Item 
+                name={"owner"}
+                label={"Propietario"}>
+                <Select
+                    showSearch
+                    options={peopleOptions}
+                />
+            </Form.Item>
+
+            <Form.Item 
+                name={"accountant"}
+                label={"Contador"}>
+                <Select
+                    showSearch
+                    options={peopleOptions}
+                />
+            </Form.Item>
+
+            <Form.Item 
+                name={"administrator"}
+                label={"Administrador"}>
+                <Select
+                    showSearch
+                    options={peopleOptions}
+                />
+            </Form.Item>
+        </>
+    )
+}
 /*
 
 when files change, assign the fileList to the corresponding key, and update the index
@@ -1024,27 +877,6 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                                 <Button>Agregar Documentación de Inmueble</Button>
                                                             </Upload>
                                                         </Form.Item>
-
-                                                        {/* { getRentedStatus(Number(field.name)) 
-                                                            ?
-                                                            (
-                                                                <Form.Item name="leaseDoc">
-                                                                    <Upload key="leaseDoc">
-                                                                        <Button>Agregar Contrato de Arrendamiento</Button>
-                                                                    </Upload>
-                                                                </Form.Item>
-                                                            )
-                                                            :
-                                                            (
-                                                                <Form.Item>
-                                                                    <Upload key="buildingDoc"
-                                                                        {...BuildingDocProps}
-                                                                    >
-                                                                        <Button>Agregar Documentación de Inmueble</Button>
-                                                                    </Upload>
-                                                                </Form.Item>
-                                                            )
-                                                        } */}
                                                     </Flex>
                                                 </Flex>
                                             </span>

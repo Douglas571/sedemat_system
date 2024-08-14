@@ -402,9 +402,16 @@ export async function getPeople(): Promise<Person[]> {
         }
     
         const data = await response.json();
-        people = data.body 
+        people = data
 
-        return data;
+        people = people.map( p => (
+            {
+                ...p,
+                fullName: p.firstName + ' ' + p.lastName
+            }
+        ))
+
+        return people;
     } catch (error) {
         console.error('Failed to fetch people:', error);
     }

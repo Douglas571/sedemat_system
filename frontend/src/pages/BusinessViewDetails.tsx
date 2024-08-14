@@ -233,9 +233,9 @@ function BusinessViewDetails(): JSX.Element {
                 </Title>
                 <Paragraph>
                     RIF: {business?.dni}<br/>
-                    Fecha de constitución: {business.companyIncorporationDate.toString()}<br/>
-                    Fecha de vencimiento: {business.companyExpirationDate.toString()}<br/>
-                    Fecha de vencimiento de la junta directiva: {business.directorsBoardExpirationDate.toString()}
+                    Fecha de constitución: {business?.companyIncorporationDate?.toString()}<br/>
+                    Fecha de vencimiento: {business?.companyExpirationDate?.toString()}<br/>
+                    Fecha de vencimiento de la junta directiva: {business?.directorsBoardExpirationDate?.toString()}
                 </Paragraph>
                 <Title level={5}>
                     Actividad Económica
