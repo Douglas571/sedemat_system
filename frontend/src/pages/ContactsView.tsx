@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Person } from 'util/api'
 import * as api from 'util/api'
+import { completeUrl } from './BusinessShared'
 
 export default function ContactsView(): JSX.Element {
 
@@ -62,7 +63,7 @@ export default function ContactsView(): JSX.Element {
                             data-test="business-details-owner-pfp"
                             width={200}
                             height={250}
-                            src={contact?.profilePictureUrl}
+                            src={completeUrl(contact?.profilePictureUrl)}
                         />
                         <Typography.Paragraph>
                             Cédula: {contact.dni}<br/>
