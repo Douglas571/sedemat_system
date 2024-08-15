@@ -173,7 +173,9 @@ function BusinessNew(): JSX.Element {
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
-            // console.log(JSON.stringify(values, null, 2) );
+            console.log(JSON.stringify(values, null, 2) );
+            console.log({branchOffices})
+            
 
             // Early return for testing purposes
             // return;
