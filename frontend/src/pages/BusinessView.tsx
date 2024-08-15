@@ -80,7 +80,7 @@ function BusinessView(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             render: (text, record) => <Link to={`/business/${record.id}`}>{text}</Link>,
-            sorter: (a, b) => a.businessName.localeCompare(b),
+            sorter: (a, b) => a.businessName.localeCompare(b.businessName),
         },
         {
             title: 'Rif o Cédula',
@@ -88,14 +88,14 @@ function BusinessView(): JSX.Element {
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.businessName.localeCompare(b),
+            sorter: (a, b) => a.dni.localeCompare(b.dni),
         },
         {
             title: 'Correo',
             dataIndex: 'email',
             key: 'email',
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.businessName.localeCompare(b),
+            sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
             title: '',

@@ -26,6 +26,7 @@ import _ from 'lodash'
 
 import * as api from '../util/api'
 import type { 
+    BranchOffice,
     Business, 
     EconomicActivity, 
     Person
@@ -77,6 +78,14 @@ function BusinessNew(): JSX.Element {
     const [messageApi, contextHolder] = message.useMessage()
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
 
+    const [branchOffices, setBranchOffices] = useState<BranchOffice[]>([])
+    const [people, setPeople] = useState<Person[]>([])
+    const [peopleOptions, setPeopleOptions] = useState([])
+
+    // const [contacts, setContacts] = useState<{owner: Person, accountant: Person, administrator: Person}>()
+    // TODO: Implement this logic so when updating the contacts picker, you update this contact object
+    // and transfer all download people and select logic to ContactPickerForm
+
     function clearForm(){
         form.setFieldsValue({
             businessName: "",
@@ -123,10 +132,12 @@ function BusinessNew(): JSX.Element {
 	}
 
     useEffect(() => {
-        loadData()
+        loadEconomicActivities()
+        loadPeople()
     }, [])
 
-    async function loadData() {
+
+    async function loadEconomicActivities() {
         try {
             // Load economic activities
             const economicActivities = await api.getEconomicActivities();
@@ -136,6 +147,28 @@ function BusinessNew(): JSX.Element {
         } catch (error) {
             console.error('Error loading data:', error);
         }
+    }
+
+    async function loadPeople() {
+        const peopleData = await api.getPeople()
+
+        console.log({peopleData})
+
+        setPeople(peopleData)
+
+        const po = peopleData.map( p => {
+            // i need to convert to format that is valid for select
+
+            return {
+                label: p.dni + ' - ' + p?.fullName, 
+                value: p.dni + ' - ' + p?.fullName,
+                key: p.id,
+            }
+        })
+
+        console.log({po})
+
+        setPeopleOptions(po)
     }
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
@@ -190,10 +223,10 @@ function BusinessNew(): JSX.Element {
 
             // Register branch offices
             values.branchOffices.forEach(async (office) => {
-                console.log({ IWillRegisterThisBranchOffice: office });
+                // console.log({ IWillRegisterThisBranchOffice: office });
                 const officeToRegister = { ...office, businessId };
                 const newOffice = await api.registerBranchOffice(officeToRegister);
-                console.log({ registeredOffice: newOffice });
+                // console.log({ registeredOffice: newOffice });
             });
 
             // Create an object called businessContactPreference
@@ -262,37 +295,10 @@ function BusinessNew(): JSX.Element {
 
     type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-    function handleBranchOfficesUpdate(newBranchOfficeData) {
+    function handleBranchOfficesUpdate(newBranchOfficeData: BranchOffice[]) {
         console.log({newBranchOfficeData})
-    }
 
-    const [people, setPeople] = useState<api.Person[]>()
-    const [peopleOptions, setPeopleOptions] = useState()
-
-    useEffect(() => {
-        loadPeople()
-    }, [])
-
-    async function loadPeople() {
-        const peopleData = await api.getPeople()
-
-        console.log({peopleData})
-
-        setPeople(peopleData)
-
-        const po = peopleData.map( p => {
-            // i need to convert to format that is valid for select
-
-            return {
-                label: p.dni + ' - ' + p?.fullName, 
-                value: p.dni + ' - ' + p?.fullName,
-                key: p.id,
-            }
-        })
-
-        console.log({po})
-
-        setPeopleOptions(po)
+        setBranchOffices(newBranchOfficeData)
     }
 
     function getSelectedPerson(personString: string): Person | undefined {
