@@ -8,8 +8,6 @@ const fse = require('fs-extra')
 const multer = require('multer');
 const crypto = require('crypto');
 
-
-
 const ZONATIONS_PATH = path.resolve(__dirname, '../uploads/zonations')
 fse.ensureDirSync(ZONATIONS_PATH)
 
@@ -75,7 +73,14 @@ exports.getZonationById = async (req, res) => {
         const { id } = req.params;
 
         // Find zonation by ID
-        const zonation = await Zonation.findByPk(id);
+        const zonation = await Zonation.findByPk(id, {
+            include: [
+                {
+                    model: DocImage,
+                    as: 'docImages'
+                }
+            ]
+        });
 
         if (!zonation) {
             return res.status(404).json({ error: 'Zonation not found' });
@@ -84,6 +89,7 @@ exports.getZonationById = async (req, res) => {
         // Send response
         res.status(200).json(zonation);
     } catch (error) {
+        console.log({error})
         res.status(500).json({ error: 'Failed to get zonation' });
     }
 };
@@ -97,6 +103,9 @@ exports.getAllZonations = async (req, res) => {
         // Send response
         res.status(200).json(zonations);
     } catch (error) {
+        logger.error({error})
+        console.log({error})
+
         res.status(500).json({ error: 'Failed to retrieve zonations' });
     }
 };
@@ -106,7 +115,7 @@ exports.updateZonation = async (req, res) => {
     try {
         const { id } = req.params;
         const { branchOfficeId } = req.body;
-        const docImages = req.files; // Assuming you're handling file uploads
+        //const docImages = req.files; // Assuming you're handling file uploads
 
         // Find the zonation by ID
         const zonation = await Zonation.findByPk(id);
@@ -117,7 +126,7 @@ exports.updateZonation = async (req, res) => {
 
         // Update the zonation's fields
         zonation.branchOfficeId = branchOfficeId;
-        zonation.docImages = docImages;
+        //zonation.docImages = docImages;
 
         // Save the updated zonation to the database
         await zonation.save();
@@ -145,7 +154,7 @@ exports.deleteZonation = async (req, res) => {
         await zonation.destroy();
 
         // Send response
-        res.status(200).json({ message: 'Zonation deleted successfully' });
+        res.status(204).json({ message: 'Zonation deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete zonation' });
     }

@@ -11,11 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Zonation.hasMany(models.DocImage, {
+
+      const {DocImage} = models
+      Zonation.hasMany(DocImage, {
         foreignKey: "zonationId",
         as: 'docImages'
       })
-      
     }
   }
   Zonation.init({

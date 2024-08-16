@@ -11,9 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      DocImage.belongsTo(models.Zonation, {
+      const {Zonation} = models
+      DocImage.belongsTo(Zonation, {
         foreignKey: "zonationId",
-        as: "zonation"
+        // as: "zonation"
       })
     }
   }
