@@ -8,14 +8,11 @@
     "test:watch": "mocha --watch -L",
     "start": "node index.js",
     "start:dev": "nodemon index.js -L",
-
     "db:migrate": "npx sequelize db:migrate",
     "db:seed": "npx sequelize db:seed:all",
-
-    "tp": "npx mocha test/people.test.js",
+    "tz": "npx mocha test/zonations.test.js",
     "tb": "npx mocha test/business.test.js",
     "te": "npx mocha test/economicActivity.test.js",
-
     "tbo": "npx mocha test/economicActivity.test.js"
   },
   "author": "",
@@ -26,7 +23,7 @@
     "dayjs": "^1.11.11",
     "express": "^4.19.2",
     "fs-extra": "^11.2.0",
-    "mariadb": "^3.3.1",
+    "mariadb": "^2.5.6",
     "moment": "^2.30.1",
     "multer": "^1.4.5-lts.1",
     "sequelize": "^6.37.3",

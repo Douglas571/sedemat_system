@@ -8,7 +8,7 @@ const {
     getAllZonations,
     updateZonation,
     deleteZonation,
-} = require('../controllers/zonation');
+} = require('../controllers/zonations');
 
 // POST /zonations - Create a new zonation
 router.post('/zonations', createZonation);
