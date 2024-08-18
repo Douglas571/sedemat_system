@@ -757,6 +757,7 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                         />
                                                     </Form.Item>
 
+                                                    {/* DOCUMENTS */}
                                                     <Flex vertical>
                                                         <Form.Item label="Es Alquilado?" name={[field.name, 'isRented']}>
                                                             <Switch 
@@ -764,6 +765,59 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                                 unCheckedChildren="NO"/>
                                                         </Form.Item>
 
+                                                        {/* Lease Doc */}
+                                                        <Flex 
+                                                            gap='small'
+                                                            style={{ display: getRentedStatus(Number(field.name)) ? "" : "none"}}
+                                                        >
+                                                            <Form.Item 
+                                                                name={[field.name, 'leaseDoc']}
+                                                                
+                                                            >
+                                                                <Upload key="leaseDoc"
+                                                                    {...LeaserDocProps}
+                                                                >
+                                                                    <Button>Agregar Contrato de Arrendamiento</Button>
+                                                                </Upload>
+
+                                                                
+                                                            </Form.Item>
+                                                            <Form.Item 
+                                                                name={[field.name, 'leaseDocExpirationDate']}
+                                                                label="Fecha de Vencimiento"
+                                                            >
+                                                                <DatePicker 
+                                                                    data-test="branch-office-leaseDocExpirationDate-input"
+                                                                />
+                                                            </Form.Item>
+                                                        </Flex>
+                                                        
+                                                        {/* Building Doc */}
+                                                        <Flex 
+                                                            gap='small'
+                                                            style={{ display: getRentedStatus(Number(field.name)) ? "none" : ""}}
+                                                        >
+                                                            <Form.Item 
+                                                                name={[field.name, 'buildingDoc']}
+                                                            >
+                                                                <Upload key="buildingDoc"
+                                                                    {...BuildingDocProps}
+                                                                >
+                                                                    <Button>Agregar Documentación de Inmueble</Button>
+                                                                </Upload>
+                                                            </Form.Item>
+
+                                                            <Form.Item 
+                                                                name={[field.name, 'buildingDocExpirationDate']}
+                                                                label="Fecha de Vencimiento"
+                                                            >
+                                                                <DatePicker 
+                                                                    data-test="branch-office-buildingDocExpirationDate-input"
+                                                                />
+                                                            </Form.Item>
+                                                        </Flex>
+
+                                                        {/* Zonation Doc */}
                                                         <Form.Item name={[field.name, 'zonationDoc']}>
                                                             <Upload
                                                                 key={field.key}
@@ -779,28 +833,6 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                             >
                                                                 
                                                                 <Button>Agregar Zonificación</Button>
-                                                            </Upload>
-                                                        </Form.Item>
-
-                                                        <Form.Item 
-                                                            name="leaseDoc"
-                                                            style={{ display: getRentedStatus(Number(field.name)) ? "block" : "none"}}
-                                                        >
-                                                            <Upload key="leaseDoc"
-                                                                {...LeaserDocProps}
-                                                            >
-                                                                <Button>Agregar Contrato de Arrendamiento</Button>
-                                                            </Upload>
-                                                        </Form.Item>
-
-                                                        <Form.Item 
-                                                            name="buildDoc"
-                                                            style={{ display: getRentedStatus(Number(field.name)) ? "none" : "block"}}
-                                                        >
-                                                            <Upload key="buildingDoc"
-                                                                {...BuildingDocProps}
-                                                            >
-                                                                <Button>Agregar Documentación de Inmueble</Button>
                                                             </Upload>
                                                         </Form.Item>
                                                     </Flex>

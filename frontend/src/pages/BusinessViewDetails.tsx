@@ -344,7 +344,17 @@ function BusinessViewDetails(): JSX.Element {
                                     Dirección: {office.address}<br/>
                                     Dimensiones: {office.dimensions}<br/>
                                     Tipo de terreno: {office.type}<br/>
-                                    Procedencia: {office.origin}<br/>
+                                    Procedencia: {office.isRented 
+                                        ? (
+                                            <>
+                                                Alquilado (<a href='/example' target='_blank'>Ver contrato</a>)
+                                            </>
+                                        )
+                                        : (
+                                            <>
+                                                Propio (<a href='/example' target='_blank'>Ver Inmueble</a>)
+                                            </>
+                                        )}<br/>
 
 
                                     <Title level={5}>
