@@ -5,6 +5,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('People', [
       {
+        id: 1,
         dni: 'V-12345678',
         firstName: 'José',
         lastName: 'Pérez',
@@ -16,6 +17,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 2,
         dni: 'V-87654321',
         firstName: 'María',
         lastName: 'González',
@@ -27,6 +29,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 3,
         dni: 'V-12349876',
         firstName: 'Pedro',
         lastName: 'Morales',
@@ -38,6 +41,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 4,
         dni: 'V-98761234',
         firstName: 'Luis',
         lastName: 'Ramírez',
@@ -49,6 +53,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 5,
         dni: 'V-43219876',
         firstName: 'Ana',
         lastName: 'Blanco',
@@ -60,6 +65,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 6,
         dni: 'V-54321098',
         firstName: 'Carlos',
         lastName: 'Hernández',
@@ -71,6 +77,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 7,
         dni: 'V-65432109',
         firstName: 'Martha',
         lastName: 'Rodríguez',
@@ -82,6 +89,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 8,
         dni: 'V-76543210',
         firstName: 'Juan',
         lastName: 'Martínez',
@@ -93,6 +101,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 9,
         dni: 'V-87634321',
         firstName: 'Luisa',
         lastName: 'Fernández',
@@ -104,6 +113,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 10,
         dni: 'V-98765432',
         firstName: 'Roberto',
         lastName: 'Castillo',
@@ -115,6 +125,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 11,
         dni: 'V-10987654',
         firstName: 'Patricia',
         lastName: 'Sánchez',
@@ -126,6 +137,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 12,
         dni: 'V-21098765',
         firstName: 'Fernando',
         lastName: 'Gutiérrez',
@@ -137,6 +149,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 13,
         dni: 'V-32109876',
         firstName: 'Beatriz',
         lastName: 'Ramírez',
@@ -148,6 +161,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 14,
         dni: 'V-43210987',
         firstName: 'Alberto',
         lastName: 'Salazar',
@@ -159,6 +173,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 15,
         dni: 'V-54321298',
         firstName: 'Gabriela',
         lastName: 'Pérez',

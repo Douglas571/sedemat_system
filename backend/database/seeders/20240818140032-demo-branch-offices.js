@@ -7,6 +7,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('BranchOffices', [
       {
+        id: 1,
         businessId: 1,
         address: 'Av. Principal, Sector Alta Vista',
         zone: getRandomZone(),
@@ -16,6 +17,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 2,
         businessId: 2,
         address: 'Calle Bella Vista, Sector Delicias',
         zone: getRandomZone(),
@@ -25,6 +27,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 3,
         businessId: 3,
         address: 'Av. Bolívar, Sector Centro',
         zone: getRandomZone(),
@@ -33,6 +36,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 4,
         businessId: 4,
         address: 'Calle La Paz, Sector Inavi',
         zone: getRandomZone(),
@@ -42,6 +46,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: 5,
         businessId: 5,
         address: 'Carretera Nacional, Sector Santa Elena',
         zone: getRandomZone(),

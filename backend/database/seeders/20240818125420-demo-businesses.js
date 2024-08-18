@@ -5,6 +5,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('Businesses', [
       {
+        id: 1,
         businessName: 'Supermercado El Central',
         dni: 'J-12345678-9',
         email: 'contacto@elcentral.com.ve',
@@ -15,14 +16,15 @@ module.exports = {
         ownerPersonId: 1, // Corresponds to an existing Person
         accountantPersonId: 2, // Corresponds to an existing Person
         administratorPersonId: 3, // Corresponds to an existing Person
-        preferredChannel: 'email',
-        sendCalculosTo: 'finance@elcentral.com.ve',
-        preferredContact: 'Jose Perez',
+        preferredChannel: 'PHONE',
+        sendCalculosTo: 'EMAIL',
+        preferredContact: 'OWNER',
         reminderInterval: 30,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
+        id: 2,
         businessName: 'Panadería La Gran Meru',
         dni: 'J-98765432-1',
         email: 'ventas@lagranmeru.com',
@@ -33,14 +35,15 @@ module.exports = {
         ownerPersonId: 4, // Corresponds to an existing Person
         accountantPersonId: 5, // Corresponds to an existing Person
         administratorPersonId: 6, // Corresponds to an existing Person
-        preferredChannel: 'phone',
-        sendCalculosTo: 'admin@lagranmeru.com',
-        preferredContact: 'Maria Gonzalez',
+        preferredChannel: 'PHONE',
+        sendCalculosTo: 'EMAIL',
+        preferredContact: 'ACCOUNTANT',
         reminderInterval: 15,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
+        id: 3,
         businessName: 'Ferretería Los Andes',
         dni: 'J-45678901-2',
         email: 'info@ferreterialosandes.com.ve',
@@ -51,14 +54,15 @@ module.exports = {
         ownerPersonId: 7, // Corresponds to an existing Person
         accountantPersonId: 8, // Corresponds to an existing Person
         administratorPersonId: 9, // Corresponds to an existing Person
-        preferredChannel: 'email',
-        sendCalculosTo: 'contacto@ferreterialosandes.com.ve',
-        preferredContact: 'Pedro Morales',
+        preferredChannel: 'WHATSAPP',
+        sendCalculosTo: 'EMAIL',
+        preferredContact: 'ADMINISTRATOR',
         reminderInterval: 60,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
+        id: 4,
         businessName: 'Carnicería Los Llanos',
         dni: 'J-11122333-4',
         email: 'ventas@carnicerialosllanos.com',
@@ -69,14 +73,15 @@ module.exports = {
         ownerPersonId: 10, // Corresponds to an existing Person
         accountantPersonId: 11, // Corresponds to an existing Person
         administratorPersonId: 12, // Corresponds to an existing Person
-        preferredChannel: 'whatsapp',
-        sendCalculosTo: 'admin@carnicerialosllanos.com',
-        preferredContact: 'Luis Ramirez',
+        preferredChannel: 'WHATSAPP',
+        sendCalculosTo: 'EMAIL',
+        preferredContact: 'OWNER',
         reminderInterval: 45,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
+        id: 5,
         businessName: 'Farmacia El Sol',
         dni: 'J-22233444-5',
         email: 'farmacia@elsol.com.ve',
@@ -87,9 +92,9 @@ module.exports = {
         ownerPersonId: 13, // Corresponds to an existing Person
         accountantPersonId: 14, // Corresponds to an existing Person
         administratorPersonId: 15, // Corresponds to an existing Person
-        preferredChannel: 'email',
-        sendCalculosTo: 'admin@farmaciaelsol.com.ve',
-        preferredContact: 'Ana Blanco',
+        preferredChannel: 'WHTASAPP',
+        sendCalculosTo: 'EMAIL',
+        preferredContact: 'ACCOUNTAT',
         reminderInterval: 30,
         createdAt: new Date(),
         updatedAt: new Date(),
