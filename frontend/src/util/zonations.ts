@@ -1,50 +1,44 @@
-/**
+const IP = process.env.BACKEND_IP || "localhost";
+const PORT = "3000";
+const HOST = `http://${IP}:${PORT}`;
 
-I need a function to send zonations data
-
-zonations have the following structure (create a typescript interface for it)
-
-
-    branchOfficeId
-    docImages: files
-
-    I need to send a POST request to the endpoint `${HOST}/zonations`
-
-    the data will be in a FormData format
-
-
-also, give me the functions to get by id, get all, update, and delete
-
-
-every function and convenient type should be exported
-
- */
-
-const IP = process.env.BACKEND_IP || "localhost"
-const PORT = "3000"
-const HOST = "http://" + IP + ":" + PORT
-
-export interface Zonation {
+export interface ZonationUpload {
     branchOfficeId: number;
     docImages: File[];
 }
 
-import axios from 'axios';
+export interface Zonation {
+    branchOfficeId: number;
+    docImages: string[]; // Assuming the API returns URLs or file names
+}
 
-export const createZonation = async (zonation: Zonation): Promise<void> => {
+export const createZonation = async (zonation: ZonationUpload): Promise<Zonation | undefined > => {
     const formData = new FormData();
     formData.append('branchOfficeId', zonation.branchOfficeId.toString());
 
     zonation.docImages.forEach((file, index) => {
-        formData.append(`docImages[${index}]`, file);
+        console.log({file, index})
+        formData.append('docImages', file.originFileObj);
     });
 
     try {
-        await axios.post(`${HOST}/zonations`, formData, {
+        const response = await fetch(`${HOST}/v1/zonations`, {
+            method: 'POST',
+            body: formData,
             headers: {
-                'Content-Type': 'multipart/form-data',
+                // 'Content-Type' is automatically set to multipart/form-data when using FormData
             },
         });
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            throw new Error(`Error creating zonation: ${response.statusText}`);
+        }
+
+        if(data) return data
+
+        return undefined
     } catch (error) {
         console.error('Error creating zonation:', error);
     }
@@ -52,8 +46,13 @@ export const createZonation = async (zonation: Zonation): Promise<void> => {
 
 export const getZonationById = async (id: number): Promise<Zonation> => {
     try {
-        const response = await axios.get<Zonation>(`${HOST}/zonations/${id}`);
-        return response.data;
+        const response = await fetch(`${HOST}/v1/zonations/${id}`);
+
+        if (!response.ok) {
+            throw new Error(`Error fetching zonation by ID: ${response.statusText}`);
+        }
+
+        return await response.json();
     } catch (error) {
         console.error('Error fetching zonation by ID:', error);
         throw error;
@@ -62,15 +61,20 @@ export const getZonationById = async (id: number): Promise<Zonation> => {
 
 export const getAllZonations = async (): Promise<Zonation[]> => {
     try {
-        const response = await axios.get<Zonation[]>(`${HOST}/zonations`);
-        return response.data;
+        const response = await fetch(`${HOST}/v1/zonations`);
+
+        if (!response.ok) {
+            throw new Error(`Error fetching all zonations: ${response.statusText}`);
+        }
+
+        return await response.json();
     } catch (error) {
         console.error('Error fetching all zonations:', error);
         throw error;
     }
 };
 
-export const updateZonation = async (id: number, zonation: Zonation): Promise<void> => {
+export const updateZonation = async (id: number, zonation: ZonationUpload): Promise<void> => {
     const formData = new FormData();
     formData.append('branchOfficeId', zonation.branchOfficeId.toString());
 
@@ -79,11 +83,17 @@ export const updateZonation = async (id: number, zonation: Zonation): Promise<vo
     });
 
     try {
-        await axios.put(`${HOST}/zonations/${id}`, formData, {
+        const response = await fetch(`${HOST}/v1/zonations/${id}`, {
+            method: 'PUT',
+            body: formData,
             headers: {
-                'Content-Type': 'multipart/form-data',
+                // 'Content-Type' is automatically set to multipart/form-data when using FormData
             },
         });
+
+        if (!response.ok) {
+            throw new Error(`Error updating zonation: ${response.statusText}`);
+        }
     } catch (error) {
         console.error('Error updating zonation:', error);
     }
@@ -91,7 +101,13 @@ export const updateZonation = async (id: number, zonation: Zonation): Promise<vo
 
 export const deleteZonation = async (id: number): Promise<void> => {
     try {
-        await axios.delete(`${HOST}/zonations/${id}`);
+        const response = await fetch(`${HOST}/v1/zonations/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error deleting zonation: ${response.statusText}`);
+        }
     } catch (error) {
         console.error('Error deleting zonation:', error);
     }

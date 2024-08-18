@@ -36,6 +36,12 @@ exports.createZonation = async (req, res) => {
         try {
             const { branchOfficeId } = req.body;
             const docImages = req.files; 
+
+            console.log({
+                body: req.body, 
+                docImages: JSON.stringify(docImages, null, 2),
+                files: req.files
+            })
             
 
             // save the zonation instace 

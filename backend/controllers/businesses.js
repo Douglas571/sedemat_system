@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
             // console.log({gotanerror: error})
 
             console.log({ keys: error.fields})
-            if (error.fields.hasOwnProperty("business_name")) {
+            if (error.fields.hasOwnProperty("businessName")) {
                 console.log("Razón social ya registrada")
                 msg = "Razón social ya registrada."
             }

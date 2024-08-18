@@ -131,6 +131,8 @@ describe("Zonations API", () => {
             expect(verifyDeletionResponse.status).to.equal(404); // Not found after deletion
         });
     });
+
+    // TODO: Add test case for when zonation doc image is empty 
 });
 
 

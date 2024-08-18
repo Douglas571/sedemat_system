@@ -43,6 +43,8 @@ import {
 } from './BusinessShared'
 import { json } from 'react-router-dom';
 
+import * as zonationsApi from '../util/zonations'
+
 
 
 const { Title, Paragraph } = Typography
@@ -176,6 +178,22 @@ function BusinessNew(): JSX.Element {
             console.log(JSON.stringify(values, null, 2) );
             console.log({branchOffices})
             
+            // Create an object called businessContactPreference
+            const businessContactPreference: { [key: string]: string } = {};
+
+            // Map preferredChannel and sentCalculosTo to corresponding values
+            const channelMapping: { [key: string]: string } = {
+                'Teléfono': 'PHONE',
+                'Whatsapp': 'WHATSAPP',
+                'Correo': 'EMAIL'
+            };
+
+            // Map preferredContact to corresponding values
+            const contactMapping: { [key: string]: string } = {
+                'Administrador': 'ADMINISTRATOR',
+                'Propietario': 'OWNER',
+                'Contador': 'ACCOUNTANT'
+            }
 
             // Early return for testing purposes
             // return;
@@ -183,7 +201,7 @@ function BusinessNew(): JSX.Element {
             const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
             const economicActivityId = economicActivityObject?.id;
         
-            // Register contacts
+            // 1th step, create the business 
             const { 
                 owner: ownerString, 
                 accountant: accountantString, 
@@ -210,52 +228,45 @@ function BusinessNew(): JSX.Element {
                 // administratorPersonId: registeredAdministrator?.id,
             };
 
+            // 1.1th step, add the contacts
             if (owner) newBusiness.ownerPersonId = owner.id
             if (accountant) newBusiness.accountantPersonId = accountant.id
             if (administrator) newBusiness.administratorPersonId = administrator.id
 
-            console.log({newBusiness})
+            newBusiness.preferredChannel = channelMapping[values.preferredChannel]
+            newBusiness.sendCalculosTo = channelMapping[values.sendCalculosTo]
+            newBusiness.preferredContact = contactMapping[values.preferredContact]
+            newBusiness.reminderInterval = reminderIntervalMap[values.reminderInterval]
 
-            const response = await api.sendBusinessData(newBusiness);
-            const businessId = response.id;
+            console.log({newBusiness})
+            
+            const createdBusiness = await api.sendBusinessData(newBusiness);
+            const businessId = createdBusiness.id;
 
             if (!businessId) {
                 throw Error("Error al registrar empresa")
             }
+            
 
-            // Register branch offices
+            // 1.2th step, add the branch offices
             values.branchOffices.forEach(async (office) => {
                 // console.log({ IWillRegisterThisBranchOffice: office });
                 const officeToRegister = { ...office, businessId };
                 const newOffice = await api.registerBranchOffice(officeToRegister);
                 // console.log({ registeredOffice: newOffice });
+
+                const {id} = newOffice 
+
+                // 1.3th step, assign zonations to branch offices
+                if (id && office.zonationDoc?.fileList) {
+                    const newZonation = await zonationsApi.createZonation({branchOfficeId: id, docImages: office.zonationDoc?.fileList})
+                    console.log({newZonation})
+                }
             });
 
-            // Create an object called businessContactPreference
-            const businessContactPreference: { [key: string]: string } = {};
-
-            // Map preferredChannel and sentCalculosTo to corresponding values
-            const channelMapping: { [key: string]: string } = {
-                'Teléfono': 'PHONE',
-                'Whatsapp': 'WHATSAPP',
-                'Correo': 'EMAIL'
-            };
-
-            // Map preferredContact to corresponding values
-            const contactMapping: { [key: string]: string } = {
-                'Administrador': 'ADMINISTRATOR',
-                'Propietario': 'OWNER',
-                'Contador': 'ACCOUNTANT'
-            }
-
-            response.preferredChannel = channelMapping[values.preferredChannel]
-            response.sendCalculosTo = channelMapping[values.sendCalculosTo]
-            response.preferredContact = contactMapping[values.preferredContact]
-            response.reminderInterval = reminderIntervalMap[values.reminderInterval]
-
-            console.log("before sending ", JSON.stringify(response, null, 2))
+            console.log("before sending ", JSON.stringify(createdBusiness, null, 2))
             // Update business with the contacts preference data
-            const finalBusiness = await api.updateBusinessData(businessId, response);
+            const finalBusiness = await api.updateBusinessData(businessId, createdBusiness);
             console.log({finalBusiness})
         
             messageApi.open({
@@ -263,8 +274,8 @@ function BusinessNew(): JSX.Element {
                 content: "Contribuyente guardado exitosamente",
             });
         
-            // clearForm() // Uncomment if you have a clearForm function defined
-            } catch (error) {
+        // clearForm() // Uncomment if you have a clearForm function defined
+        } catch (error) {
             console.log({ error });
             let msg = "Hubo un error";
             msg = error.message;
@@ -305,6 +316,9 @@ function BusinessNew(): JSX.Element {
 
     function getSelectedPerson(personString: string): Person | undefined {
         // divide the string and get the dni
+
+        if(!personString) return undefined
+
         const dni = personString.split(' - ')[0]
         // find the person with that dni 
         const selectedPerson = people?.find( p => p.dni === dni )
@@ -382,7 +396,7 @@ function BusinessNew(): JSX.Element {
                     </Form.Item>
                 </Space>
 
-                <Flex>
+                <Flex wrap gap="middle">
                     {/* Define good names */}
                     
                     <Form.Item
@@ -543,30 +557,7 @@ function PropietaryPickerForm({peopleOptions}): JSX.Element{
         </>
     )
 }
-/*
 
-when files change, assign the fileList to the corresponding key, and update the index
-
-listOfFiles [
-    {
-        key: string // "unique"
-        index: int // "variable"
-        files: [
-            // here goes the files
-        ]
-    }
-]
-
-uploading the branch office
-get the id
-upload zonification images in a formData with branhc office id 
-
-*/
-
-
-interface DocImage {
-
-}
 
 interface ZonationRaw {
     key: number
@@ -581,34 +572,6 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
     const branchOffices = Form.useWatch((values) => {
         return values.branchOffices
     })
-
-    function handleUpdate() {
-        let branchOffices = form.getFieldsValue()?.branchOffices
-
-        console.log({submitingBranchOffices: branchOffices})
-
-        branchOffices = branchOffices.map((office, index) => {
-            // get the zonation that has the same index than branchOffice
-
-            let z 
-            zonations.forEach( zonation => {
-                console.log({zonationHere: zonation, index})
-                if (zonation?.index == index){
-                    console.log("here")
-                    z = zonation
-                }
-            })
-
-
-            // return the new branch office with zonation files
-            return {
-                ...office,
-                zonation: z
-            }
-        })
-
-        onUpdate(branchOffices)
-    }
 
     function getRentedStatus(index: number): boolean {
         if (!branchOffices) {
@@ -650,54 +613,10 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
         }
     }
 
-    function getFileList({key, index}: { key: number, index: number}) {
-        const fileList = zonations.get(key)?.files
-
-        if(!fileList) {
-            return []
-        }
-
-        return fileList
-    }
-
     function handleFileChange({files, key, index}: ZonationRaw) {
         console.log({files, key, index})
 
         zonations.set(key, {files, key, index})
-        setZonations(zonations)
-    }
-
-    function removeFilesFrom({key, newFields}: {key: number, newFields: Array<{ name: number, key: number}>}) {
-        console.log({deletingFilesFrom: key})
-
-        zonations.delete(key)
-
-        // update all fields
-
-        console.log({zonationsBefore: zonations})
-        // for each item in newfields
-        newFields.forEach( field => {
-            const key = field.key 
-            const index = field.name 
-
-            const zonation = zonations.get(key)
-            console.log({zonation, index, key})
-
-            // it doesn't work because index keep being the same as before removing
-
-            if (!zonation) return false
-
-            const newZonation = {...zonation, index}
-
-            console.log({previousIndex: zonation.index, newIndex: index})
-            zonations.set(key, newZonation)
-        })
-        console.log({zonationsAfterRemoving: zonations})
-
-            // get the key
-            // get the update the index with the new field index
-
-
         setZonations(zonations)
     }
 
@@ -755,7 +674,6 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
 
     return (
         <>
-        <Button onClick={handleUpdate}>Show update</Button>
         <Form.List name='branchOffices'>
                 {(fields, { add, remove }) => {
                     return (
@@ -775,7 +693,6 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                     <Button onClick={() => {
                                                         const key = field.key
                                                         remove(field.name)
-                                                        removeFilesFrom({key, newFields: fields})
                                                         
                                                     }}>
                                                         Eliminar
@@ -847,10 +764,11 @@ function BranchOfficeForm({onUpdate}): JSX.Element {
                                                                 unCheckedChildren="NO"/>
                                                         </Form.Item>
 
-                                                        <Form.Item>
+                                                        <Form.Item name={[field.name, 'zonationDoc']}>
                                                             <Upload
                                                                 key={field.key}
                                                                 {...ZonificacionDocProps}
+                                                                // TODO: Delete the bellow code, it's useless
                                                                 onChange={
                                                                     (args) => handleFileChange({
                                                                         files: args.fileList, 

@@ -67,7 +67,7 @@ function BusinessViewDetails(): JSX.Element {
             let fetchedBusiness = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
             // TODO: Add case when there is not branch office
-            // console.log({branchOffices})
+            console.log({branchOffices})
             setBusiness({...fetchedBusiness, branchOffices})       
         }
     }
