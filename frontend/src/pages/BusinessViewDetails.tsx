@@ -346,20 +346,32 @@ function BusinessViewDetails(): JSX.Element {
                                     Tipo de terreno: {office.type}<br/>
                                     Procedencia: {office.origin}<br/>
 
+
                                     <Title level={5}>
-                                        Zonificación
-                                    </Title>
-                                    <Paragraph>
+                                                    Zonificación
+                                                </Title>
+                                    {
+                                        office.zonations[0] 
+                                        ? (
+                                            <>
+                                                <Paragraph>
+                                                    {office.zonations[0].docImages.map( image => {
+                                                        return (<>
+                                                            <a 
+                                                                target="_blank"
+                                                                href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br/>
+                                                        </>)
+                                                    })}
 
-                                        {office.zonations[0].docImages.map( image => {
-                                            return (<>
-                                                <a 
-                                                    target="_blank"
-                                                    href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br/>
-                                            </>)
-                                        })}
-
-                                    </Paragraph>
+                                                </Paragraph>
+                                            </>
+                                        )
+                                        : (
+                                            <Paragraph>
+                                                No registrada
+                                            </Paragraph>
+                                        )
+                                    }
 
                                     <Title level={5}>
                                         Licencia
