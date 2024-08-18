@@ -434,3 +434,10 @@ export async function deletePerson(id: number): Promise<boolean> {
 
     return true;
 }
+
+
+// UTIL
+
+export function completeUrl(url: string): string {
+    return HOST + url
+}

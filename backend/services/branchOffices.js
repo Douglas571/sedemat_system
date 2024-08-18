@@ -1,4 +1,4 @@
-const {BranchOffice, EconomicActivity, EconomicLicense} = require('../database/models')
+const {BranchOffice, EconomicActivity, EconomicLicense, Zonation, DocImages} = require('../database/models')
 const logger = require('../utils/logger')
 
 // Create a new Branch Office
@@ -27,10 +27,17 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
             where: {
                 businessId: businessId
             },
-            include: {
-                model: EconomicLicense,
-                include: EconomicActivity
-            }
+            include: [
+                {
+                    model: EconomicLicense,
+                    as: "economicLicenses"
+                },
+                {
+                    model: Zonation,
+                    as: "zonations",
+                    include: 'docImages'
+                }
+            ]
         });
         return branchOffices;
     } catch (error) {

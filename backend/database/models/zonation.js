@@ -12,10 +12,15 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
 
-      const {DocImage} = models
+      const {DocImage, BranchOffice} = models
       Zonation.hasMany(DocImage, {
         foreignKey: "zonationId",
         as: 'docImages'
+      })
+
+      Zonation.belongsTo(BranchOffice, {
+        foreignKey: "branchOfficeId",
+        as: "branchOffice"
       })
     }
   }
