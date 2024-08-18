@@ -49,7 +49,11 @@ module.exports = (sequelize, DataTypes) => {
     zone: DataTypes.STRING,
     dimensions: DataTypes.INTEGER,
     type: DataTypes.STRING, // it can be I, II, III
-    origin: DataTypes.STRING
+
+    isRented: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   }, {
     sequelize,
     modelName: 'BranchOffice',

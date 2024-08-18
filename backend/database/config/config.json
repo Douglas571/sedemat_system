@@ -6,7 +6,7 @@
     "host": "mariadb",
     "dialect": "mariadb",
 
-    "logging": false
+    "logging": true
   },
   "test": {
     "username": "sedemat_server",
@@ -15,15 +15,14 @@
     "host": "mariadb",
     "dialect": "mariadb",
 
-    "logging": false
+    "logging": true
   },
   "production": {
     "username": "sedemat_server",
     "password": "12345",
     "database": "sedemat",
     "host": "mariadb",
-    "dialect": "mariadb",
+    "dialect": "mariadb"
 
-    "logging": false
   }
 }

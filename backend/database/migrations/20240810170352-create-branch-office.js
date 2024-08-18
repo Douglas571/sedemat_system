@@ -31,7 +31,11 @@ module.exports = {
       zone: Sequelize.STRING,
       dimensions: Sequelize.INTEGER,
       type: Sequelize.STRING, // it can be I, II, III
-      origin: Sequelize.STRING,
+
+      isRented: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
 
       createdAt: {
         allowNull: false,
