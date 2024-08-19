@@ -2,29 +2,27 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('DocImages', {
+    await queryInterface.createTable('BuildingDocs', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      url: {
-        type: Sequelize.STRING
+      expirationDate: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      path: {
-        type: Sequelize.STRING
+      branchOfficeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'BranchOffices',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      url: {
-        type: Sequelize.STRING
-      },
-      path: {
-        type: Sequelize.STRING
-      },
-      pageNumber: {
-        type: Sequelize.INTEGER
-      },
-
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -36,6 +34,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('DocImages');
+    await queryInterface.dropTable('BuildingDocs');
   }
 };

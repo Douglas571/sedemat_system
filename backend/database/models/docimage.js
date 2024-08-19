@@ -11,32 +11,57 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {Zonation} = models
+      const {Zonation, LeaseDoc, BuildingDoc} = models
       DocImage.belongsTo(Zonation, {
         foreignKey: "zonationId",
-        // as: "zonation"
+        as: "zonation"
       })
+      DocImage.belongsTo(LeaseDoc, {
+        foreignKey: "leaseDocId",
+        as: 'leaseDoc'
+      });
+      DocImage.belongsTo(BuildingDoc, {
+        foreignKey: "buildingDocId",
+        as: 'buildingDoc'
+      });
     }
   }
   DocImage.init({
-    id: {
+    pageNumber: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+      allowNull: false,
     },
-    url: DataTypes.STRING,
-    path: DataTypes.STRING,
-    pageNumber: DataTypes.INTEGER,
-
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     zonationId: {
       type: DataTypes.INTEGER,
-      reference: {
+      references: {
         model: 'Zonations',
         key: 'id',
       },
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE'
+      onUpdate: 'CASCADE',
     },
+    leaseDocId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'LeaseDocs',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+    buildingDocId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'BuildingDocs',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    }
   }, {
     sequelize,
     modelName: 'DocImage',

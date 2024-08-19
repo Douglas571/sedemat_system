@@ -22,7 +22,8 @@
     "password": "12345",
     "database": "sedemat",
     "host": "mariadb",
-    "dialect": "mariadb"
+    "dialect": "mariadb",
 
+    "logging": false
   }
 }
