@@ -44,6 +44,7 @@ import {
 import { json } from 'react-router-dom';
 
 import * as zonationsApi from '../util/zonations'
+import * as documentsApi from '../util/documents'
 
 
 
@@ -261,6 +262,27 @@ function BusinessNew(): JSX.Element {
                 if (id && office.zonationDoc?.fileList) {
                     const newZonation = await zonationsApi.createZonation({branchOfficeId: id, docImages: office.zonationDoc?.fileList})
                     console.log({newZonation})
+                }
+
+                // if the office is rented, send the lease document
+                if (office.isRented) {
+                    const info = {
+                        branchOfficeId: id, 
+                        expirationDate: office.leaseDocExpirationDate,
+                        docImages: office.leaseDoc?.fileList
+                    }
+
+                    console.log({info})
+                    const newLease = await documentsApi.sendLeaseDocument(info)
+                    console.log({newLease})
+                } else {
+                    // send the building document
+                    const newBuilding = await documentsApi.sendBuildingDocument({
+                        branchOfficeId: id, 
+                        expirationDate: office.buildingDocExpirationDate,
+                        docImages: office.buildingDoc?.fileList
+                    })
+                    console.log({newBuilding})
                 }
             });
 

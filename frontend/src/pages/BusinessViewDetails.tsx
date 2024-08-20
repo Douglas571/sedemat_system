@@ -365,11 +365,12 @@ function BusinessViewDetails(): JSX.Element {
                                         ? (
                                             <Paragraph>
                                                 {office.zonations[0].docImages.map( image => {
-                                                    return (<>
-                                                        <a 
+                                                    return (
+                                                    <p key={image.id}>
+                                                        <a
                                                             target="_blank"
                                                             href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br/>
-                                                    </>)
+                                                    </p>)
                                                 })}
 
                                             </Paragraph>
