@@ -1,3 +1,6 @@
+import { ExpirableDocument } from "./types"
+import { Zonation } from "./zonations"
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -43,10 +46,15 @@ export type BranchOffice = {
     businessId: number; // Assuming you have a reference to the business ID
 
     EconomicLicenses?: Array<License>
-    lastEconomicLicense?: License;
+    lastEconomicLicense?: License
+
+
+    zonations: Zonation
+    leaseDocs?: Array<ExpirableDocument> 
+    buildingDocs?: Array<ExpirableDocument>
 };
 
-type TypeOfContacts = 'OWNER' | 'ACCOUNTANT' | 'ADMINISTRATOR'
+type TypeOfContacts = 'OWNER' | 'ACCOUNTANT' | 'ADMIN'
 
 export type Business = {
     id?: number

@@ -1,4 +1,11 @@
-const {BranchOffice, EconomicActivity, EconomicLicense, Zonation, DocImages} = require('../database/models')
+const {BranchOffice, 
+    EconomicActivity, 
+    EconomicLicense, 
+    Zonation, 
+    DocImages,
+    BuildingDoc,
+    LeaseDoc
+} = require('../database/models')
 const logger = require('../utils/logger')
 
 // Create a new Branch Office
@@ -35,6 +42,16 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                 {
                     model: Zonation,
                     as: "zonations",
+                    include: 'docImages'
+                },
+                {
+                    model: BuildingDoc,
+                    as: "buildingDocs",
+                    include: 'docImages'
+                },
+                {
+                    model: LeaseDoc,
+                    as: "leaseDocs",
                     include: 'docImages'
                 }
             ]

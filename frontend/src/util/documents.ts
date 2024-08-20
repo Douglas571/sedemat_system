@@ -1,30 +1,12 @@
+import { DocumentPayload, ExpirableDocument } from "./types";
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-interface DocumentPayload {
-    branchOfficeId: number;
-    expirationDate: Date;
-    docImages: File[];
-}
+
 
 // create a funtion called sendLeaseDocument to register leaseDocuments
-
-interface DocImages {
-    id: number
-    url: string
-    pageNumber: number
-
-}
-
-interface ExpirableDocument {
-    id: number
-    branchOfficeId: number
-    expirationDate: Date
-    docImages: Array<DocImages>
-
-}
-
 export async function sendLeaseDocument(payload: DocumentPayload): Promise<ExpirableDocument> {
     const formData = new FormData();
     formData.append("branchOfficeId", payload.branchOfficeId.toString());

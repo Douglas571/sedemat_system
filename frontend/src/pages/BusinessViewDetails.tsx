@@ -382,6 +382,76 @@ function BusinessViewDetails(): JSX.Element {
                                         )
                                     }
 
+                                    { office.isRented 
+                                    ? (
+                                        <>
+                                            <Title level={5}>
+                                                Contrato de Arrendamiento
+                                            </Title>
+                                            <Paragraph>
+                                                {
+                                                    office?.leaseDocs[0]
+                                                    ? (
+                                                        <p>
+                                                            Expira: {new Date(office.leaseDocs[0]?.expirationDate).toLocaleDateString()}
+                                                            {
+                                                                office.leaseDocs[0]?.docImages.map( image => {
+                                                                    return (
+                                                                        <p key={image.id}>
+                                                                            <a  
+                                                                            
+                                                                            target="_blank"
+                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                                                            </a>
+                                                                        </p>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </p>
+                                                    )
+                                                    : (
+                                                        <>No registrado</>
+                                                    )
+                                                }
+                                            </Paragraph>
+                                        </>
+                                    )
+                                    : (
+                                        <>
+                                            <Title level={5}>
+                                                Contrato de propiedad
+                                            </Title>
+                                            <Paragraph>
+                                                {
+                                                    office?.buildingDocs[0]
+                                                    ? (
+                                                        <p>
+                                                            Expira: {new Date(office.buildingDocs[0]?.expirationDate).toLocaleDateString()}
+                                                            {
+                                                                office.buildingDocs[0]?.docImages.map( image => {
+                                                                    return (
+                                                                        <p key={image.id}>
+                                                                            <a  
+                                                                            
+                                                                            target="_blank"
+                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                                                            </a>
+                                                                        </p>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </p>
+                                                    )
+                                                    : (
+                                                        <>No registrado</>
+                                                    )
+                                                }
+                                            </Paragraph>
+                                        </>
+                                    )    
+                                
+                                }
+
                                     <Title level={5}>
                                         Licencia
                                     </Title>

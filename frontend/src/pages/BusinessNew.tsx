@@ -191,7 +191,7 @@ function BusinessNew(): JSX.Element {
 
             // Map preferredContact to corresponding values
             const contactMapping: { [key: string]: string } = {
-                'Administrador': 'ADMINISTRATOR',
+                'Administrador': 'ADMIN',
                 'Propietario': 'OWNER',
                 'Contador': 'ACCOUNTANT'
             }

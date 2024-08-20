@@ -9,7 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({EconomicLicense, Zonation}) {
+    static associate(models) {
+      const {
+        EconomicLicense, 
+        Zonation, 
+        BuildingDoc, 
+        LeaseDoc
+      } = models
       // define association here
       BranchOffice.hasMany(EconomicLicense, {
         foreignKey: "branchOfficeId",
@@ -21,6 +27,15 @@ module.exports = (sequelize, DataTypes) => {
         as: "zonations"
       })
 
+      BranchOffice.hasMany(BuildingDoc, {
+        foreignKey: "branchOfficeId",
+        as: "buildingDocs"
+      })
+
+      BranchOffice.hasMany(LeaseDoc, {
+        foreignKey: "branchOfficeId",
+        as: "leaseDocs"
+      })
 
     }
   }
