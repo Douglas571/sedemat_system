@@ -11,18 +11,18 @@ const {
 } = require('../controllers/zonations');
 
 // POST /zonations - Create a new zonation
-router.post('/zonations', createZonation);
+router.post('/', createZonation);
 
 // GET /zonations/:id - Get a zonation by ID
-router.get('/zonations/:id', getZonationById);
+router.get('/:id', getZonationById);
 
 // GET /zonations - Get all zonations
-router.get('/zonations', getAllZonations);
+router.get('/', getAllZonations);
 
 // PUT /zonations/:id - Update a zonation by ID
-router.put('/zonations/:id', updateZonation);
+router.put('/:id', updateZonation);
 
 // DELETE /zonations/:id - Delete a zonation by ID
-router.delete('/zonations/:id', deleteZonation);
+router.delete('/:id', deleteZonation);
 
 module.exports = router;
