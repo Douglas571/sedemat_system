@@ -5,6 +5,8 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+console.log({HOST, PORT, IP})
+
 export type EconomicActivity = {
     id: number
     code: string
