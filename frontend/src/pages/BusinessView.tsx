@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import _ from 'lodash'
 import { b } from 'vitest/dist/suite-ynYMzeLu';
 
+import * as api from '../util/api'
+
 
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -27,25 +29,11 @@ function BusinessView(): JSX.Element {
         navigate('/business/new')
     }
     
-    async function fetchBusiness() {
-        console.log("fetching business api")
-        try {
-            const response = await fetch(`${HOST}/v1/businesses`);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch data. Status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log({data})
-            return data.map(b => ({...b, key: b.id}));
-        } catch (error) {
-            console.error('Error fetching business data:', error);
-            throw error;
-        }
-    }
+    
 
     async function loadBusiness() {
         console.log("before fetching business")
-        setBusiness(await fetchBusiness())
+        setBusiness(await api.fetchBusiness())
         console.log("after fetching business")
     }
 

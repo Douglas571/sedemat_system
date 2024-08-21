@@ -12,6 +12,11 @@ import Contacts from 'pages/Contacts'
 import ContactsView from 'pages/ContactsView'
 import ContactEdit from 'pages/ContactsEdit'
 
+
+import BranchOfficeEdit from 'pages/BranchOfficeEdit'
+// EXPERIMENTAL
+import NewBusinessForm from 'pages/BusinessCombinedEditNew'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
 import MainLayout from 'layout/main'
@@ -60,6 +65,30 @@ function App(): JSX.Element {
 							path='contacts/:id/edit'
 							element={<ContactEdit/>}
 						/>
+
+						<Route
+							path='t/new'
+							element={<NewBusinessForm />}
+						/>
+
+						<Route
+							path='t/edit/:businessId'
+							element={<NewBusinessForm />}
+						/>
+
+						<Route
+							path='businesses/:businessId/branch-offices/new'
+							element={<BranchOfficeEdit />}
+						/>
+
+						<Route
+							path='businesses/:businessId/branch-offices/:branchOfficeId/edit'
+							element={<BranchOfficeEdit />}
+						/>
+
+						
+
+						
 
 
 						{/* Using path="*"" means "match anything", so this route

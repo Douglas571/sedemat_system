@@ -102,6 +102,8 @@ export async function fetchBranchOffices(businessId: number): Promise<BranchOffi
 }
 
 // Business
+
+// TODO: Fiend all references to this method and replace them with fetchBusinesses
 export async function fetchBusiness() {
     try {
         const response = await fetch(`${HOST}/v1/businesses`);

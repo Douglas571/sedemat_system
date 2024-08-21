@@ -216,6 +216,29 @@ function BusinessViewDetails(): JSX.Element {
         return mapper[business?.preferredChannel]
     }
 
+
+    async function handleNewBranchOffice() {
+        // travel to /businesses/:businessId/branch-offices/new
+        navigate(`/businesses/${businessId}/branch-offices/new`)
+    }
+
+    async function handleDeleteBranchOffice(id: number) {
+        try {
+            console.log(`Deleting branch office #${id}`)
+            await api.deleteBranchOffice(id)
+
+            loadBusinessData()
+        } catch (error) {
+            console.log({error})
+        }
+
+    }
+
+    async function handleEditBranchOffice(id: number) {
+        // travel to /businesses/:businessId/branch-offices/:branchOfficeId/edit
+        navigate(`/businesses/${businessId}/branch-offices/${id}/edit`)
+    }
+
     return (
         <div>
             <Typography>
@@ -321,10 +344,16 @@ function BusinessViewDetails(): JSX.Element {
                     </>
                 )}
 
-                <Title level={2}>
-                    Sedes o Establecimientos
-                </Title>
-                <Flex gap="large">
+                <Flex gap="large" align='center'>
+                    <Title level={2}>
+                        Sedes o Establecimientos
+                    </Title>
+                    <Button onClick={() => handleNewBranchOffice()}>
+                        Nuevo
+                    </Button>
+                </Flex>
+                
+                <Flex vertical gap="large">
                 {
                     business?.branchOffices.map( (office, index) => {
                         const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
@@ -333,26 +362,34 @@ function BusinessViewDetails(): JSX.Element {
 
                         return (
                             <Flex key={office.id} vertical>
-                                <Title level={4}>
-                                    Sede #{index + 1} {renderLicenseButton(office)}
-                                </Title>
+                                
+                                <Flex gap={"small"} align='center'>
+                                    <Title level={4}>
+                                        Sede #{index + 1}
+                                        
+                                    </Title>
+                                    <Button onClick={() => handleDeleteBranchOffice(office.id)}>Eliminar</Button>
+                                    <Button onClick={() => handleEditBranchOffice(office.id)}>Editar</Button>
+                                </Flex>
+                
+                                
                                 <Paragraph>
                                     {/* Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}<br/>
                                     Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}<br/>
                                     Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}<br/> */}
                                     Zona: {office.zone}<br/>
                                     Dirección: {office.address}<br/>
-                                    Dimensiones: {office.dimensions}<br/>
+                                    Dimensiones: {office.dimensions} m2<br/>
                                     Tipo de terreno: {office.type}<br/>
                                     Procedencia: {office.isRented 
                                         ? (
                                             <>
-                                                Alquilado (<a href='/example' target='_blank'>Ver contrato</a>)
+                                                Alquilado
                                             </>
                                         )
                                         : (
                                             <>
-                                                Propio (<a href='/example' target='_blank'>Ver Inmueble</a>)
+                                                Propio
                                             </>
                                         )}<br/>
 
