@@ -38,7 +38,7 @@ function App(): JSX.Element {
 						<Route path='business/new' element={<BusinessNew />} />
 						<Route
 							path='business/edit/:businessId'
-							element={<BusinessEdit />}
+							element={<NewBusinessForm />}
 						/>
 						<Route
 							path='business/:businessId'

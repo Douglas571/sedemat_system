@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import * as api from '../util/api'
 import { Business, BranchOffice } from '../util/types'
-import { Button, DatePicker, Divider, Flex, Form, Input, Select, Typography } from "antd";
+import { 
+    Button, 
+    DatePicker, 
+    Divider, 
+    Flex, 
+    Form, 
+    Input, 
+    Select, 
+    Typography,
+    message
+} from "antd";
 
 import { 
     BusinessFormFields, 
@@ -13,14 +23,22 @@ import {
     getBase64, 
     reminderIntervalMap, 
     reminderIntervalOptions, 
-    ZONES
+    ZONES,
+    reminderIntervalMapReverse,
+    getPreferredChannelName,
+    getPreferredContactType, 
 } from './BusinessShared'
+import dayjs from "dayjs";
 
 export default function BusinessForm(): JSX.Element {
     const [business, setBusiness] = useState<Business>()
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>()
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
     const [people, setPeople] = useState<Person[]>([])
+
+    const [messageApi, contextHolder] = message.useMessage()
+    const navigate = useNavigate()
+
 
 
     const [form] = Form.useForm()
@@ -49,11 +67,40 @@ export default function BusinessForm(): JSX.Element {
 
         console.log(JSON.stringify(businessData, null, 2))
 
-        form.setFieldsValue({
+        const formInitData ={
             businessName: businessData.businessName,
             dni: businessData.dni,
             economicActivity: businessData.economicActivity.title,
-        })
+
+            companyIncorporationDate: dayjs(businessData.companyIncorporationDate),
+            companyExpirationDate: dayjs(businessData.companyExpirationDate),
+            directorsBoardExpirationDate: dayjs(businessData.directorsBoardExpirationDate),
+
+            preferredContact: getPreferredContactType(businessData),
+            preferredChannel: getPreferredChannelName(businessData.preferredChannel),
+            sendCalculosTo: getPreferredChannelName(businessData.sendCalculosTo),
+            reminderInterval: '',
+        }
+
+        if(businessData.reminderInterval) {
+            formInitData.reminderInterval = reminderIntervalMapReverse[businessData.reminderInterval]
+        }
+
+        if (businessData.owner?.id) {
+            formInitData.owner = `${businessData.owner.dni} - ${businessData.owner.firstName} ${businessData.owner.lastName}`;
+        }
+        
+        if (businessData.accountant?.id) {
+            formInitData.accountant = `${businessData.accountant.dni} - ${businessData.accountant.firstName} ${businessData.accountant.lastName}`;
+        }
+        
+        if (businessData.administrator?.id) {
+            formInitData.administrator = `${businessData.administrator.dni} - ${businessData.administrator.firstName} ${businessData.administrator.lastName}`;
+        }
+
+        // the same for accountant and administrator
+
+        form.setFieldsValue(formInitData)
     }
 
     async function loadEconomicActivities() {
@@ -81,36 +128,156 @@ export default function BusinessForm(): JSX.Element {
         console.log({formData})
     }
 
+    // Map preferredChannel and sentCalculosTo to corresponding values
+    const channelMapping: { [key: string]: string } = {
+        'Teléfono': 'PHONE',
+        'Whatsapp': 'WHATSAPP',
+        'Correo': 'EMAIL'
+    };
+
+    // Map preferredContact to corresponding values
+    const contactMapping: { [key: string]: string } = {
+        'Administrador': 'ADMIN',
+        'Propietario': 'OWNER',
+        'Contador': 'ACCOUNTANT'
+    }
+    
+
+    const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
+        try {
+            console.log(JSON.stringify(values, null, 2) );
+            console.log({branchOffices})
+            
+            // set up the business data to register
+            const businessData: Business = {
+                businessName: values.businessName,
+                dni: values.dni,
+                companyExpirationDate: values.companyExpirationDate,
+                companyIncorporationDate: values.companyIncorporationDate,
+                directorsBoardExpirationDate: values.directorsBoardExpirationDate,
+
+                preferredChannel: values.preferredChannel,
+                sendCalculosTo: values.sendCalculosTo,
+                preferredContact: values.preferredContact,
+            } 
+
+            // get economic activity id
+            const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
+            const economicActivityId = economicActivityObject?.id;
+
+            businessData.economicActivityId = economicActivityId
+
+            // get the contacts ids 
+            const { 
+                owner: ownerString, 
+                accountant: accountantString, 
+                administrator: administratorString } = values;
+
+            const owner = getSelectedPerson(ownerString)
+            const accountant = getSelectedPerson(accountantString)
+            const administrator = getSelectedPerson(administratorString)
+
+            if (owner) businessData.ownerPersonId = owner.id
+            if (accountant) businessData.accountantPersonId = accountant.id
+            if (administrator) businessData.administratorPersonId = administrator.id
+
+            // get the reminder interval id
+            businessData.reminderInterval = reminderIntervalMap[values.reminderInterval]
+
+            // get the preferred communications channels
+            businessData.preferredChannel = channelMapping[values.preferredChannel]
+            businessData.sendCalculosTo = channelMapping[values.sendCalculosTo]
+            businessData.preferredContact = contactMapping[values.preferredContact]
+
+            // create the business
+            let newBusinessData: Business
+            if (businessId) {
+                newBusinessData =await api.updateBusinessData(Number(businessId), businessData)
+            } else {
+                newBusinessData = await api.sendBusinessData(businessData)
+            }
+
+            console.log({newBusinessData})
+
+            messageApi.open({
+                type: 'success',
+                content: "Contribuyente guardado exitosamente",
+            });
+
+            setTimeout(() => {
+                navigate(`/business/${newBusinessData.id}`)
+            })
+            
+        } catch (error) {
+            console.log({error})
+
+            let msg = "Hubo un error";
+            msg = error.message;
+        
+            if (error.message === "duplicated dni") {
+                messageApi.open({
+                type: 'error',
+                content: `RIF ya registrado`,
+                });
+        
+                return;
+            }
+        
+            messageApi.open({
+                type: 'error',
+                content: msg,
+            });
+        }
+    }
+
+    function getSelectedPerson(personString: string): Person | undefined {
+        // divide the string and get the dni
+
+        if(!personString) return undefined
+
+        const dni = personString.split(' - ')[0]
+        // find the person with that dni 
+        const selectedPerson = people?.find( p => p.dni === dni )
+        // return that person
+        return selectedPerson
+    }
+
     return (
-        <Flex vertical>
-            { isNewTaxPayer 
-                ? <Typography.Title level={1}>Nuevo contribuyente</Typography.Title> 
-                : <Typography.Title level={1}>Editar contribuyente</Typography.Title>}
+        <>
+            {contextHolder}
+            <Flex vertical>
+                { isNewTaxPayer 
+                    ? <Typography.Title level={1}>Nuevo contribuyente</Typography.Title> 
+                    : <Typography.Title level={1}>Editar contribuyente</Typography.Title>}
 
-            <Form form={form}>
-                <BusinessBasicInformarionForm 
-                    economicActivities={economicActivities}
-                />
+                <Form 
+                    form={form} 
+                    onFinish={onFinish}>
+                    <BusinessBasicInformarionForm 
+                        economicActivities={economicActivities}
+                    />
 
-                <BusienssContactInformationForm 
-                    people={people}
-                />
+                    <BusinessContactInformationForm 
+                        people={people}
+                    />
 
-                <BusienssContactPreferenceForm 
-                
-                />
+                    <BusinessContactPreferenceForm 
+                    
+                    />
 
-                <Form.Item>
-                    <Button 
-                        data-test='submit-button'
-                        type='primary' htmlType='submit'>Guardar</Button>
-                </Form.Item>
+                    <Form.Item>
+                        <Button 
+                            data-test='submit-button'
+                            type='primary' htmlType='submit'>Guardar</Button>
+                    </Form.Item>
 
-                <Button onClick={() => showFormData()}>
-                    Show form data
-                </Button>
-            </Form>
-        </Flex>
+                    {/* <Button onClick={() => showFormData()}>
+                        Show form data
+                    </Button> */}
+                </Form>
+            </Flex>
+        </>
+        
     )
 }
 
@@ -213,7 +380,8 @@ function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
     )
 }
 
-function BusienssContactInformationForm({people}): JSX.Element{
+function BusinessContactInformationForm({people}): JSX.Element{
+    const form = Form.useFormInstance();
 
     const peopleOptions = people.map( p => {
         // i need to convert to format that is valid for select
@@ -255,7 +423,10 @@ function BusienssContactInformationForm({people}): JSX.Element{
                     />
                     
                 </Form.Item>
-                <Button>Eliminar</Button>
+                <Button onClick={() => {
+                    // take accountant and clear the content
+                    form.setFieldsValue({accountant: ''})
+                }}>Eliminar</Button>
             </Flex>            
             
 
@@ -270,7 +441,10 @@ function BusienssContactInformationForm({people}): JSX.Element{
                     />
                     
                 </Form.Item>
-                <Button>Eliminar</Button>
+                <Button onClick={() => {
+                    // take accountant and clear the content
+                    form.setFieldsValue({administrator: ''})
+                }}>Eliminar</Button>
             </Flex>
 
             <Divider/>
@@ -279,12 +453,8 @@ function BusienssContactInformationForm({people}): JSX.Element{
 }
 
 
-function BusienssContactPreferenceForm(): JSX.Element{
+function BusinessContactPreferenceForm(): JSX.Element{
 
-    function cleanContact({field}){
-        // clear contact field
-        
-    }
     return (
         <>
             <Typography.Title level={3}>

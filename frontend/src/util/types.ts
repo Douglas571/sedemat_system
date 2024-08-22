@@ -78,9 +78,10 @@ export type Business = {
     id?: number
     businessName: string
     dni: string 
-    email: string 
     branchOffices: Array<BranchOffice>
     economicActivity: EconomicActivity
+
+    economicActivityId: number
 
     companyExpirationDate: Date
     companyIncorporationDate: Date

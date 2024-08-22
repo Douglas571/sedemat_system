@@ -1,6 +1,8 @@
 import { ExpirableDocument } from "./types"
 import { Zonation } from "./zonations"
 
+import { Business } from "./types"
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -56,33 +58,6 @@ export type BranchOffice = {
     buildingDocs?: Array<ExpirableDocument>
 };
 
-type TypeOfContacts = 'OWNER' | 'ACCOUNTANT' | 'ADMIN'
-
-export type Business = {
-    id?: number
-    businessName: string
-    dni: string 
-    email: string 
-    branchOffices: Array<BranchOffice>
-    economicActivity: EconomicActivity
-
-    companyExpirationDate: Date
-    companyIncorporationDate: Date
-    directorsBoardExpirationDate: Date
-
-    preferredChannel?: string
-    sendCalculosTo?: string
-    preferredContact?: TypeOfContacts
-    reminderInterval?: number
-
-    ownerPersonId: number 
-    administratorPersonId?: number 
-    accountantPersonId?: number 
-
-    owner: Person
-    accountant?: Person 
-    administrator?: Person
-}
 
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
     const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {

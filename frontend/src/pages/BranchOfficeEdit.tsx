@@ -25,21 +25,24 @@ export default function BranchOfficeForm(): JSX.Element {
     const [form] = Form.useForm<{address: string, type: string}>()
 
     const [businesses, setBusinesses] = useState<Business[]>()
+    const [branchOffice, setBranchOffice] = useState<BranchOffice>()
     const [businessesOptions, setBusinessesOptions] = useState<{value: string, label: string}[]>()
 
     const [zonations, setZonations] = useState<Map<number, ZonationRaw>>(new Map())
 
     const { businessId, branchOfficeId } = useParams()
+    const isEditing = !!branchOfficeId
     const navigate = useNavigate()
 
 
     useEffect(() => {
-        loadBusinesses()
+        //loadBusinesses()
 
         if (branchOfficeId) {
             console.log(`editing office ${branchOfficeId} in business ${businessId}`)
             // TODO: load business data
             // TODO: load office data
+            loadBranchOffice()
         }
     }, [])
 
@@ -63,26 +66,34 @@ export default function BranchOfficeForm(): JSX.Element {
                 isRented: values.isRented
             }
 
-            const registeredOffice = await api.registerBranchOffice(newOffice)
+            let newOfficeData
+            if (isEditing && branchOfficeId) {
+                newOfficeData = await api.updateBranchOffice(Number(branchOfficeId), newOffice)
+            } else {
+                newOfficeData = await api.registerBranchOffice(newOffice)
+            }
+
             const {
-                id: branchOfficeId
-            } = registeredOffice
+                id: receiveBranchOfficeId
+            } = newOfficeData
 
 
-            if (!branchOfficeId) {
+            if (!receiveBranchOfficeId) {
                 throw new Error("Error registering branch office")
             }
+
             // register zonations 
             if (values.zonationDoc?.fileList) {
                 const newZonation = await zonationsApi.createZonation({
-                    branchOfficeId, 
+                    branchOfficeId: receiveBranchOfficeId, 
                     docImages: values.zonationDoc?.fileList})
                 console.log({newZonation})
             }
             // register lease docs
             if (values.isRented && values.leaseDoc?.fileList) {
+                console.log("sending lease docs")
                 const newLease = await documentsApi.sendLeaseDocument({
-                    branchOfficeId, 
+                    branchOfficeId: receiveBranchOfficeId, 
                     expirationDate: values.leaseDocExpirationDate,
                     docImages: values.leaseDoc?.fileList
                 })
@@ -92,7 +103,7 @@ export default function BranchOfficeForm(): JSX.Element {
             if (!values.isRented && values.buildingDoc?.fileList) {
                 // register build docs
                 const newBuilding = await documentsApi.sendBuildingDocument({
-                    branchOfficeId, 
+                    branchOfficeId: receiveBranchOfficeId, 
                     expirationDate: values.buildingDocExpirationDate,
                     docImages: values.buildingDoc?.fileList
                 })
@@ -130,6 +141,23 @@ export default function BranchOfficeForm(): JSX.Element {
         )))
     }
 
+    async function loadBranchOffice() {
+        // get the office by id
+        const officeData = await api.getBranchOfficeById(branchOfficeId)
+
+        if(!officeData) {
+            throw new Error("Branch office not found")
+        }
+        // set the office data in the useState
+        setBranchOffice(officeData)
+        // set the office data in the form
+        form.setFieldsValue({
+            address: officeData.address,
+            type: officeData.type,
+            dimensions: officeData.dimensions,
+            isRented: officeData.isRented
+        })
+    }
 
     const isRented = Form.useWatch((values) => {
         console.log({values})

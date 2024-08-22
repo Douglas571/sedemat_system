@@ -138,9 +138,9 @@ function BusinessViewDetails(): JSX.Element {
                 if (business.preferredContact === "OWNER") {
                     communicationPreference.preferredChannel = business.owner.phone;
                 } else if (business.preferredContact === "ACCOUNTANT") {
-                    communicationPreference.preferredChannel = business.accountant.phone;
+                    communicationPreference.preferredChannel = business?.accountant?.phone;
                 } else if (business.preferredContact === "ADMIN") {
-                    communicationPreference.preferredChannel = business.administrator.phone;
+                    communicationPreference.preferredChannel = business?.administrator?.phone;
                 }
                 break;
             case "WHATSAPP":
@@ -149,9 +149,9 @@ function BusinessViewDetails(): JSX.Element {
                     console.log("NOTA: El contacto ES PROPIETARIO")
                     communicationPreference.preferredChannel = business.owner.whatsapp;
                 } else if (business.preferredContact === "ACCOUNTANT") {
-                    communicationPreference.preferredChannel = business.accountant.whatsapp;
+                    communicationPreference.preferredChannel = business?.accountant?.whatsapp;
                 } else if (business.preferredContact === "ADMIN") {
-                    communicationPreference.preferredChannel = business.administrator.whatsapp;
+                    communicationPreference.preferredChannel = business?.administrator?.whatsapp;
                 }
                 break;
             case "EMAIL":
@@ -170,12 +170,12 @@ function BusinessViewDetails(): JSX.Element {
         // Set sendCalculosTo
         switch (business.sendCalculosTo) {
             case "PHONE":
-                if (business.preferredContact === "OWNER") {
+                if (business.preferredContact === "OWNER" && business.owner) {
                     communicationPreference.sendCalculosTo = business.owner.phone;
                 } else if (business.preferredContact === "ACCOUNTANT") {
-                    communicationPreference.sendCalculosTo = business.accountant.phone;
+                    communicationPreference.sendCalculosTo = business?.accountant?.phone;
                 } else if (business.preferredContact === "ADMIN") {
-                    communicationPreference.sendCalculosTo = business.administrator.phone;
+                    communicationPreference.sendCalculosTo = business?.administrator?.phone;
                 }
                 break;
             case "WHATSAPP":
@@ -398,10 +398,10 @@ function BusinessViewDetails(): JSX.Element {
                                         Zonificación
                                     </Title>
                                     {
-                                        office.zonations[0] 
+                                        office.zonations[office.zonations.length - 1] 
                                         ? (
                                             <Paragraph>
-                                                {office.zonations[0].docImages.map( image => {
+                                                {office.zonations[office.zonations.length - 1].docImages.map( image => {
                                                     return (
                                                     <p key={image.id}>
                                                         <a
@@ -427,12 +427,12 @@ function BusinessViewDetails(): JSX.Element {
                                             </Title>
                                             <Paragraph>
                                                 {
-                                                    office?.leaseDocs[0]
+                                                    office?.leaseDocs[office?.leaseDocs?.length - 1]
                                                     ? (
                                                         <p>
-                                                            Expira: {new Date(office.leaseDocs[0]?.expirationDate).toLocaleDateString()}
+                                                            Expira: {new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()}
                                                             {
-                                                                office.leaseDocs[0]?.docImages.map( image => {
+                                                                office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map( image => {
                                                                     return (
                                                                         <p key={image.id}>
                                                                             <a  
@@ -460,12 +460,12 @@ function BusinessViewDetails(): JSX.Element {
                                             </Title>
                                             <Paragraph>
                                                 {
-                                                    office?.buildingDocs[0]
+                                                    office?.buildingDocs[office?.buildingDocs?.length - 1]
                                                     ? (
                                                         <p>
-                                                            Expira: {new Date(office.buildingDocs[0]?.expirationDate).toLocaleDateString()}
+                                                            Expira: {new Date(office.buildingDocs[office?.buildingDocs?.length - 1]?.expirationDate).toLocaleDateString()}
                                                             {
-                                                                office.buildingDocs[0]?.docImages.map( image => {
+                                                                office.buildingDocs[office?.buildingDocs?.length - 1]?.docImages.map( image => {
                                                                     return (
                                                                         <p key={image.id}>
                                                                             <a  
