@@ -27,12 +27,12 @@ export type EconomicActivity = {
 }
 
 export type License = {
-    id?: number 
-    branchOfficeId: number 
+    id?: number
+    branchOfficeId: number
     economicActivityId: number
-    openAt?: String 
+    openAt?: String
     closeAt?: String
-    issuedDate: Date 
+    issuedDate: Date
     expirationDate: Date
 
     EconomicActivity: EconomicActivity
@@ -40,12 +40,12 @@ export type License = {
 
 export type Person = {
     id?: number
-    firstName: string 
-    lastName: string 
+    firstName: string
+    lastName: string
     dni: string
     phone: string
-    whatsapp: string 
-    email: string 
+    whatsapp: string
+    email: string
 
     profilePictureUrl?: string
 
@@ -68,16 +68,16 @@ export type BranchOffice = {
 
 
     zonations: Zonation
-    leaseDocs?: Array<ExpirableDocument> 
+    leaseDocs?: Array<ExpirableDocument>
     buildingDocs?: Array<ExpirableDocument>
 };
 
 type TypeOfContacts = 'OWNER' | 'ACCOUNTANT' | 'ADMIN'
 
-export type Business = {
+export interface Business {
     id?: number
     businessName: string
-    dni: string 
+    dni: string
     branchOffices: Array<BranchOffice>
     economicActivity: EconomicActivity
 
@@ -92,11 +92,18 @@ export type Business = {
     preferredContact?: TypeOfContacts
     reminderInterval?: number
 
-    ownerPersonId: number 
-    administratorPersonId?: number 
-    accountantPersonId?: number 
+    ownerPersonId: number
+    administratorPersonId?: number
+    accountantPersonId?: number
 
     owner: Person
-    accountant?: Person 
+    accountant?: Person
     administrator?: Person
+}
+
+export interface PermitDoc {
+    branchOfficeId: string
+    expirationDate: string
+    type: 'FIRE' | 'HEALTH'
+    docImages: File[]
 }

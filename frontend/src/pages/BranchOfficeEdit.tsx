@@ -4,11 +4,12 @@ import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Sw
 import { useEffect, useState } from "react"
 
 import { ZONES } from "./BusinessShared"
-import { Business } from "util/types"
+import { Business } from 'util/types'
 
 import * as api from 'util/api'
 import * as zonationsApi from 'util/zonations'
 import * as documentsApi from 'util/documents'
+import * as permitApi from 'util/permitdocs'
 import { BranchOffice } from "util/types"
 import { useParams, useNavigate } from "react-router-dom"
 
@@ -35,6 +36,9 @@ export default function BranchOfficeForm(): JSX.Element {
     const navigate = useNavigate()
 
 
+    function showFormData() {
+        console.log({formValues: form.getFieldsValue()})
+    }
     useEffect(() => {
         //loadBusinesses()
 
@@ -111,8 +115,25 @@ export default function BranchOfficeForm(): JSX.Element {
             }
 
             // register fire permit
-                
+            if(values.firefighterDocExpirationDate) {
+                const newFireFighterPermit = await permitApi.sendPermit({
+                    branchOfficeId: String(receiveBranchOfficeId),
+                    expirationDate: values.firefighterDocExpirationDate,
+                    type: 'FIRE',
+                    docImages: values.firefighterPermitDoc?.fileList?.map( file => file.originFileObj)
+                })
+            }
+
             // register sanity permit
+            if(values.sanitaryDocExpirationDate) {
+                const newFireFighterPermit = await permitApi.sendPermit({
+                    branchOfficeId: String(receiveBranchOfficeId),
+                    expirationDate: values.sanitaryDocExpirationDate,
+                    type: 'HEALTH',
+                    docImages: values.sanitaryPermitDoc?.fileList?.map( file => file.originFileObj)
+                })
+            }
+            
             
             navigate(`/business/${businessId}`)
         } catch (error) {
@@ -254,6 +275,9 @@ export default function BranchOfficeForm(): JSX.Element {
             </Form.Item>
         </Form>
         
+        <Button onClick={() => showFormData()}>
+            show data
+        </Button>
         </>
     )
 }

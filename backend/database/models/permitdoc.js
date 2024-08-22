@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
       PermitDoc.belongsTo(models.BranchOffice, {
         foreignKey: "branchOfficeId"
       });
+
+      PermitDoc.hasMany(models.DocImage, {
+        foreignKey: 'permitDocId',
+        as: 'docImages'
+      });
     }
   }
   PermitDoc.init({

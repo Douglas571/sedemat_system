@@ -34,6 +34,8 @@ const zonationsRouter = require("./routers/zonations")
 const leaseDocsRouter = require("./routers/leaseDocs")
 const buildingDocsRouter = require("./routers/buildingDocs")
 
+const permitDocsRouter = require("./routers/permitDocs")
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -63,6 +65,8 @@ app.use("/v1/people", peopleRouter)
 app.use("/v1/zonations", zonationsRouter)
 app.use("/v1/lease-docs", leaseDocsRouter)
 app.use("/v1/building-docs", buildingDocsRouter)
+
+app.use("/v1/permit-docs", permitDocsRouter)
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

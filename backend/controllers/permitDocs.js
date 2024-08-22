@@ -3,15 +3,15 @@ const { PermitDoc, DocImage } = require('../database/models');
 // Controller to create a PermitDoc
 exports.createPermitDoc = async (req, res) => {
     try {
-        const { expirationDate, type } = req.body;
+        const { branchOfficeId, expirationDate, type } = req.body;
 
-        if (!(['FIRE', 'HEALTH'].contains(type))) {
+        if (!(['FIRE', 'HEALTH'].includes(type))) {
             return res.status(400).json({ error: {
                 message: "Invalid permit type"
             } });
         }
-
-        const permitDoc = await PermitDoc.create({ expirationDate, type });
+        
+        const permitDoc = await PermitDoc.create({ branchOfficeId, expirationDate, type });
 
         const docImages = [];
 
@@ -20,7 +20,7 @@ exports.createPermitDoc = async (req, res) => {
             req.files.forEach((file, index) => {
                 const imageUrl = `/uploads/permit-docs/${file.filename}`;
                 docImages.push({
-                    PermitDocId: permitDoc.id,
+                    permitDocId: permitDoc.id,
                     pageNumber: index + 1,
                     url: imageUrl,
                 });
@@ -33,7 +33,8 @@ exports.createPermitDoc = async (req, res) => {
         // Include the images in the response
         permitDoc.dataValues.docImages = docImages;
 
-        res.status(201).json(PermitDoc);
+
+        res.status(201).json(permitDoc);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to create PermitDoc' });

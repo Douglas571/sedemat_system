@@ -398,7 +398,7 @@ function BusinessViewDetails(): JSX.Element {
                                         Zonificación
                                     </Title>
                                     {
-                                        office.zonations[office.zonations.length - 1] 
+                                        (office.zonations.lenght > 0 && office.zonations[office.zonations.length - 1] )
                                         ? (
                                             <Paragraph>
                                                 {office.zonations[office.zonations.length - 1].docImages.map( image => {

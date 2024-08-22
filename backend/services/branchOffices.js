@@ -4,7 +4,8 @@ const {BranchOffice,
     Zonation, 
     DocImages,
     BuildingDoc,
-    LeaseDoc
+    LeaseDoc,
+    PermitDoc
 } = require('../database/models')
 const logger = require('../utils/logger')
 
@@ -53,6 +54,24 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                     model: LeaseDoc,
                     as: "leaseDocs",
                     include: 'docImages'
+                },
+                {
+                    model: PermitDoc,
+                    as: "fireFighterDocs",
+                    include: 'docImages',
+
+                    where: {
+                        type: 'FIRE'
+                    }
+                },
+                {
+                    model: PermitDoc,
+                    as: "healthPermitDocs",
+                    include: 'docImages',
+
+                    where: {
+                        type: 'HEALTH'
+                    }
                 }
             ]
         });
