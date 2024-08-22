@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {Zonation, LeaseDoc, BuildingDoc} = models
+      const {Zonation, LeaseDoc, BuildingDoc, PermitDoc} = models
       DocImage.belongsTo(Zonation, {
         foreignKey: "zonationId",
         as: "zonation"
@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       DocImage.belongsTo(BuildingDoc, {
         foreignKey: "buildingDocId",
         as: 'buildingDoc'
+      });
+
+      DocImage.belongsTo(PermitDoc, {
+        foreignKey: 'permitDocId',
+        as: 'permitDoc'
       });
     }
   }
@@ -61,7 +66,17 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
-    }
+    },
+
+    permitDocId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Permissions',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
   }, {
     sequelize,
     modelName: 'DocImage',

@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+const permitdoc = require('./permitdoc');
 module.exports = (sequelize, DataTypes) => {
   class BranchOffice extends Model {
     /**
@@ -37,6 +38,15 @@ module.exports = (sequelize, DataTypes) => {
         as: "leaseDocs"
       })
 
+      BranchOffice.hasMany(models.PermitDoc, {
+        foreignKey: "branchOfficeId",
+        as: "fireFighterDocs"
+      })
+
+      BranchOffice.hasMany(models.PermitDoc, {
+        foreignKey: "branchOfficeId",
+        as: "healthPermitDocs"
+      })
     }
   }
   BranchOffice.init({
