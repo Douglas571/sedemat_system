@@ -35,7 +35,11 @@ function App(): JSX.Element {
 						<Route path='payments/new' element={<NewPaymentForm />} />
 
 						<Route path='business' element={<BusinessView />} />
-						<Route path='business/new' element={<BusinessNew />} />
+
+						<Route path='business/new' 
+							element={<NewBusinessForm />} 
+						/>
+
 						<Route
 							path='business/edit/:businessId'
 							element={<NewBusinessForm />}
@@ -44,6 +48,18 @@ function App(): JSX.Element {
 							path='business/:businessId'
 							element={<BusinessViewDetails />}
 						/>
+
+						<Route
+							path='businesses/:businessId/branch-offices/new'
+							element={<BranchOfficeEdit />}
+						/>
+
+						<Route
+							path='businesses/:businessId/branch-offices/:branchOfficeId/edit'
+							element={<BranchOfficeEdit />}
+						/>
+
+
 						<Route
 							path='business/:businessId/branch-office/:branchOfficeId/license/new'
 							element={<BranchOfficeLicenseNew />}
@@ -65,31 +81,7 @@ function App(): JSX.Element {
 							path='contacts/:id/edit'
 							element={<ContactEdit/>}
 						/>
-
-						<Route
-							path='t/new'
-							element={<NewBusinessForm />}
-						/>
-
-						<Route
-							path='t/edit/:businessId'
-							element={<NewBusinessForm />}
-						/>
-
-						<Route
-							path='businesses/:businessId/branch-offices/new'
-							element={<BranchOfficeEdit />}
-						/>
-
-						<Route
-							path='businesses/:businessId/branch-offices/:branchOfficeId/edit'
-							element={<BranchOfficeEdit />}
-						/>
-
 						
-
-						
-
 
 						{/* Using path="*"" means "match anything", so this route
 						acts like a catch-all for URLs that we don't have explicit

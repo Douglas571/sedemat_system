@@ -41,15 +41,33 @@ exports.createBusiness = async (businessData) => {
 };
 // Update a business
 exports.updateBusiness = async (id, businessData) => {
-    const business = await Business.findByPk(id);
-    logger.info({message: "businessService.updateBusiness", businessId: id, businessData})
+    try {
+        const business = await Business.findByPk(id);
+        logger.info({message: "businessService.updateBusiness", businessId: id, businessData})
 
-    if (!business) {
-        throw new Error('Business not found');
+        if (!business) {
+            throw new Error('Business not found');
+        }
+
+        let updatedBusiness = await business.update(businessData);
+        return updatedBusiness
+    } catch (error) {
+        console.log({error})
+
+        let msg = "Hubo un error";
+        if (error.name == "SequelizeUniqueConstraintError"){
+            // console.log({gotanerror: error})
+
+            console.log({ keys: error.fields})
+            if (error.fields.hasOwnProperty("businessName")) {
+                console.log("Razón social ya registrada")
+                msg = "Razón social ya registrada."
+            }
+            
+        }
+
+        throw new Error(msg)
     }
-
-    let updatedBusiness = await business.update(businessData);
-    return updatedBusiness
 };
 
 // Delete a business

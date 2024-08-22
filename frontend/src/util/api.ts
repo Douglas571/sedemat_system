@@ -151,12 +151,14 @@ export async function updateBusinessData(id: number, business: Business) {
 
     try {
         let response = await fetch(url, requestOptions);
+        let data = await response.json()
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error.msg || 'Failed to post business data');
+            const error = data.error;
+            console.log({error})
+            throw new Error(error?.message || 'Failed to post business data');
         }
 
-        let updatedBusiness = await response.json()
+        let updatedBusiness = data
         console.log('Business data updated successfully');
         // Optionally handle response data here
 
@@ -166,6 +168,8 @@ export async function updateBusinessData(id: number, business: Business) {
     } catch (error) {
         console.error('Error posting business data:', error.message);
         // Handle error state in your application
+
+        throw error
     }
 }
 

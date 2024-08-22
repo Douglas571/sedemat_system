@@ -89,7 +89,16 @@ router.put('/:id', async (req, res) => {
         res.json(updatedBusiness);
 
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.log({error})
+        if (error.message == "Razón social ya registrada."){
+            res.status(400).json({ error: {
+                message: error.message
+            }})
+
+        } else {
+            res.status(500).json({ error: "We have some problems" });
+        }
+        
     }
 });
 
