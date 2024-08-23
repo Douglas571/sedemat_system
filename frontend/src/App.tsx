@@ -78,7 +78,7 @@ function App(): JSX.Element {
 							element={<ContactEdit/>}
 						/>
 						<Route 
-							path='contacts/:id/edit'
+							path='contacts/:contactId/edit'
 							element={<ContactEdit/>}
 						/>
 						

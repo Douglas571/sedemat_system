@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { FormProps, Modal, Space } from 'antd'
-import { Form, Input, Button, message, Typography, Select, Flex, Image} from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
-import type {Business, BranchOffice, License, EconomicActivity} from '../util/api'
+import type { Business, BranchOffice, License, EconomicActivity } from '../util/api'
 
 import * as api from '../util/api'
 import { TypeIcon } from 'antd/es/message/PurePanel';
@@ -50,7 +50,7 @@ function BusinessViewDetails(): JSX.Element {
                 console.log("La empresa no existe o fue eliminada")
             }
         }
-    
+
         navigate('/business')
     };
 
@@ -58,7 +58,7 @@ function BusinessViewDetails(): JSX.Element {
         setIsModalOpen(false);
     };
 
-    useEffect(() => console.log({business}), [business])
+    useEffect(() => console.log({ business }), [business])
 
     async function loadBusinessData() {
         // get the business data 
@@ -67,8 +67,8 @@ function BusinessViewDetails(): JSX.Element {
             let fetchedBusiness = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
             // TODO: Add case when there is not branch office
-            console.log({branchOffices})
-            setBusiness({...fetchedBusiness, branchOffices})       
+            console.log({ branchOffices })
+            setBusiness({ ...fetchedBusiness, branchOffices })
         }
     }
 
@@ -78,7 +78,7 @@ function BusinessViewDetails(): JSX.Element {
         }
         const currentDate = new Date();
         const expirationDate = new Date(license.expirationDate);
-    
+
         return expirationDate >= currentDate;
     }
 
@@ -115,8 +115,8 @@ function BusinessViewDetails(): JSX.Element {
         if (!business) {
             return communicationPreference
         }
-        
-    
+
+
         // Set preferred contact
         switch (business.preferredContact) {
             case "OWNER":
@@ -131,7 +131,7 @@ function BusinessViewDetails(): JSX.Element {
             default:
                 communicationPreference.preferredContact = "Desconocido";
         }
-    
+
         // Set preferred channel
         switch (business.preferredChannel) {
             case "PHONE":
@@ -166,7 +166,7 @@ function BusinessViewDetails(): JSX.Element {
             default:
                 communicationPreference.preferredChannel = "Desconocido";
         }
-    
+
         // Set sendCalculosTo
         switch (business.sendCalculosTo) {
             case "PHONE":
@@ -199,12 +199,12 @@ function BusinessViewDetails(): JSX.Element {
             default:
                 communicationPreference.sendCalculosTo = "Desconocido";
         }
-    
+
         return communicationPreference;
     }
-    
-    function getPreferredChannelName(): String{
-        const mapper:  { [key: string]: string } = {
+
+    function getPreferredChannelName(): String {
+        const mapper: { [key: string]: string } = {
             "WHATSAPP": "Whatsapp",
             "PHONE": "Teléfono",
             "EMAIL": "Correo"
@@ -229,7 +229,7 @@ function BusinessViewDetails(): JSX.Element {
 
             loadBusinessData()
         } catch (error) {
-            console.log({error})
+            console.log({ error })
         }
 
     }
@@ -243,11 +243,11 @@ function BusinessViewDetails(): JSX.Element {
         <div>
             <Typography>
                 <Title>
-                    {business?.businessName || "Cargando..."} 
-                    <Button 
+                    {business?.businessName || "Cargando..."}
+                    <Button
                         data-test="business-edit-button"
-                        onClick={() => navigate(`/business/edit/${businessId}`)}>Editar</Button> 
-                    <Button 
+                        onClick={() => navigate(`/business/edit/${businessId}`)}>Editar</Button>
+                    <Button
                         data-test="business-delete-button"
                         onClick={() => business.id && showModal()}>Eliminar</Button>
                 </Title>
@@ -255,18 +255,18 @@ function BusinessViewDetails(): JSX.Element {
                     Detalles
                 </Title>
                 <Paragraph>
-                    RIF: {business?.dni}<br/>
-                    Fecha de constitución: {business?.companyIncorporationDate?.toString()}<br/>
-                    Fecha de vencimiento: {business?.companyExpirationDate?.toString()}<br/>
+                    RIF: {business?.dni}<br />
+                    Fecha de constitución: {business?.companyIncorporationDate?.toString()}<br />
+                    Fecha de vencimiento: {business?.companyExpirationDate?.toString()}<br />
                     Fecha de vencimiento de la junta directiva: {business?.directorsBoardExpirationDate?.toString()}
                 </Paragraph>
                 <Title level={5}>
                     Actividad Económica
                 </Title>
                 <Paragraph>
-                    Codigo: {business?.economicActivity.code}<br/>
-                    Ramo: {business?.economicActivity?.title} <br/>
-                    Alicuota: {business?.economicActivity?.alicuota}% <br/>
+                    Codigo: {business?.economicActivity.code}<br />
+                    Ramo: {business?.economicActivity?.title} <br />
+                    Alicuota: {business?.economicActivity?.alicuota}% <br />
                     Mínimo Tributario: {business?.economicActivity?.alicuota} TCMMV-BCV
                 </Paragraph>
 
@@ -278,70 +278,31 @@ function BusinessViewDetails(): JSX.Element {
                 </Title>
                 <Paragraph>
                     {/* {JSON.stringify(business, null, 2)} */}
-                    Contacto: <span data-test="communication-options-preferred-contact">{getCommunicationPreference().preferredContact}</span><br/>
-                    Comunicados al: <span data-test="communication-options-preferred-channel">{`${getCommunicationPreference().preferredChannel} (${getPreferredChannelName()})`}</span><br/>
-                    Enviar Cálculos al: <span data-test="communication-options-send-calculos">{getCommunicationPreference().sendCalculosTo}</span><br/>
-                    Recordar: <span data-test="communication-options-reminder-interval">{business.reminderInterval && reminderIntervalMap[business.reminderInterval]}</span><br/>
+                    Contacto: <span data-test="communication-options-preferred-contact">{getCommunicationPreference().preferredContact}</span><br />
+                    Comunicados al: <span data-test="communication-options-preferred-channel">{`${getCommunicationPreference().preferredChannel} (${getPreferredChannelName()})`}</span><br />
+                    Enviar Cálculos al: <span data-test="communication-options-send-calculos">{getCommunicationPreference().sendCalculosTo}</span><br />
+                    Recordar: <span data-test="communication-options-reminder-interval">{business.reminderInterval && reminderIntervalMap[business.reminderInterval]}</span><br />
                     {/* {JSON.stringify(getCommunicationPreference(), null, 2)} */}
                 </Paragraph>
 
 
-                <Title level={4}>
-                    Propietario
-                </Title>
-                { business.owner ? (
-                    <Flex> 
-                        <Image
-                            data-test="business-details-owner-pfp"
-                            width={250}
-                            src={completeUrl(business?.owner?.profilePictureUrl)}
-                        />
-                        <Paragraph>
-                            Nombres y Apellidos: {business.owner.firstName + " " + business.owner.lastName}<br/>
-                            Cédula: {business.owner.dni}<br/>
-                            Phone: {business.owner.phone}<br/>
-                            Whatsapp: {business.owner.whatsapp}<br/>
-                            Correo: {business.owner.email}<br/>
-                        </Paragraph>
-                    </Flex>
-                )
-                : (
-                    <Paragraph>
-                        Sin datos
-                    </Paragraph>
+                <ContactDisplay
+                    contact={business.owner}
+                    role={"Propietario"}
+                />
+
+                {business.accountant && (
+                    <ContactDisplay
+                        contact={business.accountant}
+                        role={"Contador"}
+                    />
                 )}
 
-                
-
-                { business.accountant && (
-                    <>
-                        <Title level={4}>
-                            Contador
-                        </Title>
-                        <Paragraph>
-                            Nombres y Apellidos: {business.accountant.firstName + " " + business.accountant.lastName}<br/>
-                            Cédula: {business.accountant.dni}<br/>
-                            Phone: {business.accountant.phone}<br/>
-                            Whatsapp: {business.accountant.whatsapp}<br/>
-                            Correo: {business.accountant.email}<br/>
-                        </Paragraph>
-                    </>
-                )}
-
-                
-                { business.administrator && (
-                    <>
-                        <Title level={4}>
-                            Administrador
-                        </Title>
-                        <Paragraph>
-                            Nombres y Apellidos: {business.administrator.firstName + " " + business.administrator.lastName}<br/>
-                            Cédula: {business.administrator.dni}<br/>
-                            Phone: {business.administrator.phone}<br/>
-                            Whatsapp: {business.administrator.whatsapp}<br/>
-                            Correo: {business.administrator.email}<br/>
-                        </Paragraph>
-                    </>
+                {business.administrator && (
+                    <ContactDisplay
+                        contact={business.administrator}
+                        role={"Administrador"}
+                    />
                 )}
 
                 <Flex gap="large" align='center'>
@@ -352,167 +313,186 @@ function BusinessViewDetails(): JSX.Element {
                         Nuevo
                     </Button>
                 </Flex>
-                
-                <Flex vertical gap="large">
-                {
-                    business?.branchOffices.map( (office, index) => {
-                        const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
-                        // console.log({office})
-                        // console.log({lastEconomicLicense})
 
-                        return (
-                            <Flex key={office.id} vertical>
-                                
-                                <Flex gap={"small"} align='center'>
-                                    <Title level={4}>
-                                        Sede #{index + 1}
-                                        
-                                    </Title>
-                                    <Button onClick={() => handleDeleteBranchOffice(office.id)}>Eliminar</Button>
-                                    <Button onClick={() => handleEditBranchOffice(office.id)}>Editar</Button>
-                                </Flex>
-                
-                                
-                                <Paragraph>
-                                    {/* Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}<br/>
+                <Flex vertical gap="large">
+                    {
+                        business?.branchOffices.map((office, index) => {
+                            const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
+                            // console.log({office})
+                            // console.log({lastEconomicLicense})
+
+                            // get the last fire fighter permit
+                            let firefighterPermit
+                            if (office.fireFighterDocs.length > 0) {
+                                const l = office.fireFighterDocs.length
+                                firefighterPermit = office.fireFighterDocs[l - 1]
+                            }
+
+                            // get the last fire fighter permit
+                            let healthPermit
+                            if (office.healthPermitDocs.length > 0) {
+                                const l = office.healthPermitDocs.length
+                                healthPermit = office.healthPermitDocs[l - 1]
+                            }
+
+                            return (
+                                <Flex key={office.id} vertical>
+
+                                    <Flex gap={"small"} align='center'>
+                                        <Title level={4}>
+                                            Sede #{index + 1}
+
+                                        </Title>
+                                        <Button onClick={() => handleDeleteBranchOffice(office.id)}>Eliminar</Button>
+                                        <Button onClick={() => handleEditBranchOffice(office.id)}>Editar</Button>
+                                    </Flex>
+
+
+                                    <Paragraph>
+                                        {/* Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}<br/>
                                     Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}<br/>
                                     Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}<br/> */}
-                                    Zona: {office.zone}<br/>
-                                    Dirección: {office.address}<br/>
-                                    Dimensiones: {office.dimensions} m2<br/>
-                                    Tipo de terreno: {office.type}<br/>
-                                    Procedencia: {office.isRented 
-                                        ? (
-                                            <>
-                                                Alquilado
-                                            </>
-                                        )
-                                        : (
-                                            <>
-                                                Propio
-                                            </>
-                                        )}<br/>
+                                        Zona: {office.zone}<br />
+                                        Dirección: {office.address}<br />
+                                        Dimensiones: {office.dimensions} m2<br />
+                                        Tipo de terreno: {office.type}<br />
+                                        Procedencia: {office.isRented
+                                            ? (
+                                                <>
+                                                    Alquilado
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    Propio
+                                                </>
+                                            )}<br />
 
 
-                                    <Title level={5}>
-                                        Zonificación
-                                    </Title>
-                                    {
-                                        (office.zonations.lenght > 0 && office.zonations[office.zonations.length - 1] )
-                                        ? (
-                                            <Paragraph>
-                                                {office.zonations[office.zonations.length - 1].docImages.map( image => {
-                                                    return (
-                                                    <p key={image.id}>
-                                                        <a
-                                                            target="_blank"
-                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br/>
-                                                    </p>)
-                                                })}
+                                        <Title level={5}>
+                                            Zonificación
+                                        </Title>
+                                        {
+                                            (office.zonations.lenght > 0 && office.zonations[office.zonations.length - 1])
+                                                ? (
+                                                    <Paragraph>
+                                                        {office.zonations[office.zonations.length - 1].docImages.map(image => {
+                                                            return (
+                                                                <p key={image.id}>
+                                                                    <a
+                                                                        target="_blank"
+                                                                        href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
+                                                                </p>)
+                                                        })}
 
-                                            </Paragraph>
-                                        )
-                                        : (
-                                            <Paragraph>
-                                                No registrada
-                                            </Paragraph>
-                                        )
-                                    }
+                                                    </Paragraph>
+                                                )
+                                                : (
+                                                    <Paragraph>
+                                                        No registrada
+                                                    </Paragraph>
+                                                )
+                                        }
 
-                                    { office.isRented 
-                                    ? (
-                                        <>
-                                            <Title level={5}>
-                                                Contrato de Arrendamiento
-                                            </Title>
-                                            <Paragraph>
-                                                {
-                                                    office?.leaseDocs[office?.leaseDocs?.length - 1]
-                                                    ? (
-                                                        <p>
-                                                            Expira: {new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()}
-                                                            {
-                                                                office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map( image => {
-                                                                    return (
-                                                                        <p key={image.id}>
-                                                                            <a  
-                                                                            
-                                                                            target="_blank"
-                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
-                                                                            </a>
-                                                                        </p>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </p>
-                                                    )
-                                                    : (
-                                                        <>No registrado</>
-                                                    )
-                                                }
-                                            </Paragraph>
-                                        </>
-                                    )
-                                    : (
-                                        <>
-                                            <Title level={5}>
-                                                Contrato de propiedad
-                                            </Title>
-                                            <Paragraph>
-                                                {
-                                                    office?.buildingDocs[office?.buildingDocs?.length - 1]
-                                                    ? (
-                                                        <p>
-                                                            Expira: {new Date(office.buildingDocs[office?.buildingDocs?.length - 1]?.expirationDate).toLocaleDateString()}
-                                                            {
-                                                                office.buildingDocs[office?.buildingDocs?.length - 1]?.docImages.map( image => {
-                                                                    return (
-                                                                        <p key={image.id}>
-                                                                            <a  
-                                                                            
-                                                                            target="_blank"
-                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
-                                                                            </a>
-                                                                        </p>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </p>
-                                                    )
-                                                    : (
-                                                        <>No registrado</>
-                                                    )
-                                                }
-                                            </Paragraph>
-                                        </>
-                                    )    
-                                
-                                }
+                                        {office.isRented
+                                            ? (
+                                                <>
+                                                    <Title level={5}>
+                                                        Contrato de Arrendamiento
+                                                    </Title>
+                                                    <Paragraph>
+                                                        {
+                                                            office?.leaseDocs[office?.leaseDocs?.length - 1]
+                                                                ? (
+                                                                    <p>
+                                                                        Expira: {new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()}
+                                                                        {
+                                                                            office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map(image => {
+                                                                                return (
+                                                                                    <p key={image.id}>
+                                                                                        <a
 
-                                    <Title level={5}>
-                                        Licencia
-                                    </Title>
-                                    {
-                                        lastEconomicLicense?.issuedDate
-                                        ? (
-                                            <>
-                                                Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}<br/>
-                                                Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}
-                                            </>
-                                        ):
-                                        (
-                                            <>
-                                                Sin licencia
-                                            </>
-                                        )
-                                        
-                                    }
-                                    
-                                </Paragraph>
-                            </Flex>
-                        )
-                    })
-                }
+                                                                                            target="_blank"
+                                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                                                                        </a>
+                                                                                    </p>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </p>
+                                                                )
+                                                                : (
+                                                                    <>No registrado</>
+                                                                )
+                                                        }
+                                                    </Paragraph>
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    <Title level={5}>
+                                                        Contrato de propiedad
+                                                    </Title>
+                                                    <Paragraph>
+                                                        {
+                                                            office?.buildingDocs[office?.buildingDocs?.length - 1]
+                                                                ? (
+                                                                    <p>
+                                                                        Expira: {new Date(office.buildingDocs[office?.buildingDocs?.length - 1]?.expirationDate).toLocaleDateString()}
+                                                                        {
+                                                                            office.buildingDocs[office?.buildingDocs?.length - 1]?.docImages.map(image => {
+                                                                                return (
+                                                                                    <p key={image.id}>
+                                                                                        <a
+
+                                                                                            target="_blank"
+                                                                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                                                                        </a>
+                                                                                    </p>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </p>
+                                                                )
+                                                                : (
+                                                                    <>No registrado</>
+                                                                )
+                                                        }
+                                                    </Paragraph>
+                                                </>
+                                            )
+
+                                        }
+
+                                        <Title level={5}>
+                                            Licencia
+                                        </Title>
+                                        {
+                                            lastEconomicLicense?.issuedDate
+                                                ? (
+                                                    <>
+                                                        Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}<br />
+                                                        Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}
+                                                    </>
+                                                ) :
+                                                (
+                                                    <>
+                                                        Sin licencia
+                                                    </>
+                                                )
+
+                                        }
+
+
+                                        <Permits
+                                            firefighterPermit={firefighterPermit}
+                                            healthPermit={healthPermit}
+                                        />
+                                    </Paragraph>
+                                </Flex>
+                            )
+                        })
+                    }
                 </Flex>
 
 
@@ -522,10 +502,10 @@ function BusinessViewDetails(): JSX.Element {
             </Typography>
 
 
-            <Modal title="Eliminar Contribuyente" 
+            <Modal title="Eliminar Contribuyente"
                 data-test='business-delete-modal'
-                open={isModalOpen} 
-                onOk={handleDeleteBusiness} 
+                open={isModalOpen}
+                onOk={handleDeleteBusiness}
                 onCancel={handleCancel}>
                 <p>¿Seguro que deseas eliminar este contribuyente?</p>
             </Modal>
@@ -534,3 +514,88 @@ function BusinessViewDetails(): JSX.Element {
 }
 
 export default BusinessViewDetails
+
+
+function ContactDisplay({ contact, role }): JSX.Element {
+    return (
+        <>
+            <Title level={4}>
+                {role}
+            </Title>
+            {contact?.firstName
+                ? (
+                    <Flex gap={'middle'}>
+                        <Image
+                            data-test="business-details-owner-pfp"
+                            width={150}
+                            src={completeUrl(contact.profilePictureUrl)}
+                        />
+                        <Paragraph>
+                            Nombres y Apellidos: {contact.firstName + " " + contact.lastName}<br />
+                            Cédula: {contact.dni}<br />
+                            Phone: {contact.phone}<br />
+                            Whatsapp: {contact.whatsapp}<br />
+                            Correo: {contact.email}<br />
+                        </Paragraph>
+                    </Flex>
+                ) : (
+                    <Paragraph>
+                        Sin datos
+                    </Paragraph>
+                )}
+        </>
+    )
+}
+
+function Permits({ firefighterPermit, healthPermit }): JSX.Element {
+
+    console.log({ firefighterPermit, healthPermit })
+
+    const firefighterPermitExpirationDate = new Date(firefighterPermit.expirationDate)
+    const healthPermitExpirationDate = new Date(healthPermit.expirationDate)
+
+
+    return (
+        <>
+            <Title level={5}>
+                Permiso de Bomberos
+            </Title>
+            <Paragraph>
+                Expira: {firefighterPermitExpirationDate.toLocaleDateString()}
+
+                {
+                    firefighterPermit.docImages?.map(image => {
+                        return (
+                            <p key={image.id}>
+                                <a
+                                    target="_blank"
+                                    href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                </a><br/>
+                            </p>
+                        )
+                    })
+                }
+            </Paragraph>
+
+            <Title level={5}>
+                Permiso de Sanidad
+            </Title>
+            <Paragraph>
+                Expira: {healthPermitExpirationDate.toLocaleDateString()}
+
+                {
+                    healthPermit.docImages?.map(image => {
+                        return (
+                            <p key={image.id}>
+                                <a
+                                    target="_blank"
+                                    href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                                </a><br/>
+                            </p>
+                        )
+                    })
+                }
+            </Paragraph>
+        </>
+    )
+}

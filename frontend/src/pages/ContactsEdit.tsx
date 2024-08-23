@@ -2,42 +2,118 @@ import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormPr
 import { PlusOutlined } from '@ant-design/icons';
 
 import {useEffect, useState} from 'react'
-import { useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Person } from 'util/api'
 import * as api from 'util/api'
-import { ContactForm, getBase64 } from './BusinessShared';
+import { ContactForm, getBase64, urlToFile } from './BusinessShared';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 export default function ContactsView(): JSX.Element {
-    const {id} = useParams()
+    const {contactId} = useParams()
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     const [form] = Form.useForm()
+    const navigate = useNavigate()
+
+
+    const isEditing = contactId ? true : false
 
     type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
+
+    // METHODS
+
+    useEffect(() => {
+        // load contact data if contactId exists
+        if (isEditing) {
+            loadContactData()
+        }
+    }, [])
+
+    async function loadContactData() {
+
+        // get the contact 
+        const contact = await api.getPersonById(Number(contactId))
+
+        // get url of pfp
+        const pfpUrl: string = contact.profilePictureUrl || ''
+        
+        if (pfpUrl) {
+            // convert to file
+            const file = await urlToFile(pfpUrl, pfpUrl.split('/')[-1], 'image/png')
+
+            // set file into file list
+            setFileList([
+                {
+                    uid: String(Date.now()),
+                    name: file.name,
+                    status: 'done',
+                    url: pfpUrl,
+                    originFileObj: file,
+                }
+            ])
+        }
+
+        // set the data into the form
+        form.setFieldsValue({...contact})
+    }
+
     const onFinish: FormProps<ContactForm>['onFinish'] = async (values: ContactForm) => {
-        // const formData = form.getFieldsValue() // i don't know why this is not working
-
         console.log({values})
+        console.log({fileList})
 
-        const pfpUrl = await uploadPicture()
-        console.log({pfpUrl})
-        const registeredPerson = await api.registerPerson({...values, profilePictureUrl: pfpUrl});
-        console.log({registeredPerson})
+        
+        
+        try {
+            // url to set in update or register new
+            let pfpUrl: string
 
+            // if there is not url in 1th image object, upload image and update pfp
+            if (fileList.length > 0 && fileList[0].url) {
+                pfpUrl = fileList[0].url
+            } else {
+                // if not, create new one
+                pfpUrl = await uploadPicture()
+            }
+
+
+            let newPersonData: Person
+            // if editing, update person 
+            if (isEditing) {
+                newPersonData = await api.updatePerson(Number(contactId), 
+                {
+                    ...values, 
+                    profilePictureUrl: pfpUrl
+                })
+            } else {
+                // if not, create a new contact
+                newPersonData = await api.registerPerson(
+                    {
+                        ...values, 
+                        profilePictureUrl: pfpUrl
+                    });
+
+            }
+
+            console.log({newPersonData})
+
+            navigate(`/contacts/${newPersonData.id}`)
+        } catch (error) {
+            console.log({error})
+
+            message.error(error.message);
+        }
     }
 
     async function uploadPicture (): Promise<string>{
         if (fileList.length === 0) {
-            message.error('No file selected');
-            return '';
+            throw new Error("Seleccione un archivo para foto de contacto");
         }
     
         const formData = new FormData();
