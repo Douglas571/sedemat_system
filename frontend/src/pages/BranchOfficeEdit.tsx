@@ -63,7 +63,7 @@ export default function BranchOfficeForm(): JSX.Element {
             //const businessId: number = getBusinessId(values.business)
 
             const newOffice: BranchOffice= {
-                businessId: businessId,
+                businessId: Number(businessId),
                 address: values.address,
                 type: values.type,
                 dimensions: values.dimensions,
@@ -76,6 +76,8 @@ export default function BranchOfficeForm(): JSX.Element {
             } else {
                 newOfficeData = await api.registerBranchOffice(newOffice)
             }
+
+            console.log({newOfficeData})
 
             const {
                 id: receiveBranchOfficeId

@@ -144,9 +144,9 @@ function BusinessViewDetails(): JSX.Element {
                 }
                 break;
             case "WHATSAPP":
-                console.log("NOTA: El contacto quiere whatsapp")
+                // console.log("NOTA: El contacto quiere whatsapp")
                 if (business.preferredContact === "OWNER") {
-                    console.log("NOTA: El contacto ES PROPIETARIO")
+                    // console.log("NOTA: El contacto ES PROPIETARIO")
                     communicationPreference.preferredChannel = business.owner.whatsapp;
                 } else if (business.preferredContact === "ACCOUNTANT") {
                     communicationPreference.preferredChannel = business?.accountant?.whatsapp;
@@ -335,6 +335,7 @@ function BusinessViewDetails(): JSX.Element {
 }
 
 function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Element {
+    console.log({branchOfficesInRender: branchOffices})
     return (
         <>
             <Flex gap="large" align='center'>
