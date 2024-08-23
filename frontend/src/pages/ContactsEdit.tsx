@@ -46,18 +46,22 @@ export default function ContactsView(): JSX.Element {
         
         if (pfpUrl) {
             // convert to file
-            const file = await urlToFile(pfpUrl, pfpUrl.split('/')[-1], 'image/png')
+            try {
+                const file = await urlToFile(pfpUrl, pfpUrl.split('/')[-1], 'image/png')
 
-            // set file into file list
-            setFileList([
-                {
-                    uid: String(Date.now()),
-                    name: file.name,
-                    status: 'done',
-                    url: pfpUrl,
-                    originFileObj: file,
-                }
-            ])
+                // set file into file list
+                setFileList([
+                    {
+                        uid: String(Date.now()),
+                        name: file.name,
+                        status: 'done',
+                        url: pfpUrl,
+                        originFileObj: file,
+                    }
+                ])
+            } catch (error) {
+                console.log({error})
+            }
         }
 
         // set the data into the form
