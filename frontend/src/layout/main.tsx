@@ -71,15 +71,15 @@ const items: MenuProp['items'] = [
 		label: 'Registro'
 	},
 	{
+		key: '/contacts',
+		icon: '',
+		label: 'Contactos'
+	},
+	{
 		key: '/collection',
 		icon: '',
 		label: 'Recaudación'
 	},
-	{
-		key: '/contacts',
-		icon: '',
-		label: 'Contactos'
-	}
 ]
 
 const App: React.FC = () => {
