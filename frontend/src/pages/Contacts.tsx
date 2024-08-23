@@ -80,6 +80,15 @@ export default function Contacts(): JSX.Element {
             sorter: (a: Person, b: Person) => a.firstName?.localeCompare(b.firstName),
         },
         {
+            title: 'Cédula',
+            dataIndex: 'dni',
+            key: 'dni',
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
+            sorter: (a: Person, b: Person) => a.dni?.localeCompare(b.dni),
+        },
+        {
             title: 'Teléfono',
             dataIndex: 'phone',
             key: 'phone',
@@ -87,15 +96,6 @@ export default function Contacts(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
             sorter: (a: Person, b: Person) => a.phone?.localeCompare(b.phone),
-        },
-        {
-            title: 'WhatsApp',
-            dataIndex: 'whatsapp',
-            key: 'whatsapp',
-            showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
-            // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
-            sorter: (a: Person, b: Person) => a.whatsapp?.localeCompare(b.whatsapp),
         },
         {
             title: 'Correo',
