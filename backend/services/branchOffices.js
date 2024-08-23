@@ -59,22 +59,15 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                     model: PermitDoc,
                     as: "fireFighterDocs",
                     include: 'docImages',
-
-                    where: {
-                        type: 'FIRE'
-                    }
                 },
                 {
                     model: PermitDoc,
                     as: "healthPermitDocs",
                     include: 'docImages',
-
-                    where: {
-                        type: 'HEALTH'
-                    }
                 }
             ]
         });
+
         return branchOffices;
     } catch (error) {
         console.log({error})

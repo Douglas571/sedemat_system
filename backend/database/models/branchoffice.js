@@ -40,12 +40,20 @@ module.exports = (sequelize, DataTypes) => {
 
       BranchOffice.hasMany(models.PermitDoc, {
         foreignKey: "branchOfficeId",
-        as: "fireFighterDocs"
+        as: "fireFighterDocs",
+
+        scope: {
+          type: 'FIRE'
+        }
       })
 
       BranchOffice.hasMany(models.PermitDoc, {
         foreignKey: "branchOfficeId",
-        as: "healthPermitDocs"
+        as: "healthPermitDocs",
+
+        scope: {
+          type: 'HEALTH'
+        }
       })
     }
   }
