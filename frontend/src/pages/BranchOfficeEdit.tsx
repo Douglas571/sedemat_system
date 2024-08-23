@@ -204,8 +204,8 @@ export default function BranchOfficeForm(): JSX.Element {
             form={form}
             onFinish={onFinish}
         >
-            <Typography.Title level={3}>
-                Sucursales
+            <Typography.Title level={2}>
+                Nueva Sucursal
             </Typography.Title>
 
             {/* <Form.Item 
@@ -277,9 +277,9 @@ export default function BranchOfficeForm(): JSX.Element {
             </Form.Item>
         </Form>
         
-        <Button onClick={() => showFormData()}>
+        {/* <Button onClick={() => showFormData()}>
             show data
-        </Button>
+        </Button> */}
         </>
     )
 }
@@ -308,56 +308,65 @@ function OriginUploadControls({isRented}): JSX.Element {
         <>
             {/* Lease Doc */}
             <Flex 
-                gap='middle'
                 style={{ display: isRented ? "" : "none"}}
+                vertical
             >
-                <Form.Item 
-                    name='leaseDocExpirationDate'
-                    label="Fecha de Vencimiento"
-                >
-                    <DatePicker 
-                        data-test="branch-office-leaseDocExpirationDate-input"
-                    />
-                </Form.Item>
-                <Form.Item 
-                    name='leaseDoc'
-                    label="Contrato de Arrendamiento"
-                    
-                >
-                    <Upload key="leaseDoc"
-                        {...LeaserDocProps}
+                <Typography.Title level={4}>Contrato de Arrendamiento</Typography.Title>
+                <Flex wrap>
+                    <Form.Item 
+                        name='leaseDocExpirationDate'
+                        label="Fecha de Vencimiento"
+                        style={{ marginRight: "20px" }}
                     >
-                        <Button>Agregar</Button>
-                    </Upload>
+                        <DatePicker 
+                            data-test="branch-office-leaseDocExpirationDate-input"
+                        />
+                    </Form.Item>
+                    <Form.Item 
+                        name='leaseDoc'
+                        // label="Contrato de Arrendamiento"
+                        
+                    >
+                        <Upload key="leaseDoc"
+                            {...LeaserDocProps}
+                        >
+                            <Button>Agregar Contrato de Arrendamiento</Button>
+                        </Upload>
 
-                    
-                </Form.Item>
-                
+                        
+                    </Form.Item>
+                </Flex>
             </Flex>
 
             {/* Building Doc */}
             <Flex 
-                gap='middle'
                 style={{ display: isRented ? "none" : ""}}
+                vertical
             >
-                <Form.Item 
-                    name='buildingDocExpirationDate'
-                    label="Fecha de Vencimiento"
-                >
-                    <DatePicker 
-                        data-test="branch-office-buildingDocExpirationDate-input"
-                    />
-                </Form.Item>
-                <Form.Item 
-                    name='buildingDoc'
-                    label="Inmueble"
-                >
-                    <Upload key="buildingDoc"
-                        {...BuildingDocProps}
+                <Typography.Title level={4}>Inmueble</Typography.Title>
+                <Flex wrap>
+                    <Form.Item 
+                        name='buildingDocExpirationDate'
+                        label="Fecha de Vencimiento"
+                        style={{ marginRight: "20px" }}
+
                     >
-                        <Button>Agregar</Button>
-                    </Upload>
-                </Form.Item>
+                        <DatePicker 
+                            data-test="branch-office-buildingDocExpirationDate-input"
+                        />
+                    </Form.Item>
+                    <Form.Item 
+                        name='buildingDoc'
+                        // label="Inmueble"
+                    >
+                        <Upload key="buildingDoc"
+                            {...BuildingDocProps}
+                        >
+                            <Button>Agregar Documento de Inmueble</Button>
+                        </Upload>
+                    </Form.Item>
+                </Flex>
+                
 
                 
             </Flex>
@@ -412,16 +421,22 @@ function ZonationDocControls(): JSX.Element {
     }
 
     return (
-        <Form.Item 
-            name='zonationDoc' 
-            label="Zonación">
-            <Upload
-                {...ZonificacionDocProps}
+        <Flex wrap vertical>
+            <Typography.Title level={4}>
+                Zonificación
+            </Typography.Title>
+            <Form.Item 
+                name='zonationDoc' 
+                // label="Zonación"
             >
-                
-                <Button>Agregar Zonificación</Button>
-            </Upload>
-        </Form.Item>
+                <Upload
+                    {...ZonificacionDocProps}
+                >
+                    <Button>Agregar Imágenes</Button>
+                </Upload>
+            </Form.Item>
+        </Flex>
+            
     )
 }
 function PermissionsControls(): JSX.Element {
@@ -448,43 +463,61 @@ function PermissionsControls(): JSX.Element {
         <>
         
             {/* Firefighter Permit */}
-            <Flex gap='middle'>
-                <Form.Item 
-                        name='firefighterDocExpirationDate'
-                        label="Fecha de Vencimiento"
+            <Flex vertical>
+                <Typography.Title level={4}>
+                    Permiso de Bomberos
+                </Typography.Title>
+                <Flex wrap>
+                    <Form.Item 
+                            name='firefighterDocExpirationDate'
+                            label="Fecha de Vencimiento"
+                            style={{ marginRight: "20px" }}
+
+                        >
+                            <DatePicker 
+                                data-test="branch-office-leaseDocExpirationDate-input"
+                            />
+                    </Form.Item>
+                    <Form.Item 
+                        // label="Permiso de Bomberos"
+                        name='firefighterPermitDoc'
                     >
-                        <DatePicker 
-                            data-test="branch-office-leaseDocExpirationDate-input"
-                        />
-                </Form.Item>
-                <Form.Item label="Permiso de Bomberos"
-                    name='firefighterPermitDoc'
-                >
-                    <Upload {...FirefighterPermitsUploadProps}>
-                        <Button>Agregar</Button>
-                    </Upload>
-                </Form.Item>
-                
+                        <Upload {...FirefighterPermitsUploadProps}>
+                            <Button>Agregar Imágenes</Button>
+                        </Upload>
+                    </Form.Item>
+                    
+                </Flex>
             </Flex>
+                
             {/* Sanitary Permit */}
-            <Flex gap='middle'>
-                <Form.Item 
-                        name='sanitaryDocExpirationDate'
-                        label="Fecha de Vencimiento"
+            <Flex vertical>
+                <Typography.Title level={4}>
+                    Permiso Sanitario
+                </Typography.Title>
+                <Flex wrap>
+                    <Form.Item 
+                            name='sanitaryDocExpirationDate'
+                            label="Fecha de Vencimiento"
+                            style={{ marginRight: "20px" }}
+
+                        >
+                            <DatePicker 
+                                data-test="branch-office-leaseDocExpirationDate-input"
+                            />
+                    </Form.Item>
+                    <Form.Item 
+                        // label="Permiso Sanitario"
+                        name='sanitaryPermitDoc'
                     >
-                        <DatePicker 
-                            data-test="branch-office-leaseDocExpirationDate-input"
-                        />
-                </Form.Item>
-                <Form.Item label="Permiso Sanitario"
-                    name='sanitaryPermitDoc'
-                >
-                    <Upload {...SanitaryPermitsUploadProps}>
-                        <Button>Agregar</Button>
-                    </Upload>
-                </Form.Item>
-                
+                        <Upload {...SanitaryPermitsUploadProps}>
+                            <Button>Agregar</Button>
+                        </Upload>
+                    </Form.Item>
+                    
+                </Flex>
             </Flex>
+            
         
         
         </>

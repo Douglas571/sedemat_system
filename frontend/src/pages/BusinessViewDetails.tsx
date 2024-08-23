@@ -405,7 +405,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     Zonificación
                                 </Title>
                                 {
-                                    (office.zonations.lenght > 0 && office.zonations[office.zonations.length - 1])
+                                    (office.zonations.length > 0 && office.zonations[office.zonations.length - 1])
                                         ? (
                                             <Paragraph>
                                                 {office.zonations[office.zonations.length - 1].docImages.map(image => {
