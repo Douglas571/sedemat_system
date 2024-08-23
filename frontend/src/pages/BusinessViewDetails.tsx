@@ -409,11 +409,11 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                             <Paragraph>
                                                 {office.zonations[office.zonations.length - 1].docImages.map(image => {
                                                     return (
-                                                        <p key={image.id}>
+                                                        <div key={image.id}>
                                                             <a
                                                                 target="_blank"
                                                                 href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
-                                                        </p>)
+                                                        </div>)
                                                 })}
 
                                             </Paragraph>
@@ -435,22 +435,22 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                                 {
                                                     office?.leaseDocs[office?.leaseDocs?.length - 1]
                                                         ? (
-                                                            <p>
+                                                            <>
                                                                 Expira: {new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()}
                                                                 {
                                                                     office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map(image => {
                                                                         return (
-                                                                            <p key={image.id}>
+                                                                            <div key={image.id}>
                                                                                 <a
 
                                                                                     target="_blank"
                                                                                     href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
                                                                                 </a>
-                                                                            </p>
+                                                                            </div>
                                                                         )
                                                                     })
                                                                 }
-                                                            </p>
+                                                            </>
                                                         )
                                                         : (
                                                             <>No registrado</>
@@ -468,22 +468,22 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                                 {
                                                     office?.buildingDocs[office?.buildingDocs?.length - 1]
                                                         ? (
-                                                            <p>
+                                                            <>
                                                                 Expira: {new Date(office.buildingDocs[office?.buildingDocs?.length - 1]?.expirationDate).toLocaleDateString()}
                                                                 {
                                                                     office.buildingDocs[office?.buildingDocs?.length - 1]?.docImages.map(image => {
                                                                         return (
-                                                                            <p key={image.id}>
+                                                                            <div key={image.id}>
                                                                                 <a
 
                                                                                     target="_blank"
                                                                                     href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
                                                                                 </a>
-                                                                            </p>
+                                                                            </div>
                                                                         )
                                                                     })
                                                                 }
-                                                            </p>
+                                                            </>
                                                         )
                                                         : (
                                                             <>No registrado</>
@@ -591,12 +591,12 @@ function Permits({ firefighterPermit, healthPermit }): JSX.Element {
                 {
                     firefighterPermit.docImages?.map(image => {
                         return (
-                            <p key={image.id}>
+                            <div key={image.id}>
                                 <a
                                     target="_blank"
                                     href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
                                 </a><br/>
-                            </p>
+                            </div>
                         )
                     })
                 }
@@ -611,12 +611,12 @@ function Permits({ firefighterPermit, healthPermit }): JSX.Element {
                 {
                     healthPermit.docImages?.map(image => {
                         return (
-                            <p key={image.id}>
+                            <div key={image.id}>
                                 <a
                                     target="_blank"
                                     href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
                                 </a><br/>
-                            </p>
+                            </div>
                         )
                     })
                 }
