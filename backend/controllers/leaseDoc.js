@@ -12,8 +12,6 @@ exports.createLeaseDoc = async (req, res) => {
 
         const docImages = [];
 
-        console.log({ files: req.files })
-        console.log({ req: req })
         // Save uploaded images and link them to the lease document
         if (req.files && req.files.length > 0) {
             req.files.forEach((file, index) => {
