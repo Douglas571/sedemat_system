@@ -355,14 +355,14 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
 
                     // get the last fire fighter permit
                     let firefighterPermit
-                    if (office.fireFighterDocs.length > 0) {
+                    if (office.fireFighterDocs?.length > 0) {
                         const l = office.fireFighterDocs.length
                         firefighterPermit = office.fireFighterDocs[l - 1]
                     }
 
                     // get the last fire fighter permit
                     let healthPermit
-                    if (office.healthPermitDocs.length > 0) {
+                    if (office.healthPermitDocs?.length > 0) {
                         const l = office.healthPermitDocs.length
                         healthPermit = office.healthPermitDocs[l - 1]
                     }
@@ -577,40 +577,36 @@ function Permits({ firefighterPermit, healthPermit }): JSX.Element {
 
     console.log({ firefighterPermit, healthPermit })
 
-    const firefighterPermitExpirationDate = new Date(firefighterPermit.expirationDate)
-    const healthPermitExpirationDate = new Date(healthPermit.expirationDate)
-
 
     return (
         <>
+            <Title level={4}>Permisos</Title>
+            { firefighterPermit 
+                ? (<PermitRender data={firefighterPermit} title={"Permiso de Bomberos"}/>) 
+                : <Paragraph>No hay permiso de bomberos registrado</Paragraph>
+            }
+
+            { healthPermit 
+                ? (<PermitRender data={healthPermit} title={"Permiso de Sanidad"}/>) 
+                : <Paragraph>No hay permiso de sanidad registrado</Paragraph>
+            }
+
+        </>
+    )
+}
+
+function PermitRender({data, title}) {
+    const expirationDate = new Date(data.expirationDate)
+    return (
+        <>
             <Title level={5}>
-                Permiso de Bomberos
+                {title}
             </Title>
             <Paragraph>
-                Expira: {firefighterPermitExpirationDate.toLocaleDateString()}
+                Expira: {expirationDate.toLocaleDateString()}
 
                 {
-                    firefighterPermit.docImages?.map(image => {
-                        return (
-                            <div key={image.id}>
-                                <a
-                                    target="_blank"
-                                    href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
-                                </a><br/>
-                            </div>
-                        )
-                    })
-                }
-            </Paragraph>
-
-            <Title level={5}>
-                Permiso de Sanidad
-            </Title>
-            <Paragraph>
-                Expira: {healthPermitExpirationDate.toLocaleDateString()}
-
-                {
-                    healthPermit.docImages?.map(image => {
+                    data.docImages?.map(image => {
                         return (
                             <div key={image.id}>
                                 <a
