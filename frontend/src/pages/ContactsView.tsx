@@ -13,25 +13,12 @@ export default function ContactsView(): JSX.Element {
 
     useEffect(() => {
         loadData()
-    })
+    }, [])
 
     async function loadData() {
         if (!contactId) {
             return ''
         }
-        // setContact({
-        //     id: 1,
-        //     firstName: "Douglas",
-        //     lastName: "Socorro",
-        //     dni: "29748656",
-        //     phone: "04125340038",
-        //     whatsapp: "04125340038",
-        //     email: "douglassocorro1@gmail.com",
-
-        //     get fullName(): string{
-        //         return this.firstName + " " + this.lastName
-        //     }
-        // })
 
         try {
             const contactData = await api.getPersonById(contactId)
@@ -68,11 +55,27 @@ export default function ContactsView(): JSX.Element {
                                 src={completeUrl(contact?.profilePictureUrl)}
                             />
                             <Typography.Paragraph>
-                                Cédula: {contact.dni}<br />
+
+                                { contact.dniPictureUrl 
+                                ? (
+                                  <>
+                                    Cédula: {' '} 
+                                    <a 
+                                      href={completeUrl(contact.dniPictureUrl)} 
+                                      target="_blank"
+                                    >{contact.dni}</a>
+                                  </>
+                                ) : (<>Cédula: {contact.dni}</>)
+                                }
+                                <br/>
+
+                                {/* if there is rifPictureUrl, then write a link 
+                                pointing to the rif picture and write the rif inside 
+                                the link */}
+
                                 Phone: {contact.phone}<br />
                                 Correo: {contact.email}<br />
                                 Whatsapp: {contact.whatsapp}<br />
-
                             </Typography.Paragraph>
                         </Flex>
                     </>
