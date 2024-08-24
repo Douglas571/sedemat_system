@@ -45,15 +45,15 @@ module.exports = {
         onUpdate: 'CASCADE'
       },
 
-      // permitDocId: {
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: 'PermitDocs',
-      //     key: 'id'
-      //   },
-      //   onDelete: 'CASCADE',
-      //   onUpdate: 'CASCADE'
-      // },
+      permitDocId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'PermitDocs',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
 
       createdAt: {
         allowNull: false,
