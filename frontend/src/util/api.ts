@@ -1,63 +1,17 @@
-import { ExpirableDocument } from "./types"
-import { Zonation } from "./zonations"
-
-import { Business } from "./types"
+import { 
+    ExpirableDocument, 
+    EconomicActivity, 
+    License, 
+    BranchOffice, 
+    Business, 
+    Person 
+} from "./types"
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 console.log({HOST, PORT, IP})
-
-export type EconomicActivity = {
-    id: number
-    code: string
-    title: string
-    alicuota: number
-    minimiunTax: number
-}
-
-export type License = {
-    id?: number 
-    branchOfficeId: number 
-    economicActivityId: number
-    openAt?: String 
-    closeAt?: String
-    issuedDate: Date 
-    expirationDate: Date
-
-    EconomicActivity: EconomicActivity
-}
-
-export type Person = {
-    id?: number
-    firstName: string 
-    lastName: string 
-    dni: string
-    phone: string
-    whatsapp: string 
-    email: string 
-
-    profilePictureUrl?: string
-
-    fullName?: string
-}
-
-export type BranchOffice = {
-    id?: number;
-    address: string;
-    phone: string;
-    businessId: number; // Assuming you have a reference to the business ID
-
-    EconomicLicenses?: Array<License>
-    lastEconomicLicense?: License
-
-
-    zonations: Zonation
-    leaseDocs?: Array<ExpirableDocument> 
-    buildingDocs?: Array<ExpirableDocument>
-};
-
 
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
     const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {
