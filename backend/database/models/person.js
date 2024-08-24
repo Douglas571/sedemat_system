@@ -24,6 +24,12 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
     },
+
+    rif: {
+      type: DataTypes.STRING,
+      unique: true,
+    },
+
     firstName: {
         type: DataTypes.STRING,
         allowNull: false,

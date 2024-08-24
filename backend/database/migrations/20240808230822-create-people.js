@@ -13,6 +13,11 @@ module.exports = {
           unique: true,
           allowNull: false,
       },
+
+      rif: {
+        type: Sequelize.STRING,
+        unique: true,
+      },
       firstName: {
           type: Sequelize.STRING,
           allowNull: false,
