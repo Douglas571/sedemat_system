@@ -20,49 +20,6 @@ export default function Contacts(): JSX.Element {
 
             setContacts(contactsData)
 
-            // setContacts([
-            //     {
-            //         id: 1,
-            //         firstName: "Douglas",
-            //         lastName: "Socorro",
-            //         dni: "29748656",
-            //         phone: "04125340038",
-            //         whatsapp: "04125340038",
-            //         email: "douglassocorro1@gmail.com",
-        
-            //         get fullName(): string{
-            //             return this.firstName + " " + this.lastName
-            //         }
-            //     },
-            //     {
-            //         id: 2,
-            //         firstName: "Juan",
-            //         lastName: "Socorro",
-            //         dni: "29748656",
-            //         phone: "04125340038",
-            //         whatsapp: "04125340038",
-            //         email: "douglassocorro1@gmail.com",
-        
-            //         get fullName(): string{
-            //             return this.firstName + " " + this.lastName
-            //         }
-            //     },
-            //     {
-            //         id: 3,
-            //         firstName: "Carlos",
-            //         lastName: "Socorro",
-            //         dni: "29748656",
-            //         phone: "04125340038",
-            //         whatsapp: "04125340038",
-            //         email: "douglassocorro1@gmail.com",
-                    
-            //         get fullName(): string{
-            //             return this.firstName + " " + this.lastName
-            //         }
-            //     },
-        
-            // ])
-
         } catch(error) {
             console.error({error})
         }
