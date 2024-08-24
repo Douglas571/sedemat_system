@@ -35,15 +35,15 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      // buildingDocId: {
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: 'BuildingDocs', // Name of the referenced table
-      //     key: 'id'
-      //   },
-      //   onDelete: 'CASCADE',
-      //   onUpdate: 'CASCADE'
-      // },
+      buildingDocId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'BuildingDocs', // Name of the referenced table
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
 
       // permitDocId: {
       //   type: Sequelize.INTEGER,
