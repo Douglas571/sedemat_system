@@ -144,13 +144,16 @@ router.post('/dni', uploadDniPicture)
 
 const uploadRifPicture = (req, res) => {
     rif_upload.single('image')(req, res, (err) => {
+        console.log({req})
         if (err) {
             console.log({err})
             return res.status(500).json({ message: 'Error in uploading file', error: err.message });
         }
 
         if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+        return res.status(400).json({ error: {
+            message: 'No file uploaded'
+        }});
         }
 
         const fileUrl = `/uploads/rif/${req.file.filename}`;
