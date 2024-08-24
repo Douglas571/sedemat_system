@@ -26,15 +26,15 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      // leaseDocId: {
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: 'LeaseDocs', // Name of the referenced table
-      //     key: 'id'
-      //   },
-      //   onDelete: 'CASCADE',
-      //   onUpdate: 'CASCADE'
-      // },
+      leaseDocId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'LeaseDocs', // Name of the referenced table
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
       // buildingDocId: {
       //   type: Sequelize.INTEGER,
       //   references: {
