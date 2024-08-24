@@ -43,6 +43,9 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     profilePictureUrl: DataTypes.STRING,
+
+    dniPictureUrl: DataTypes.STRING,
+    rifPictureUrl: DataTypes.STRING,
     
     createdAt: {
       allowNull: false,

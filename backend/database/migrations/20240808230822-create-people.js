@@ -33,6 +33,9 @@ module.exports = {
   
       profilePictureUrl: Sequelize.STRING,
       
+      dniPictureUrl: Sequelize.STRING,
+      rifPictureUrl: Sequelize.STRING,
+      
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
