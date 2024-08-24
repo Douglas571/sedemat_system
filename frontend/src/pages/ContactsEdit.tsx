@@ -1,11 +1,14 @@
-import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormProps, message, Button } from 'antd'
+import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormProps, message, Button, Divider, UploadProps } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 
 import {useEffect, useState} from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { Person } from 'util/api'
+import { Person } from 'util/types'
 import * as api from 'util/api'
+import * as peopleApi from 'util/people'
 import { ContactForm, getBase64, urlToFile } from './BusinessShared';
+
+
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -71,8 +74,6 @@ export default function ContactsView(): JSX.Element {
     const onFinish: FormProps<ContactForm>['onFinish'] = async (values: ContactForm) => {
         console.log({values})
         console.log({fileList})
-
-        
         
         try {
             // url to set in update or register new
@@ -87,22 +88,42 @@ export default function ContactsView(): JSX.Element {
             }
 
 
+            // upload the dni
+            let dniPictureUrl = ''
+            if (values.contactDniUpload?.file) {
+                // load the file and send it with uploadDniPicture
+                // get dni url
+                const file = values.contactDniUpload.file
+                console.log({file})
+                dniPictureUrl = await peopleApi.uploadDniPicture(file)
+            }
+
+            // upload the rif
+            let rifPictureUrl = ''
+            if (values.contactRifUpload?.file) {
+                const file = values.contactRifUpload.file
+                rifPictureUrl = await peopleApi.uploadRifPicture(file)
+            }
+
             let newPersonData: Person
             // if editing, update person 
             if (isEditing) {
                 newPersonData = await api.updatePerson(Number(contactId), 
                 {
-                    ...values, 
+                    ...values,
+                    dniPictureUrl,
+                    rifPictureUrl,
                     profilePictureUrl: pfpUrl
                 })
             } else {
                 // if not, create a new contact
                 newPersonData = await api.registerPerson(
                     {
-                        ...values, 
+                        ...values,         
+                        dniPictureUrl,
+                        rifPictureUrl,
                         profilePictureUrl: pfpUrl
                     });
-
             }
 
             console.log({newPersonData})
@@ -118,41 +139,6 @@ export default function ContactsView(): JSX.Element {
     async function uploadPicture (): Promise<string>{
         if (fileList.length === 0) {
             throw new Error("Seleccione un archivo para foto de contacto");
-        }
-    
-        const formData = new FormData();
-        formData.append('image', fileList[0].originFileObj);
-    
-        try {
-            const response = await fetch(`${HOST}/v1/people/pfp`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    // 'Content-Type': 'multipart/form-data' is not needed; browser sets it automatically.
-                },
-            });
-    
-            if (response.ok) {
-                const data = await response.json();
-                // message.success(`File uploaded successfully. URL: ${data.url}`);
-                console.log("File uploaded successfully. URL: ${data.url}")
-                return data.url
-            } else {
-                // message.error('Upload failed');
-                console.error("Upload failed")
-            }
-        } catch (error) {
-            // message.error('Upload failed');
-            console.error({message: "Upload failed", error})
-            throw error
-        }
-        return ''
-    };
-
-    async function handleUpload (): Promise<string>{
-        if (fileList.length === 0) {
-            message.error('No file selected');
-            return '';
         }
     
         const formData = new FormData();
@@ -213,10 +199,26 @@ export default function ContactsView(): JSX.Element {
         maxCount: 1
     }
 
+    const dniUploadProps: UploadProps = {
+        beforeUpload: (file) => {
+			console.log("adding dni")
+			// setFileList([...fileList, file]);
+			return false;
+		},
+    }
+
+    const rifUploadProps: UploadProps = {
+        beforeUpload: (file) => {
+			console.log("adding rif")
+			// setFileList([...fileList, file]);
+			return false;
+		},
+    }
+
     return (
         <>
             <Form onFinish={onFinish} form={form}>
-            <Typography.Title level={3}>
+                <Typography.Title level={3}>
                     Propietario
                 </Typography.Title>
                 <Space>
@@ -307,6 +309,54 @@ export default function ContactsView(): JSX.Element {
                 >
                     <Input data-test="owner-email-input"/>
                 </Form.Item>
+                
+                <Divider/>
+
+                <Typography.Title level={4}>
+                    Recaudos
+                </Typography.Title>
+                <Flex gap={'middle'} wrap>
+                    <Flex vertical>
+                        <Typography.Title level={5}>
+                            Cédula de Identidad
+                        </Typography.Title>
+                        <Form.Item 
+                            name='contactDniUpload'
+                            style={{maxWidth: "200px"}}
+                        >
+                            <Upload
+                                {...dniUploadProps}
+                            >
+                                <Button>
+                                    Agregar Imagen de Cédula
+                                </Button>
+                            </Upload>
+                        </Form.Item>
+                    </Flex>
+                    
+                    <Flex vertical>
+                        <Typography.Title level={5}>
+                            Copia de Rif
+                        </Typography.Title>
+                        <Form.Item
+                            name='contactRifUpload'
+                            style={{maxWidth: "200px"}}
+                        >
+                            <Upload
+                                {...rifUploadProps}
+                            >
+                                <Button>
+                                    Agregar Imagen del RIF
+                                </Button>
+                            </Upload>
+                        </Form.Item>
+                        
+                    </Flex>
+                </Flex>
+                    
+
+                <Divider/>
+                
                 <Form.Item>
                     <Button 
                         data-test='submit-button'
