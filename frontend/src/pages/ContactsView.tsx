@@ -72,6 +72,18 @@ export default function ContactsView(): JSX.Element {
                                 {/* if there is rifPictureUrl, then write a link 
                                 pointing to the rif picture and write the rif inside 
                                 the link */}
+                                { (contact.rifPictureUrl && contact.rif)
+                                ? (
+                                  <>
+                                    RIF: {' '} 
+                                    <a 
+                                      href={completeUrl(contact.rifPictureUrl)} 
+                                      target="_blank"
+                                    >{contact.rif}</a>
+                                  </>
+                                ) : (<>RIF: rif no registrado</>)
+                                }
+                                <br/>
 
                                 Phone: {contact.phone}<br />
                                 Correo: {contact.email}<br />

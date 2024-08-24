@@ -16,6 +16,7 @@ const HOST = "http://" + IP + ":" + PORT
 
 export default function ContactsView(): JSX.Element {
     const {contactId} = useParams()
+    const [contact, setContact] = useState<Person>()
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
@@ -42,10 +43,10 @@ export default function ContactsView(): JSX.Element {
     async function loadContactData() {
 
         // get the contact 
-        const contact = await api.getPersonById(Number(contactId))
+        const contactData = await api.getPersonById(Number(contactId))
 
         // get url of pfp
-        const pfpUrl: string = contact.profilePictureUrl || ''
+        const pfpUrl: string = contactData.profilePictureUrl || ''
         
         if (pfpUrl) {
             // convert to file
@@ -67,8 +68,10 @@ export default function ContactsView(): JSX.Element {
             }
         }
 
+        setContact({...contactData})
+
         // set the data into the form
-        form.setFieldsValue({...contact})
+        form.setFieldsValue({...contactData})
     }
 
     const onFinish: FormProps<ContactForm>['onFinish'] = async (values: ContactForm) => {
@@ -89,8 +92,10 @@ export default function ContactsView(): JSX.Element {
 
 
             // upload the dni
-            let dniPictureUrl = ''
+            let dniPictureUrl = contact?.dniPictureUrl
+            console.log("Before dni upload")
             if (values.contactDniUpload?.file) {
+                console.log("Inside dni upload")
                 // load the file and send it with uploadDniPicture
                 // get dni url
                 const file = values.contactDniUpload.file
@@ -98,8 +103,10 @@ export default function ContactsView(): JSX.Element {
                 dniPictureUrl = await peopleApi.uploadDniPicture(file)
             }
 
+            console.log("After dni upload")
+
             // upload the rif
-            let rifPictureUrl = ''
+            let rifPictureUrl = contact?.rifPictureUrl
             if (values.contactRifUpload?.file) {
                 const file = values.contactRifUpload.file
                 rifPictureUrl = await peopleApi.uploadRifPicture(file)
@@ -241,7 +248,7 @@ export default function ContactsView(): JSX.Element {
                     </Upload>
                 </Space>
 
-                <Space>
+                <Flex wrap>
                     <Form.Item
                         rules={[
                             {
@@ -278,7 +285,14 @@ export default function ContactsView(): JSX.Element {
                     >
                         <Input data-test="owner-dni-input"/>
                     </Form.Item>
-                </Space>
+
+                    <Form.Item
+                        label='RIF'
+                        name={"rif"}
+                    >
+                        <Input data-test="owner-rif-input"/>
+                    </Form.Item>
+                </Flex>
                 <Form.Item
                     rules={[
                         {
