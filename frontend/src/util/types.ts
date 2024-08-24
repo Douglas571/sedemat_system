@@ -38,7 +38,7 @@ export type License = {
     EconomicActivity: EconomicActivity
 }
 
-export type Person = {
+export interface Person {
     id?: number
     firstName: string
     lastName: string
@@ -50,6 +50,9 @@ export type Person = {
     profilePictureUrl?: string
 
     fullName?: string
+
+    dniPictureUrl?: string
+    rifPictureUrl?: string
 }
 
 export interface Zonation {
