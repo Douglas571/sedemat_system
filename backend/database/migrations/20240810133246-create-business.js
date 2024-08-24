@@ -17,43 +17,44 @@ module.exports = {
       companyIncorporationDate: Sequelize.DATE,
       companyExpirationDate: Sequelize.DATE,
       directorsBoardExpirationDate: Sequelize.DATE,
-      
-      // economicActivityId: {
-      //     type: Sequelize.INTEGER,
-      //     allowNull: false,
-      //     references: {
-      //         model: 'EconomicActivity',
-      //         key: 'id'
-      //     }
-      // },
-      
-      // ownerPersonId: {
-      //     type: Sequelize.INTEGER,
-      //     //allowNull: false, // just for now...
-      //     references: {
-      //         model: 'Person', 
-      //         key: 'id'
-      //     }
-      // },
-  
-      // accountantPersonId: {
-      //     type: Sequelize.INTEGER,
-      //     //allowNull: false, // just for now...
-      //     references: {
-      //         model: 'Person', 
-      //         key: 'id'
-      //     }
-      // },
-  
-      // administratorPersonId: {
-      //     type: Sequelize.INTEGER,
-      //     //allowNull: false, // just for now...
-      //     references: {
-      //         model: 'Person', 
-      //         key: 'id'
-      //     }
-      // },
-  
+
+      ownerPersonId: {
+        type: Sequelize.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+          model: 'People',
+          key: 'id'
+        }
+      },
+
+      accountantPersonId: {
+        type: Sequelize.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+          model: 'People',
+          key: 'id'
+        }
+      },
+
+      administratorPersonId: {
+        type: Sequelize.INTEGER,
+        //allowNull: false, // just for now...
+        references: {
+          model: 'People',
+          key: 'id'
+        }
+      },
+
+      economicActivityId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'EconomicActivities',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
       preferredChannel: Sequelize.STRING,
       sendCalculosTo: Sequelize.STRING,
       preferredContact: Sequelize.STRING,
