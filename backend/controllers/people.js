@@ -90,4 +90,74 @@ const uploadProfilePicture = (req, res) => {
 router.post('/pfp', uploadProfilePicture)
 
 
+
+// controllers/routers that handle uploads of dni, rif, and return the url to access the images
+
+// ensure folder for dni and rif
+const DNI_PATH = path.resolve(__dirname, '../uploads/dni')
+const RIF_PATH = path.resolve(__dirname, '../uploads/rif')
+fse.ensureDirSync(DNI_PATH)
+fse.ensureDirSync(RIF_PATH)
+
+// configure the storage
+const dni_storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DNI_PATH);
+    },
+    filename: (req, file, cb) => {
+        const randomCode = crypto.randomInt(100000, 999999);
+        const ext = path.extname(file.originalname);
+        cb(null, `${randomCode}${ext}`);
+    }
+});
+const rif_storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DNI_PATH);
+    },
+    filename: (req, file, cb) => {
+        const randomCode = crypto.randomInt(100000, 999999);
+        const ext = path.extname(file.originalname);
+        cb(null, `${randomCode}${ext}`);
+    }
+});
+const dni_upload = multer({ storage: dni_storage })
+const rif_upload = multer({ storage: rif_storage })
+
+// take the image, and return the address to that folder
+const uploadDniPicture = (req, res) => {
+    dni_upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.log({err})
+            return res.status(500).json({ message: 'Error in uploading file', error: err.message });
+        }
+
+        if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileUrl = `/uploads/dni/${req.file.filename}`;
+        res.status(200).json({ url: fileUrl });
+    });
+};
+
+router.post('/dni', uploadDniPicture)
+
+const uploadRifPicture = (req, res) => {
+    rif_upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.log({err})
+            return res.status(500).json({ message: 'Error in uploading file', error: err.message });
+        }
+
+        if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileUrl = `/uploads/rif/${req.file.filename}`;
+        res.status(200).json({ url: fileUrl });
+    });
+};
+
+router.post('/rif', uploadRifPicture)
+
 module.exports = router;
