@@ -2,7 +2,7 @@ import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormPr
 import { PlusOutlined } from '@ant-design/icons';
 
 import {useEffect, useState} from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Person } from 'util/types'
 import * as api from 'util/api'
 import * as peopleApi from 'util/people'
@@ -16,6 +16,9 @@ const HOST = "http://" + IP + ":" + PORT
 
 export default function ContactsView(): JSX.Element {
     const {contactId} = useParams()
+    let [searchParams, setSearchParams] = useSearchParams();
+    let redirect = searchParams.get("redirect");
+
     const [contact, setContact] = useState<Person>()
 
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -134,6 +137,11 @@ export default function ContactsView(): JSX.Element {
             }
 
             console.log({newPersonData})
+
+            if (redirect) {
+                navigate(redirect)
+                return
+            }
 
             navigate(`/contacts/${newPersonData.id}`)
         } catch (error) {

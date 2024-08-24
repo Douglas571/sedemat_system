@@ -363,6 +363,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
     function handleDeleteOffice() {
         if (officeToDeleteId) {
             onDelete(officeToDeleteId)
+            setIsDeleteOfficeModal(false)
         }
     }
 
@@ -574,6 +575,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
 }
 
 function ContactDisplay({ contact, role }): JSX.Element {
+    const {businessId} = useParams()
     const navigate = useNavigate()
 
 
@@ -585,7 +587,7 @@ function ContactDisplay({ contact, role }): JSX.Element {
                     {role}
                 </Title>
                 <Button onClick={() => {
-                    navigate(`/contacts/${contact.id}/edit`)
+                    navigate(`/contacts/${contact.id}/edit?redirect=/business/${businessId}`)
                     }}>
                     Editar
                 </Button>
