@@ -336,6 +336,41 @@ function BusinessViewDetails(): JSX.Element {
 
 function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Element {
     console.log({branchOfficesInRender: branchOffices})
+
+    const [isDeleteOfficeModalOpen, setIsDeleteOfficeModal] = useState(false)
+    const [officeToDeleteId, setOfficeToDeleteId] = useState('')
+
+    
+    // a function to delete office
+    // it receive a office id 
+    
+    /*
+        use click delete button and call a function handleOpenDeleteModal that receive
+            set officeToDeleteId
+            then open the modal
+        
+        when user select ok in delete modal
+            it will call onDelete(officeToDeleteId)
+            and set isDeleteOfficeModal to false        
+    
+    */
+
+    function handleOpenDeleteModal(id: string) {
+        setOfficeToDeleteId(id)
+        setIsDeleteOfficeModal(true)
+    }
+
+    function handleDeleteOffice() {
+        if (officeToDeleteId) {
+            onDelete(officeToDeleteId)
+        }
+    }
+
+    function handleCancelDeletion() {
+        setOfficeToDeleteId('')
+        setIsDeleteOfficeModal(false)
+    }
+
     return (
         <>
             <Flex gap="large" align='center'>
@@ -375,8 +410,8 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     Sede #{index + 1}
 
                                 </Title>
-                                <Button onClick={() => onDelete(office.id)}>Eliminar</Button>
                                 <Button onClick={() => onEdit(office.id)}>Editar</Button>
+                                <Button onClick={() => handleOpenDeleteModal(office.id)}>Eliminar</Button>
                             </Flex>
 
 
@@ -525,7 +560,15 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                     )
                 })
             }
-        </Flex>
+
+            </Flex>
+            <Modal title="Eliminar Contribuyente"
+                data-test='business-delete-modal'
+                open={isDeleteOfficeModalOpen}
+                onOk={handleDeleteOffice}
+                onCancel={handleCancelDeletion}>
+                <p>¿Seguro que deseas eliminar esta sede?</p>
+            </Modal>
     </>
     )
 }
