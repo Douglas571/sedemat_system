@@ -112,7 +112,7 @@ const dni_storage = multer.diskStorage({
 });
 const rif_storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, DNI_PATH);
+        cb(null, RIF_PATH);
     },
     filename: (req, file, cb) => {
         const randomCode = crypto.randomInt(100000, 999999);
@@ -144,7 +144,6 @@ router.post('/dni', uploadDniPicture)
 
 const uploadRifPicture = (req, res) => {
     rif_upload.single('image')(req, res, (err) => {
-        console.log({req})
         if (err) {
             console.log({err})
             return res.status(500).json({ message: 'Error in uploading file', error: err.message });
