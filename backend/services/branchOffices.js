@@ -43,27 +43,27 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                 {
                     model: Zonation,
                     as: "zonations",
-                    include: 'DocImages'
+                    include: 'docImages'
                 },
                 {
                     model: BuildingDoc,
                     as: "buildingDocs",
-                    include: 'DocImages'
+                    include: 'docImages'
                 },
                 {
                     model: LeaseDoc,
                     as: "leaseDocs",
-                    include: 'DocImages'
+                    include: 'docImages'
                 },
                 {
                     model: PermitDoc,
                     as: "fireFighterDocs",
-                    include: 'DocImages',
+                    include: 'docImages',
                 },
                 {
                     model: PermitDoc,
                     as: "healthPermitDocs",
-                    include: 'DocImages',
+                    include: 'docImages',
                 }
             ]
         });
