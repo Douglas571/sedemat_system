@@ -43,27 +43,27 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                 {
                     model: Zonation,
                     as: "zonations",
-                    include: 'docImages'
+                    include: 'DocImages'
                 },
                 {
                     model: BuildingDoc,
                     as: "buildingDocs",
-                    include: 'docImages'
+                    include: 'DocImages'
                 },
                 {
                     model: LeaseDoc,
                     as: "leaseDocs",
-                    include: 'docImages'
+                    include: 'DocImages'
                 },
                 {
                     model: PermitDoc,
                     as: "fireFighterDocs",
-                    include: 'docImages',
+                    include: 'DocImages',
                 },
                 {
                     model: PermitDoc,
                     as: "healthPermitDocs",
-                    include: 'docImages',
+                    include: 'DocImages',
                 }
             ]
         });
@@ -72,6 +72,7 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
     } catch (error) {
         console.log('ERROR START HERE')
         console.log({error})
+        
         // logger.error(error)
         throw new Error('Error fetching branch offices');
     }
