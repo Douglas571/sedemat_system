@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import * as api from '../util/api'
+import * as businessesApi from '../util/businessesApi'
 import { Business, BranchOffice } from '../util/types'
 import { 
     Button, 
@@ -12,6 +13,8 @@ import {
     Input, 
     Select, 
     Typography,
+    Upload,
+    UploadProps,
     message
 } from "antd";
 
@@ -197,6 +200,30 @@ export default function BusinessForm(): JSX.Element {
                 newBusinessData = await api.sendBusinessData(businessData)
             }
 
+            // save Certificate of Incorporation
+            console.log("OUTSIDE")
+            console.log(values.certificateOfIncorporationUpload)
+            if (newBusinessData.id && values.certificateOfIncorporationUpload.fileList.length > 0) {
+                console.log("HERE")
+                // if there is files to upload
+                
+                // make up the file to upload
+                const coi = {
+                    businessId: newBusinessData.id,
+                    expirationDate: values.companyExpirationDate,
+                    docImages: values.certificateOfIncorporationUpload.fileList.map( f => f.originFileObj)
+                }
+
+                // send with businessApi.uploadCertificateOfIncorporation
+                const uploadedCoi = await businessesApi.uploadCertificateOfIncorporation(coi)
+
+                console.log({uploadedCoi})
+
+                
+            }
+
+            
+
             console.log({newBusinessData})
 
             messageApi.open({
@@ -265,15 +292,19 @@ export default function BusinessForm(): JSX.Element {
                     
                     />
 
+                    <CertificateOfIncorporationForm
+                    
+                    />
+
                     <Form.Item>
                         <Button 
                             data-test='submit-button'
                             type='primary' htmlType='submit'>Guardar</Button>
                     </Form.Item>
 
-                    {/* <Button onClick={() => showFormData()}>
+                    <Button onClick={() => showFormData()}>
                         Show form data
-                    </Button> */}
+                    </Button>
                 </Form>
             </Flex>
         </>
@@ -507,8 +538,38 @@ function BusinessContactPreferenceForm(): JSX.Element{
                     options={reminderIntervalOptions}
                 />
             </Form.Item>
+
+            <Divider/>
         
         </>
     )
 
+}
+
+function CertificateOfIncorporationForm(): JSX.Element {
+
+    const uploadProps: UploadProps = {
+        beforeUpload: (file) => {
+			console.log("adding dni")
+			// setFileList([...fileList, file]);
+			return false;
+		},
+    }
+    return (
+        <Flex vertical>
+            <Typography.Title level={3}>
+                Registro Comercial
+            </Typography.Title>
+
+            <Form.Item name={"certificateOfIncorporationUpload"}>
+                <Upload {...uploadProps}>
+                    <Button>
+                        Agregar Imágenes
+                    </Button>
+                </Upload>
+            </Form.Item>
+
+        </Flex>
+
+    )
 }

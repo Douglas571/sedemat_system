@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FormProps, Modal, Space } from 'antd'
+import { Divider, FormProps, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -309,6 +309,32 @@ function BusinessViewDetails(): JSX.Element {
                         role={"Administrador"}
                     />
                 )}
+
+                <Divider />
+                <Typography.Title>
+                    Registro de Comercio
+                </Typography.Title>
+                {
+                    (business.certificatesOfIncorporation.length > 0 && business.certificatesOfIncorporation[business.certificatesOfIncorporation.length - 1])
+                        ? (
+                            <Paragraph>
+                                {business.certificatesOfIncorporation[business.certificatesOfIncorporation.length - 1].docImages?.map(image => {
+                                    return (
+                                        <div key={image.id}>
+                                            <a
+                                                target="_blank"
+                                                href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
+                                        </div>)
+                                })}
+
+                            </Paragraph>
+                        )
+                        : (
+                            <Paragraph>
+                                No registrada
+                            </Paragraph>
+                        )
+                }
 
                 <BranchOfficesDisplay
                     branchOffices={business?.branchOffices}

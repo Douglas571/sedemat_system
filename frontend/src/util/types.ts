@@ -110,3 +110,10 @@ export interface PermitDoc {
     type: 'FIRE' | 'HEALTH'
     docImages: File[]
 }
+
+
+export interface CertificateOfIncorporation {
+    businessId: number
+    expirationDate: Date
+    docImages: File[]
+}

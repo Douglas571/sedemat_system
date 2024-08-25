@@ -6,12 +6,15 @@ const logger = require('../utils/logger')
 const path = require('path');
 const fse = require('fs-extra');
 const multer = require('multer');
+const crypto = require('crypto');
 
 const { z } = require("zod")
 
 const bausinessScheme = z.object({
     reminderInterval: z.number()
 })
+
+const { CertificateOfIncorporation, DocImage } = require('../database/models');
 
 // Get all businesses
 router.get('/', async (req, res) => {
@@ -156,6 +159,7 @@ async function saveCertificateOfIncorporation(req, res) {
 
             const certificateOfIncorporationId = certificateOfIncorporation.id
             
+            
             // register every image 
             const newDocImages = docImages.map( (image, index) => {
                 return {
@@ -166,15 +170,17 @@ async function saveCertificateOfIncorporation(req, res) {
                 }
             })
 
-            let INTERMEDIATE_DOC_IMAGES = newDocImages.map( async (docImage) => {
+            let registeringImagesPromises = newDocImages.map( async (docImage) => {
                 const registeredDocImage = await DocImage.create(docImage)
                 return registeredDocImage.toJSON()
             })
 
-            certificateOfIncorporation.docImages = (await Promise.allSettled(INTERMEDIATE_DOC_IMAGES)).map( r => r.value )
+            const resolvedPromises = await Promise.allSettled(registeringImagesPromises)
+            certificateOfIncorporation.docImages = resolvedPromises.map( image => image.value)
 
             res.status(201).json(certificateOfIncorporation);
         } catch (error) {
+            console.log({error})
             logger.info(JSON.stringify(error, null, 2))
             res.status(500).json({ error: 'Failed to create certificateOfIncorporation' });
         }

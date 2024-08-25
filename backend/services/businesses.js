@@ -1,5 +1,5 @@
 // const EconomicActivity = require('../models/economicActivity')
-const {Person, Business, EconomicActivity} = require("../database/models")
+const {Person, Business, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
 
 const logger = require('../utils/logger')
 
@@ -28,6 +28,10 @@ exports.getBusinessById = async (id) => {
             {
                 model: Person,
                 as: "administrator"
+            },
+            {
+                model: CertificateOfIncorporation,
+                as: "certificatesOfIncorporation",
             }
         ]
     });

@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'CertificateOfIncorporation',
+    tableName: 'CertificatesOfIncorporation',
   });
   return CertificateOfIncorporation;
 };
