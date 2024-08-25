@@ -70,8 +70,9 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
 
         return branchOffices;
     } catch (error) {
+        console.log('ERROR START HERE')
         console.log({error})
-        logger.error(error)
+        // logger.error(error)
         throw new Error('Error fetching branch offices');
     }
 };
