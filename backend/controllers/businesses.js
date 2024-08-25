@@ -3,6 +3,10 @@ const router = express.Router();
 const businessService = require('../services/businesses');
 const logger = require('../utils/logger')
 
+const path = require('path');
+const fse = require('fs-extra');
+const multer = require('multer');
+
 const { z } = require("zod")
 
 const bausinessScheme = z.object({
@@ -113,5 +117,73 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// create a multer storage to save the certificate of incorporation 
+const CERTIFICATES_OF_INCORPORATION_PATH = path.resolve(__dirname, '../uploads/certificates-of-incorporation')
+fse.ensureDirSync(CERTIFICATES_OF_INCORPORATION_PATH)
+
+// i will define a multer storage behavior 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // it will save files into zonations path
+        cb(null, CERTIFICATES_OF_INCORPORATION_PATH);
+    },
+    filename: (req, file, cb) => {
+
+        // it will asign a random id to each file
+        const randomCode = crypto.randomInt(100000, 999999);
+        const ext = path.extname(file.originalname);
+        cb(null, `${randomCode}${ext}`);
+    }
+});
+
+// certificate of incorporation to storage
+const coi_storage = multer({
+    storage
+})
+
+async function saveCertificateOfIncorporation(req, res) {
+    coi_storage.array("docImages")(req, res, async (err) => {
+        try {
+            const { businessId, expirationDate } = req.body;
+            const docImages = req.files; 
+
+            // save the certificate of incorporation instace
+            const certificateOfIncorporation = (await CertificateOfIncorporation.create({
+                businessId, expirationDate
+            })).toJSON()
+
+            const certificateOfIncorporationId = certificateOfIncorporation.id
+            
+            // register every image 
+            const newDocImages = docImages.map( (image, index) => {
+                return {
+                    certificateOfIncorporationId,
+                    path: image.path,
+                    url: `/uploads/certificates-of-incorporation/${image.filename}`,
+                    pageNumber: index + 1
+                }
+            })
+
+            let INTERMEDIATE_DOC_IMAGES = newDocImages.map( async (docImage) => {
+                const registeredDocImage = await DocImage.create(docImage)
+                return registeredDocImage.toJSON()
+            })
+
+            certificateOfIncorporation.docImages = (await Promise.allSettled(INTERMEDIATE_DOC_IMAGES)).map( r => r.value )
+
+            res.status(201).json(certificateOfIncorporation);
+        } catch (error) {
+            logger.info(JSON.stringify(error, null, 2))
+            res.status(500).json({ error: 'Failed to create certificateOfIncorporation' });
+        }
+    })
+};
+
+router.post('/coi', saveCertificateOfIncorporation)
+
+
+
 
 module.exports = router;

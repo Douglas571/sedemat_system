@@ -39,6 +39,13 @@ module.exports = (sequelize, DataTypes) => {
       Person.hasMany(Business, {
           foreignKey: "ownerPersonId"
       })
+
+      // business has a relationship one to many with certificateOfIncorporation
+      const {CertificateOfIncorporation} = models
+      Business.hasMany(CertificateOfIncorporation, {
+        foreignKey: "businessId",
+        as: 'certificatesOfIncorporation'
+      })
     }
   }
   Business.init({

@@ -55,6 +55,16 @@ module.exports = {
         onUpdate: 'CASCADE'
       },
 
+      certificateOfIncorporationId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'CertificatesOfIncorporation',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

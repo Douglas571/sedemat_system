@@ -29,6 +29,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'permitDocId',
         as: 'permitDoc'
       });
+
+      // doc images has a relationship one to one with CertificateOfIncorporation
+      const {CertificateOfIncorporation} = models
+      DocImage.belongsTo(CertificateOfIncorporation, {
+        foreignKey: 'certificateOfIncorporationId',
+        as: 'certificateOfIncorporation'
+      })
     }
   }
   DocImage.init({
@@ -72,6 +79,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       references: {
         model: 'Permissions',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+
+    certificateOfIncorporationId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'CertificatesOfIncorporation',
         key: 'id'
       },
       onDelete: 'CASCADE',

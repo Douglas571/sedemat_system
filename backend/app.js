@@ -24,9 +24,7 @@ ensureDirectoryExists(directoryPath);
 const paymentsRouter = require("./controllers/payments")
 
 const businessesRouter = require("./controllers/businesses")
-
 const branchOfficesRouter = require("./controllers/branchOffices")
-
 const economicActivitiesRouter = require("./controllers/economicActivities");
 const economicLicensesRouter = require("./controllers/economicLicenses")
 const peopleRouter = require("./controllers/people")
