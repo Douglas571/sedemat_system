@@ -68,7 +68,7 @@ const items: MenuProp['items'] = [
 	{
 		key: '/business',
 		icon: '',
-		label: 'Registro'
+		label: 'Contribuyentes'
 	},
 	{
 		key: '/contacts',

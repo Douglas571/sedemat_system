@@ -2,8 +2,6 @@ import NewPaymentForm from 'components/NewPaymentForm'
 import ViewPayments from 'components/ViewPayments'
 
 import BusinessView from 'pages/BusinessView'
-import BusinessNew from 'pages/BusinessNew'
-import BusinessEdit from 'pages/BusinessEdit'
 import BusinessViewDetails from 'pages/BusinessViewDetails'
 
 import BranchOfficeLicenseNew from 'pages/BranchOfficeLicenseNew'
