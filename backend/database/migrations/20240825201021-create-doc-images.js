@@ -58,7 +58,7 @@ module.exports = {
       certificateOfIncorporationId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'CertificatesOfIncorporation',
+          model: 'CertificateOfIncorporations',
           key: 'id'
         },
         onDelete: 'CASCADE',

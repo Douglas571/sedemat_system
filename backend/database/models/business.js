@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       const {CertificateOfIncorporation} = models
       Business.hasMany(CertificateOfIncorporation, {
         foreignKey: "businessId",
-        as: 'certificatesOfIncorporation'
+        as: 'certificateOfIncorporations'
       })
     }
   }

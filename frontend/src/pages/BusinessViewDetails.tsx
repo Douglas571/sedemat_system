@@ -315,10 +315,10 @@ function BusinessViewDetails(): JSX.Element {
                     Registro de Comercio
                 </Typography.Title>
                 {
-                    (business.certificatesOfIncorporation.length > 0 && business.certificatesOfIncorporation[business.certificatesOfIncorporation.length - 1])
+                    business.certificateOfIncorporations?.length > 0
                         ? (
                             <Paragraph>
-                                {business.certificatesOfIncorporation[business.certificatesOfIncorporation.length - 1].docImages?.map(image => {
+                                {business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1].docImages?.map(image => {
                                     return (
                                         <div key={image.id}>
                                             <a
@@ -331,7 +331,7 @@ function BusinessViewDetails(): JSX.Element {
                         )
                         : (
                             <Paragraph>
-                                No registrada
+                                No registrado
                             </Paragraph>
                         )
                 }

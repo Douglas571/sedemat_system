@@ -31,7 +31,8 @@ exports.getBusinessById = async (id) => {
             },
             {
                 model: CertificateOfIncorporation,
-                as: "certificatesOfIncorporation",
+                as: "certificateOfIncorporations",
+                include: 'docImages'
             }
         ]
     });
