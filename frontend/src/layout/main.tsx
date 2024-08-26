@@ -95,7 +95,7 @@ const App: React.FC = () => {
 				/>
 			</Sider>
 			<Layout 
-				//style={{ marginInlineStart: 200 }}
+				style={{ minHeight: '100vh' }}
 			>
 				<Header style={{ padding: 0, background: colorBgContainer }} />
 
