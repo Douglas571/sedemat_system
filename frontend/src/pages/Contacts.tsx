@@ -97,7 +97,7 @@ export default function Contacts(): JSX.Element {
             }
         },
         render: (text, record) =>
-            (<Link to={`/contacts/${record.id}`}>{record.firstName + " " + record.lastName}</Link>)
+            (<Link to={`/contacts/${record.id}`}>{text}</Link>)
     });
 
 
@@ -119,6 +119,7 @@ export default function Contacts(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
             sorter: (a: Person, b: Person) => a.dni?.localeCompare(b.dni),
+            ...getColumnSearchProps('dni')
         },
         {
             title: 'Teléfono',
