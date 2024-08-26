@@ -295,16 +295,16 @@ export default function BusinessForm(): JSX.Element {
                     <CertificateOfIncorporationForm
                     
                     />
-
+    
                     <Form.Item>
                         <Button 
                             data-test='submit-button'
                             type='primary' htmlType='submit'>Guardar</Button>
                     </Form.Item>
 
-                    <Button onClick={() => showFormData()}>
+                    {/* <Button onClick={() => showFormData()}>
                         Show form data
-                    </Button>
+                    </Button> */}
                 </Form>
             </Flex>
         </>

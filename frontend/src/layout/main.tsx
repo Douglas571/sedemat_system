@@ -34,30 +34,6 @@ const siderStyle: React.CSSProperties = {
 	scrollbarColor: 'unset'
 }
 
-// const items: MenuProps['items'] = [
-//   UserOutlined,
-//   VideoCameraOutlined,
-//   UploadOutlined,
-//   BarChartOutlined,
-//   CloudOutlined,
-//   AppstoreOutlined,
-//   TeamOutlined,
-//   ShopOutlined,
-// ].map((icon, index) => ({
-//   key: String(index + 1),
-//   icon: React.createElement(icon),
-//   label: `nav ${index + 1}`,
-// }));
-
-/**
-
-index
-register
-tax_collection
-
-
- */
-
 const items: MenuProp['items'] = [
 	{
 		key: '/',
@@ -94,9 +70,19 @@ const App: React.FC = () => {
 	}
 
 	return (
-		<Layout hasSider>
-			<Sider style={siderStyle}>
-				<div className='demo-logo-vertical' />
+		<Layout>
+			<Sider //style={siderStyle}
+				breakpoint="lg"
+				collapsedWidth="0"
+				onBreakpoint={(broken) => {
+					console.log(broken);
+				}}
+				onCollapse={(collapsed, type) => {
+					console.log(collapsed, type);
+				}}
+			
+			>
+				{/* <div className='demo-logo-vertical' /> */}
 				<Menu
 					theme='dark'
 					mode='inline'
@@ -105,11 +91,16 @@ const App: React.FC = () => {
 					onClick={onClick}
 				/>
 			</Sider>
-			<Layout style={{ marginInlineStart: 200 }}>
-				{/* <Header style={{ padding: 0, background: colorBgContainer }} /> */}
+			<Layout 
+				//style={{ marginInlineStart: 200 }}
+			>
+				<Header style={{ padding: 0, background: colorBgContainer }} />
 
-
-				<Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
+				<Content 
+					style={{ 
+						margin: '24px 16px 0', 
+						//overflow: 'initial' 
+					}}>
 					<Outlet />
 				</Content>
 
