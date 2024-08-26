@@ -330,7 +330,7 @@ function OriginUploadControls({isRented}): JSX.Element {
                         <Upload key="leaseDoc"
                             {...LeaserDocProps}
                         >
-                            <Button>Agregar Contrato de Arrendamiento</Button>
+                            <Button>Agregar Imágenes</Button>
                         </Upload>
 
                         
@@ -362,7 +362,7 @@ function OriginUploadControls({isRented}): JSX.Element {
                         <Upload key="buildingDoc"
                             {...BuildingDocProps}
                         >
-                            <Button>Agregar Documento de Inmueble</Button>
+                            <Button>Agregar Imágenes</Button>
                         </Upload>
                     </Form.Item>
                 </Flex>
@@ -511,7 +511,7 @@ function PermissionsControls(): JSX.Element {
                         name='sanitaryPermitDoc'
                     >
                         <Upload {...SanitaryPermitsUploadProps}>
-                            <Button>Agregar</Button>
+                            <Button>Agregar Imágenes</Button>
                         </Upload>
                     </Form.Item>
                     
