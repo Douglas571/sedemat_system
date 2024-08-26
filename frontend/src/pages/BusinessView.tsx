@@ -136,16 +136,7 @@ function BusinessView(): JSX.Element {
             }
         },
         render: (text, record) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                <Link to={`/business/${record.id}`}>{text}</Link>
-            ),
+            (<Link to={`/business/${record.id}`}>{text}</Link>)
     });
 
 
