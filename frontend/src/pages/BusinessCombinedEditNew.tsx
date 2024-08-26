@@ -203,7 +203,7 @@ export default function BusinessForm(): JSX.Element {
             // save Certificate of Incorporation
             console.log("OUTSIDE")
             console.log(values.certificateOfIncorporationUpload)
-            if (newBusinessData.id && values.certificateOfIncorporationUpload.fileList.length > 0) {
+            if (newBusinessData.id && values?.certificateOfIncorporationUpload?.fileList?.length > 0) {
                 console.log("HERE")
                 // if there is files to upload
                 
