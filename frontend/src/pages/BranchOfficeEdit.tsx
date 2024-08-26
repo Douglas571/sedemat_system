@@ -205,7 +205,7 @@ export default function BranchOfficeForm(): JSX.Element {
             onFinish={onFinish}
         >
             <Typography.Title level={2}>
-                Nueva Sucursal
+                { isEditing ? "Editar sucursal" : "Registrar sucursal"}
             </Typography.Title>
 
             {/* <Form.Item 
