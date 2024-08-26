@@ -24,14 +24,16 @@ import {
 const { Header, Content, Footer, Sider } = Layout
 
 const siderStyle: React.CSSProperties = {
-	overflow: 'auto',
-	height: '100vh',
-	position: 'fixed',
-	insetInlineStart: 0,
-	top: 0,
-	bottom: 0,
-	scrollbarWidth: 'thin',
-	scrollbarColor: 'unset'
+	// overflow: 'auto',
+	//height: '100vh',
+	//position: 'fixed',
+	// insetInlineStart: 0,
+	// top: 0,
+	// bottom: 0,
+	paddingTop: '64px',
+	// scrollbarWidth: 'thin',
+	// scrollbarColor: 'unset',
+	zIndex: 9000
 }
 
 const items: MenuProp['items'] = [
@@ -71,7 +73,8 @@ const App: React.FC = () => {
 
 	return (
 		<Layout>
-			<Sider //style={siderStyle}
+			<Sider 
+				style={siderStyle}
 				breakpoint="lg"
 				collapsedWidth="0"
 				onBreakpoint={(broken) => {
