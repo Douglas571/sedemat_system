@@ -223,6 +223,14 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         })
     }
 
+    if (branchOffices.length == 0) {
+        result.isValid = false
+        error.fields.push({
+            field: "branchOffices",
+            message: "Debe registrar al menos una (1) sucursal"
+        })
+    }
+
     // for each branch office
     branchOffices.forEach((branchOffice) => {
     //     it has a valid address
