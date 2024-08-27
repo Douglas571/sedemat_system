@@ -31,6 +31,39 @@ export default function ContactsView(): JSX.Element {
         // put the data
     }
 
+
+
+    let dniText = contact?.dni && <>Cédula: {contact.dni}</>
+
+    if (contact?.dniPictureUrl) {
+        dniText = <a 
+            href={completeUrl(contact.dniPictureUrl)} 
+            target="_blank"
+        >{contact.dni}</a>
+    }
+
+    let rifText = (<>No registrado</>)
+    // if rif 
+    if (contact?.rif){
+
+        // if rif picture
+        if (contact.rifPictureUrl) {
+            // render a a link pointing to rif picture and write the rif inside the link
+            rifText = (
+                <a 
+                    href={completeUrl(contact.rifPictureUrl)} 
+                    target="_blank"
+                >{contact.rif}</a>
+            )
+        } else {
+            // if no rif picture then just render a text with rif only 
+            rifText = (
+                <>{contact.rif}</>
+            )
+        }
+    }
+            
+
     return (
         <>
             {contact ?
@@ -56,33 +89,10 @@ export default function ContactsView(): JSX.Element {
                             />
                             <Typography.Paragraph>
 
-                                { contact.dniPictureUrl 
-                                ? (
-                                  <>
-                                    Cédula: {' '} 
-                                    <a 
-                                      href={completeUrl(contact.dniPictureUrl)} 
-                                      target="_blank"
-                                    >{contact.dni}</a>
-                                  </>
-                                ) : (<>Cédula: {contact.dni}</>)
-                                }
+                                Cédula: {' '} { dniText }
                                 <br/>
 
-                                {/* if there is rifPictureUrl, then write a link 
-                                pointing to the rif picture and write the rif inside 
-                                the link */}
-                                { (contact.rifPictureUrl && contact.rif)
-                                ? (
-                                  <>
-                                    RIF: {' '} 
-                                    <a 
-                                      href={completeUrl(contact.rifPictureUrl)} 
-                                      target="_blank"
-                                    >{contact.rif}</a>
-                                  </>
-                                ) : (<>RIF: rif no registrado</>)
-                                }
+                                RIF: {' '} {rifText} 
                                 <br/>
 
                                 Phone: {contact.phone}<br />
