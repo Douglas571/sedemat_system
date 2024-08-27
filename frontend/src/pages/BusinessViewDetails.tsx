@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
+import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -252,24 +252,25 @@ function BusinessViewDetails(): JSX.Element {
     return (
         <div>
             <div>
-                <Flex gap={'middle'} align='center'>
-                    <Title>
+                <Flex align='center' wrap style={{marginBottom: '20px'}}>
+                    <Title style={{marginRight: '20px'}}>
                         {business?.businessName || "Cargando..."}    
                     </Title>
-                    <Button
-                        data-test="business-edit-button"
-                        onClick={() => navigate(`/business/edit/${businessId}`)}>Editar
-                    </Button>
-                    <Button
-                        data-test="business-delete-button"
-                        onClick={() => business.id && showModal()}>Eliminar
-                    </Button>
+                    <Flex gap={'middle'}>
+                        <Button
+                            data-test="business-edit-button"
+                            onClick={() => navigate(`/business/edit/${businessId}`)}>Editar
+                        </Button>
+                        <Button
+                            data-test="business-delete-button"
+                            onClick={() => business.id && showModal()}>Eliminar
+                        </Button>
+                    </Flex>
                 </Flex>
 
                 <GeneralInformationDescription
                     business={business}
                 />
-
                 <br/>
                 
                 
@@ -506,7 +507,10 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                                     office?.leaseDocs[office?.leaseDocs?.length - 1]
                                                         ? (
                                                             <>
-                                                                Expira: {new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()}
+                                                                Expira:  <Badge 
+                                                                    status={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate) > new Date() ? "success" : "error"} 
+                                                                    text={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()} 
+                                                                />
                                                                 {
                                                                     office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map(image => {
                                                                         return (
@@ -793,13 +797,26 @@ function GeneralInformationDescription({business}): JSX.Element {
         {
             key: '3',
             label: "Fecha de vencimiento",
-            children: business?.companyExpirationDate ? new Date(business?.companyExpirationDate).toLocaleDateString() : "-",
+            children: <>
+                <Badge 
+                    status={new Date(business?.companyExpirationDate) > new Date() ? "success" : "error"} 
+                    text={business?.companyExpirationDate ? new Date(business?.companyExpirationDate).toLocaleDateString() : "-"} 
+                />
+            </>
+            
+            ,
             span: 2
         },
         {
             key: '4',
             label: "Fecha de vencimiento de la junta directiva",
-            children: business?.directorsBoardExpirationDate ? new Date(business?.directorsBoardExpirationDate).toLocaleDateString() : "-",
+            children: <>
+                <Badge 
+                    status={new Date(business?.directorsBoardExpirationDate) > new Date() ? "success" : "error"} 
+                    text={business?.directorsBoardExpirationDate ? new Date(business?.directorsBoardExpirationDate).toLocaleDateString() : "-"} 
+                />
+            </>
+        ,
             span: 2
         },
     ]
