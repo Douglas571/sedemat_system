@@ -336,6 +336,10 @@ function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
                         {
                             required: true,
                             message: "Introduzca el RIF"
+                        },
+                        {
+                            pattern: /^[VEJG]-\d{7,8}-\d{1}$/,
+                            message: 'Formato de RIF inválido (debe ser, V-12345678-9, E-12345678-9, etc)'
                         }
                     ]}
                     label='Rif'
