@@ -496,7 +496,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     )}<br />
 
                                 
-{office.isRented
+                                {office.isRented
                                     ? (
                                         <>
                                             <Title level={5}>
@@ -507,7 +507,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                                     office?.leaseDocs[office?.leaseDocs?.length - 1]
                                                         ? (
                                                             <>
-                                                                Expira:  <Badge 
+                                                                Expira: <Badge 
                                                                     status={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate) > new Date() ? "success" : "error"} 
                                                                     text={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()} 
                                                                 />
