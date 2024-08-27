@@ -1,7 +1,9 @@
 // const EconomicActivity = require('../models/economicActivity')
-const {Person, Business, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
+const {Person, Business, BranchOffice, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
 
 const logger = require('../utils/logger')
+
+const branchOfficeServices = require('./branchOffices');
 
 
 // Get all businesses
@@ -86,6 +88,7 @@ exports.deleteBusiness = async (id) => {
 
 
 exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
+    console.log({businessId})
     const business = await Business.findByPk(businessId, {
         include: [
             {
@@ -99,49 +102,21 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         ]
     });
 
-    const branchOffices = await BranchOffice.findAll({
-        where: {businessId},
-        include: [
-            {
-                model: EconomicLicense,
-                as: "economicLicenses"
-            },
-            {
-                model: Zonation,
-                as: "zonations",
-                include: 'docImages'
-            },
-            {
-                model: BuildingDoc,
-                as: "buildingDocs",
-                include: 'docImages'
-            },
-            {
-                model: LeaseDoc,
-                as: "leaseDocs",
-                include: 'docImages'
-            },
-            {
-                model: PermitDoc,
-                as: "fireFighterDocs",
-                include: 'docImages',
-            },
-            {
-                model: PermitDoc,
-                as: "healthPermitDocs",
-                include: 'docImages',
-            }
-        ]
-    })
+    if (business == null) {
+        throw new Error("busines not found")    
+    }
+
+    const branchOffices = await branchOfficeServices.getBranchOfficesByBusinessId(business.id)
 
 
     const result = {
         isValid: true,
-        error: {
-            message: '',
-            fields: []
+    }
 
-        }
+    const error = {
+        message: '',
+        fields: []
+
     }
     // constitution date
     let companyExpirationDate = new Date(business?.companyExpirationDate)
@@ -222,7 +197,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
                 error.fields.push({
                     branchOfficeId: branchOffice.id,
                     field: "leaseDoc.expirationDate",
-                    message: "La contrato de alquiler está expirado ha expirado, debe renovarlo"
+                    message: "La contrato de alquiler ha expirado, debe renovarlo"
                 })
             }
         } else {
@@ -252,42 +227,63 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         }
 
     //     has a valid firefighter permit doc 
-        let lastFireFighterDoc = branchOffice.fireFighterDocs[branchOffice.fireFighterDocs.length - 1]
-        if (!lastFireFighterDoc) {
+        console.log({a: branchOffice.fireFighterDocs})
+        if (!branchOffice.fireFighterDocs?.length) {
             result.isValid = false
             error.fields.push({
                 branchOfficeId: branchOffice.id,
-                field: "fireFighterDoc",
-                message: "Debe registrar un documento de permiso de incendio"
+                field: "fireFighterDocs",
+                message: "Debe registrar un documento de permiso de bomberos"
             })
+        } else {
+            let lastFireFighterDoc = branchOffice.fireFighterDocs[branchOffice?.fireFighterDocs?.length - 1]
+            if (!lastFireFighterDoc) {
+                result.isValid = false
+                error.fields.push({
+                    branchOfficeId: branchOffice.id,
+                    field: "fireFighterDoc",
+                    message: "Debe registrar un permiso de bomberos"
+                })
+            }
+
+            if (!(new Date(lastFireFighterDoc?.expirationDate) > new Date())) {
+                result.isValid = false
+                error.fields.push({
+                    branchOfficeId: branchOffice.id,
+                    field: "fireFighterDoc.expirationDate",
+                    message: "El permiso de bomberos ha expirado, debe renovarlo"
+                })
+            }
         }
 
-        if (lastFireFighterDoc.expirationDate > new Date()) {
+        
+        if (!branchOffice.healthPermitDocs?.length) {
             result.isValid = false
             error.fields.push({
                 branchOfficeId: branchOffice.id,
-                field: "fireFighterDoc.expirationDate",
-                message: "El permiso de incendio ha expirado, debe renovarlo"
-            })
-        }
-    //     has a valid health permit doc
-        let lastHealthDoc = branchOffice.healthDocs[branchOffice.healthDocs.length - 1]
-        if (!lastHealthDoc) {
-            result.isValid = false
-            error.fields.push({
-                branchOfficeId: branchOffice.id,
-                field: "healthDoc",
+                field: "healthPermitDocs",
                 message: "Debe registrar un documento de permiso de sanidad"
             })
-        }
+        } else {
+                //     has a valid health permit doc
+            let lastHealthDoc = branchOffice.healthPermitDocs[branchOffice.healthPermitDocs.length - 1]
+            if (!lastHealthDoc) {
+                result.isValid = false
+                error.fields.push({
+                    branchOfficeId: branchOffice.id,
+                    field: "healthDoc",
+                    message: "Debe registrar un documento de permiso de sanidad"
+                })
+            }
 
-        if (lastHealthDoc.expirationDate > new Date()) {
-            result.isValid = false
-            error.fields.push({
-                branchOfficeId: branchOffice.id,
-                field: "healthDoc.expirationDate",
-                message: "El permiso de sanidad ha expirado, debe renovarlo"
-            })
+            if (!(new Date(lastHealthDoc?.expirationDate) > new Date())) {
+                result.isValid = false
+                error.fields.push({
+                    branchOfficeId: branchOffice.id,
+                    field: "healthDoc.expirationDate",
+                    message: "El permiso de sanidad ha expirado, debe renovarlo"
+                })
+            }
         }
     })
 
@@ -299,5 +295,5 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         result.error = error
     }
     
-    return results
+    return result
 }

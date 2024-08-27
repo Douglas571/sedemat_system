@@ -85,6 +85,28 @@ router.post('/', async (req, res) => {
     }
 });
 
+// router to check if a business is allowed to have an economic activity license 
+router.get('/:businessId/elegible-for-economic-license', async (req, res) => {
+    try {
+        const { businessId } = req.params
+        
+        // call the service isEligibleForTheEconomicActivityLicense from businessService
+        const results = await businessService.isEligibleForTheEconomicActivityLicense(businessId)
+
+        // iff results has error
+        if (results.error) {
+            // set status to 400 
+            // return results 
+            return res.status(200).json({ error: results.error })
+        }
+
+        return res.status(200).json(results)
+    } catch (error) {
+        console.log({error})
+        return res.status(500).json({ error: error.message })
+    }
+})
+
 // Update a business
 router.put('/:id', async (req, res) => {
     try {
@@ -188,28 +210,6 @@ async function saveCertificateOfIncorporation(req, res) {
 };
 
 router.post('/coi', saveCertificateOfIncorporation)
-
-
-// router to check if a business is allowed to have an economic activity license 
-router.post('/:businessid/bring-economic-license', async (req, res) => {
-    try {
-        const { businessId } = req.params
-        
-        // call the service isEligibleForTheEconomicActivityLicense from businessService
-        const results = await businessService.isEligibleForTheEconomicActivityLicense(businessId)
-
-        // iff results has error
-        if (results.error) {
-            // set status to 400 
-            // return results 
-            res.status(400).json({ error: results.error })
-        }
-
-        res.status(200).json(results)
-    } catch (error) {
-        console.log({error})
-        return res.status(500).json({ error: error.message })
-})
 
 
 module.exports = router
