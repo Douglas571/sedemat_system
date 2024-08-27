@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Divider, FormProps, Modal, Space } from 'antd'
+import { Card, Descriptions, Divider, FormProps, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -256,59 +256,51 @@ function BusinessViewDetails(): JSX.Element {
                     </Button>
                 </Flex>
 
-                <Title level={2}>
-                    Detalles
-                </Title>
-                <Paragraph>
-                    RIF: {business?.dni}<br />
-                    Fecha de constitución: {business?.companyIncorporationDate && new Date(business?.companyIncorporationDate).toLocaleDateString()}<br />
-                    Fecha de vencimiento: {business?.companyExpirationDate && new Date(business?.companyExpirationDate).toLocaleDateString()}<br />
-                    Fecha de vencimiento de la junta directiva: {business?.directorsBoardExpirationDate && new Date(business?.directorsBoardExpirationDate).toLocaleDateString()}
-                </Paragraph>
-                <Title level={5}>
-                    Actividad Económica
-                </Title>
-                <Paragraph>
-                    Codigo: {business?.economicActivity.code}<br />
-                    Ramo: {business?.economicActivity?.title} <br />
-                    Alicuota: {business?.economicActivity?.alicuota}% <br />
-                    Mínimo Tributario: {business?.economicActivity?.alicuota} TCMMV-BCV
-                </Paragraph>
-
-                <Title level={2}>
-                    Encargados
-                </Title>
-                <Title level={5}>
-                    Preferencias de Comunicación
-                </Title>
-                <Paragraph>
-                    {/* {JSON.stringify(business, null, 2)} */}
-                    Contacto: <span data-test="communication-options-preferred-contact">{getCommunicationPreference().preferredContact}</span><br />
-                    Comunicados al: <span data-test="communication-options-preferred-channel">{`${getCommunicationPreference().preferredChannel} (${getPreferredChannelName()})`}</span><br />
-                    Enviar Cálculos al: <span data-test="communication-options-send-calculos">{getCommunicationPreference().sendCalculosTo}</span><br />
-                    Recordar: <span data-test="communication-options-reminder-interval">{business.reminderInterval && reminderIntervalMap[business.reminderInterval]}</span><br />
-                    {/* {JSON.stringify(getCommunicationPreference(), null, 2)} */}
-                </Paragraph>
-
-
-                <ContactDisplay
-                    contact={business.owner}
-                    role={"Propietario"}
+                <GeneralInformationDescription
+                    business={business}
+                />
+                
+                
+                <EconomicActivityDescription
+                    economicActivity={business?.economicActivity}
                 />
 
-                {business.accountant && (
-                    <ContactDisplay
-                        contact={business.accountant}
-                        role={"Contador"}
-                    />
-                )}
 
-                {business.administrator && (
-                    <ContactDisplay
-                        contact={business.administrator}
-                        role={"Administrador"}
+                <Flex vertical gap={'middle'}>
+                    <Title level={2}>
+                        Encargados
+                    </Title>
+
+                    <ContactPreferenceDescription
+                        preference={{
+                            preferredContact: getCommunicationPreference().preferredContact,
+                            preferredChannel: getCommunicationPreference().preferredChannel,
+                            sendCalculosTo: getCommunicationPreference().sendCalculosTo,
+                            reminderInterval: business.reminderInterval && reminderIntervalMap[business.reminderInterval]
+                        }}
                     />
-                )}
+
+                    <Flex gap='middle' wrap>
+                        <ContactDisplay
+                            contact={business.owner}
+                            role={"Propietario"}
+                        />
+
+                        {business.accountant && (
+                            <ContactDisplay
+                                contact={business.accountant}
+                                role={"Contador"}
+                            />
+                        )}
+
+                        {business.administrator && (
+                            <ContactDisplay
+                                contact={business.administrator}
+                                role={"Administrador"}
+                            />
+                        )}
+                    </Flex>
+                </Flex>
 
                 <Divider />
                 <Typography.Title>
@@ -604,21 +596,19 @@ function ContactDisplay({ contact, role }): JSX.Element {
     const {businessId} = useParams()
     const navigate = useNavigate()
 
-
     return (
-        <>
-            <Flex gap={'middle'} align='center'>
-
-                <Title level={4}>
-                    {role}
-                </Title>
+        <Card 
+            title={role + ": " + contact.firstName + " " + contact.lastName}
+            extra={
                 <Button onClick={() => {
                     navigate(`/contacts/${contact.id}/edit?redirect=/business/${businessId}`)
                     }}>
                     Editar
                 </Button>
-            </Flex>
+            }
 
+            style={{ maxWidth: 400 }}
+        >
             {contact?.firstName
                 ? (
                     <Flex gap={'middle'}>
@@ -628,9 +618,8 @@ function ContactDisplay({ contact, role }): JSX.Element {
                             src={completeUrl(contact.profilePictureUrl)}
                         />
                         <Paragraph>
-                            Nombres y Apellidos: {contact.firstName + " " + contact.lastName}<br />
                             Cédula: {contact.dni}<br />
-                            Phone: {contact.phone}<br />
+                            Teléfono: {contact.phone}<br />
                             Whatsapp: {contact.whatsapp}<br />
                             Correo: {contact.email}<br />
                         </Paragraph>
@@ -640,7 +629,7 @@ function ContactDisplay({ contact, role }): JSX.Element {
                         Sin datos
                     </Paragraph>
                 )}
-        </>
+        </Card>
     )
 }
 
@@ -696,3 +685,130 @@ function PermitRender({data, title}) {
 
 
 export default BusinessViewDetails
+
+function GeneralInformationDescription({business}): JSX.Element {
+    if (!business) { return <></> }
+
+    const generalInformationDescriptions = [
+        {
+            key: '1',
+            label: "RIF",
+            children: business?.dni,
+            span: 2
+        },
+        {
+            key: '2',
+            label: "Fecha de constitución",
+            children: business?.companyIncorporationDate ? new Date(business?.companyIncorporationDate).toLocaleDateString() : "-",
+            span: 2
+        },
+        {
+            key: '3',
+            label: "Fecha de vencimiento",
+            children: business?.companyExpirationDate ? new Date(business?.companyExpirationDate).toLocaleDateString() : "-",
+            span: 2
+        },
+        {
+            key: '4',
+            label: "Fecha de vencimiento de la junta directiva",
+            children: business?.directorsBoardExpirationDate ? new Date(business?.directorsBoardExpirationDate).toLocaleDateString() : "-",
+            span: 2
+        },
+    ]
+
+
+    return (
+        <Descriptions
+            title="Información General"
+            bordered
+            items={generalInformationDescriptions}
+        />
+    )
+}
+
+function ContactPreferenceDescription({preference}): JSX.Element {
+
+    if (!preference) {
+        return <p>Actividad Económica no registrada</p>
+    }
+
+    console.log(JSON.stringify(preference))
+
+    let {preferredContact,
+        preferredChannel,
+        sendCalculosTo,
+        reminderInterval} = preference
+    const economicActivityDescriptions = [
+        {
+            key: '1',
+            label: 'Contacto',
+            children: preferredContact
+        },
+        {
+            key: '2',
+            label: 'Comunicados al',
+            children: preferredChannel
+        },
+        {
+            key: '3',
+            label: 'Enviar Cálculos al',
+            children: sendCalculosTo,
+        },
+        {
+            key: '4',
+            label: 'Recordad',
+            children: reminderInterval
+        },
+    ]
+
+    return (
+        <Descriptions
+            title="Preferencias de Comunicación"
+            bordered
+            items={economicActivityDescriptions}
+        />
+
+    )
+}
+
+function EconomicActivityDescription({economicActivity}): JSX.Element {
+
+    if (!economicActivity) {
+        return <p>Actividad Económica no registrada</p>
+    }
+
+    console.log(JSON.stringify(economicActivity))
+
+    let { title, code, alicuota, minimumTax} = economicActivity
+    const economicActivityDescriptions = [
+        {
+            key: '1',
+            label: 'Código',
+            children: code
+        },
+        {
+            key: '2',
+            label: 'Ramo',
+            children: title
+        },
+        {
+            key: '3',
+            label: 'Alicuota',
+            children: alicuota + "%",
+        },
+        {
+            key: '4',
+            label: 'Mínimo Tributario',
+            children: minimumTax + " TCMMV-BCV"
+        },
+    ]
+
+    return (
+        <Descriptions
+            title="Actividad Económica"
+            bordered
+            items={economicActivityDescriptions}
+        />
+
+    )
+}
