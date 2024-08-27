@@ -129,7 +129,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         result.isValid = false
         error.fields.push({
             field: "companyExpirationDate",
-            message: "La el acta de constitución ha expiro, debe renovarla"
+            message: "El acta de constitución ha expiro, debe renovarla"
         })
     }
     // directors board expirationDate
