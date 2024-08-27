@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Children, useEffect, useState } from 'react'
 import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
@@ -462,6 +462,11 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                         healthPermit = office.healthPermitDocs[l - 1]
                     }
 
+                    const lastLeaseDoc = office?.leaseDocs?.length > 0 &&office?.leaseDocs[office?.leaseDocs?.length - 1]
+                    const lastBuildingDoc = office?.buildingDocs?.length > 0 && office?.buildingDocs[office?.buildingDocs?.length - 1]
+
+                    const lastZonationDoc = office.zonations.length > 0 && office?.zonations[office?.zonations?.length - 1]
+
                     return (
                         <Flex key={office.id} vertical>
 
@@ -475,26 +480,46 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                             </Flex>
 
 
-                            <Paragraph>
-                                {/* Actividad Económica: {lastEconomicLicense?.EconomicActivity.title}<br/>
-                            Alicuota: {lastEconomicLicense?.EconomicActivity.alicuota}<br/>
-                            Mínimo tributario: {lastEconomicLicense?.EconomicActivity.minimumTax}<br/> */}
-                                Zona: {office.zone}<br />
-                                Dirección: {office.address}<br />
-                                Dimensiones: {office.dimensions} m2<br />
-                                Tipo de terreno: {office.type}<br />
-                                Procedencia: {office.isRented
-                                    ? (
-                                        <>
-                                            Alquilado
-                                        </>
-                                    )
-                                    : (
-                                        <>
-                                            Propio
-                                        </>
-                                    )}<br />
 
+                            <Descriptions
+                                title={`Datos Generales`}
+                                bordered
+                                items={[
+                                    {
+                                        label: 'Zona', 
+                                        children: office.zone
+                                    },
+                                    {
+                                        label: 'Dirección',
+                                        children: office.address,
+                                        span: 2
+                                    },
+                                    {
+                                        label: 'Dimensiones',
+                                        children: office.dimensions + " m2"
+                                    },
+                                    {
+                                        label: 'Tipo de terreno',
+                                        children: office.type
+                                    },
+                                    {
+                                        label: 'Procedencia',
+                                        children: office.isRented
+                                            ? (
+                                                <>
+                                                    Alquilado
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    Propio
+                                                </>
+                                            )
+                                    }
+                                ]}
+                            />
+
+                            <Paragraph>
                                 
                                 {office.isRented
                                     ? (
@@ -504,15 +529,15 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                             </Title>
                                             <Paragraph>
                                                 {
-                                                    office?.leaseDocs[office?.leaseDocs?.length - 1]
+                                                    lastLeaseDoc
                                                         ? (
                                                             <>
-                                                                Expira: <Badge 
-                                                                    status={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate) > new Date() ? "success" : "error"} 
-                                                                    text={new Date(office.leaseDocs[office?.leaseDocs?.length - 1]?.expirationDate).toLocaleDateString()} 
+                                                                <Badge 
+                                                                    status={new Date(lastLeaseDoc?.expirationDate) > new Date() ? "success" : "error"} 
+                                                                    text={new Date(lastLeaseDoc?.expirationDate).toLocaleDateString()} 
                                                                 />
                                                                 {
-                                                                    office.leaseDocs[office?.leaseDocs?.length - 1]?.docImages.map(image => {
+                                                                    lastLeaseDoc?.docImages.map(image => {
                                                                         return (
                                                                             <div key={image.id}>
                                                                                 <a
@@ -540,12 +565,12 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                             </Title>
                                             <Paragraph>
                                                 {
-                                                    office?.buildingDocs[office?.buildingDocs?.length - 1]
+                                                    lastBuildingDoc
                                                         ? (
                                                             <>
-                                                                Expira: {new Date(office.buildingDocs[office?.buildingDocs?.length - 1]?.expirationDate).toLocaleDateString()}
+                                                                Expira: {new Date(lastBuildingDoc?.expirationDate).toLocaleDateString()}
                                                                 {
-                                                                    office.buildingDocs[office?.buildingDocs?.length - 1]?.docImages.map(image => {
+                                                                    lastBuildingDoc?.docImages.map(image => {
                                                                         return (
                                                                             <div key={image.id}>
                                                                                 <a
@@ -573,7 +598,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     Zonificación
                                 </Title>
                                 {
-                                    (office.zonations.length > 0 && office.zonations[office.zonations.length - 1])
+                                    (lastZonationDoc)
                                         ? (
                                             <Paragraph>
                                                 {office.zonations[office.zonations.length - 1].docImages.map(image => {
@@ -757,8 +782,10 @@ function PermitRender({data, title}) {
                 {title}
             </Title>
             <Paragraph>
-                Expira: {expirationDate.toLocaleDateString()}
-
+                <Badge 
+                    status={expirationDate > new Date() ? "success" : "error"} 
+                    text={expirationDate.toLocaleDateString()} 
+                />
                 {
                     data.docImages?.map(image => {
                         return (
@@ -771,6 +798,8 @@ function PermitRender({data, title}) {
                         )
                     })
                 }
+
+                
             </Paragraph>
         </>
     )
