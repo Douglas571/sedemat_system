@@ -641,16 +641,18 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
 function ContactDisplay({ contact, role }): JSX.Element {
     const {businessId} = useParams()
     const navigate = useNavigate()
-
+    //  /contacts/1
     return (
         <Card 
             title={role + ": " + contact.firstName + " " + contact.lastName}
-            extra={
-                <Button onClick={() => {
-                    navigate(`/contacts/${contact.id}/edit?redirect=/business/${businessId}`)
-                    }}>
-                    Editar
-                </Button>
+            extra={<Flex gap={'middle'}>
+                    <Link to={`/contacts/${contact.id}`}>
+                        Ver más
+                    </Link>
+                    <Link to={`/contacts/${contact.id}/edit?redirect=/business/${businessId}`}>
+                        Editar
+                    </Link>
+                </Flex>
             }
 
             style={{ maxWidth: 400 }}
