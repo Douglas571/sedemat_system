@@ -241,7 +241,7 @@ function BusinessViewDetails(): JSX.Element {
 
     return (
         <div>
-            <Typography>
+            <div>
                 <Flex gap={'middle'} align='center'>
                     <Title>
                         {business?.businessName || "Cargando..."}    
@@ -259,6 +259,8 @@ function BusinessViewDetails(): JSX.Element {
                 <GeneralInformationDescription
                     business={business}
                 />
+
+                <br/>
                 
                 
                 <EconomicActivityDescription
@@ -267,7 +269,7 @@ function BusinessViewDetails(): JSX.Element {
 
 
                 <Flex vertical gap={'middle'}>
-                    <Title level={2}>
+                    <Title level={3}>
                         Encargados
                     </Title>
 
@@ -302,7 +304,6 @@ function BusinessViewDetails(): JSX.Element {
                     </Flex>
                 </Flex>
 
-                <Divider />
                 <Typography.Title>
                     Registro de Comercio
                 </Typography.Title>
@@ -328,6 +329,8 @@ function BusinessViewDetails(): JSX.Element {
                         )
                 }
 
+                <Divider />
+
                 <BranchOfficesDisplay
                     branchOffices={business?.branchOffices}
                     onNew={handleNewBranchOffice}
@@ -338,7 +341,7 @@ function BusinessViewDetails(): JSX.Element {
                 {/* <Title level={3}>
                     Calculos
                 </Title> */}
-            </Typography>
+            </div>
 
 
             <Modal title="Eliminar Contribuyente"
@@ -394,10 +397,10 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
         <>
             <Flex gap="large" align='center'>
                 <Title level={2}>
-                    Sedes o Establecimientos
+                    Sedes
                 </Title>
                 <Button onClick={() => onNew()}>
-                    Nuevo
+                    Nueva
                 </Button>
             </Flex>
             <Flex vertical gap="large">
