@@ -278,7 +278,8 @@ function BusinessViewDetails(): JSX.Element {
                             preferredContact: getCommunicationPreference().preferredContact,
                             preferredChannel: getCommunicationPreference().preferredChannel,
                             sendCalculosTo: getCommunicationPreference().sendCalculosTo,
-                            reminderInterval: business.reminderInterval && reminderIntervalMap[business.reminderInterval]
+                            reminderInterval: business.reminderInterval && reminderIntervalMap[business.reminderInterval],
+                            preferredChannelType: getPreferredChannelName()
                         }}
                     />
 
@@ -636,6 +637,52 @@ function ContactDisplay({ contact, role }): JSX.Element {
     )
 }
 
+function ContactPreferenceDescription({preference}): JSX.Element {
+
+    if (!preference) {
+        return <p>Actividad Económica no registrada</p>
+    }
+
+    console.log(JSON.stringify(preference))
+
+    let {preferredContact,
+        preferredChannel,
+        sendCalculosTo,
+        reminderInterval,
+        preferredChannelType} = preference
+    const economicActivityDescriptions = [
+        {
+            key: '1',
+            label: 'Contacto',
+            children: preferredContact
+        },
+        {
+            key: '2',
+            label: 'Comunicados al',
+            children: preferredChannel + ` (${preferredChannelType})`
+        },
+        {
+            key: '3',
+            label: 'Enviar Cálculos al',
+            children: sendCalculosTo,
+        },
+        {
+            key: '4',
+            label: 'Recordad',
+            children: reminderInterval
+        },
+    ]
+
+    return (
+        <Descriptions
+            title="Preferencias de Comunicación"
+            bordered
+            items={economicActivityDescriptions}
+        />
+
+    )
+}
+
 function Permits({ firefighterPermit, healthPermit }): JSX.Element {
 
     console.log({ firefighterPermit, healthPermit })
@@ -726,51 +773,6 @@ function GeneralInformationDescription({business}): JSX.Element {
             bordered
             items={generalInformationDescriptions}
         />
-    )
-}
-
-function ContactPreferenceDescription({preference}): JSX.Element {
-
-    if (!preference) {
-        return <p>Actividad Económica no registrada</p>
-    }
-
-    console.log(JSON.stringify(preference))
-
-    let {preferredContact,
-        preferredChannel,
-        sendCalculosTo,
-        reminderInterval} = preference
-    const economicActivityDescriptions = [
-        {
-            key: '1',
-            label: 'Contacto',
-            children: preferredContact
-        },
-        {
-            key: '2',
-            label: 'Comunicados al',
-            children: preferredChannel
-        },
-        {
-            key: '3',
-            label: 'Enviar Cálculos al',
-            children: sendCalculosTo,
-        },
-        {
-            key: '4',
-            label: 'Recordad',
-            children: reminderInterval
-        },
-    ]
-
-    return (
-        <Descriptions
-            title="Preferencias de Comunicación"
-            bordered
-            items={economicActivityDescriptions}
-        />
-
     )
 }
 
