@@ -286,10 +286,15 @@ export default function ContactsView(): JSX.Element {
                             {
                                 required: true,
                                 message: "La cédula del propietario es requerida"
+                            },
+                            {
+                                pattern: /^[VE]-\d{1,2}\.\d{3}\.\d{3}$/,
+                                message: 'Formato de Cédula inválido (debe ser, V-12.345.678, E-1.234.567, etc)'
                             }
                         ]}
                         label='Cédula'
                         name={"dni"}
+                        
                     >
                         <Input data-test="owner-dni-input"/>
                     </Form.Item>
@@ -297,6 +302,16 @@ export default function ContactsView(): JSX.Element {
                     <Form.Item
                         label='RIF'
                         name={"rif"}
+                        rules={[
+                            // {
+                            //     required: true,
+                            //     message: "La cédula del propietario es requerida"
+                            // },
+                            {
+                                pattern: /^[VEJG]-\d{7,8}-\d{1}$/,
+                                message: 'Formato de RIF inválido (debe ser, V-12345678-9, E-12345678-9, etc)'
+                            }
+                        ]}
                     >
                         <Input data-test="owner-rif-input"/>
                     </Form.Item>
