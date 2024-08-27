@@ -1,5 +1,5 @@
 // const EconomicActivity = require('../models/economicActivity')
-const {Person, Business, BranchOffice, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
+const {Person, Business, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
 
 const logger = require('../utils/logger')
 
@@ -99,6 +99,11 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
                 model: Person,
                 as: "owner"
             },
+            {
+                model: CertificateOfIncorporation,
+                as: 'certificateOfIncorporations',
+                include: 'docImages'
+            }
         ]
     });
 
@@ -147,6 +152,40 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
             message: "Debe asignar una actividad económica válida"
         })
     }
+
+    // look if there is certificateOfIncorporations registered
+    if (business.certificateOfIncorporations.length == 0) {
+        result.isValid = false
+        error.fields.push({
+            field: "certificateOfIncorporations",
+            message: "Debe registrar un registro de comercio"
+        })
+    } else {
+        let lastCertificateOfIncorporation = business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1]
+        let expiradoDate = new Date(lastCertificateOfIncorporation.expirationDate)
+        if (!(expiradoDate > new Date())) {
+            result.isValid = false
+            error.fields.push({
+                field: "certificateOfIncorporations.expirationDate",
+                message: "El registro de comercio ha expirado, debe renovarlo"
+            })
+        }
+
+        if(!lastCertificateOfIncorporation.docImages.length) {
+            result.isValid = false
+            error.fields.push({
+                field: "certificateOfIncorporations.docImages",
+                message: "Debe registrar al menos una (1) imagen del registro de comercio"
+            })
+        }
+    }
+    
+    // get the last document 
+        // if the document doesn't have any images, it's invalid
+        // if the document is expired, is invalid
+
+
+    
     
     // as an owner 
     let {owner} = business
@@ -158,6 +197,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         })
     }
     // this owner has a picture
+    console.log({p: owner?.profilePictureUrl})
     if (!owner?.profilePictureUrl) {
         result.isValid = false
         error.fields.push({
@@ -171,7 +211,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         result.isValid = false
         error.fields.push({
             field: "owner.dniPictureUrl",
-            message: "Debe subir una imagen de la cédula"
+            message: "Debe subir una imagen de la cédula del propietario"
         })
     }
     // this owner has rif
@@ -179,7 +219,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         result.isValid = false
         error.fields.push({
             field: "owner.rifPictureUrl",
-            message: "Debe subir una imagen del rif"
+            message: "Debe subir una imagen del rif del propietario"
         })
     }
 
@@ -189,19 +229,39 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         
     //     if it is rented
         if (branchOffice.isRented) {
-            // it has a valid lease doc and expiration date for that document
-            let lastLeaseDoc = branchOffice.leaseDocs[branchOffice.leaseDocs.length - 1]
-            let expirationDate = new Date(lastLeaseDoc?.expirationDate)
-            if (!(expirationDate > new Date())) {
+
+            if (branchOffice.leaseDocs.length == 0) {
                 result.isValid = false
                 error.fields.push({
                     branchOfficeId: branchOffice.id,
-                    field: "leaseDoc.expirationDate",
-                    message: "La contrato de alquiler ha expirado, debe renovarlo"
+                    field: "leaseDoc",
+                    message: "Debe registrar un contrato de alquiler"
                 })
+            } else {
+                // it has a valid lease doc and expiration date for that document
+                let lastLeaseDoc = branchOffice.leaseDocs[branchOffice.leaseDocs.length - 1]
+                let expirationDate = new Date(lastLeaseDoc?.expirationDate)
+                if (!(expirationDate > new Date())) {
+                    result.isValid = false
+                    error.fields.push({
+                        branchOfficeId: branchOffice.id,
+                        field: "leaseDoc.expirationDate",
+                        message: "El contrato de alquiler ha expirado, debe renovarlo"
+                    })
+                }
             }
+            
         } else {
             // if it is not rented
+
+            if (branchOffice.buildingDocs.length == 0) {
+                result.isValid = false
+                error.fields.push({
+                    branchOfficeId: branchOffice.id,
+                    field: "buildingDoc",
+                    message: "Debe registrar un documento de inmueble"
+                })
+            }
             // it has a valid building doc and building doc expiration date
             let lastBuildingDoc = branchOffice.buildingDocs[branchOffice.buildingDocs.length - 1]
             let expirationDate = new Date(lastBuildingDoc?.expirationDate)
@@ -210,7 +270,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
                 error.fields.push({
                     branchOfficeId: branchOffice.id,
                     field: "buildingDoc.expirationDate",
-                    message: "El contrato de propiedad ha expirado, debe renovarlo"
+                    message: "El documento de inmueble ha expirado, debe renovarlo"
                 })
             }
         }
@@ -233,7 +293,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
             error.fields.push({
                 branchOfficeId: branchOffice.id,
                 field: "fireFighterDocs",
-                message: "Debe registrar un documento de permiso de bomberos"
+                message: "Debe registrar un permiso de bomberos"
             })
         } else {
             let lastFireFighterDoc = branchOffice.fireFighterDocs[branchOffice?.fireFighterDocs?.length - 1]
@@ -262,7 +322,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
             error.fields.push({
                 branchOfficeId: branchOffice.id,
                 field: "healthPermitDocs",
-                message: "Debe registrar un documento de permiso de sanidad"
+                message: "Debe registrar un permiso de sanidad"
             })
         } else {
                 //     has a valid health permit doc
@@ -272,7 +332,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
                 error.fields.push({
                     branchOfficeId: branchOffice.id,
                     field: "healthDoc",
-                    message: "Debe registrar un documento de permiso de sanidad"
+                    message: "Debe registrar un permiso de sanidad"
                 })
             }
 

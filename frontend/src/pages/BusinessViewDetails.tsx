@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Descriptions, Divider, FormProps, Modal, Space } from 'antd'
+import { Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
 import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -277,24 +277,27 @@ function BusinessViewDetails(): JSX.Element {
                     economicActivity={business?.economicActivity}
                 />
 
-                <Typography.Title>
+                <Typography.Title level={3}>
                     Licencia De Actividad Economica
                 </Typography.Title>
                 <Flex>
                     { licenseStatus?.isValid 
                     ? (
-                        <Paragraph>
-                            El Contribuyente es apto para una licencia de actividad económica
+                        <Flex vertical>
+                            <Paragraph>El Contribuyente es apto para una licencia de actividad económica</Paragraph>
                             <Button>Otorgar Licencia</Button>
-                        </Paragraph>
+                        </Flex>
                     ) : (
-                        <Paragraph>
-                            El contribuyente no es apto para la licencia por las siguientes razones: <br/>
-                            {licenseStatus?.error?.fields?.map((field, index) => (
-                                <div key={index}>{field.message}</div>
-                            ))}
-
-                        </Paragraph>
+                        <>
+                            <List 
+                                bordered
+                                header={<strong>El contribuyente no es apto para la licencia de actividad económica por las siguientes razones:</strong>}
+                                dataSource={licenseStatus?.error?.fields}
+                                renderItem={
+                                    (field) => <List.Item>{field.message}</List.Item>
+                                }
+                            />
+                        </>
                     )}
                 </Flex>
 
@@ -491,33 +494,8 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                         </>
                                     )}<br />
 
-
-                                <Title level={5}>
-                                    Zonificación
-                                </Title>
-                                {
-                                    (office.zonations.length > 0 && office.zonations[office.zonations.length - 1])
-                                        ? (
-                                            <Paragraph>
-                                                {office.zonations[office.zonations.length - 1].docImages.map(image => {
-                                                    return (
-                                                        <div key={image.id}>
-                                                            <a
-                                                                target="_blank"
-                                                                href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
-                                                        </div>)
-                                                })}
-
-                                            </Paragraph>
-                                        )
-                                        : (
-                                            <Paragraph>
-                                                No registrada
-                                            </Paragraph>
-                                        )
-                                }
-
-                                {office.isRented
+                                
+{office.isRented
                                     ? (
                                         <>
                                             <Title level={5}>
@@ -586,8 +564,35 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     )
 
                                 }
-
+                                
                                 <Title level={5}>
+                                    Zonificación
+                                </Title>
+                                {
+                                    (office.zonations.length > 0 && office.zonations[office.zonations.length - 1])
+                                        ? (
+                                            <Paragraph>
+                                                {office.zonations[office.zonations.length - 1].docImages.map(image => {
+                                                    return (
+                                                        <div key={image.id}>
+                                                            <a
+                                                                target="_blank"
+                                                                href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
+                                                        </div>)
+                                                })}
+
+                                            </Paragraph>
+                                        )
+                                        : (
+                                            <Paragraph>
+                                                No registrada
+                                            </Paragraph>
+                                        )
+                                }
+
+                                
+
+                                {/* <Title level={5}>
                                     Licencia
                                 </Title>
                                 {
@@ -604,7 +609,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                             </>
                                         )
 
-                                }
+                                } */}
 
 
                                 <Permits
