@@ -32,3 +32,34 @@ export async function uploadCertificateOfIncorporation(coi: CertificateOfIncorpo
         console.error('Error uploading files:', error);
     }
 }
+
+
+export async function isBusinessEligibleForEconomicLicense(businessId: number): any {
+    try {
+      const response = await fetch(`${HOST}/v1/businesses/${businessId}/elegible-for-economic-license`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        console.error('Failed to fetch eligibility status.');
+        return false;
+      }
+  
+      const body = await response.json();
+  
+      if (body.isValid) {
+        return body
+
+      } else {
+        console.error(body.error?.message || 'An unknown error occurred.');
+        console.log({errors: body.error})
+        return body;
+      }
+    } catch (error) {
+      console.error('Error fetching eligibility status:', error);
+      console.log({error})
+    }
+  }

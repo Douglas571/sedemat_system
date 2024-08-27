@@ -7,6 +7,7 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import type { Business, BranchOffice, License, EconomicActivity } from '../util/api'
 
 import * as api from '../util/api'
+import * as businessesApi from '../util/businessesApi'
 import { TypeIcon } from 'antd/es/message/PurePanel';
 
 
@@ -28,6 +29,8 @@ function BusinessViewDetails(): JSX.Element {
     const [business, setBusiness] = React.useState<Business>()
     const { businessId } = useParams();
     const navigate = useNavigate()
+
+    const [licenseStatus, setLicenseStatus] = useState()
 
     let [shouldUpdatePreferredChanel, setShouldUpdatePreferredChanel] = React.useState<boolean>(false)
 
@@ -70,6 +73,13 @@ function BusinessViewDetails(): JSX.Element {
             console.log({ branchOffices })
             setBusiness({ ...fetchedBusiness, branchOffices })
         }
+
+        // call the isBusinessEligibleForEconomicLicense function in businessApi and pass the business id
+        let status = await businessesApi.isBusinessEligibleForEconomicLicense(Number(businessId))
+        console.log({status})
+
+        setLicenseStatus({...status})
+
     }
 
     function isLicenseValid(license: License | undefined): boolean {
@@ -267,7 +277,29 @@ function BusinessViewDetails(): JSX.Element {
                     economicActivity={business?.economicActivity}
                 />
 
+                <Typography.Title>
+                    Licencia De Actividad Economica
+                </Typography.Title>
+                <Flex>
+                    { licenseStatus?.isValid 
+                    ? (
+                        <Paragraph>
+                            El Contribuyente es apto para una licencia de actividad económica
+                            <Button>Otorgar Licencia</Button>
+                        </Paragraph>
+                    ) : (
+                        <Paragraph>
+                            El contribuyente no es apto para la licencia por las siguientes razones: <br/>
+                            {licenseStatus?.error?.fields?.map((field, index) => (
+                                <div key={index}>{field.message}</div>
+                            ))}
 
+                        </Paragraph>
+                    )}
+                </Flex>
+
+
+                {/* contacts */}
                 <Flex vertical gap={'middle'}>
                     <Title level={3}>
                         Encargados
@@ -305,6 +337,7 @@ function BusinessViewDetails(): JSX.Element {
                     </Flex>
                 </Flex>
 
+                {/* coi */}
                 <Typography.Title>
                     Registro de Comercio
                 </Typography.Title>
