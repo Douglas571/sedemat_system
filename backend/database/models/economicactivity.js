@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   EconomicActivity.init({
     code: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
