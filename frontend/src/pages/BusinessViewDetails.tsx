@@ -398,7 +398,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
         <>
             <Flex gap="large" align='center'>
                 <Title level={2}>
-                    Sedes
+                    Sucursales
                 </Title>
                 <Button onClick={() => onNew()}>
                     Nueva
@@ -430,7 +430,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
 
                             <Flex gap={"small"} align='center'>
                                 <Title level={4}>
-                                    Sede #{index + 1}
+                                    Sucursal #{index + 1}
 
                                 </Title>
                                 <Button onClick={() => onEdit(office.id)}>Editar</Button>

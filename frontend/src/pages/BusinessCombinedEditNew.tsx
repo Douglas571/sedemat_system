@@ -274,8 +274,8 @@ export default function BusinessForm(): JSX.Element {
             {contextHolder}
             <Flex vertical>
                 { isNewTaxPayer 
-                    ? <Typography.Title level={1}>Nuevo contribuyente</Typography.Title> 
-                    : <Typography.Title level={1}>Editar contribuyente</Typography.Title>}
+                    ? <Typography.Title level={1}>Nuevo Contribuyente</Typography.Title> 
+                    : <Typography.Title level={1}>Editar Contribuyente</Typography.Title>}
 
                 <Form 
                     form={form} 
