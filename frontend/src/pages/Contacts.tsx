@@ -143,12 +143,14 @@ export default function Contacts(): JSX.Element {
     ]
     return (
         <>
-            <Typography.Title>
-                Contactos
-            </Typography.Title>
-            <Button onClick={() => navigate("new")}>
-                Nuevo
-            </Button>
+            <Flex gap={'middle'} align='center'>
+                <Typography.Title>
+                    Contactos
+                </Typography.Title>
+                <Button onClick={() => navigate("new")}>
+                    Nuevo
+                </Button>
+            </Flex>
             
             <Table 
                 dataSource={contacts.map(r => ({...r, key: r.id}))}
