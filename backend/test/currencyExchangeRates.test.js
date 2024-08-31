@@ -70,7 +70,7 @@ describe('CurrencyExchangeRates API', () => {
     });
 
     it('should fetch rates from BCV and save to database', async () => {
-        const res = await request(app).get(`/v1/currency-exchange-rates/fetch-from-bcv/`)
+        const res = await request(app).get(`/v1/currency-exchange-rates/fetch-from-bcv`)
 
         expect(res.status).to.equal(200);
 
