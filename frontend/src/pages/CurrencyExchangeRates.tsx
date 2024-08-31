@@ -80,33 +80,38 @@ const CurrencyExchangeRatesPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'USD/BS (BCV)',
+      title: 'Dólar (BCV)',
       dataIndex: 'dolarBCVToBs',
       key: 'dolarBCVToBs',
+      render: (text: string) => `${text} Bs.`,
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBCVToBs - b.dolarBCVToBs,
     },
     {
-      title: 'EUR/BS (BCV)',
+      title: 'Euro (BCV)',
       dataIndex: 'eurosBCVToBs',
       key: 'eurosBCVToBs',
+      render: (text: string) => `${text} Bs.`,
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.eurosBCVToBs - b.eurosBCVToBs,
     },
     {
-      title: 'USD/BS (Negro)',
+      title: 'Dólar (Negro)',
       dataIndex: 'dolarBlackToBs',
       key: 'dolarBlackToBs',
+      render: (text: string) => text ? `${text} Bs.` : '',
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBlackToBs - b.dolarBlackToBs,
     },
     {
-      title: 'EUR/BS (Negro)',
+      title: 'Euro (Negro)',
       dataIndex: 'euroBlackToBs',
       key: 'euroBlackToBs',
+      render: (text: string) => text ? `${text} Bs.` : '',
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.euroBlackToBs - b.euroBlackToBs,
     },
     {
       title: 'Creado el',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      defaultSortOrder: 'descend',
       render: (text: string) => new Date(text).toLocaleString(),
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     },
