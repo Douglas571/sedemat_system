@@ -83,6 +83,16 @@ const HOST = "http://" + IP + ":" + PORT
         throw new Error(`Failed to delete currency exchange rate: ${error.message}`);
       }
     }
+
+    async fetchFromBCV(): Promise<CurrencyExchangeRate> {
+      const response = await fetch(`${this.baseUrl}/fetch-from-bcv`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch exchange rates from BCV');
+      }
+      return await response.json();
+    }
   }
   
   export default new CurrencyExchangeRatesService();

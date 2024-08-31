@@ -35,6 +35,26 @@ const CurrencyExchangeRatesPage: React.FC = () => {
     }
   };
 
+  const handleCurrencyUpdateFromBCV = async () => {
+    try {
+      // Call the service to fetch the latest rates from BCV
+      const updatedRates = await CurrencyExchangeRatesService.fetchFromBCV();
+
+      console.log({theNewRate: updatedRates})
+  
+      // Update the list of currency entries in the frontend
+      if (updatedRates) {
+        setRates(prevRates => [...prevRates, updatedRates]);
+        message.success('Currency exchange rates updated successfully');
+      } else {
+        message.error('Failed to update currency exchange rates');
+      }
+    } catch (error) {
+      console.error('Error updating currency exchange rates:', error);
+      message.error('An error occurred while updating currency exchange rates');
+    }
+  }
+
   const onFinish = async (values: any) => {
     try {
       if (isEditing && currentRate) {
@@ -94,11 +114,14 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      render: (text: string) => new Date(text).toLocaleString()
+      
     },
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
+      render: (text: string) => new Date(text).toLocaleString()
     },
     {
       title: 'Action',
@@ -117,6 +140,9 @@ const CurrencyExchangeRatesPage: React.FC = () => {
   return (
     <div>
       <h1>Currency Exchange Rates</h1>
+      <Button onClick={handleCurrencyUpdateFromBCV}>
+        Actualizar
+      </Button>
       
       <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} />
 
@@ -162,7 +188,7 @@ function CurrencyExchangeRateEditForm({ form, onFinish }): JSX.Element {
       <Form.Item
         label="USD/BS (Black)"
         name="dolarBlackToBs"
-        rules={[{ required: true, message: 'Please input the USD/BS (Black) rate!' }]}
+        //rules={[{ required: true, message: 'Please input the USD/BS (Black) rate!' }]}
       >
         <Input type="number" />
       </Form.Item>
@@ -170,7 +196,7 @@ function CurrencyExchangeRateEditForm({ form, onFinish }): JSX.Element {
       <Form.Item
         label="EUR/BS (Black)"
         name="euroBlackToBs"
-        rules={[{ required: true, message: 'Please input the EUR/BS (Black) rate!' }]}
+        //rules={[{ required: true, message: 'Please input the EUR/BS (Black) rate!' }]}
       >
         <Input type="number" />
       </Form.Item>
