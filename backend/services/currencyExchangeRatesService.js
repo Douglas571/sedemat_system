@@ -33,6 +33,26 @@ class CurrencyExchangeRatesService {
 
   static async fetchFromBCV() {
     try {
+
+      // Retrieve the last created exchange rates record
+      const lastRates = await CurrencyExchangeRates.findOne({
+        order: [['createdAt', 'DESC']],
+      });
+  
+      // Get the current time
+      const now = new Date();
+  
+      // If there's a last record, check if it's within the last hour
+      if (lastRates) {
+        const lastCreatedAt = new Date(lastRates.createdAt);
+        const diffInMinutes = (now.getTime() - lastCreatedAt.getTime()) / (1000 * 60);
+  
+        if (diffInMinutes <= 1) {
+          // If the last record is less than or equal to 1 hour old, return it
+          return lastRates.toJSON();
+        }
+      }
+
       const response = await fetch('https://www.bcv.org.ve/');
     
       if (!response.ok) {

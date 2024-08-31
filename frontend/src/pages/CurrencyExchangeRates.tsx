@@ -49,7 +49,9 @@ const CurrencyExchangeRatesPage: React.FC = () => {
   
       // Update the list of currency entries in the frontend
       if (updatedRates) {
-        setRates(prevRates => [...prevRates, updatedRates]);
+        if (!rates.some( r => r.id === updatedRates.id)) {
+          setRates(prevRates => [...prevRates, updatedRates]);
+        }
         message.success('Tasas de cambio actualizadas correctamente');
       } else {
         message.error('Error al consultar tasas del BCV');
