@@ -272,6 +272,7 @@ function BusinessViewDetails(): JSX.Element {
                     business={business}
                 />
                 <br/>
+
                 
                 
                 <EconomicActivityDescription
@@ -340,32 +341,6 @@ function BusinessViewDetails(): JSX.Element {
                         )}
                     </Flex>
                 </Flex>
-
-                {/* coi */}
-                <Typography.Title>
-                    Registro de Comercio
-                </Typography.Title>
-                {
-                    business.certificateOfIncorporations?.length > 0
-                        ? (
-                            <Paragraph>
-                                {business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1].docImages?.map(image => {
-                                    return (
-                                        <div key={image.id}>
-                                            <a
-                                                target="_blank"
-                                                href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
-                                        </div>)
-                                })}
-
-                            </Paragraph>
-                        )
-                        : (
-                            <Paragraph>
-                                No registrado
-                            </Paragraph>
-                        )
-                }
 
                 <Divider />
 
@@ -852,13 +827,42 @@ function GeneralInformationDescription({business}): JSX.Element {
         },
     ]
 
+    const coi = business.certificateOfIncorporations?.length > 0 && business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1]
 
     return (
-        <Descriptions
-            title="Información General"
-            bordered
-            items={generalInformationDescriptions}
-        />
+        <Flex vertical>
+            <Descriptions
+                title="Información General"
+                bordered
+                items={generalInformationDescriptions}
+            />
+
+            {/* coi */}
+            <Typography.Title level={5}>
+                Registro de Comercio
+            </Typography.Title>
+            {
+                coi
+                    ? (
+                        <Paragraph>
+                            {coi.docImages?.map(image => {
+                                return (
+                                    <div key={image.id}>
+                                        <a
+                                            target="_blank"
+                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}</a><br />
+                                    </div>)
+                            })}
+
+                        </Paragraph>
+                    )
+                    : (
+                        <Paragraph>
+                            No registrado
+                        </Paragraph>
+                    )
+            }
+        </Flex>
     )
 }
 

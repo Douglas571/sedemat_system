@@ -284,15 +284,15 @@ export default function BusinessForm(): JSX.Element {
                         economicActivities={economicActivities}
                     />
 
+                    <CertificateOfIncorporationForm
+                                        
+                    />
+
                     <BusinessContactInformationForm 
                         people={people}
                     />
 
                     <BusinessContactPreferenceForm 
-                    
-                    />
-
-                    <CertificateOfIncorporationForm
                     
                     />
     
@@ -560,20 +560,23 @@ function CertificateOfIncorporationForm(): JSX.Element {
 		},
     }
     return (
-        <Flex vertical>
-            <Typography.Title level={3}>
-                Registro Comercial
-            </Typography.Title>
+        <>
+            <Flex vertical>
+                <Typography.Title level={3}>
+                    Registro Comercial
+                </Typography.Title>
 
-            <Form.Item name={"certificateOfIncorporationUpload"}>
-                <Upload {...uploadProps}>
-                    <Button>
-                        Agregar Imágenes
-                    </Button>
-                </Upload>
-            </Form.Item>
-
-        </Flex>
+                <Form.Item name={"certificateOfIncorporationUpload"}>
+                    <Upload {...uploadProps}>
+                        <Button>
+                            Agregar Imágenes
+                        </Button>
+                    </Upload>
+                </Form.Item>
+            </Flex>
+            <Divider/>
+        </>
+        
 
     )
 }
