@@ -34,6 +34,8 @@ const buildingDocsRouter = require("./routers/buildingDocs")
 
 const permitDocsRouter = require("./routers/permitDocs")
 
+const currencyExchangeRates = require('./routers/currencyExchangeRatesRouter')
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -50,9 +52,6 @@ const requestLogger = (req, res, next) => {
 };
 app.use(requestLogger);
 
-
-
-
 app.use("/v1/payments", paymentsRouter)
 app.use("/v1/businesses", businessesRouter)
 app.use("/v1/branch-offices", branchOfficesRouter) // todo: fix this url to use hyphens instead of camelCase
@@ -65,6 +64,7 @@ app.use("/v1/lease-docs", leaseDocsRouter)
 app.use("/v1/building-docs", buildingDocsRouter)
 
 app.use("/v1/permit-docs", permitDocsRouter)
+app.use("/v1/currency-exchange-rates", currencyExchangeRates)
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
