@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Table, message, Modal } from 'antd';
+import { Form, Input, Button, Table, message, Modal, Flex } from 'antd';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
+
+import { useNavigate } from 'react-router-dom';
 
 interface CurrencyExchangeRate {
   id: number;
@@ -15,9 +17,11 @@ interface CurrencyExchangeRate {
 const CurrencyExchangeRatesPage: React.FC = () => {
   const [rates, setRates] = useState<CurrencyExchangeRate[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [form] = Form.useForm();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  
+  
   const [currentRate, setCurrentRate] = useState<CurrencyExchangeRate | null>(null);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchRates();
@@ -94,42 +98,51 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       title: 'USD/BS (BCV)',
       dataIndex: 'dolarBCVToBs',
       key: 'dolarBCVToBs',
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBCVToBs - b.dolarBCVToBs,
     },
     {
       title: 'EUR/BS (BCV)',
       dataIndex: 'eurosBCVToBs',
       key: 'eurosBCVToBs',
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.eurosBCVToBs - b.eurosBCVToBs,
     },
     {
-      title: 'USD/BS (Black)',
+      title: 'USD/BS (Negro)',
       dataIndex: 'dolarBlackToBs',
       key: 'dolarBlackToBs',
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBlackToBs - b.dolarBlackToBs,
     },
     {
-      title: 'EUR/BS (Black)',
+      title: 'EUR/BS (Negro)',
       dataIndex: 'euroBlackToBs',
       key: 'euroBlackToBs',
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.euroBlackToBs - b.euroBlackToBs,
     },
     {
-      title: 'Created At',
+      title: 'Creado el',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text: string) => new Date(text).toLocaleString()
-      
+      render: (text: string) => new Date(text).toLocaleString(),
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     },
     {
-      title: 'Updated At',
+      title: 'Actualizado el',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (text: string) => new Date(text).toLocaleString()
+      render: (text: string) => new Date(text).toLocaleString(),
+      sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     },
     {
-      title: 'Action',
+      title: 'Acciones',
       key: 'action',
       render: (text: string, record: CurrencyExchangeRate) => (
         <>
-          <Button onClick={() => editRate(record)}>Editar</Button>
-          <Button danger onClick={() => deleteRate(record.id)}>
+          <Button 
+            onClick={() => navigate(`edit/${record.id}`)}
+            // onClick={() => editRate(record)}
+          >Editar</Button>
+          <Button 
+            danger onClick={() => deleteRate(record.id)}>
             Eliminar
           </Button>
         </>
@@ -139,12 +152,14 @@ const CurrencyExchangeRatesPage: React.FC = () => {
 
   return (
     <div>
-      <h1>Currency Exchange Rates</h1>
-      <Button onClick={handleCurrencyUpdateFromBCV}>
-        Actualizar
-      </Button>
+      <Flex wrap justify='space-between' align='center'>
+        <h1>Currency Exchange Rates</h1>
+        <Button onClick={handleCurrencyUpdateFromBCV}>
+          Actualizar
+        </Button>
+      </Flex>
       
-      <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} />
+      {/* <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} /> */}
 
       <Table
         columns={columns}
@@ -155,59 +170,5 @@ const CurrencyExchangeRatesPage: React.FC = () => {
     </div>
   );
 };
-
-function CurrencyExchangeRateEditForm({ form, onFinish }): JSX.Element {
-  return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-      initialValues={{
-        dolarBCVToBs: 0,
-        eurosBCVToBs: 0,
-        dolarBlackToBs: 0,
-        euroBlackToBs: 0,
-      }}
-    >
-      <Form.Item
-        label="USD/BS (BCV)"
-        name="dolarBCVToBs"
-        rules={[{ required: true, message: 'Please input the USD/BS (BCV) rate!' }]}
-      >
-        <Input type="number" />
-      </Form.Item>
-
-      <Form.Item
-        label="EUR/BS (BCV)"
-        name="eurosBCVToBs"
-        rules={[{ required: true, message: 'Please input the EUR/BS (BCV) rate!' }]}
-      >
-        <Input type="number" />
-      </Form.Item>
-
-      <Form.Item
-        label="USD/BS (Black)"
-        name="dolarBlackToBs"
-        //rules={[{ required: true, message: 'Please input the USD/BS (Black) rate!' }]}
-      >
-        <Input type="number" />
-      </Form.Item>
-
-      <Form.Item
-        label="EUR/BS (Black)"
-        name="euroBlackToBs"
-        //rules={[{ required: true, message: 'Please input the EUR/BS (Black) rate!' }]}
-      >
-        <Input type="number" />
-      </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          {form.getFieldValue('id') ? 'Update' : 'Submit'}
-        </Button>
-      </Form.Item>
-    </Form>
-  );
-}
 
 export default CurrencyExchangeRatesPage;

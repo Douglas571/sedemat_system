@@ -16,6 +16,7 @@ import BranchOfficeEdit from 'pages/BranchOfficeEdit'
 import NewBusinessForm from 'pages/BusinessCombinedEditNew'
 
 import CurrencyExchangeRatesPage from 'pages/CurrencyExchangeRates'
+import CurrencyExchangeRatesEditForm from 'pages/CurrencyExchangeRatesEditForm';
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
@@ -81,10 +82,10 @@ function App(): JSX.Element {
 							path='contacts/:contactId/edit'
 							element={<ContactEdit/>}
 						/>
-						<Route
-							path='currency-exchange-rates'
-							element={<CurrencyExchangeRatesPage/>}
-						/> 
+
+						<Route path='currency-exchange-rates' element={<CurrencyExchangeRatesPage />} />
+						<Route path='currency-exchange-rates/new' element={<CurrencyExchangeRatesEditForm />} />
+						<Route path='currency-exchange-rates/edit/:id' element={<CurrencyExchangeRatesEditForm />} />
 						
 
 						{/* Using path="*"" means "match anything", so this route
