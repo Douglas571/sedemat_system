@@ -2,6 +2,8 @@ const request = require('supertest');
 const app = require('../app'); // Adjust the path to your app
 const { CurrencyExchangeRates } = require('../database/models'); // Adjust the path to your model
 
+const CurrencyExchangeRatesService = require('../services/currencyExchangeRatesService')
+
 describe('CurrencyExchangeRates API', () => {
     let expect;
     let exchangeRateId;
@@ -65,5 +67,24 @@ describe('CurrencyExchangeRates API', () => {
         const res = await request(app).delete(`/v1/currency-exchange-rates/${exchangeRateId}`);
 
         expect(res.status).to.equal(204);
+    });
+
+    it('should fetch rates from BCV and save to database', async () => {
+        const res = await request(app).get(`/v1/currency-exchange-rates/fetch-from-bcv/`)
+
+        expect(res.status).to.equal(200);
+
+        const rates = res.body
+    
+        // Fetch the latest entry from the database
+        const savedRate = await CurrencyExchangeRates.findOne({ order: [['createdAt', 'DESC']] });
+    
+        expect(savedRate).to.not.be.null;
+        expect(savedRate.dolarBCVToBs).to.equal(rates.dolarBCVToBs);
+        expect(savedRate.euroBCVToBs).to.equal(rates.euroBCVToBs);
+        
+        // Optionally, you can also log the results to check them visually
+        // console.log('Fetched Rates:', rates);
+        // console.log('Saved Rates:', savedRate.toJSON());
     });
 });

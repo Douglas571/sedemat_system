@@ -48,6 +48,15 @@ class CurrencyExchangeRatesController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  static async fetchFromBCV(req, res) {
+    try {
+        const updatedRates = await CurrencyExchangeRatesService.fetchFromBCV();
+        res.status(200).json(updatedRates);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch exchange rates from BCV' });
+    }
+  } 
 }
 
 module.exports = CurrencyExchangeRatesController

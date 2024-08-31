@@ -3,6 +3,8 @@ const CurrencyExchangeRatesController = require('../controllers/currencyExchange
 
 const router = express.Router();
 
+router.get('/fetch-from-bcv', CurrencyExchangeRatesController.fetchFromBCV)
+
 router.post('/', CurrencyExchangeRatesController.create);
 router.get('/', CurrencyExchangeRatesController.getAll);
 router.get('/:id', CurrencyExchangeRatesController.getById);

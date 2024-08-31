@@ -1,5 +1,7 @@
 const {CurrencyExchangeRates} = require('../database/models')
 
+const cheerio = require('cheerio');
+
 class CurrencyExchangeRatesService {
   static async create(data) {
     return await CurrencyExchangeRates.create(data);
@@ -27,6 +29,41 @@ class CurrencyExchangeRatesService {
       throw new Error('Record not found');
     }
     return await record.destroy();
+  }
+
+  static async fetchFromBCV() {
+    try {
+      const response = await fetch('https://www.bcv.org.ve/');
+    
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+
+
+      const dolarRate = Number($('#dolar .field-content .row div:nth-child(2)').text().trim().replace(',', '.'));
+      const euroRate = Number($('#euro .field-content .row div:nth-child(2)').text().trim().replace(',', '.'));
+
+      const exchangeRates = {
+        dolarBCVToBs: dolarRate,
+        euroBCVToBs: euroRate
+      }
+
+      // Save the fetched data to the database
+      const newRates = await CurrencyExchangeRates.create({
+        dolarBCVToBs: exchangeRates.dolarBCVToBs,
+        eurosBCVToBs: exchangeRates.euroBCVToBs,
+        dolarBlackToBs: null, // Set as null since we're not fetching this data from BCV
+        euroBlackToBs: null,  // Set as null since we're not fetching this data from BCV
+      });
+
+      return newRates.toJSON()
+    } catch (error) {
+      console.log({error})
+      console.error('Error fetching exchange rates:', error);
+    }
   }
 }
 
