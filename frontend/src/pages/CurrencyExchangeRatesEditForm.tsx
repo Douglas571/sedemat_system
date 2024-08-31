@@ -27,7 +27,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
       console.log({data})
       form.setFieldsValue(data);
     } catch (error) {
-      message.error('Failed to fetch currency exchange rate');
+      message.error('Error al consultar tasas de cambio');
     } finally {
       setLoading(false);
     }
@@ -37,15 +37,15 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
     try {
       if (isEditing && id) {
         await CurrencyExchangeRatesService.update(Number(id), values);
-        message.success('Currency exchange rate updated successfully');
+        message.success('Tasas de cambio actualizadas correctamente');
       } else {
         await CurrencyExchangeRatesService.create(values);
-        message.success('Currency exchange rate created successfully');
+        message.success('Tasas de cambio registradas exitosamente');
       }
       form.resetFields();
       navigate('/currency-exchange-rates'); // Navigate back to the main page
     } catch (error) {
-      message.error('Failed to save currency exchange rate');
+      message.error('Error al guardar tasas de cambio');
     }
   };
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Table, message, Modal, Flex } from 'antd';
+import { Form, Input, Button, Table, message, Modal, Flex, Row, Col, Statistic, Card, StatisticProps, Typography, Alert } from 'antd';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 
 import { useNavigate } from 'react-router-dom';
+import CountUp from 'react-countup';
 
 interface CurrencyExchangeRate {
   id: number;
@@ -33,7 +34,7 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       const data = await CurrencyExchangeRatesService.getAll();
       setRates(data);
     } catch (error) {
-      message.error('Failed to fetch currency exchange rates');
+      message.error('Error al consultar tasas de cambio');
     } finally {
       setLoading(false);
     }
@@ -49,41 +50,23 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       // Update the list of currency entries in the frontend
       if (updatedRates) {
         setRates(prevRates => [...prevRates, updatedRates]);
-        message.success('Currency exchange rates updated successfully');
+        message.success('Tasas de cambio actualizadas correctamente');
       } else {
-        message.error('Failed to update currency exchange rates');
+        message.error('Error al consultar tasas del BCV');
       }
     } catch (error) {
       console.error('Error updating currency exchange rates:', error);
-      message.error('An error occurred while updating currency exchange rates');
+      message.error('Ocurrió un error al actualizar las tasas de cambio');
     }
   }
-
-  const onFinish = async (values: any) => {
-    try {
-      if (isEditing && currentRate) {
-        await CurrencyExchangeRatesService.update(currentRate.id, values);
-        message.success('Currency exchange rate updated successfully');
-      } else {
-        await CurrencyExchangeRatesService.create(values);
-        message.success('Currency exchange rate created successfully');
-      }
-      form.resetFields();
-      setCurrentRate(null);
-      setIsEditing(false);
-      fetchRates();
-    } catch (error) {
-      message.error('Failed to save currency exchange rate');
-    }
-  };
 
   const deleteRate = async (id: number) => {
     try {
       await CurrencyExchangeRatesService.delete(id);
-      message.success('Currency exchange rate deleted successfully');
+      message.success('Tasas de cambio eliminadas correctamente');
       fetchRates();
     } catch (error) {
-      message.error('Failed to delete currency exchange rate');
+      message.error('Error al eliminar tasas de cambio');
     }
   };
 
@@ -136,7 +119,7 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       title: 'Acciones',
       key: 'action',
       render: (text: string, record: CurrencyExchangeRate) => (
-        <>
+        <Flex gap={10} wrap>
           <Button 
             onClick={() => navigate(`edit/${record.id}`)}
             // onClick={() => editRate(record)}
@@ -145,30 +128,113 @@ const CurrencyExchangeRatesPage: React.FC = () => {
             danger onClick={() => deleteRate(record.id)}>
             Eliminar
           </Button>
-        </>
+        </Flex>
       ),
     },
   ];
 
+  let lastRate
+  let MMV
+  if (rates.length > 0) {
+    lastRate = rates.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+
+    if (lastRate) {
+      MMV = {
+        exchangeRate: lastRate.dolarBCVToBs > lastRate.eurosBCVToBs ? lastRate.dolarBCVToBs : lastRate.eurosBCVToBs,
+        symbol: lastRate.dolarBCVToBs > lastRate.eurosBCVToBs ? '$' : '€',
+      }
+    }
+    
+  }
+  
+
   return (
-    <div>
+    <Flex vertical gap={20}>
       <Flex wrap justify='space-between' align='center'>
-        <h1>Currency Exchange Rates</h1>
-        <Button onClick={handleCurrencyUpdateFromBCV}>
-          Actualizar
-        </Button>
+        <Typography.Title level={1}>Tasas de Cambio</Typography.Title>
+        <Flex gap={20} wrap>
+          <Button onClick={() => navigate('new')}>
+            Nuevo
+          </Button>
+          <Button onClick={handleCurrencyUpdateFromBCV}>
+            Actualizar
+          </Button>
+        </Flex>
       </Flex>
-      
+
+      <ResumeCards lastRate={lastRate} MMV={MMV} />
+
       {/* <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} /> */}
 
-      <Table
-        columns={columns}
-        dataSource={rates}
-        rowKey="id"
-        loading={loading}
-      />
-    </div>
+      <div>
+        <Typography.Title level={3}>Historial</Typography.Title>
+
+        <Table
+          columns={columns}
+          dataSource={rates}
+          rowKey="id"
+          loading={loading}
+        />
+      </div>
+    </Flex>
   );
 };
+
+const formatter: StatisticProps['formatter'] = (value) => (
+  <CountUp 
+    end={value} 
+    separator="," 
+    duratino={.5}
+    decimals={2}
+    decimal=","
+  />
+);
+
+const ResumeCards: React.FC = ({lastRate, MMV}) => {
+
+  if (!lastRate) return <Alert message="No hay registros" type="info" />
+
+  return (
+    <Row gutter={[16, 16]} wrap>
+      <Col span={8} >
+        <Card bordered={false}>
+          <Statistic
+            title="Dólas"
+            value={lastRate.dolarBCVToBs}
+            precision={2}
+            //valueStyle={{ color: '#3f8600' }}
+            suffix="Bs."
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+      <Col span={8} >
+        <Card bordered={false}>
+          <Statistic
+            title="Euro"
+            value={lastRate.eurosBCVToBs}
+            precision={2}
+            // valueStyle={{ color: '#3f8600' }}
+            suffix="Bs."
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+      <Col span={8} >
+        <Card bordered={false}>
+          <Statistic
+            title={`MMV (${MMV.symbol})`}
+            value={MMV.exchangeRate}
+            precision={2}
+            // valueStyle={{ color: '#3f8600' }}
+            suffix='Bs. '
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+    </Row>
+  );
+}
+  
 
 export default CurrencyExchangeRatesPage;
