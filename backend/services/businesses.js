@@ -158,7 +158,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         result.isValid = false
         error.fields.push({
             field: "certificateOfIncorporations",
-            message: "Debe registrar un registro de comercio"
+            message: "Debe suministrar un registro de comercio"
         })
     } else {
         let lastCertificateOfIncorporation = business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1]
