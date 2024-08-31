@@ -20,6 +20,7 @@ import {
 	BrowserRouter,
 	useNavigate
 } from 'react-router-dom'
+import { locale } from 'dayjs'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -58,6 +59,11 @@ const items: MenuProp['items'] = [
 		icon: '',
 		label: 'Recaudación'
 	},
+	{
+		key: '/currency-exchange-rates',
+		icon: '',
+		label: 'Tasas de Cambio'
+	}
 ]
 
 const App: React.FC = () => {
