@@ -143,7 +143,7 @@ export default function Contacts(): JSX.Element {
     ]
     return (
         <>
-            <Flex gap={'middle'} align='center'>
+            <Flex gap={'middle'} align='center' justify='space-between'>
                 <Typography.Title>
                     Contactos
                 </Typography.Title>

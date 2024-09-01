@@ -139,13 +139,6 @@ function BusinessView(): JSX.Element {
             (<Link to={`/business/${record.id}`}>{text}</Link>)
     });
 
-
-
-
-
-
-
-
     const columns = [
         {
             title: 'Razón Social',
@@ -214,7 +207,7 @@ function BusinessView(): JSX.Element {
 
     return (
         <div>
-            <Flex gap="middle" align='center'>
+            <Flex gap="middle" align='center' justify='space-between'>
                 <Typography.Title level={1}>
                     Registro de Contribuyentes
                     
