@@ -191,20 +191,35 @@ const formatter: StatisticProps['formatter'] = (value) => (
   <CountUp 
     end={value} 
     separator="," 
-    duratino={.5}
+    duratino={0.3}
     decimals={2}
     decimal=","
   />
 );
 
+// TODO: Add typing to this functional component
 const ResumeCards: React.FC = ({lastRate, MMV}) => {
 
   if (!lastRate) return <Alert message="No hay registros" type="info" />
 
+  async function copyToClipboard(number: number): Promise<void> {
+    const data: string = number.toString().replace('.', ',')
+
+    if (window.isSecureContext) {
+      await navigator.clipboard.writeText(data)
+      message.success(`${data} copied to clipboard`)
+
+    } else {
+      message.error(`No se pudo copiar al porta papeles`)
+    }    
+  }
+
   return (
     <Row gutter={[16, 16]} wrap>
       <Col span={8} >
-        <Card bordered={false}>
+        <Card bordered={false}
+          onClick={() => copyToClipboard(lastRate.dolarBCVToBs)}
+        >
           <Statistic
             title="Dólas"
             value={lastRate.dolarBCVToBs}
@@ -216,7 +231,9 @@ const ResumeCards: React.FC = ({lastRate, MMV}) => {
         </Card>
       </Col>
       <Col span={8} >
-        <Card bordered={false}>
+        <Card bordered={false}
+          onClick={() => copyToClipboard(lastRate.eurosBCVToBs)}
+        >
           <Statistic
             title="Euro"
             value={lastRate.eurosBCVToBs}
@@ -228,7 +245,9 @@ const ResumeCards: React.FC = ({lastRate, MMV}) => {
         </Card>
       </Col>
       <Col span={8} >
-        <Card bordered={false}>
+        <Card bordered={false}
+          onClick={() => copyToClipboard(MMV.exchangeRate)}
+        >
           <Statistic
             title={`MMV (${MMV.symbol})`}
             value={MMV.exchangeRate}

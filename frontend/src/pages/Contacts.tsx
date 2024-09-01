@@ -156,7 +156,6 @@ export default function Contacts(): JSX.Element {
                 dataSource={contacts.map(r => ({...r, key: r.id}))}
                 columns={columns}
             />
-
         </>
     )
 }
