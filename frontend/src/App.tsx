@@ -16,7 +16,7 @@ import CurrencyExchangeRatesPage from 'pages/CurrencyExchangeRates'
 import CurrencyExchangeRatesEditForm from 'pages/CurrencyExchangeRatesEditForm';
 
 import Payments from 'pages/Payments'
-import PaymentsEdit from 'pages/PaymentsNew'
+import PaymentsEdit from 'pages/PaymentsEdit'
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
