@@ -38,6 +38,11 @@ exports.createPayment = async (paymentData) => {
         logger.info('Payment created:', payment);
         return payment;
     } catch (error) {
+
+        if (process.env.NODE_ENV === 'test') {
+            console.log({error})
+        }
+
         logger.error('Error creating payment:', error.name);
         throw error;
     }
