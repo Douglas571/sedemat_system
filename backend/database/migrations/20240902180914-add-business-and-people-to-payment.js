@@ -30,7 +30,9 @@ module.exports = {
       references: {
         model: 'People',
         key: 'id'
-      }
+      },
+      // onDelete: 'CASCADE',
+      // onUpdate: 'CASCADE',
     },
     {
       name: 'paymentPersonIdFK'

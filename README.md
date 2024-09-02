@@ -15,6 +15,12 @@ docker compose up
 ```
 
 
+## Init Backend
+```
+docker exec backend sh -c 'npx sequelize db:migrate && npx sequelize db:seed:all'
+```
+
+
 ## Backup Mariadb
 
 ### Make Backup

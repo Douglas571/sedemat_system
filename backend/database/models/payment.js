@@ -62,7 +62,9 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'People',
         key: 'id'
-      }
+      },
+      // onDelete: 'CASCADE',
+      // onUpdate: 'CASCADE',
     },
 
 
