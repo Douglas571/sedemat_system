@@ -11,6 +11,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+
+      const {Business, Person } = models
+
+      Payment.belongsTo(Person, {
+        foreignKey: 'personId',
+        as: 'person'
+      })
+
+      Payment.belongsTo(Business, {
+        foreignKey: 'businessId',
+        as: 'business'
+      })
     }
   }
   Payment.init({
@@ -31,9 +43,29 @@ module.exports = (sequelize, DataTypes) => {
     state: DataTypes.STRING,
     businessName: DataTypes.STRING,
     isVerified: DataTypes.BOOLEAN,
-    // don't add the timestamp attributes (updatedAt, createdAt)
     // add liquidation date
     // add state 
+
+    businessId: {
+      type: Sequelize.INTEGER,
+      references: {
+          model: 'Businesses', // Name of the related table
+          key: 'id'
+      },
+      // onDelete: 'CASCADE',
+      // onUpdate: 'CASCADE',
+    },
+
+    personId: {
+      type: Sequelize.INTEGER,
+      //allowNull: false, // just for now...
+      references: {
+        model: 'People',
+        key: 'id'
+      }
+    },
+
+
   }, {
     sequelize,
     modelName: 'Payment',

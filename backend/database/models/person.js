@@ -11,6 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      const {Payment} = models
+
+      Person.hasOne(Payment, {
+        foreignKey: "personId",
+        as: 'payment'
+      })
+      
     }
   }
   Person.init({
