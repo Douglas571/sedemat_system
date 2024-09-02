@@ -20,7 +20,7 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = errorInfo => {
 	console.log('Failed:', errorInfo)
 }
 
-function NewPaymentForm(): JSX.Element {
+function PaymentsEdit(): JSX.Element {
 
 	const [messageApi, contextHolder] = message.useMessage()
 	const [form] = Form.useForm();
@@ -447,4 +447,4 @@ function NewPaymentForm(): JSX.Element {
 	)
 }
 
-export default NewPaymentForm
+export default PaymentsEdit

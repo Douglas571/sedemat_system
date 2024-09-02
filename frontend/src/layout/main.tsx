@@ -63,6 +63,11 @@ const items: MenuProp['items'] = [
 		key: '/currency-exchange-rates',
 		icon: '',
 		label: 'Tasas de Cambio'
+	},
+	{
+		key: '/payments',
+		icon: '',
+		label: 'Pagos'
 	}
 ]
 

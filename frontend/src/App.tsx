@@ -1,6 +1,3 @@
-import NewPaymentForm from 'components/NewPaymentForm'
-import ViewPayments from 'components/ViewPayments'
-
 import BusinessView from 'pages/BusinessView'
 import BusinessViewDetails from 'pages/BusinessViewDetails'
 
@@ -18,6 +15,9 @@ import NewBusinessForm from 'pages/BusinessCombinedEditNew'
 import CurrencyExchangeRatesPage from 'pages/CurrencyExchangeRates'
 import CurrencyExchangeRatesEditForm from 'pages/CurrencyExchangeRatesEditForm';
 
+import Payments from 'pages/Payments'
+import PaymentsEdit from 'pages/PaymentsNew'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
 import MainLayout from 'layout/main'
@@ -32,56 +32,22 @@ function App(): JSX.Element {
 
 						<Route index element={<Home />} />
 
-						<Route path='payments' element={<ViewPayments />} />
-						<Route path='payments/new' element={<NewPaymentForm />} />
+						<Route path='payments' element={<Payments />} />
+						<Route path='payments/new' element={<PaymentsEdit />} />
 
 						<Route path='business' element={<BusinessView />} />
+						<Route path='business/new' element={<NewBusinessForm />}/>
+						<Route path='business/edit/:businessId' element={<NewBusinessForm />}/>
+						<Route path='business/:businessId' element={<BusinessViewDetails />}/>
+						<Route path='businesses/:businessId/branch-offices/new' element={<BranchOfficeEdit />}/>
+						<Route path='businesses/:businessId/branch-offices/:branchOfficeId/edit' element={<BranchOfficeEdit />}/>
 
-						<Route path='business/new' 
-							element={<NewBusinessForm />} 
-						/>
+						<Route path='business/:businessId/branch-office/:branchOfficeId/license/new' element={<BranchOfficeLicenseNew />}/>
 
-						<Route
-							path='business/edit/:businessId'
-							element={<NewBusinessForm />}
-						/>
-						<Route
-							path='business/:businessId'
-							element={<BusinessViewDetails />}
-						/>
-
-						<Route
-							path='businesses/:businessId/branch-offices/new'
-							element={<BranchOfficeEdit />}
-						/>
-
-						<Route
-							path='businesses/:businessId/branch-offices/:branchOfficeId/edit'
-							element={<BranchOfficeEdit />}
-						/>
-
-
-						<Route
-							path='business/:businessId/branch-office/:branchOfficeId/license/new'
-							element={<BranchOfficeLicenseNew />}
-						/>
-
-						<Route 
-							path='contacts'
-							element={<Contacts/>}
-						/>
-						<Route 
-							path='contacts/:id'
-							element={<ContactsView/>}
-						/>
-						<Route 
-							path='contacts/new'
-							element={<ContactEdit/>}
-						/>
-						<Route 
-							path='contacts/:contactId/edit'
-							element={<ContactEdit/>}
-						/>
+						<Route path='contacts' element={<Contacts/>}/>
+						<Route path='contacts/:id' element={<ContactsView/>}/>
+						<Route path='contacts/new' element={<ContactEdit/>}/>
+						<Route path='contacts/:contactId/edit' element={<ContactEdit/>}/>
 
 						<Route path='currency-exchange-rates' element={<CurrencyExchangeRatesPage />} />
 						<Route path='currency-exchange-rates/new' element={<CurrencyExchangeRatesEditForm />} />
