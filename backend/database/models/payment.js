@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     // add state 
 
     businessId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       references: {
           model: 'Businesses', // Name of the related table
           key: 'id'
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     personId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       //allowNull: false, // just for now...
       references: {
         model: 'People',

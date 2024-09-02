@@ -13,9 +13,8 @@ services:
     networks:
       - mynet
     volumes:
-      - ./backup/database_${NODE_ENV}:/var/lib/mysql
+      - ./backup/database_${NODE_ENV}:/backups
       - ./mariadb/initdb:/docker-entrypoint-initdb.d
-    
 
   app:
     build:
