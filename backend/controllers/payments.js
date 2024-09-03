@@ -87,8 +87,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-
-
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         console.log("executing the destination fuction")
@@ -105,6 +103,7 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // Set file size limit (e.g., 5MB)
     fileFilter: (req, file, cb) => {
+        
         // Only accept image files
         console.log("executing file filter")
         const filetypes = /jpeg|jpg|png/;
@@ -127,15 +126,11 @@ router.post('/upload', upload.single('image'), (req, res) => {
         }
         res.status(200).json({ message: 'Image uploaded successfully', file: req.file,
             path: req.file.destination + req.file.filename
-         });
+        });
     } catch (error) {
         console.log("there was an error")
         res.status(500).json({ error: error.message });
     }
 });
-
-
-
-
 
 module.exports = router;

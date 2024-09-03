@@ -6,8 +6,19 @@ const logger = require('../utils/logger')
 exports.findAll = async () => {
     logger.info('Looking into DB');
     try {
-        const payments = await PaymentModel.findAll();
-        //console.log({ payments });
+        const payments = await PaymentModel.findAll({
+            include: [
+                {
+                    model: Person,
+                    as: 'person',
+                },
+                {
+                    model: Business,
+                    as: 'business',
+                },
+            ],
+        });
+        
         return payments;
     } catch (error) {
         logger.error('Error fetching payments:', error);
