@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import { Form, Input, Button, message, Typography, Select, Flex, Image, Table, Space} from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex, Image, Table, Space, Popconfirm} from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { Person } from 'util/api'
 import * as api from 'util/api'
@@ -29,6 +29,15 @@ export default function Contacts(): JSX.Element {
         }
     }
 
+    async function handleDelete(id: number) {
+        try {
+            await api.deletePerson(id)
+            loadData()
+        } catch(error) {
+            console.error({error})
+        }
+    }
+
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
@@ -48,6 +57,7 @@ export default function Contacts(): JSX.Element {
         clearFilters();
         setSearchText('');
     };
+
     const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<DataType> => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
@@ -139,6 +149,27 @@ export default function Contacts(): JSX.Element {
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
             sorter: (a: Person, b: Person) => a.email?.localeCompare(b.email),
         },
+        {
+            title: 'Acciones',
+            dataIndex: 'actions',
+            key: 'actions',
+            render: (text: string, record: Person) => 
+            <Flex>
+                <Popconfirm
+                        title="Eliminar Pago"
+                        description="¿Estás seguro de que deseas eliminar el contacto?"
+                        onConfirm={() => {
+                            console.log("the contact will be deleted")
+                            handleDelete(record.id)
+                        }}
+                        //onCancel={cancel}
+                        okText="Si"
+                        cancelText="No"
+                    >
+                        <Button danger>Eliminar</Button>
+                    </Popconfirm>
+            </Flex>
+        }
 
     ]
     return (
