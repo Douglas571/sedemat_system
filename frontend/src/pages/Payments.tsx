@@ -6,6 +6,7 @@ import axios from 'axios';
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
 
 import { useNavigate, Link } from 'react-router-dom';
+import { render } from '@testing-library/react';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -69,6 +70,10 @@ function Payments(): JSX.Element {
                     image: payment.image,
                     isVerified: payment.isVerified,
                     status: '',
+                    businessId: payment.businessId,
+                    personId: payment.personId,
+                    business: payment.business,
+                    person: payment.person,
                 }
 
                 if (payment.isVerified) {
@@ -86,6 +91,7 @@ function Payments(): JSX.Element {
                 return newPayment
             });
             setDataSource(mappedData);
+            console.log({ mappedData })
         } catch (error) {
             console.error('Error fetching payments:', error);
         }
@@ -183,9 +189,16 @@ function Payments(): JSX.Element {
 
     const columns = [
         {
-            title: 'Razón Social',
+            title: 'Nombre o Razón Social',
             dataIndex: 'businessName',
             key: 'businessName',
+            render: (text: string, record: Payment) => {
+                if (record.businessId) {
+                    return record.business.businessName
+                } else {
+                    return `${record?.person?.firstName} ${record?.person?.lastName}`
+                }
+            }
         },
         {
             title: 'Rif o Cédula',
@@ -193,7 +206,20 @@ function Payments(): JSX.Element {
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.dni.localeCompare(b.dni),
+            sorter: (a, b) => {
+                if (a.businessId) {
+                    return a.business?.dni.localeCompare(b.business?.dni)
+                } else {
+                    return a.person?.dni.localeCompare(b.person?.dni)
+                }
+            },
+            render: (text: string, record: Payment) => {
+                if (record.businessId) {
+                    return record?.business?.dni
+                } else {
+                    return record?.person?.dni
+                }
+            }
         },
         {
             title: 'Referencia',

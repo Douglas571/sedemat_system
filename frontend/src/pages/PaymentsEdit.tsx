@@ -113,10 +113,12 @@ function PaymentsEdit(): JSX.Element {
 		if (fetchedPayment.person) {
 			const personText = `${fetchedPayment.person.dni} | ${fetchedPayment.person.firstName} ${fetchedPayment.person.lastName}`
 			initialValues.person = personText
+			initialValues.typeOfEntity = 'Persona'
 
 		} else if (fetchedPayment.business) {
 			const businessText = `${fetchedPayment.business.dni} | ${fetchedPayment.business.businessName}`
 			initialValues.business = businessText
+			initialValues.typeOfEntity = 'Comercio'
 
 		}
 
@@ -124,6 +126,7 @@ function PaymentsEdit(): JSX.Element {
 		form.setFieldsValue(initialValues)
 
 		// download the image and set it into filelist
+		console.log({fetchedPayment})
 		if (fetchedPayment.image) {
 			const image = await fetch(fetchedPayment.image)
 			const imageBlob = await image.blob()
@@ -194,10 +197,13 @@ function PaymentsEdit(): JSX.Element {
 			// if there is not image, upload the image
 			console.log({fileList})
 			if (fileList[0]?.url?.includes(payment?.image)) {
+				console.log("using existing image")
 				boucherImageUrl = payment?.image
 			} else {
+				console.log("uploading image")
 				boucherImageUrl = await handleUploadBoucher()
 			}
+			console.log({boucherImageUrl})
 
 			// map all values to a ready to ship payment object
 			let newPaymentData: Payment = {
@@ -218,6 +224,7 @@ function PaymentsEdit(): JSX.Element {
 				newPaymentData.personId = getPersonFromOption(values.person, people)?.id
 			}
 
+			console.log({newPaymentData})
 
 			// if is editing, update payment 
 			if (isEditing) {
@@ -227,7 +234,6 @@ function PaymentsEdit(): JSX.Element {
 				// call paymentapi with createPayment()
 				await paymentsApi.createPayment(newPaymentData)
 			}
-
 
 			message.success("Pago guardado exitosamente")
 
@@ -288,10 +294,12 @@ function PaymentsEdit(): JSX.Element {
 			if (fileList.length == 0) {
 				throw Error("Selecciona un boucher")
 			}
+
 			const formData = new FormData()
 			fileList.forEach((file) => {
-				formData.append('image', file as FileType);
-			});
+				console.log({file})
+				formData.append('image', file.originFileObj);
+			})
 
 			const response = await fetch(`${HOST}/v1/payments/upload`, {
 				method: 'POST',
