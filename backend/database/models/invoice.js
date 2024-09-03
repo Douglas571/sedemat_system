@@ -11,6 +11,20 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      const {InvoiceItem, EconomicLicense} = models
+
+      // Invoice has many item type
+      Invoice.hasMany(InvoiceItem, {
+        foreignKey: 'invoiceId',
+        as: 'invoiceItems'
+      })
+
+      // Invoice can have one economic license 
+      Invoice.hasOne(EconomicLicense, {
+        foreignKey: 'invoiceId',
+        as: 'economicLicense'
+      })
+
     }
   }
   Invoice.init({

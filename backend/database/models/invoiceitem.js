@@ -11,6 +11,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      const { Invoice, InvoiceItemType } = models
+
+      // Invoice item belongs to one invoice item type
+      Invoice.belongsTo(InvoiceItemType, {
+        foreignKey: 'invoiceItemTypeId',
+        as: 'invoiceItemType'
+      })
+
+      // Invoice item belongs to invoice 
+      InvoiceItem.belongsTo(Invoice, {
+        foreignKey: 'invoiceId',
+        as: 'invoice'
+      });
     }
   }
   InvoiceItem.init({
