@@ -1,5 +1,5 @@
-const db = require("../database/models")
-const PaymentModel = db.Payment
+const { Payment: PaymentModel, Person, Business } = require('../database/models')
+
 
 const logger = require('../utils/logger')
 
@@ -18,7 +18,18 @@ exports.findAll = async () => {
 exports.findById = async (id) => {
     logger.info(`Looking for payment with ID ${id}`);
     try {
-        const payment = await PaymentModel.findByPk(id);
+        const payment = await PaymentModel.findByPk(id, {
+            include: [
+                {
+                    model: Person,
+                    as: 'person',
+                },
+                {
+                    model: Business,
+                    as: 'business',
+                },
+            ],
+        });
         if (!payment) {
             logger.error(`Payment with ID ${id} not found`);
             return null;

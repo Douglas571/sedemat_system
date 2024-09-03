@@ -60,6 +60,10 @@ router.put('/:id', async (req, res) => {
         const updatedPayment = await paymentService.updatePayment(req.params.id, req.body);
         res.json(updatedPayment);
     } catch (error) {
+        // if node env is test, print error
+        if (process.env.NODE_ENV === 'test') {
+            console.log({error})
+        }
         if (error.message.includes('not found')) {
             res.status(404).json({ error: error.message });
         } else {
@@ -71,8 +75,10 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const deletedPayment = await paymentService.deletePayment(req.params.id);
+        
         res.status(204).json(deletedPayment);
     } catch (error) {
+        console.log({error})
         if (error.message.includes('not found')) {
             res.status(404).json({ error: error.message });
         } else {
@@ -90,7 +96,6 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         console.log('creating file name')
-        console.log({file})
         //cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // Specify the filename for uploaded images
         cb(null, Date.now() + path.extname(file.originalname));
     }
@@ -100,7 +105,6 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // Set file size limit (e.g., 5MB)
     fileFilter: (req, file, cb) => {
-
         // Only accept image files
         console.log("executing file filter")
         const filetypes = /jpeg|jpg|png/;
