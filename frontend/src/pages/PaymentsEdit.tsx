@@ -113,21 +113,25 @@ function PaymentsEdit(): JSX.Element {
 		if (fetchedPayment.person) {
 			const personText = `${fetchedPayment.person.dni} | ${fetchedPayment.person.firstName} ${fetchedPayment.person.lastName}`
 			initialValues.person = personText
+
 		} else if (fetchedPayment.business) {
 			const businessText = `${fetchedPayment.business.dni} | ${fetchedPayment.business.businessName}`
 			initialValues.business = businessText
+
 		}
 
 		// set the form values using an object
 		form.setFieldsValue(initialValues)
 
 		// download the image and set it into filelist
-		const image = await fetch(fetchedPayment.image)
-		const imageBlob = await image.blob()
-		const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
+		if (fetchedPayment.image) {
+			const image = await fetch(fetchedPayment.image)
+			const imageBlob = await image.blob()
+			const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
 		
-		imageFile.url = completeUrl('/' + fetchedPayment.image)
-		setFileList(() => [imageFile])
+			imageFile.url = completeUrl('/' + fetchedPayment.image)
+			setFileList(() => [imageFile])
+		}
 	}
 
 	async function loadBusiness() {
@@ -177,10 +181,19 @@ function PaymentsEdit(): JSX.Element {
 
 			let boucherImageUrl = ''
 
+			if (!values.person && !values.business) { 
+				message.error("El pago no tiene una persona o comercio asociado")
+				return ''
+			}
+
+			if (fileList.length === 0) {
+				message.error("Selecciona un boucher")
+				return ''
+			}
+
 			// if there is not image, upload the image
 			console.log({fileList})
 			if (fileList[0]?.url?.includes(payment?.image)) {
-				alert("is the same")
 				boucherImageUrl = payment?.image
 			} else {
 				boucherImageUrl = await handleUploadBoucher()
@@ -204,8 +217,6 @@ function PaymentsEdit(): JSX.Element {
 				console.log(values.person)
 				newPaymentData.personId = getPersonFromOption(values.person, people)?.id
 			}
-
-			console.log({ sending: payment })
 
 
 			// if is editing, update payment 
@@ -361,7 +372,7 @@ function PaymentsEdit(): JSX.Element {
 							name='reference'
 							style={{ marginRight: '20px' }}
 						>
-							<InputNumber maxLength={6}/>
+							<InputNumber maxLength={6} min={0}/>
 						</Form.Item>
 
 						<Form.Item<FieldType>
