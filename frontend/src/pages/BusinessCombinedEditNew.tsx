@@ -181,8 +181,8 @@ export default function BusinessForm(): JSX.Element {
             const administrator = getSelectedPerson(administratorString)
 
             if (owner) businessData.ownerPersonId = owner.id
-            if (accountant) businessData.accountantPersonId = accountant.id
-            if (administrator) businessData.administratorPersonId = administrator.id
+            businessData.accountantPersonId = accountant ? accountant.id : null
+            businessData.administratorPersonId = administrator ? administrator.id : null
 
             // get the reminder interval id
             businessData.reminderInterval = reminderIntervalMap[values.reminderInterval]
@@ -193,6 +193,7 @@ export default function BusinessForm(): JSX.Element {
             businessData.preferredContact = contactMapping[values.preferredContact]
 
             // create the business
+            console.log({businessData})
             let newBusinessData: Business
             if (businessId) {
                 newBusinessData =await api.updateBusinessData(Number(businessId), businessData)
@@ -218,8 +219,6 @@ export default function BusinessForm(): JSX.Element {
                 const uploadedCoi = await businessesApi.uploadCertificateOfIncorporation(coi)
 
                 console.log({uploadedCoi})
-
-                
             }
 
             
@@ -232,7 +231,7 @@ export default function BusinessForm(): JSX.Element {
             });
 
             setTimeout(() => {
-                navigate(`/business/${newBusinessData.id}`)
+                //navigate(`/business/${newBusinessData.id}`)
             })
             
         } catch (error) {
