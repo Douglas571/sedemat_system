@@ -1,16 +1,23 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import type { DatePickerProps, FormProps } from 'antd'
-import { Upload, Switch , message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete } from 'antd'
+import { Upload, Switch, message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete, Flex, Typography } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
 
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 
+import dayjs from 'dayjs';
+
+import { useParams, useNavigate } from 'react-router-dom';
+
 import * as api from '../util/api'
+import { Person, Business, Payment } from '../util/types';
+
+import * as paymentsApi from '../util/paymentsApi'
+import { completeUrl } from './BusinessShared';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
-
 
 const onChange: DatePickerProps['onChange'] = (date, dateString) => {
 	console.log(date, dateString)
@@ -20,132 +27,204 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = errorInfo => {
 	console.log('Failed:', errorInfo)
 }
 
+type Option = {
+	value: string,
+	label: string
+}
+
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
+interface FieldType {
+	username?: string
+	password?: string
+	reference: string
+	dni: string
+	business_name: string
+	amount: number,
+	account: string,
+	paymentDate: Date
+}
+
+const originTypesOptions = ['Persona', 'Comercio'].map(t => ({ label: t, value: t }))
+
+const accountNumbers = ['1892', '3055', '9290', '5565'];
+const accounts = accountNumbers.map(number => ({
+	value: number,
+	label: number
+}));
+
+const methodNames = ['Transferencia', 'PagoMovil', 'BioPago'];
+const methods = methodNames.map(method => ({
+	value: method,
+	label: method
+}))
+
 function PaymentsEdit(): JSX.Element {
 
 	const [messageApi, contextHolder] = message.useMessage()
 	const [form] = Form.useForm();
-	const [businessOptions, setBusinessOptions] = React.useState<Array<{label: string, value: number}>>()
-	const [businesses, setBusinesses] = React.useState<Business[]>([])
 
-	// i will get all business
-	// i will map business to { lable: business.businessName, value: business.id}
+	// get the payment id from url using useParams
+	const { id } = useParams()
+
+	const [businesses, setBusinesses] = React.useState<Business[]>([])
+	const [people, setPeople] = React.useState<Person[]>([])
+	const [businessOptions, setBusinessOptions] = React.useState<Array<{ label: string, value: string }>>()
+	const [personOptions, setPersonOptions] = React.useState<Array<{ label: string, value: string }>>()
+	const navigate = useNavigate()
+
+	const [payment, setPayment] = React.useState<Payment>()
+
+	const [fileList, setFileList] = React.useState<UploadFile[]>([]);
+
+	const typeOfEntity = Form.useWatch('typeOfEntity', form)
+	const isABusiness = typeOfEntity === 'Comercio'
+
+	// if id is present, set isEditing to true
+	const isEditing = id !== undefined
+
+	useEffect(() => {
+		loadBusiness()
+		loadPeople()
+
+		// if is editing, load the payment
+		if (isEditing) {
+			loadPayment()
+		}
+	}, [])
+
+	async function loadPayment() {
+		// this function will load the payment data
+		// load the data into the form 
+
+		// Fetch payment data
+		let fetchedPayment = await paymentsApi.fetchPaymentById(id)
+		console.log({ fetchedPayment });
+
+		setPayment(fetchedPayment)
+
+		const initialValues = {
+			...fetchedPayment
+		}
+
+		initialValues.paymentDate = dayjs(fetchedPayment.paymentDate)
+
+		// Format options for person or business
+		if (fetchedPayment.person) {
+			const personText = `${fetchedPayment.person.dni} | ${fetchedPayment.person.firstName} ${fetchedPayment.person.lastName}`
+			initialValues.person = personText
+		} else if (fetchedPayment.business) {
+			const businessText = `${fetchedPayment.business.dni} | ${fetchedPayment.business.businessName}`
+			initialValues.business = businessText
+		}
+
+		// set the form values using an object
+		form.setFieldsValue(initialValues)
+
+		// download the image and set it into filelist
+		const image = await fetch(fetchedPayment.image)
+		const imageBlob = await image.blob()
+		const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
+		
+		imageFile.url = completeUrl('/' + fetchedPayment.image)
+		setFileList(() => [imageFile])
+	}
 
 	async function loadBusiness() {
 		let fetchedBusiness = await api.fetchBusiness()
 
 		setBusinesses(fetchedBusiness)
-		setBusinessOptions(fetchedBusiness.map((b) => ({ label: b.businessName, value: b.businessName})))
-	}
-	
-	useEffect(() => {
-		loadBusiness()
-	}, [])
+		setBusinessOptions(fetchedBusiness.map((b) => {
+			let text = `${b.dni} | ${b.businessName}`
 
-	useEffect(() => {
-		console.log({businessOptions})
-	}, [businessOptions])
-
-	
-	function cleanDataFromForm(){
-		// get the form
-		// set values to empty 
-	
-		
-		form.setFieldValue('business_name', '')
-		form.setFieldValue('dni', '')
-		form.setFieldValue('reference', '')
-		form.setFieldValue('amount', 0)
-		form.setFieldValue('account', accounts[0].value )
-
-		// TODO: when i call this method, i will set a variable to modify a date variable
-		// paymentDate: Date
+			return { label: text, value: text }
+		}))
 	}
 
-	async function sendPaymentData(paymentData: Payment): Promise<string> {
-			const response = await fetch(HOST + '/v1/payments', {
-				method: 'POST', // Specify the method
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(paymentData)
-			})
+	async function loadPeople() {
+		let fetchedPeople = await api.getPeople()
 
-			if (!response.ok) {
-				const data = await response.json()
-				console.log({data})
-				throw new Error(data.error.msg)
-			}
+		setPeople(fetchedPeople)
+		setPersonOptions(fetchedPeople.map(p => {
+			let text = `${p.dni} | ${p.firstName} ${p.lastName}`
 
-			// the payment was saved successfully was successful 
-			const data = await response.json()
-			console.log({ data })
-
-			return JSON.stringify(data)
+			return { label: text, value: text }
+		}))
 	}
 
-	interface FieldType {
-		username?: string
-		password?: string
-		reference: string
-		dni: string
-		business_name: string
-		amount: number,
-		account: string,
-		paymentDate: Date
+	function getPersonFromOption(option: string, people: Person[]) {
+		// Extract the dni from the option string (before the " | ")
+		const dni = option.split(' | ')[0];
+
+		// Find the person with the matching dni
+		return people.find(person => person.dni === dni);
 	}
 
-	type Payment = {
-		id?: number
-		reference: string
-		businessName: string
-		dni: string
-		amount: number
-		account: string
-		paymentDate: Date
-		image: string
-		state?: string
-		isVerified?: boolean
+	function getBusinessFromOption(option: string, businesses: Business[]) {
+		// The option is assumed to be the business name
+		const businessName = option.split(' | ')[1];
 
+		// Find the business with the matching name
+		return businesses.find(business => business.businessName === businessName);
 	}
+
 	const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-		
 		try {
 
 			// get the image 
 			// send the image to the server
 			// get the id of the image
-			let boucherImageUrl = await handleUploadBoucher()
-			console.log("continua despues de la imagen")
 
-			if (!boucherImageUrl) {
-				return ""
+			let boucherImageUrl = ''
+
+			// if there is not image, upload the image
+			console.log({fileList})
+			if (fileList[0]?.url?.includes(payment?.image)) {
+				alert("is the same")
+				boucherImageUrl = payment?.image
+			} else {
+				boucherImageUrl = await handleUploadBoucher()
 			}
-			
+
 			// map all values to a ready to ship payment object
-			let payment: Payment = {
+			let newPaymentData: Payment = {
+				id: id,
 				reference: values.reference,
-				businessName: values.business_name,
-				dni: values.dni,
 				amount: values.amount,
 				account: values.account,
 				paymentDate: values.paymentDate,
 				image: boucherImageUrl,
 				state: 'received',
 			}
-			console.log({sending: payment})
 
-			// send the payment
-			await sendPaymentData(payment)
+			if (isABusiness) {
+				console.log(values.business)
+				newPaymentData.businessId = getBusinessFromOption(values.business, businesses)?.id
+			} else {
+				console.log(values.person)
+				newPaymentData.personId = getPersonFromOption(values.person, people)?.id
+			}
 
-			
-			messageApi.open({
-				type: 'success',
-				content: "Pago guardado exitosamente",
-			});
+			console.log({ sending: payment })
 
-			cleanDataFromForm()
 
-		} catch(error) {
+			// if is editing, update payment 
+			if (isEditing) {
+				// call paymentapi with updatePayment()
+				await paymentsApi.updatePayment(newPaymentData)
+			} else {
+				// call paymentapi with createPayment()
+				await paymentsApi.createPayment(newPaymentData)
+			}
+
+
+			message.success("Pago guardado exitosamente")
+
+			navigate('/payments')
+
+			// cleanDataFromForm()
+
+		} catch (error) {
 			// process errors
 
 			// if reference is duplicated
@@ -153,126 +232,22 @@ function PaymentsEdit(): JSX.Element {
 			// if reference is malformed 
 
 			// if business is not registered 
-			
+
 			// other unexpected errors 
-			messageApi.open({
-				type: 'error',
-				content: error.message,
-			});
+			message.error(error.message)
 		}
-			
-		
+
+
 	}
-
-	const options = [
-		{
-			value: '11.479.362',
-			label: '11.479.362'
-		},
-		{
-			value: '7.490.919',
-			label: '7.490.919'
-		},
-		{
-			value: '29.748.656',
-			label: '29.748.656'
-		}
-	]
-
-	const accounts = [
-		{
-			value: '1892',
-			label: '1892'
-		},
-		{
-			value: '3055',
-			label: '3055'
-		},
-		{
-			value: '9290',
-			label: '9290'
-		},
-		{
-			value: '5565',
-			label: '5565'
-		}
-	]
-
-	const methods = [
-		{
-			value: 'transfer',
-			label: 'Transferencia'
-		},
-		{
-			value: 'pago_mobil',
-			label: 'PagoMovil'
-		},
-		{
-			value: 'bio_pago',
-			label: 'BioPago'
-		}
-	]
-
-
-
-	type Option = {
-		value: string,
-		label: string
-	}
-
-	const [businessName, setBusinessName] = React.useState('');
-	const [businessRif, setBusinessRif] = React.useState('hola');
-	const [businessNameOptions, setBusinessNameOptions] = React.useState<Array<Option>>([])
-
-	const [fileList, setFileList] = React.useState<UploadFile[]>([]);
-	const [uploading, setUploading] = React.useState(false);
-
-	const [boucherUrl, setBoucherUrl] = React.useState("")
-
-	interface Business {
-		id: number;
-		businessName: string;
-		rif: string;
-	}
-
-	const onSelect = (data: string) => {
-		console.log('onSelect', data);
-
-		// get the rif
-		let dni = businesses.find(b => b.businessName == data)?.dni
-		console.log({dni})
-
-		if (dni) {
-			// set the rif
-			console.log("setting rif")
-			form.setFieldValue('dni', dni)
-			setBusinessRif(dni)
-			// set the name btw
-			setBusinessName(data)
-		}
-	};
-	
-	const onChangeBusinessName = (data: string) => {
-		setBusinessName(data);
-	};
-	
 
 	function filterBusinessNames(businesses: Business[], searchText: string): Business[] {
 		// Convert the search text to lowercase for case-insensitive search
 		const lowerCaseSearchText = searchText.toLowerCase();
-		
+
 		// Filter the business objects
 		return businesses.filter(business =>
 			business.businessName.toLowerCase().includes(lowerCaseSearchText)
 		);
-	}
-
-
-	const getOptions = (searchText: string): Option[] => {
-		return filterBusinessNames(businesses, searchText).map(b => ({
-			value: b.businessName,
-			label: b.businessName
-		}))
 	}
 
 	const uploadProps: UploadProps = {
@@ -285,13 +260,15 @@ function PaymentsEdit(): JSX.Element {
 		beforeUpload: (file) => {
 			console.log("adding files")
 			setFileList([...fileList, file]);
-	  
+
 			return false;
 		},
+		onChange: ({ fileList: newFileList }) => {
+			setFileList(newFileList)
+		},
 		fileList,
+		maxCount: 1
 	}
-
-	type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 	const handleUploadBoucher = async (): Promise<string | undefined> => {
 		try {
@@ -309,16 +286,16 @@ function PaymentsEdit(): JSX.Element {
 				method: 'POST',
 				body: formData,
 			})
-			
+
 			console.log("response")
 			const data = await response.json()
-			console.log({data})
-			const imagePath = data.path 
+			console.log({ data })
+			const imagePath = data.path
 
 			return imagePath
 
 		} catch (error) {
-			console.log({error})
+			console.log({ error })
 			console.log("hubo un error con la imagen")
 
 			messageApi.open({
@@ -332,107 +309,127 @@ function PaymentsEdit(): JSX.Element {
 		<div>
 			<div>
 				{contextHolder}
-			<h1>Nuevo Pago</h1>
+
+				<Typography.Title level={2}>{isEditing ? "Editando Pago" : "Nuevo Pago"}</Typography.Title>
+
 				<Form form={form}
 					initialValues={{}}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
+
+					initialValues={{
+						typeOfEntity: 'Persona',
+					}}
 				>
-				
 
-					<Form.Item<FieldType>
-						rules={[{ 
-							required: true, 
-							message: 'Introduzca la razón social' 
-						}]}
-						label='Razón Social'
-						name='business_name'
-					>
-						<AutoComplete
-							options={businessNameOptions}
-							style={{ width: 200 }}
-							onSelect={onSelect}
-							onSearch={(text) => setBusinessNameOptions(getOptions(text))}
-							placeholder="input here"
-						/>
-					</Form.Item>
+					<Flex gap={20} wrap>
+						<Form.Item name='typeOfEntity' label='Origen'>
+							<Select
+								options={originTypesOptions}
+							/>
+						</Form.Item>
+						{isABusiness
+							? (
+								<>
+									<Form.Item name='business' label='Comercio'
+										style={{ flex: '30%' }}>
+										<Select
+											options={businessOptions}
+											showSearch
+										/>
+									</Form.Item>
+								</>
+							)
+							: (
+								<>
+									<Form.Item name='person' label='Persona'
+										style={{ flex: '60%' }}>
+										<Select
+											options={personOptions}
+											showSearch
+										/>
+									</Form.Item>
+								</>
+							)
+						}
+					</Flex>
 
-					<Form.Item<FieldType>
-						label='Rif o Cédula'
-						name='dni'
-					>
-						<Input disabled/>
-						{/* <Select
-							showSearch
-							placeholder='Select a person'
-							optionFilterProp='label'
-							// onChange={onChange}
-							// onSearch={onSearch}
-							options={options}
-						/> */}
-					</Form.Item>
+					<Flex wrap>
+						<Form.Item<FieldType>
+							rules={[{ required: true, message: 'Introduzca una referencia' }]}
+							label='Referencia'
+							name='reference'
+							style={{ marginRight: '20px' }}
+						>
+							<InputNumber maxLength={6}/>
+						</Form.Item>
 
-					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Introduzca una referencia' }]}
-						label='Referencia' 
-						name='reference'
+						<Form.Item<FieldType>
+							rules={[{ required: true, message: 'Introduzca el monto' }]}
+							label='Monto'
+							name='amount'
+							style={{ marginRight: '20px' }}
+						>
+							<InputNumber
+								addonAfter='Bs'
+								type='number'
+								defaultValue='0'
+								min='0'
+								step='0.01'
+							/>
+						</Form.Item>
 
-					>
-						<Input type='number' maxLength={6} />
-					</Form.Item>
+						<Form.Item<FieldType>
+							rules={[{ required: true, message: 'Seleccione una referencia' }]}
+							label='Fecha de Pago'
+							name="paymentDate"
+							style={{ marginRight: '20px' }}
+						>
+							<DatePicker onChange={onChange} />
+						</Form.Item>
 
-					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Introduzca el monto' }]}
-						label='Monto'
-						name='amount'
-					>
-						<InputNumber
-							addonAfter='$'
-							type='number'
-							defaultValue='0'
-							min='0'
-							step='0.01'
-						/>
-					</Form.Item>
+						<Form.Item<FieldType>
+							label='Cuentas'
+							name='account'
+							initialValue={accounts[0].value}
+							style={{ marginRight: '20px' }}
+						>
+							<Select
+								optionFilterProp='label'
+								// onChange={onChange}
+								// onSearch={onSearch}
+								options={accounts}
+							/>
+						</Form.Item>
 
-					<Form.Item<FieldType>
-						rules={[{ required: true, message: 'Seleccione una referencia' }]}
-						label='Fecha de Pago' 
-						name="paymentDate">
-						<DatePicker onChange={onChange} />
-					</Form.Item>
+						<Form.Item label='Método' name='disabled' valuePropName='checked'
+							style={{ marginRight: '20px' }}
+						>
+							<Select
+								defaultValue={methods[0].value}
+								optionFilterProp='label'
+								// onChange={onChange}
+								// onSearch={onSearch}
+								options={methods}
+							/>
+						</Form.Item>
+					</Flex>
 
-					<Form.Item<FieldType> 
-						label='Cuentas' 
-						name='account'
-						initialValue={accounts[0].value}
-					>
-						<Select
-							optionFilterProp='label'
-							// onChange={onChange}
-							// onSearch={onSearch}
-							options={accounts}
-						/>
-					</Form.Item>
 
-					<Form.Item label='Método' name='disabled' valuePropName='checked'>
-						<Select
-							defaultValue={methods[0].value}
-							optionFilterProp='label'
-							// onChange={onChange}
-							// onSearch={onSearch}
-							options={methods}
-						/>
-					</Form.Item>
+
+
+
+
+
 
 					<div>
-						<Upload 
+						<Upload
 							name='boucher'
 							{...uploadProps}
 						>
 							<Button>Seleccionar Boucher</Button>
 						</Upload>
-						<br/>
+						<br />
 					</div>
 
 					<Form.Item>

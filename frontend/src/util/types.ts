@@ -117,3 +117,15 @@ export interface CertificateOfIncorporation {
     expirationDate: Date
     docImages: File[]
 }
+
+export interface Payment {
+    id: number
+    amount: number
+    paymentDate: Date
+    image: string
+    typeOfEntity?: 'Persona' | 'Comercio'
+    personId?: number
+    businessId?: number
+    person?: Person
+    business?: Business
+}

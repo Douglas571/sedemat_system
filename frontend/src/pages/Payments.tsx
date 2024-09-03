@@ -5,8 +5,7 @@ import axios from 'axios';
 
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
 
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, Link } from 'react-router-dom';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -24,8 +23,6 @@ interface Payment {
     isVerified: boolean,
     liquidationDate?: Date
 }
-
-
 
 async function getPayments(): Promise<Array<Payment>> {
     console.log({ HOST })
@@ -61,6 +58,7 @@ function Payments(): JSX.Element {
             const payments = await getPayments();
             const mappedData = payments.map(payment => {
                 const newPayment = {
+                    id: payment.id,
                     key: payment.id.toString(),
                     amount: payment.amount,
                     reference: payment.reference,
@@ -150,14 +148,16 @@ function Payments(): JSX.Element {
                 }
             });
 
-            const result = await response.json();
+            // const result = await response.json();
+            // console.log({ result })
             if (response.ok) {
-                console.log('Payment deleted successfully:', result);
+                console.log('Payment deleted successfully');
             } else {
-                console.log({ result })
+                // console.log({ result })
                 throw Error('Error al eliminar el pago');
             }
         } catch (error) {
+            console.log({ error })
             console.error('Error:', error);
 
             throw error
@@ -202,6 +202,10 @@ function Payments(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.reference.localeCompare(b.reference),
+            render: (text: string, record) => {
+                console.log({ record })
+                return <Link to={`/payments/${record.key}`}>{text}</Link>
+            }
         },
         {
             title: 'Monto',
@@ -254,7 +258,7 @@ function Payments(): JSX.Element {
                         <Button danger shape="circle"><DeleteFilled /></Button>
                     </Popconfirm>
 
-
+                    <Button onClick={() => navigate(`/payments/${record.key}`)}>Editar</Button>
                     <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
                 </Space>
             ),
