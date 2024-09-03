@@ -1,4 +1,4 @@
-import { Flex, Typography, Image, Button } from 'antd'
+import { Flex, Typography, Image, Button, Popconfirm } from 'antd'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Person } from 'util/api'
@@ -31,7 +31,14 @@ export default function ContactsView(): JSX.Element {
         // put the data
     }
 
-
+    async function handleDelete(id: number) {
+        try {
+            await api.deletePerson(id)
+            loadData()
+        } catch(error) {
+            console.error({error})
+        }
+    }
 
     let dniText = contact?.dni && <>Cédula: {contact.dni}</>
 
@@ -70,14 +77,33 @@ export default function ContactsView(): JSX.Element {
 
                 (
                     <>
-                        <Flex align='center' gap={'middle'}>
+                        <Flex align='center' gap={'middle'} justify='space-between'>
                             <Typography.Title level={4}>
                                 {contact.firstName + " " + contact.lastName}
                             </Typography.Title>
 
-                            <Button onClick={() => navigate(`edit`)}>
-                                Editar
-                            </Button>
+                            <Flex gap={20} wrap>
+                                <Button onClick={() => navigate(`edit`)}>
+                                    Editar
+                                </Button>
+                                <Popconfirm
+                                    title="Eliminar Pago"
+                                    description="¿Estás seguro de que deseas eliminar el contacto?"
+                                    onConfirm={() => {
+                                        console.log("the contact will be deleted")
+                                        handleDelete(record.id)
+                                    }}
+                                    //onCancel={cancel}
+                                    okText="Si"
+                                    cancelText="No"
+                                >
+
+                                    <Button danger onClick={() => handleDelete(contact.id)}>
+                                        Eliminar
+                                    </Button>
+                                </Popconfirm>
+                                
+                            </Flex>
                         </Flex>
 
                         <Flex gap='large'>
@@ -107,7 +133,6 @@ export default function ContactsView(): JSX.Element {
                         Cargando...
                     </Typography.Paragraph>
                 )
-
             }
         </>
     )

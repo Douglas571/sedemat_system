@@ -166,8 +166,8 @@ export default function Contacts(): JSX.Element {
                         okText="Si"
                         cancelText="No"
                     >
-                        <Button danger>Eliminar</Button>
-                    </Popconfirm>
+                    <Button danger>Eliminar</Button>
+                </Popconfirm>
             </Flex>
         }
 
