@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { Descriptions, Flex, FormProps, Typography } from 'antd'
-import { Form, Input, Button, message, Select, TimePicker, DatePicker, Table } from 'antd'
+import { Form, Input, InputNumber, Button, message, Select, TimePicker, DatePicker, Table, Modal } from 'antd'
 import type { DatePickerProps } from 'antd'
 
 import type { EconomicActivity, Business, BranchOffice, License } from '../util/api';
@@ -9,6 +9,7 @@ import type { EconomicActivity, Business, BranchOffice, License } from '../util/
 import { useParams } from 'react-router-dom';
 
 import * as api from '../util/api'
+import * as paymentsApi from '../util/paymentsApi'
 import CurrencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import { Payment, Person, CurrencyExchangeRate } from '../util/types'
 
@@ -20,8 +21,9 @@ interface IInvoiceItemType {
 }
 
 interface IPaymentAllocation {
-    id: number,
-    payment: Payment,
+    id?: number,
+    paymentId: number,
+    payment?: Payment,
     amountBs: number
 }
 
@@ -55,11 +57,16 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
     const [business, setBusiness] = useState<Business>();
 
     const [invoiceItemTypes, setInvoiceItemTypes] = useState<Array<IInvoiceItemType>>([])
+    const [payments, setPayments] = useState<Array<Payment>>([])
     const [paymentAllocations, setPaymentAllocations] = useState<Array<IPaymentAllocation>>([])
     const [users, setUsers] = useState<Array<IUser>>([])
     const [currencyExchangeRates, setCurrencyExchangeRates] = useState<CurrencyExchangeRate[]>([]);
 
+    const [showActivateButton, setShowActivateButton] = useState<boolean>(true)
+
     const [invoiceItems, setInvoiceItems] = useState<Array<IInvoiceItem>>([])
+
+    const [open, setOpen] = useState<boolean>(false)
 
     useEffect(() => {
         loadData()
@@ -72,6 +79,9 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         loadLastCurrencyExchangeRate()
 
         loadBusinessData()
+
+        loadPayments()
+
     }, [])
 
     useEffect(() => {
@@ -79,11 +89,12 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
     }, [invoiceItemTypes])
 
     function fillInvoiceItems() {
-        // get 1 invoiceItem with invoiceItemType.id = 1
-        // get 1 invoiceItem with invoiceItemType.id = 2
-        // get 1 invoiceItem with invoiceItemType.id = 3
-        // get 1 invoiceItem with invoiceItemType.id = 4
-
+        // get the proper invoiceItemType for a license invoice 
+        // in this particular case    
+            // get 1 invoiceItem with invoiceItemType.id = 1
+            // get 1 invoiceItem with invoiceItemType.id = 2
+            // get 1 invoiceItem with invoiceItemType.id = 3
+            // get 1 invoiceItem with invoiceItemType.id = 4
         setInvoiceItems([
             {
                 id: 1,
@@ -114,6 +125,16 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 amountMMV: invoiceItemTypes.find(iit => iit.id === 4)?.defaultAmountMMV ?? 0
             }
         ])
+    }
+
+    async function loadPayments() {
+
+        // for now, i will fetch all payments
+        // TODO: Filter payments by business, owners, administrators and accountants of the business 
+        const fetchedPayments = await paymentsApi.findAll()
+        console.log({fetchedPayments})
+        // fill payments with dummy data with payment interface
+        setPayments([...fetchedPayments])
     }
 
     async function loadData() {
@@ -217,17 +238,6 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         setBusiness(business);
     }
 
-    const establishments = [
-        {
-            value: 'Calle Bolívar',
-            label: 'Calle Bolívar',
-        },
-        {
-            value: 'Algarbe',
-            label: 'Algarbe',
-        },
-    ]
-
     const handleIssueDateChange: DatePickerProps['onChange'] = (date, dateString) => {
         console.log({ date })
 
@@ -247,6 +257,7 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
             expirationDate: ''
         })
     }
+
     const registerlicense: FormProps<FiledType>['onFinish'] = async (values) => {
         // get businessId
         // get branchOfficeId
@@ -291,14 +302,6 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         }
     }
 
-    interface FormFields {
-        taxpayer: string,
-        branchOffice: string,
-        economicActivity: string,
-        issuedDate: Date,
-        expirationDate: Date
-    }
-
     const invoiceItemColumns = [
         {
             title: 'Concepto',
@@ -337,6 +340,16 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
             dataIndex: 'amountBs',
             key: 2,
             render: (amountBs: number) => amountBs
+        },
+        {
+            title: 'Acciones',
+            dataIndex: 'actions',
+            key: 4,
+            width: 100,
+            render: (payment: Payment) => <Flex gap={16}>
+                <Button>Editar</Button>
+                <Button danger>Eliminar</Button>
+            </Flex>
         }
     ]
 
@@ -344,6 +357,30 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         value: `${user.person.firstName} ${user.person.lastName} - ${user.role.name}`,
         label: `${user.person.firstName} ${user.person.lastName} - ${user.role.name}`
     }))
+
+    interface FormFields {
+        taxpayer: string,
+        branchOffice: string,
+        economicActivity: string,
+        issuedDate: Date,
+        expirationDate: Date
+    }
+
+    function onClose() {
+        setOpen(false)
+    }
+
+    function onSubmit(values) {
+        console.log({values})
+
+        const newPaymentAllocation = {
+            paymentId: values.paymentId,
+            amountBs: values.amount,
+            payment: payments.find(p => p.id === values.paymentId)
+        }
+
+        setPaymentAllocations([...paymentAllocations, newPaymentAllocation])
+    }
 
     return (
         <div>
@@ -409,39 +446,44 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 
 
                 {/* Factura */}
-                <Typography.Title level={4}>Conceptos</Typography.Title>
-                <Table
-                    dataSource={invoiceItems}
-                    columns={invoiceItemColumns}
-                    bordered
-                    pagination={false}
-
-                    summary={(invoiceItemsInTable) => {
-                        const totalMMV = invoiceItemsInTable.reduce((acc, curr) => acc + curr.amountMMV, 0)
-                        const totalBs = totalMMV * 40 // * currencyExchangeRates[0].rate
-                        return (
-                            <Table.Summary.Row style={{backgroundColor: '#fafafa'}}>
-                                <Table.Summary.Cell index={0} colSpan={1} align='right'>TOTAL</Table.Summary.Cell>
-                                <Table.Summary.Cell index={0} colSpan={1}>{totalMMV}</Table.Summary.Cell>
-                                <Table.Summary.Cell index={0} colSpan={1}>{totalBs}</Table.Summary.Cell>
-                            </Table.Summary.Row>
-                        )
-                    }}
-                />
 
                 {/* Conceptos de Pago */}
-                
+                <Flex vertical style={{marginBottom: 16}}>
+                    <Typography.Title level={4}>Conceptos</Typography.Title>
+                    <Table
+                        dataSource={invoiceItems}
+                        columns={invoiceItemColumns}
+                        bordered
+                        pagination={false}
 
-
+                        summary={(invoiceItemsInTable) => {
+                            const totalMMV = invoiceItemsInTable.reduce((acc, curr) => acc + curr.amountMMV, 0)
+                            const totalBs = totalMMV * 40 // * currencyExchangeRates[0].rate
+                            return (
+                                <Table.Summary.Row style={{backgroundColor: '#fafafa'}}>
+                                    <Table.Summary.Cell index={0} colSpan={1} align='right'>TOTAL</Table.Summary.Cell>
+                                    <Table.Summary.Cell index={0} colSpan={1}>{totalMMV}</Table.Summary.Cell>
+                                    <Table.Summary.Cell index={0} colSpan={1}>{totalBs}</Table.Summary.Cell>
+                                </Table.Summary.Row>
+                            )
+                        }}
+                    />
+                </Flex>
+                    
 
                 {/* Pagos */}
-                <Typography.Title level={4}>Pagos</Typography.Title>
+                <Flex vertical style={{marginBottom: 16}}>
+                    <Flex justify='space-between' align='center'>
+                        <Typography.Title level={4}>Pagos</Typography.Title>
+                        <Button onClick={() => setOpen(true)}>Nuevo Pago</Button>
+                    </Flex>
                     <Table
                         dataSource={paymentAllocations}
                         columns={paymentAllocationColumns}
                         bordered
                         pagination={false}
                     />
+                </Flex>
 
                 <br/>
 
@@ -450,11 +492,82 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 </Form.Item> */}
                 
                 
-                <Form.Item>
-                    <Button type='primary' htmlType='submit'>Guardar</Button>
-                </Form.Item>
+                <Flex justify='end' gap={16}>
+                    {isEdit 
+                        ? (
+                            <Form.Item>
+                                <Button type='primary' htmlType='submit'>Actualizar</Button>
+                            </Form.Item>
+                        )
+                        :(
+                            <Form.Item>
+                                <Button type='primary' htmlType='submit'>Guardar</Button>
+                            </Form.Item>
+                        )
+                    }
+
+                    {showActivateButton && (
+                        <Form.Item>
+                            <Button type='primary' htmlType='submit'>Activar</Button>
+                        </Form.Item>
+                    )}
+                </Flex>
+
+                <Modal
+                    open={open}
+                    onCancel={onClose}
+                    footer={null}
+                >
+                    <PaymentAllocationForm payments={payments} onClose={onClose} onSubmit={onSubmit} />
+                </Modal>
 
             </Form>
         </div>
     )
 }
+
+
+const PaymentAllocationForm = ({ payments, onClose, onSubmit }) => {
+    const [form] = Form.useForm();
+
+    const handleSubmit = (values) => {
+        onSubmit(values);
+        onClose();
+    };
+
+    return (
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+            <Form.Item
+                name="paymentId"
+                label="Referencia de Pago"
+                rules={[{ required: true, message: 'Por favor seleccione un pago' }]}
+            >
+                <Select placeholder="Seleccione un pago">
+                    {payments.map(payment => (
+                        <Select.Option key={payment.id} value={payment.id}>
+                            {payment.reference}
+                        </Select.Option>
+                    ))}
+                </Select>
+            </Form.Item>
+
+            <Form.Item
+                name="amount"
+                label="Monto a Asignar"
+                rules={[{ required: true, message: 'Por favor ingrese un monto' }]}
+            >
+                <InputNumber
+                    style={{ width: '100%' }}
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                />
+            </Form.Item>
+
+            <Form.Item>
+                <Button type="primary" htmlType="submit">
+                    Asignar Pago
+                </Button>
+            </Form.Item>
+        </Form>
+    );
+};
