@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   InvoiceItemType.init({
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
