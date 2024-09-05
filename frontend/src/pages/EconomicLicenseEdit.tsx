@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { FormProps, Typography } from 'antd'
+import { Flex, FormProps, Typography } from 'antd'
 import { Form, Input, Button, message, Select, TimePicker, DatePicker, Table } from 'antd'
 import type { DatePickerProps } from 'antd'
 
@@ -304,7 +304,7 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
             title: 'Concepto',
             dataIndex: 'invoiceItemType',
             key: 'invoiceItemType',
-            render: (invoiceItemType: IInvoiceItemType) => invoiceItemType.name
+            render: (invoiceItemType: IInvoiceItemType) => invoiceItemType?.name
         },
         {
             title: 'MMV',
@@ -398,44 +398,48 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 />
 
                 {/* Conceptos de Pago */}
-                <Typography.Title level={4}>Pagos</Typography.Title>
-                <Table
-                    dataSource={paymentAllocations}
-                    columns={paymentAllocationColumns}
-                    bordered
-                    pagination={false}
-                />
+                
 
 
 
                 {/* Pagos */}
+                <Typography.Title level={4}>Pagos</Typography.Title>
+                    <Table
+                        dataSource={paymentAllocations}
+                        columns={paymentAllocationColumns}
+                        bordered
+                        pagination={false}
+                    />
 
-
+                <br/>
 
                 {/* <Form.Item label='Horario'>
                     <TimePicker.RangePicker />
                 </Form.Item> */}
-                <Form.Item<FormFields>
-                    rules={[
-                        {required: true}
-                    ]}
-                    label='Fecha de Emisión'
-                    name='issuedDate'
-                >
-                    <DatePicker onChange={handleIssueDateChange}/>
-                </Form.Item>
-                <Form.Item<FormFields>
-                    rules={[
-                        {required: true}
-                    ]}
-                    label='Fecha de Expiración' 
-                    name='expirationDate'>
-                    <DatePicker/>
-                </Form.Item>
-
+                <Flex gap={16} wrap >
+                    <Form.Item<FormFields>
+                        rules={[
+                            {required: true}
+                        ]}
+                        label='Fecha de Emisión'
+                        name='issuedDate'
+                    >
+                        <DatePicker onChange={handleIssueDateChange}/>
+                    </Form.Item>
+                    <Form.Item<FormFields>
+                        rules={[
+                            {required: true}
+                        ]}
+                        label='Fecha de Expiración' 
+                        name='expirationDate'>
+                        <DatePicker/>
+                    </Form.Item>
+                </Flex>
+                
                 <Form.Item>
                     <Button type='primary' htmlType='submit'>Guardar</Button>
                 </Form.Item>
+
             </Form>
         </div>
     )
