@@ -26,7 +26,7 @@ const paymentsRouter = require("./controllers/payments")
 const businessesRouter = require("./controllers/businesses")
 const branchOfficesRouter = require("./controllers/branchOffices")
 const economicActivitiesRouter = require("./controllers/economicActivities");
-const economicLicensesRouter = require("./controllers/economicLicenses")
+const economicLicenseRouter = require("./routers/economicLicenseRouter")
 const peopleRouter = require("./controllers/people")
 const zonationsRouter = require("./routers/zonations")
 const leaseDocsRouter = require("./routers/leaseDocs")
@@ -56,7 +56,7 @@ app.use("/v1/payments", paymentsRouter)
 app.use("/v1/businesses", businessesRouter)
 app.use("/v1/branch-offices", branchOfficesRouter) // todo: fix this url to use hyphens instead of camelCase
 app.use("/v1/economic-activities", economicActivitiesRouter)
-app.use("/v1/economic-licenses", economicLicensesRouter)
+app.use("/v1/economic-licenses", economicLicenseRouter)
 app.use("/v1/people", peopleRouter)
 
 app.use("/v1/zonations", zonationsRouter)
