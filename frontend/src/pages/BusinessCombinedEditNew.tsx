@@ -225,13 +225,10 @@ export default function BusinessForm(): JSX.Element {
 
             console.log({newBusinessData})
 
-            messageApi.open({
-                type: 'success',
-                content: "Contribuyente guardado exitosamente",
-            });
+            message.success("Contribuyente guardado exitosamente");
 
             setTimeout(() => {
-                //navigate(`/business/${newBusinessData.id}`)
+                navigate(`/business/${newBusinessData.id}`)
             })
             
         } catch (error) {
