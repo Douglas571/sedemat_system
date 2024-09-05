@@ -35,6 +35,7 @@ const buildingDocsRouter = require("./routers/buildingDocs")
 const permitDocsRouter = require("./routers/permitDocs")
 
 const currencyExchangeRates = require('./routers/currencyExchangeRatesRouter')
+const invoiceItemTypeRouter = require('./routers/invoiceItemTypeRouter')
 
 const app = express ();
 app.use(express.json());
@@ -65,6 +66,7 @@ app.use("/v1/building-docs", buildingDocsRouter)
 
 app.use("/v1/permit-docs", permitDocsRouter)
 app.use("/v1/currency-exchange-rates", currencyExchangeRates)
+app.use("/v1/invoice-item-types", invoiceItemTypeRouter)
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
