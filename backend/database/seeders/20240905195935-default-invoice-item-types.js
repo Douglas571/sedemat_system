@@ -271,19 +271,11 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        id: 33,
-        code: '306010101',
-        name: 'Publicidad Y Propaganda',
-        defaultAmountMMV: 0.1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
 
       // TODO: These are custom types, check if they are correct
       {
         id: 33,
-        code: '306010101',
+        code: '306010102',
         name: 'Publicidad Y Propaganda',
         defaultAmountMMV: 0.1,
         createdAt: new Date(),
@@ -291,7 +283,7 @@ module.exports = {
       },
       {
         id: 34,
-        code: '306010102',
+        code: '306010103',
         name: 'Inscripción De Actividad Económica',
         defaultAmountMMV: 15,
         createdAt: new Date(),
