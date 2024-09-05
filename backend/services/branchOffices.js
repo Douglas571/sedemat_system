@@ -36,10 +36,12 @@ exports.getBranchOfficesByBusinessId = async (businessId) => {
                 businessId: businessId
             },
             include: [
-                {
-                    model: EconomicLicense,
-                    as: "economicLicenses"
-                },
+                // Since i moved the relationship of economic license 
+                // to business, this include is not needed
+                // {
+                //     model: EconomicLicense,
+                //     as: "economicLicenses"
+                // },
                 {
                     model: Zonation,
                     as: "zonations",

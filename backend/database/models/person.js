@@ -11,13 +11,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {Payment} = models
+      const { Payment, User } = models
 
       Person.hasOne(Payment, {
         foreignKey: "personId",
         as: 'payment'
       })
-      
+
+      // a person can have one user
+      Person.hasOne(User, {
+        foreignKey: 'personId',
+        as: 'user'
+      });
     }
   }
   Person.init({

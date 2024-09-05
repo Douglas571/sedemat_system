@@ -9,15 +9,31 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      firstName: {
-        type: Sequelize.STRING
-      },
-      lastName: {
-        type: Sequelize.STRING
-      },
+      
       email: {
         type: Sequelize.STRING
       },
+      password: {
+        type: Sequelize.STRING
+      },
+      roleId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Roles',
+          key: 'id'
+        }
+      },
+      personId: {
+        type: Sequelize.INTEGER,
+        // allowNull: false,
+        unique: true,
+        references: {
+          model: 'People',
+          key: 'id'
+        }
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
