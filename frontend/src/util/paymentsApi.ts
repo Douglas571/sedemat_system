@@ -57,3 +57,10 @@ export async function updatePayment(paymentData: Payment): Promise<string> {
     return JSON.stringify(data)
 }
 
+// a function to fetch all payments
+export async function findAll() {
+    const response = await fetch(HOST + '/v1/payments')
+    const data = await response.json()
+    return data
+}
+
