@@ -58,7 +58,7 @@ module.exports = {
         id: 6,
         code: '301034900',
         name: 'Certificaciones Y Solvencias',
-        defaultAmountMMV: 0,
+        defaultAmountMMV: 3,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -73,7 +73,7 @@ module.exports = {
       {
         id: 8,
         code: '301021000',
-        name: 'Espectaculos Publicos',
+        name: 'Espectáculos Públicos',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -81,7 +81,7 @@ module.exports = {
       {
         id: 9,
         code: '306080200',
-        name: 'Fondo De Compensacion Interterritorial',
+        name: 'Fondo De Compensación Interterritorial',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -89,7 +89,7 @@ module.exports = {
       {
         id: 10,
         code: '301020404',
-        name: 'Impuesto A La Operación De Juegos De Loteria',
+        name: 'Impuesto A La Operación De Juegos De Lotería',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -106,7 +106,7 @@ module.exports = {
         id: 12,
         code: '301090101',
         name: 'Ingreso Por Formularios Y Gacetas Municipales',
-        defaultAmountMMV: 0,
+        defaultAmountMMV: 1.5,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -194,7 +194,7 @@ module.exports = {
         id: 23,
         code: '301020700',
         name: 'Patente De Industria Y Comercio',
-        defaultAmountMMV: 0,
+        defaultAmountMMV: 15,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -217,7 +217,7 @@ module.exports = {
       {
         id: 26,
         code: '301111200',
-        name: 'Reparos Administrativos Por Impuestos Municipàles',
+        name: 'Reparos Administrativos Por Impuestos Municipales',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -258,7 +258,7 @@ module.exports = {
       {
         id: 31,
         code: '306010302',
-        name: 'Venta Y/O Desincorporacion De Equipos De Transporte, Tracción Y Elevación',
+        name: 'Venta Y/O Desincorporación De Equipos De Transporte, Tracción Y Elevación',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -266,11 +266,37 @@ module.exports = {
       {
         id: 32,
         code: '306010100',
-        name: 'Venta Y/O Desincorporacion De Tierras Y Terrenos',
+        name: 'Venta Y/O Desincorporación De Tierras Y Terrenos',
         defaultAmountMMV: 0,
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      },
+      {
+        id: 33,
+        code: '306010101',
+        name: 'Publicidad Y Propaganda',
+        defaultAmountMMV: 0.1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+
+      // TODO: These are custom types, check if they are correct
+      {
+        id: 33,
+        code: '306010101',
+        name: 'Publicidad Y Propaganda',
+        defaultAmountMMV: 0.1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 34,
+        code: '306010102',
+        name: 'Inscripción De Actividad Económica',
+        defaultAmountMMV: 15,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ], {});
   },
 
