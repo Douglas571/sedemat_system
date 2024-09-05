@@ -252,7 +252,7 @@ function BusinessViewDetails(): JSX.Element {
     return (
         <div>
             <div>
-                <Flex align='center' wrap style={{marginBottom: '20px'}}>
+                <Flex align='center' wrap style={{marginBottom: '20px'}} justify='space-between'>
                     <Title style={{marginRight: '20px'}}>
                         {business?.businessName || "Cargando..."}    
                     </Title>
@@ -287,7 +287,9 @@ function BusinessViewDetails(): JSX.Element {
                     ? (
                         <Flex vertical>
                             <Paragraph>El Contribuyente es apto para una licencia de actividad económica</Paragraph>
-                            <Button>Otorgar Licencia</Button>
+                            <Button
+                                onClick={() => navigate(`/business/${businessId}/licenses/new`)}
+                            >Otorgar Licencia</Button>
                         </Flex>
                     ) : (
                         <>

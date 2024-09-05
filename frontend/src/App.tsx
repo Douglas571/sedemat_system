@@ -1,7 +1,7 @@
 import BusinessView from 'pages/BusinessView'
 import BusinessViewDetails from 'pages/BusinessViewDetails'
 
-import BranchOfficeLicenseNew from 'pages/BranchOfficeLicenseNew'
+import EconomicLicenseEdit from 'pages/EconomicLicenseEdit'
 
 import Contacts from 'pages/Contacts'
 import ContactsView from 'pages/ContactsView'
@@ -9,7 +9,7 @@ import ContactEdit from 'pages/ContactsEdit'
 
 
 import BranchOfficeEdit from 'pages/BranchOfficeEdit'
-// EXPERIMENTAL
+// TODO: Rename the file
 import NewBusinessForm from 'pages/BusinessCombinedEditNew'
 
 import CurrencyExchangeRatesPage from 'pages/CurrencyExchangeRates'
@@ -43,7 +43,8 @@ function App(): JSX.Element {
 						<Route path='businesses/:businessId/branch-offices/new' element={<BranchOfficeEdit />}/>
 						<Route path='businesses/:businessId/branch-offices/:branchOfficeId/edit' element={<BranchOfficeEdit />}/>
 
-						<Route path='business/:businessId/branch-office/:branchOfficeId/license/new' element={<BranchOfficeLicenseNew />}/>
+						<Route path='business/:businessId/licenses/new' element={<EconomicLicenseEdit />}/>
+						<Route path='business/:businessId/licenses/:licenseId/edit' element={<EconomicLicenseEdit />}/>
 
 						<Route path='contacts' element={<Contacts/>}/>
 						<Route path='contacts/:id' element={<ContactsView/>}/>

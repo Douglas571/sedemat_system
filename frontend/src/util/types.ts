@@ -120,6 +120,7 @@ export interface CertificateOfIncorporation {
 
 export interface Payment {
     id: number
+    reference: string
     amount: number
     paymentDate: Date
     image: string
@@ -128,4 +129,14 @@ export interface Payment {
     businessId?: number
     person?: Person
     business?: Business
+}
+
+export interface CurrencyExchangeRate {
+    id: number
+    dolarBCVToBs: number
+    eurosBCVToBs: number
+    dolarBlackToBs: number
+    euroBlackToBs: number
+    createdAt: string
+    updatedAt: string
 }
