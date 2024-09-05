@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Flex, FormProps, Typography } from 'antd'
+import { Descriptions, Flex, FormProps, Typography } from 'antd'
 import { Form, Input, Button, message, Select, TimePicker, DatePicker, Table } from 'antd'
 import type { DatePickerProps } from 'antd'
 
@@ -340,6 +340,11 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
         }
     ]
 
+    const userOptions = users.map(user => ({
+        value: `${user.person.firstName} ${user.person.lastName} - ${user.role.name}`,
+        label: `${user.person.firstName} ${user.person.lastName} - ${user.role.name}`
+    }))
+
     return (
         <div>
             {contextHolder}
@@ -352,28 +357,55 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 form={form}
                 onFinish={registerlicense}
             >
-                <Form.Item<FormFields> 
-                    label='Contribuyente: ' 
-                    name='taxpayer'
-                >
-                    <Input
-                        disabled
-                    >
-                    </Input>
-                </Form.Item>
-                <Form.Item 
-                    label='Sede o Establecimiento: '
-                    name="branchOffice"
+
+                {/* Taxpayer */}
+                <Descriptions size='small' layout='vertical' bordered>
+                    <Descriptions.Item label='Empresa: '>{business?.businessName}</Descriptions.Item>
+                    <Descriptions.Item label='RIF: '>{business?.dni}</Descriptions.Item>
+                </Descriptions>
+
+                <br/>
+
+
+                {/* Created by */}
+                <Form.Item<FormFields>
+                    label='Creado por: '
+                    name='createdByOption'
                 >
                     <Select
-                        disabled
-                        defaultValue={establishments[0].value}
-                        optionFilterProp='label'
-                            // onChange={onChange}
-                            // onSearch={onSearch}
-                        options={establishments}
+                        options={userOptions}
                     />
                 </Form.Item>
+
+                {/* Checked by */}
+                <Form.Item<FormFields>
+                    label='Revisado por: '
+                    name='checkedByOption'
+                >
+                    <Select
+                        options={userOptions}
+                    />
+                </Form.Item>
+
+                <Flex gap={16} wrap >
+                    <Form.Item<FormFields>
+                        rules={[
+                            {required: true}
+                        ]}
+                        label='Fecha de Emisión'
+                        name='issuedDate'
+                    >
+                        <DatePicker onChange={handleIssueDateChange}/>
+                    </Form.Item>
+                    <Form.Item<FormFields>
+                        rules={[
+                            {required: true}
+                        ]}
+                        label='Fecha de Expiración' 
+                        name='expirationDate'>
+                        <DatePicker/>
+                    </Form.Item>
+                </Flex>
                 
 
                 {/* Factura */}
@@ -416,25 +448,7 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
                 {/* <Form.Item label='Horario'>
                     <TimePicker.RangePicker />
                 </Form.Item> */}
-                <Flex gap={16} wrap >
-                    <Form.Item<FormFields>
-                        rules={[
-                            {required: true}
-                        ]}
-                        label='Fecha de Emisión'
-                        name='issuedDate'
-                    >
-                        <DatePicker onChange={handleIssueDateChange}/>
-                    </Form.Item>
-                    <Form.Item<FormFields>
-                        rules={[
-                            {required: true}
-                        ]}
-                        label='Fecha de Expiración' 
-                        name='expirationDate'>
-                        <DatePicker/>
-                    </Form.Item>
-                </Flex>
+                
                 
                 <Form.Item>
                     <Button type='primary' htmlType='submit'>Guardar</Button>
