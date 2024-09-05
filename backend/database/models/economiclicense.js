@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {EconomicActivity, Invoice} = models
+      const {EconomicActivity, Invoice, User} = models
 
       EconomicLicense.belongsTo(EconomicActivity, {
           foreignKey: "economicActivityId",
@@ -27,25 +27,37 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'invoiceId',
         as: 'invoice'
       })
-    
+
+      // one economic license belongs to one user called createdByUserId
+      EconomicLicense.belongsTo(User, {
+        foreignKey: 'createdByUserId',
+        as: 'createdBy'
+      });
+
+      // one economic license belongs to one user called checkedByUserId
+      EconomicLicense.belongsTo(User, {
+        foreignKey: 'checkedByUserId',
+        as: 'checkedBy'
+      });
+      
     }
   }
   EconomicLicense.init({
 
-    createdByPersonId: {
+    createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'People',
+        model: 'Users',
         key: 'id'
       }
     },
 
-    checkedByPersonId: {
+    checkedByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'People',
+        model: 'Users',
         key: 'id'
       }
     },

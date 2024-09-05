@@ -24,11 +24,23 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'personId',
         as: 'person'
       });
+
+      // user can have many economic licenses associated as economicLicenseCreated
+      User.hasMany(models.EconomicLicense, {
+        foreignKey: 'createdById',
+        as: 'economicLicensesCreated'
+      });
+
+      // user can have many economic license associated as economicLicenseChecked
+      User.hasMany(models.EconomicLicense, {
+        foreignKey: 'checkedById',
+        as: 'economicLicensesChecked'
+      });
     }
   }
+
   User.init({
     email: DataTypes.STRING,
-
     password: DataTypes.STRING,
 
     roleId: {
