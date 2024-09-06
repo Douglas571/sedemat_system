@@ -81,10 +81,6 @@ module.exports = (sequelize, DataTypes) => {
     // This column is for data convenience, instead of fetching 
     // all invoices and payment allocations to check if a license
     // isPaid every time, I just set this column once.
-    isPaid: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
 
     // isSuspended is similar to is paid, just convenience.
     isSuspended: {
@@ -102,6 +98,8 @@ module.exports = (sequelize, DataTypes) => {
       // allowNull: false
     },
 
+    // economic license is active when it has been issued and not expired, 
+    // also, also isSuspended is false
     issuedDate: {
       type: DataTypes.DATE,
       // allowNull: false,

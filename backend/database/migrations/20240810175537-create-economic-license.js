@@ -11,11 +11,6 @@ module.exports = {
         type: Sequelize.INTEGER
       },
 
-      isPaid: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true
-      },
-
       isSuspended: {
         type: Sequelize.BOOLEAN,
         allowNull: true

@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
       references: {
           model: 'CurrencyExchangeRates', // Reference the CurrencyExchangeRates table
           key: 'id'
+      },
+
+      isPaid: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
       }
     },
   }, {
