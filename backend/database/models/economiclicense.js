@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {Invoice, User} = models
+      const {Invoice, User, Business} = models
 
 
       // economic license belongs to one invoice
