@@ -9,4 +9,6 @@ router.get('/:id', economicLicenseController.getEconomicLicenseById);
 router.put('/:id', economicLicenseController.updateEconomicLicense);
 router.delete('/:id', economicLicenseController.deleteEconomicLicense);
 
+router.post('/request/:businessId', economicLicenseController.requestNewEconomicLicense);
+
 module.exports = router;

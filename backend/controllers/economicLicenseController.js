@@ -2,6 +2,21 @@ const economicLicenseService = require('../services/economicLicenses');
 const logger = require('../utils/logger');
 
 class EconomicLicenseController {
+
+    async requestNewEconomicLicense(req, res) {
+        try {
+            const economicLicenseData = req.body;
+            economicLicenseData.businessId = req.params.businessId;
+            console.log({economicLicenseData});
+            const newLicense = await economicLicenseService.requestNewEconomicLicense(economicLicenseData);
+            res.status(201).json(newLicense);
+        } catch (error) {
+            console.log({error});
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+
     async createEconomicLicense(req, res) {
         try {
             const newLicense = await economicLicenseService.createEconomicLicense(req.body);

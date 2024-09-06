@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
           model: 'CurrencyExchangeRates', // Reference the CurrencyExchangeRates table
           key: 'id'
       }
-    }
+    },
   }, {
     sequelize,
     modelName: 'Invoice',

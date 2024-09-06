@@ -21,8 +21,6 @@ module.exports = {
         allowNull: true
       },
 
-
-
       openAt: {
         type: Sequelize.TIME,
         // allowNull: false,
@@ -35,12 +33,12 @@ module.exports = {
 
       issuedDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        // allowNull: false,
       },
 
       expirationDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        // allowNull: false,
       },
 
       createdAt: {

@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       const { Invoice, InvoiceItemType } = models
 
       // Invoice item belongs to one invoice item type
-      Invoice.belongsTo(InvoiceItemType, {
+      InvoiceItem.belongsTo(InvoiceItemType, {
         foreignKey: 'invoiceItemTypeId',
         as: 'invoiceItemType'
       })

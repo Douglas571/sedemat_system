@@ -12,15 +12,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {EconomicActivity, Invoice, User} = models
+      const {Invoice, User} = models
 
-      EconomicLicense.belongsTo(EconomicActivity, {
-          foreignKey: "economicActivityId",
-      });
-      
-      EconomicActivity.hasMany(EconomicLicense, {
-          foreignKey: "economicActivityId",
-      })
 
       // economic license belongs to one invoice
       EconomicLicense.belongsTo(Invoice, {
@@ -97,11 +90,11 @@ module.exports = (sequelize, DataTypes) => {
 
     issuedDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      // allowNull: false,
     },
     expirationDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      // allowNull: false,
     }
 
   }, {

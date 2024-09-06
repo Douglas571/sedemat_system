@@ -27,13 +27,13 @@ module.exports = (sequelize, DataTypes) => {
 
       // user can have many economic licenses associated as economicLicenseCreated
       User.hasMany(models.EconomicLicense, {
-        foreignKey: 'createdById',
+        foreignKey: 'createdByUserId',
         as: 'economicLicensesCreated'
       });
 
       // user can have many economic license associated as economicLicenseChecked
       User.hasMany(models.EconomicLicense, {
-        foreignKey: 'checkedById',
+        foreignKey: 'checkedByUserId',
         as: 'economicLicensesChecked'
       });
     }

@@ -10,20 +10,20 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     
-    await queryInterface.addColumn('EconomicLicenses', 'createdByPersonId', {
+    await queryInterface.addColumn('EconomicLicenses', 'createdByUserId', {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'People',
+        model: 'Users',
         key: 'id'
       }
     });
 
-    await queryInterface.addColumn('EconomicLicenses', 'checkedByPersonId', {
+    await queryInterface.addColumn('EconomicLicenses', 'checkedByUserId', {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'People',
+        model: 'Users',
         key: 'id'
       }
     });

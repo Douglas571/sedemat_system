@@ -1,5 +1,73 @@
 // services/economicLicenseService.js
-const {EconomicLicense, EconomicActivity} = require('../database/models');
+const {User, EconomicLicense, EconomicActivity, Invoice, InvoiceItem, InvoiceItemType, CurrencyExchangeRates} = require('../database/models');
+
+
+const InvoiceItemTypesForEconomicLicense = {
+    inscription: '306010103',
+    solvency: '301034900',
+    advertising: '306010102',
+    form: '301090101',
+};
+
+const defaultTaxCollectorUserId = 4;
+const defaultCoordinatorUserId = 5;
+
+exports.requestNewEconomicLicense = async(licenseData) => {
+    // get the last currency exchange rate
+    const lastCurrencyExchangeRate = await CurrencyExchangeRates.findOne({
+        order: [['id', 'DESC']]
+    });
+
+    if(!lastCurrencyExchangeRate) {
+        throw new Error('No currency exchange rate found');
+    }
+
+    // create a new invoice
+    const newInvoice = await Invoice.create({
+        businessId: licenseData.businessId,
+        finalExchangeRatesId: lastCurrencyExchangeRate.id
+    });
+
+    // add invoice item with the required invoice item types for an economic license
+    for (const [key, code] of Object.entries(InvoiceItemTypesForEconomicLicense)) {
+
+        // find invoice item type where the code is equal to code
+        const invoiceItemType = await InvoiceItemType.findOne({
+            where: {
+                code: code
+            }
+        });
+
+        if (!invoiceItemType) {
+            throw new Error(`Invoice item type not found for code: ${code}`);
+        }
+
+        await InvoiceItem.create({
+            invoiceId: newInvoice.id,
+            invoiceItemTypeId: invoiceItemType.id,
+            amountMMV: invoiceItemType.defaultAmountMMV
+        });
+    }
+
+    // create a new economic license
+    const newLicense = await EconomicLicense.create({
+        businessId: licenseData.businessId,
+        checkedByUserId: licenseData.checkByUserId || defaultCoordinatorUserId, // Assuming 1 is the default checkedByUserId
+        createdByUserId: licenseData.createdByUserId || defaultTaxCollectorUserId, // Use provided or default to 1
+        invoiceId: newInvoice.id,
+        isPaid: false,
+        isSuspended: false,
+        // Add other fields from licenseData as needed
+    });
+
+
+    console.log({EconomicLicense});
+    console.log({newLicense});
+        
+    // return the new license
+    return newLicense;
+};
+
 
 exports.createEconomicLicense = async (licenseData) => {
     try {
@@ -23,7 +91,34 @@ exports.getEconomicLicenses = async () => {
 
 exports.getEconomicLicenseById = async (id) => {
     try {
-        const license = await EconomicLicense.findByPk(id);
+        const license = await EconomicLicense.findByPk(id, {
+            include: [
+                {
+                    model: Invoice,
+                    as: 'invoice',
+                    include: [
+                        {
+                            model: InvoiceItem,
+                            as: 'invoiceItems',
+                            include: [
+                                {
+                                    model: InvoiceItemType,
+                                    as: 'invoiceItemType'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'createdBy'
+                },
+                {
+                    model: User,
+                    as: 'checkedBy'
+                }
+            ]
+        });
         if (!license) {
             throw new Error('License not found');
         }

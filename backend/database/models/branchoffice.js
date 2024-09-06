@@ -12,16 +12,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       const {
-        EconomicLicense, 
         Zonation, 
         BuildingDoc, 
         LeaseDoc
       } = models
       // define association here
-      BranchOffice.hasMany(EconomicLicense, {
-        foreignKey: "branchOfficeId",
-        as: "economicLicenses"
-      })
 
       BranchOffice.hasMany(Zonation, {
         foreignKey: "branchOfficeId",
