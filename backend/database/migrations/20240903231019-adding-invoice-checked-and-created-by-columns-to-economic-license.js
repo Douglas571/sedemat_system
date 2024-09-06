@@ -45,8 +45,8 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('EconomicLicenses', 'createdByPersonId');
-    await queryInterface.removeColumn('EconomicLicenses', 'checkedByPersonId');
+    await queryInterface.removeColumn('EconomicLicenses', 'createdByUserId');
+    await queryInterface.removeColumn('EconomicLicenses', 'checkedByUserId');
     await queryInterface.removeColumn('EconomicLicenses', 'invoiceId');
   }
 };

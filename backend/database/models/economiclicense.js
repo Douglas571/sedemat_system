@@ -32,7 +32,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'checkedByUserId',
         as: 'checkedBy'
       });
-      
+
+      // one economic license belongs to one business
+      EconomicLicense.belongsTo(Business, {
+        foreignKey: 'businessId',
+        as: 'business'
+      });
     }
   }
   EconomicLicense.init({
@@ -60,6 +65,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'Invoices',
+        key: 'id'
+      }
+    },
+
+    businessId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Businesses',
         key: 'id'
       }
     },

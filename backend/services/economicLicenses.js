@@ -80,9 +80,7 @@ exports.createEconomicLicense = async (licenseData) => {
 
 exports.getEconomicLicenses = async () => {
     try {
-        const licenses = await EconomicLicense.findAll({
-            include: EconomicActivity,
-        });
+        const licenses = await EconomicLicense.findAll();
         return licenses;
     } catch (error) {
         throw new Error(`Unable to retrieve licenses: ${error.message}`);

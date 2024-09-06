@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      const {EconomicActivity, Person} = models
+      const {EconomicActivity, Person, CertificateOfIncorporation, EconomicLicense} = models
+
       Business.belongsTo(EconomicActivity, {
           foreignKey: "economicActivityId",
           as: 'economicActivity'
@@ -41,10 +42,15 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       // business has a relationship one to many with certificateOfIncorporation
-      const {CertificateOfIncorporation} = models
       Business.hasMany(CertificateOfIncorporation, {
         foreignKey: "businessId",
         as: 'certificateOfIncorporations'
+      })
+
+      // business has many economicLicenses
+      Business.hasMany(EconomicLicense, {
+        foreignKey: "businessId",
+        as: 'economicLicenses'
       })
     }
   }
