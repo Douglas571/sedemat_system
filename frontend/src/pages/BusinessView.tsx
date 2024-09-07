@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography } from 'antd'
-import { EditFilled, DeleteFilled } from '@ant-design/icons';
-import { SearchOutlined } from '@ant-design/icons';
-
-import Highlighter from 'react-highlight-words';
+import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
 
 
 import { useNavigate, Link } from "react-router-dom";

@@ -18,6 +18,8 @@ import CurrencyExchangeRatesEditForm from 'pages/CurrencyExchangeRatesEditForm';
 import Payments from 'pages/Payments'
 import PaymentsEdit from 'pages/PaymentsEdit'
 
+import TaxCollection from 'pages/TaxCollection'
+
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
 import MainLayout from 'layout/main'
@@ -54,6 +56,8 @@ function App(): JSX.Element {
 						<Route path='currency-exchange-rates' element={<CurrencyExchangeRatesPage />} />
 						<Route path='currency-exchange-rates/new' element={<CurrencyExchangeRatesEditForm />} />
 						<Route path='currency-exchange-rates/edit/:id' element={<CurrencyExchangeRatesEditForm />} />
+
+						<Route path='tax-collection' element={<TaxCollection />} />
 						
 
 						{/* Using path="*"" means "match anything", so this route

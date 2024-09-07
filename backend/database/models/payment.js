@@ -51,6 +51,14 @@ module.exports = (sequelize, DataTypes) => {
     // add liquidation date
     // add state 
 
+    backId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Backs',
+        key: 'id'
+      }
+    },
+
     businessId: {
       type: DataTypes.INTEGER,
       references: {

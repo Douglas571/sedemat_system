@@ -55,7 +55,7 @@ const items: MenuProp['items'] = [
 		label: 'Contactos'
 	},
 	{
-		key: '/collection',
+		key: '/tax-collection',
 		icon: '',
 		label: 'Recaudación'
 	},
