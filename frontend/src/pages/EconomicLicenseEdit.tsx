@@ -10,6 +10,8 @@ import { useParams } from 'react-router-dom';
 
 import * as api from '../util/api'
 import * as paymentsApi from '../util/paymentsApi'
+import * as invoiceItemTypesApi from '../util/invoiceItemTypesApi'
+
 import CurrencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import { Payment, Person, CurrencyExchangeRate } from '../util/types'
 
@@ -89,42 +91,41 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
     }, [invoiceItemTypes])
 
     function fillInvoiceItems() {
+
+        /**
+         *  formulario = 301090101
+         *  solvencia = 301034900
+         *  publicidad = 306010102
+         *  inscripcion = 306010103
+         */
+
+        const invoiceItemTypeCodes = {
+            inscription: '306010103',
+            solvency: '301034900',
+            advertising: '306010102',
+            form: '301090101',
+        };
+        
         // get the proper invoiceItemType for a license invoice 
         // in this particular case    
             // get 1 invoiceItem with invoiceItemType.id = 1
             // get 1 invoiceItem with invoiceItemType.id = 2
             // get 1 invoiceItem with invoiceItemType.id = 3
             // get 1 invoiceItem with invoiceItemType.id = 4
-        setInvoiceItems([
-            {
-                id: 1,
-                key: 1,
-                invoiceItemTypeId: invoiceItemTypes.find(iit => iit.id === 1)?.id ?? 0,
-                invoiceItemType: invoiceItemTypes.find(iit => iit.id === 1),
-                amountMMV: invoiceItemTypes.find(iit => iit.id === 1)?.defaultAmountMMV ?? 0
-            },
-            {
-                id: 2,
-                key: 2,
-                invoiceItemTypeId: invoiceItemTypes.find(iit => iit.id === 2)?.id ?? 0,
-                invoiceItemType: invoiceItemTypes.find(iit => iit.id === 2),
-                amountMMV: invoiceItemTypes.find(iit => iit.id === 2)?.defaultAmountMMV ?? 0
-            },
-            {
-                id: 3,
-                key: 3,
-                invoiceItemTypeId: invoiceItemTypes.find(iit => iit.id === 3)?.id ?? 0,
-                invoiceItemType: invoiceItemTypes.find(iit => iit.id === 3),
-                amountMMV: invoiceItemTypes.find(iit => iit.id === 3)?.defaultAmountMMV ?? 0
-            },
-            {
-                id: 4,
-                key: 4,
-                invoiceItemTypeId: invoiceItemTypes.find(iit => iit.id === 4)?.id ?? 0,
-                invoiceItemType: invoiceItemTypes.find(iit => iit.id === 4),
-                amountMMV: invoiceItemTypes.find(iit => iit.id === 4)?.defaultAmountMMV ?? 0
-            }
-        ])
+
+
+        const newInvoiceItems = Object.entries(invoiceItemTypeCodes).map(([key, code], index) => {
+            const invoiceItemType = invoiceItemTypes.find(iit => iit.code === code);
+            return {
+                id: index + 1,
+                key: index + 1,
+                invoiceItemTypeId: invoiceItemType?.id ?? 0,
+                invoiceItemType: invoiceItemType,
+                amountMMV: invoiceItemType?.defaultAmountMMV ?? 0
+            };
+        });
+
+        setInvoiceItems(newInvoiceItems);
     }
 
     async function loadPayments() {
@@ -197,28 +198,32 @@ export default function BranchOfficeLicenseNew(): JSX.Element {
     }
 
     async function loadInvoiceItemTypes() {
-        setInvoiceItemTypes([
-            {
-                id: 1,
-                name: 'Inscripción de Actividad Económica',
-                defaultAmountMMV: 15
-            },
-            {
-                id: 2,
-                name: 'Certificación y Solvencia',
-                defaultAmountMMV: 3,
-            },
-            {
-                id: 3,
-                name: 'Publicidad y Propaganda',
-                defaultAmountMMV: 0.1,
-            },
-            {
-                id: 4,
-                name: 'Formulario',
-                defaultAmountMMV: 1.5,
-            }
-        ])
+        const fetchedInvoiceItemTypes = await invoiceItemTypesApi.findAll()
+        console.log({fetchedInvoiceItemTypes})
+        setInvoiceItemTypes([...fetchedInvoiceItemTypes])
+
+        // setInvoiceItemTypes([
+        //     {
+        //         id: 1,
+        //         name: 'Inscripción de Actividad Económica',
+        //         defaultAmountMMV: 15
+        //     },
+        //     {
+        //         id: 2,
+        //         name: 'Certificación y Solvencia',
+        //         defaultAmountMMV: 3,
+        //     },
+        //     {
+        //         id: 3,
+        //         name: 'Publicidad y Propaganda',
+        //         defaultAmountMMV: 0.1,
+        //     },
+        //     {
+        //         id: 4,
+        //         name: 'Formulario',
+        //         defaultAmountMMV: 1.5,
+        //     }
+        // ])
     }
 
     async function loadLastCurrencyExchangeRate() {

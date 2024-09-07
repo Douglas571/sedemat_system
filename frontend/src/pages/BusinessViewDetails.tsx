@@ -1,6 +1,6 @@
 import React, { Children, useEffect, useState } from 'react'
 import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
-import { Form, Input, Button, message, Typography, Select, Flex, Image } from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex, Image, Table } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 
@@ -8,10 +8,13 @@ import type { Business, BranchOffice, License, EconomicActivity } from '../util/
 
 import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
+import * as economicLicenseApi from '../util/economicLicenseApi'
+
 import { TypeIcon } from 'antd/es/message/PurePanel';
 
 
 import { completeUrl, getCommunicationPreference } from './BusinessShared';
+import { render } from '@testing-library/react';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -28,6 +31,7 @@ function BusinessViewDetails(): JSX.Element {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [business, setBusiness] = React.useState<Business>()
     const { businessId } = useParams();
+    const [economicLicenses, setEconomicLicenses] = useState<EconomicLicense[]>([])
     const navigate = useNavigate()
 
     const [licenseStatus, setLicenseStatus] = useState()
@@ -37,7 +41,14 @@ function BusinessViewDetails(): JSX.Element {
     useEffect(() => {
         // first load of data
         loadBusinessData()
+        loadEconomicLicenses()
     }, [])
+
+    const loadEconomicLicenses = async () => {
+        const licenses = await economicLicenseApi.findAll()
+        console.log({licenses})
+        setEconomicLicenses(licenses?.filter(license => license.businessId === Number(businessId)))
+    }
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -50,7 +61,7 @@ function BusinessViewDetails(): JSX.Element {
             business?.id && await api.deleteBusiness(business.id)
         } catch (error) {
             if (error.message.includes("Business not found")) {
-                console.log("La empresa no existe o fue eliminada")
+                message.error("Error al eliminar el contribuyente")
             }
         }
 
@@ -61,8 +72,6 @@ function BusinessViewDetails(): JSX.Element {
         setIsModalOpen(false);
     };
 
-    useEffect(() => console.log({ business }), [business])
-
     async function loadBusinessData() {
         // get the business data 
         // feed the form with the business data
@@ -70,49 +79,27 @@ function BusinessViewDetails(): JSX.Element {
             let fetchedBusiness = await api.fetchBusinessById(Number(businessId))
             let branchOffices = await api.fetchBranchOffices(Number(businessId))
             // TODO: Add case when there is not branch office
-            console.log({ branchOffices })
+
+            // console.log({ branchOffices })
             setBusiness({ ...fetchedBusiness, branchOffices })
         }
 
         // call the isBusinessEligibleForEconomicLicense function in businessApi and pass the business id
         let status = await businessesApi.isBusinessEligibleForEconomicLicense(Number(businessId))
-        console.log({status})
 
         setLicenseStatus({...status})
 
     }
 
-    function isLicenseValid(license: License | undefined): boolean {
-        if (!license) {
-            return false
+    async function handleNewEconomicLicense() {
+        try {
+            const result = await economicLicenseApi.requestNewEconomicLicense(businessId, {})
+            console.log({result})
+
+            loadEconomicLicenses()
+        } catch (error) {
+            console.log({error})
         }
-        const currentDate = new Date();
-        const expirationDate = new Date(license.expirationDate);
-
-        return expirationDate >= currentDate;
-    }
-
-    function isLicenseExpired(license: License, months: number): boolean {
-        const currentDate = new Date();
-        const expirationDate = new Date(license.expirationDate);
-        const differenceInMonths = (currentDate.getFullYear() - expirationDate.getFullYear()) * 12 + (currentDate.getMonth() - expirationDate.getMonth());
-        return differenceInMonths > months;
-    }
-
-    function renderLicenseButton(office: BranchOffice): JSX.Element {
-        const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
-
-        if (!lastEconomicLicense || isLicenseExpired(lastEconomicLicense, 4)) {
-            return <Link to={`branch-office/${office.id}/license/new`}>Otorgar Licencia</Link>;
-        } else if (isLicenseExpired(lastEconomicLicense, 0)) {
-            return <Link to={`branch-office/${office.id}/license/renovate`}>Renovar Licencia</Link>;
-        } else {
-            return <span>Licencia vigente</span>;
-        }
-    }
-
-    if (!business) {
-        return (<div>Cargando</div>)
     }
 
     function getCommunicationPreference() {
@@ -226,7 +213,6 @@ function BusinessViewDetails(): JSX.Element {
         return mapper[business?.preferredChannel]
     }
 
-
     async function handleNewBranchOffice() {
         // travel to /businesses/:businessId/branch-offices/new
         navigate(`/businesses/${businessId}/branch-offices/new`)
@@ -247,6 +233,10 @@ function BusinessViewDetails(): JSX.Element {
     async function handleEditBranchOffice(id: number) {
         // travel to /businesses/:businessId/branch-offices/:branchOfficeId/edit
         navigate(`/businesses/${businessId}/branch-offices/${id}/edit`)
+    }
+
+    if (!business) {
+        return (<div>Cargando</div>)
     }
 
     return (
@@ -288,7 +278,7 @@ function BusinessViewDetails(): JSX.Element {
                         <Flex vertical>
                             <Paragraph>El Contribuyente es apto para una licencia de actividad económica</Paragraph>
                             <Button
-                                onClick={() => navigate(`/business/${businessId}/licenses/new`)}
+                                onClick={() => handleNewEconomicLicense()}
                             >Otorgar Licencia</Button>
                         </Flex>
                     ) : (
@@ -304,6 +294,8 @@ function BusinessViewDetails(): JSX.Element {
                         </>
                     )}
                 </Flex>
+
+                <EconomicLicensesTable economicLicenses={economicLicenses}/>
 
 
                 {/* contacts */}
@@ -371,7 +363,6 @@ function BusinessViewDetails(): JSX.Element {
 }
 
 function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Element {
-    console.log({branchOfficesInRender: branchOffices})
 
     const [isDeleteOfficeModalOpen, setIsDeleteOfficeModal] = useState(false)
     const [officeToDeleteId, setOfficeToDeleteId] = useState('')
@@ -421,10 +412,6 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
             <Flex vertical gap="large">
             {
                 branchOffices.map((office, index) => {
-                    const lastEconomicLicense = office?.EconomicLicenses?.slice(-1)[0]
-                    // console.log({office})
-                    // console.log({lastEconomicLicense})
-
                     // get the last fire fighter permit
                     let firefighterPermit
                     if (office.fireFighterDocs?.length > 0) {
@@ -689,8 +676,6 @@ function ContactPreferenceDescription({preference}): JSX.Element {
         return <p>Actividad Económica no registrada</p>
     }
 
-    console.log(JSON.stringify(preference))
-
     let {preferredContact,
         preferredChannel,
         sendCalculosTo,
@@ -730,9 +715,6 @@ function ContactPreferenceDescription({preference}): JSX.Element {
 }
 
 function Permits({ firefighterPermit, healthPermit }): JSX.Element {
-
-    console.log({ firefighterPermit, healthPermit })
-
 
     return (
         <>
@@ -781,8 +763,6 @@ function PermitRender({data, title}) {
         </>
     )
 }
-
-
 
 export default BusinessViewDetails
 
@@ -874,8 +854,6 @@ function EconomicActivityDescription({economicActivity}): JSX.Element {
         return <p>Actividad Económica no registrada</p>
     }
 
-    console.log(JSON.stringify(economicActivity))
-
     let { title, code, alicuota, minimumTax} = economicActivity
     const economicActivityDescriptions = [
         {
@@ -907,5 +885,83 @@ function EconomicActivityDescription({economicActivity}): JSX.Element {
             items={economicActivityDescriptions}
         />
 
+    )
+}
+
+// a component to display the economic licenses table
+function EconomicLicensesTable({economicLicenses}): JSX.Element {
+    const navigate = useNavigate()
+    console.log({economicLicenses})
+
+    /**
+     * possible states:
+     * por pagar
+     *  if invoice is not paid
+     * por activar
+     *  if invoice is paid and issueDate is not set
+     * activo
+     *  issueDate is set and expirationDate is not reached
+     * por renovar
+     *  if expirationDate has less than 3 months of expired
+     * vencido
+     *  if expirationDate has more than 3 months of expired
+     */
+    
+    const columns = [
+        {
+            title: 'Estado',
+            dataIndex: '',
+            render: (text: any, record: any) => {
+                return (
+                    <Badge 
+                        status={record.invoice?.isPaid ? "success" : "error"} 
+                        text={
+                            (() => {
+                                const now = new Date();
+                                if (!record.invoice?.isPaid) {
+                                    return "Por pagar";
+                                } else if (!record.issuedDate) {
+                                    return "Por activar";
+                                } else if (record.expirationDate && new Date(record.expirationDate) > now) {
+                                    return "Activo";
+                                } else if (record.expirationDate) {
+                                    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                                    return new Date(record.expirationDate) > threeMonthsAgo ? "Por renovar" : "Vencido";
+                                }
+                                return "Estado desconocido";
+                            })()
+                        }
+                    />
+                );
+            }
+        },
+        {
+            title: 'Fecha de emisión',
+            dataIndex: 'issuedDate',
+            render: (issuedDate: any) => {
+                return issuedDate ? new Date(issuedDate).toLocaleDateString() : "-"
+            }
+        },
+        {
+            title: 'Fecha de vencimiento',
+            dataIndex: 'expirationDate',
+            render: (expirationDate: any) => {
+                return expirationDate ? new Date(expirationDate).toLocaleDateString() : "-"
+            }
+        },
+        {
+            title: 'Acciones',
+            dataIndex: '',
+            render: (record: any) => {
+                return (
+                    <Flex>
+                        <Button onClick={() => navigate(`/business/${record.businessId}/licenses/${record.id}/edit`)}>Actualizar</Button>
+                    </Flex>
+                )
+            }
+        }
+    ]
+    return (
+        <Table dataSource={economicLicenses} columns={columns}/>
     )
 }
