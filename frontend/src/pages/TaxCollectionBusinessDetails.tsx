@@ -250,7 +250,7 @@ function GrossIncomeTaxesTable(): JSX.Element {
         <Flex vertical>
 
             <Flex gap="small" align='center' justify='space-between'>
-                <Title level={3}>Impuestos sobre Ingresos Brutos</Title>
+                <Title level={3}>Ingresos Brutos Declarados</Title>
                 <Button 
                     onClick={() => navigate('gross-incomes/new')}
                     style={{alignSelf: 'end', marginBottom: '12px'}}>
@@ -450,27 +450,27 @@ function GrossIncomeInvoiceTable(): JSX.Element {
 
     const columns = [
         {
-            title: 'Número de Factura',
-            dataIndex: 'invoiceNumber',
-            key: 'invoiceNumber',
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
-            title: 'Fecha',
+            title: 'Fecha de Pago',
             dataIndex: 'date',
             key: 'date',
         },
         {
-            title: 'Ingreso Bruto',
+            title: 'Monto Total',
             dataIndex: 'grossIncome',
             key: 'grossIncome',
             render: (value: number) => `${value.toLocaleString().replace(',', '.')} Bs.`,
         },
-        {
-            title: 'Monto del Impuesto',
-            dataIndex: 'taxAmount',
-            key: 'taxAmount',
-            render: (value: number) => `${value.toLocaleString().replace(',', '.')} Bs.`,
-        },
+        // {
+        //     title: 'Monto del Impuesto',
+        //     dataIndex: 'taxAmount',
+        //     key: 'taxAmount',
+        //     render: (value: number) => `${value.toLocaleString().replace(',', '.')} Bs.`,
+        // },
         {
             title: 'Estado',
             dataIndex: 'status',
@@ -497,7 +497,7 @@ function GrossIncomeInvoiceTable(): JSX.Element {
     return (
         <Flex vertical>
             <Flex gap="small" align='center' justify='space-between'>
-                <Title level={3}>Facturas de Impuestos sobre Ingresos Brutos</Title>
+                <Title level={3}>Calculos del Impuesto sobre Ingresos Brutos</Title>
                 <Button style={{alignSelf: 'end', marginBottom: '12px'}}>
                     <PlusOutlined />
                     Generar Nueva Factura
