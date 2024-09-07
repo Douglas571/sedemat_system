@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
 
-      const {Business, Person } = models
+      const {Business, Person, Bank } = models
 
       Payment.belongsTo(Person, {
         foreignKey: 'personId',
@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       Payment.belongsTo(Business, {
         foreignKey: 'businessId',
         as: 'business'
+      })
+
+      Payment.belongsTo(Bank, {
+        foreignKey: 'bankId',
+        as: 'bank'
       })
     }
   }
