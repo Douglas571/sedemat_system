@@ -31,8 +31,7 @@ const TaxCollection: React.FC = () => {
 export default TaxCollection;
 
 
-import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
-import { render } from '@testing-library/react';
+import { SearchOutlined } from '@ant-design/icons';
 const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => {
 
     const navigate = useNavigate()
@@ -84,24 +83,24 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             },
             sorter: (a:Business, b:Business) => a.dni.localeCompare(b.dni),
         },
-        {
-            title: '',
-            key: 'actions',
-            render: (_, business: Business) => {
-                return (
-                    <Flex gap="small">
-                        <Button
-                            shape="circle"
-                            onClick={() => {
-                                console.log({ goingTo: business.id })
-                                navigate(`edit/${business.id}`)
-                            }
-                            }
-                        ><EditFilled /></Button>
-                    </Flex>
-                )
-            }
-        }
+        // {
+        //     title: '',
+        //     key: 'actions',
+        //     render: (_, business: Business) => {
+        //         return (
+        //             <Flex gap="small">
+        //                 <Button
+        //                     shape="circle"
+        //                     onClick={() => {
+        //                         console.log({ goingTo: business.id })
+        //                         navigate(`edit/${business.id}`)
+        //                     }
+        //                     }
+        //                 ><EditFilled /></Button>
+        //             </Flex>
+        //         )
+        //     }
+        // }
     ];
 
     return <Table dataSource={business} columns={columns} />
