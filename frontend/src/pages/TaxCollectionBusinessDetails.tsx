@@ -417,6 +417,7 @@ const WasteCollectionTaxesTable: React.FC = () => {
 }
 
 function GrossIncomeInvoiceTable(): JSX.Element {
+    const navigate = useNavigate();
     const dummyData = [
         {
             id: 1,
@@ -486,7 +487,7 @@ function GrossIncomeInvoiceTable(): JSX.Element {
             key: 'actions',
             render: (_: any, record: any) => (
                 <Flex gap="small">
-                    <Button onClick={() => null}>Ver Detalles</Button>
+                    <Button onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes-invoice/${record.id}`)}>Ver Detalles</Button>
                     <Button onClick={() => null}>Descargar PDF</Button>
                 </Flex>
             ),

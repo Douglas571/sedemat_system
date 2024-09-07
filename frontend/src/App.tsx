@@ -21,6 +21,7 @@ import PaymentsEdit from 'pages/PaymentsEdit'
 import TaxCollection from 'pages/TaxCollection'
 import TaxCollectionBusinessDetails from 'pages/TaxCollectionBusinessDetails'
 import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomes'
+import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusinessGrossIncomesInvoice'
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
@@ -62,6 +63,7 @@ function App(): JSX.Element {
 						<Route path='tax-collection' element={<TaxCollection />} />
 						<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
 						<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
+						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 
 						{/* Using path="*"" means "match anything", so this route
 						acts like a catch-all for URLs that we don't have explicit
