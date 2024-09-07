@@ -88,7 +88,13 @@ module.exports = (sequelize, DataTypes) => {
     isRented: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+
+    shouldChargeWasteCollectionTax: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+
   }, {
     sequelize,
     modelName: 'BranchOffice',
