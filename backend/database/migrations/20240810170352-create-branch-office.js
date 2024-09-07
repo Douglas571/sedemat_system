@@ -10,8 +10,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       
+      nickname: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
 
-      // fields goes here
       address: {
           type: Sequelize.STRING,
           allowNull: false,

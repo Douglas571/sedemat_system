@@ -58,6 +58,12 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true,
     },
+
+    nickname: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     address: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -71,6 +77,7 @@ module.exports = (sequelize, DataTypes) => {
             model: 'Businesses', // Name of the related table
             key: 'id'
         },
+
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
     },

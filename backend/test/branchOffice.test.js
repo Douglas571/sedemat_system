@@ -16,6 +16,7 @@ describe('BranchOffice API', () => {
             .post('/v1/businesses')
             .send({
                 businessName: `Test Business ${Date.now()}`,
+                nickname: 'Test Business',
                 dni: '12345678',
                 email: 'test@business.com',
                 companyIncorporationDate: '2020-01-01',
@@ -48,7 +49,8 @@ describe('BranchOffice API', () => {
                 origin: 'Alquilado',
                 zone: 'Centro',
                 dimensions: 49,
-                type: "I"
+                type: "I",
+                nickname: 'Test Branch Office'
             });
 
         expect(res.status).to.equal(201);

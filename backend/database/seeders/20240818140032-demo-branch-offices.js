@@ -9,6 +9,7 @@ module.exports = {
       {
         id: 1,
         businessId: 1,
+        nickname: 'Oficina 1',
         address: 'Av. Principal, Sector Alta Vista',
         zone: getRandomZone(),
         isRented: true,
@@ -19,6 +20,7 @@ module.exports = {
       {
         id: 2,
         businessId: 2,
+        nickname: 'Oficina 2',
         address: 'Calle Bella Vista, Sector Delicias',
         zone: getRandomZone(),
         isRented: true,
@@ -29,6 +31,7 @@ module.exports = {
       {
         id: 3,
         businessId: 3,
+        nickname: 'Oficina 3',
         address: 'Av. Bolívar, Sector Centro',
         zone: getRandomZone(),
         dimensions: 100,
@@ -38,6 +41,7 @@ module.exports = {
       {
         id: 4,
         businessId: 4,
+        nickname: 'Oficina 4',
         address: 'Calle La Paz, Sector Inavi',
         zone: getRandomZone(),
         isRented: true,
@@ -48,6 +52,7 @@ module.exports = {
       {
         id: 5,
         businessId: 5,
+        nickname: 'Oficina 5',
         address: 'Carretera Nacional, Sector Santa Elena',
         zone: getRandomZone(),
         dimensions: 30,
