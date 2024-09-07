@@ -269,6 +269,9 @@ function BusinessViewDetails(): JSX.Element {
                     economicActivity={business?.economicActivity}
                 />
 
+                {/* 
+                Deactivated while i work on the gross income feature
+                
                 <Typography.Title level={3}>
                     Licencia De Actividad Economica
                 </Typography.Title>
@@ -295,7 +298,7 @@ function BusinessViewDetails(): JSX.Element {
                     )}
                 </Flex>
 
-                <EconomicLicensesTable economicLicenses={economicLicenses}/>
+                <EconomicLicensesTable economicLicenses={economicLicenses}/> */}
 
 
                 {/* contacts */}
