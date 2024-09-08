@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, DatePicker, InputNumber, Select, Button, Typography, Card, Flex, Checkbox, Upload } from 'antd';
+
+import { UploadFile } from 'antd/es/upload/interface';
+import { UploadOutlined } from '@ant-design/icons';
+import { Form, Input, DatePicker, InputNumber, Select, Button, Typography, Card, Flex, Checkbox, Upload, message } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { BranchOffice } from '../util/types';
+import { BranchOffice, Business, IGrossIncome } from '../util/types';
+import * as api from '../util/api';
+import * as grossIncomeApi from '../util/grossIncomeApi';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -14,32 +19,34 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const navigate = useNavigate();
     const { businessId, grossIncomeId } = useParams();
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>([]);
-
-    const hasBranchOffices = branchOffices.length > 0;
+    const [business, setBusiness] = useState<Business>();
+    const hasBranchOffices = branchOffices?.length > 0;
 
     useEffect(() => {
-        if (businessId && grossIncomeId) {
+        if (businessId) {
             console.log('businessId:', businessId);
-            console.log('grossIncomeId:', grossIncomeId);
+            
 
             loadBusiness();
+        }
+
+        if (grossIncomeId) {
             loadGrossIncome();
+            console.log('grossIncomeId:', grossIncomeId);
         }
 
     }, [businessId, grossIncomeId]);
 
     async function loadBusiness() {
         // Dummy data for branch offices
-        const dummyBranchOffices: BranchOffice[] = [
-            { id: 1, nickname: "Sucursal Principal", address: "Av. Libertador 123", shouldChargeWasteCollection: true },
-            { id: 2, nickname: "Sucursal Centro", address: "Calle Bolívar 456", shouldChargeWasteCollection: false },
-            { id: 3, nickname: "Sucursal Norte", address: "Av. Miranda 789", shouldChargeWasteCollection: true },
-            { id: 4, nickname: "Sucursal Sur", address: "Calle Sucre 101", shouldChargeWasteCollection: false },
-            { id: 5, nickname: "Sucursal Este", address: "Av. Francisco de Miranda 202", shouldChargeWasteCollection: true },
-        ];
+        let fetchedBusiness: Business
+        let fetchedBranchOffices: BranchOffice[]
 
-        // Set the branch offices state with dummy data
-        setBranchOffices(dummyBranchOffices);
+        fetchedBusiness = await api.fetchBusinessById(Number(businessId));
+        setBusiness(fetchedBusiness);
+
+        fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId))
+        setBranchOffices(fetchedBranchOffices);
     }
 
     async function loadGrossIncome() {
@@ -66,34 +73,64 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         console.log('Loaded gross income:', dummyGrossIncome);
     }
 
-    const onFinish = (values: any) => {
+    const onFinish = async (values: any) => {
         console.log('Form values:', values);
         console.log('date', values.period.toJSON());
-        // Here you would typically send the data to your API
-        // After successful submission, navigate back to the main page
-        navigate(-1);
+
+        try {
+            // Upload declaration image if provided
+            let declarationImageUrl = null;
+            if (values.declarationImage) {
+                try {
+                    declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(values.declarationImage.file);
+                    
+                } catch (error) {
+                    console.error('Error uploading declaration image:', error);
+                    message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
+                    return;
+                }
+            }
+
+            const grossIncome: IGrossIncome = {
+                ...values,
+                period: values.period.format('YYYY-MM-DD'),
+                businessId: Number(businessId),
+                branchOfficeId: branchOffices.find(office => `${office.nickname} - ${office.address}` === values.branchOffice)?.id,
+                declarationImage: declarationImageUrl
+            };
+
+            const newGrossIncome = await grossIncomeApi.registerGrossIncome(grossIncome);
+            console.log('newGrossIncome', JSON.stringify(newGrossIncome, null, 2));
+            message.success('Ingreso bruto registrado exitosamente');
+
+
+            navigate(-1);
+        } catch (error) {
+            console.error('Error al registrar ingreso bruto:', error);
+            message.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
+        }
     };
-
-    // i should get the list of branch offices for a business 
-    // with that list, i will generate a list of options for the branch office select
-
-    
-
 
     useEffect(() => {
         // update default values for branch office select 
-        const firstOffice = branchOffices[0];
 
-        if (firstOffice) {
-            form.setFieldsValue({
-                branchOffice: firstOffice.nickname + ' - ' + firstOffice.address,
-                chargeWasteCollection: firstOffice.shouldChargeWasteCollection
-            });
+        if (branchOffices?.length > 0) {
+            const firstOffice = branchOffices[0];
+
+            if (firstOffice) {
+                console.log('firstOffice', firstOffice)
+                form.setFieldsValue({
+                    branchOffice: firstOffice.nickname + ' - ' + firstOffice.address,
+                    chargeWasteCollection: firstOffice?.chargeWasteCollection
+                });
+            }
         }
+
+        
     }, [branchOffices]);
 
     // Update the Select component to use the branchOffices state
-    const branchOfficeOptions = branchOffices.map(office => ({
+    const branchOfficeOptions = branchOffices?.map(office => ({
         key: office.id,
         value: `${office.nickname} - ${office.address}`,
         label: `${office.nickname} - ${office.address}`
@@ -150,7 +187,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
                     <Form.Item
                         layout='horizontal'
-                        name="amount"
+                        name="amountBs"
                         label="Ingreso Bruto"
                         rules={[{ required: true, message: 'Por favor ingrese el ingreso bruto' }]}
                     >
@@ -170,11 +207,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         </Form.Item>
                 </Flex>
 
-                <Form.Item
-                    name="declaratinoImage"
-                >
-                    <Upload><Button>Subir Declaración</Button></Upload>
-                </Form.Item>
+                
+                <DeclarationImageUpload />
                 
                     
 
@@ -189,3 +223,31 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 };
 
 export default TaxCollectionBusinessGrossIncomesEdit;
+
+
+
+
+const DeclarationImageUpload: React.FC = () => {
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+    const handleChange = ({ fileList: newFileList }: { fileList: UploadFile[] }) => {
+        setFileList(newFileList.slice(-1)); // Only keep the last uploaded file
+    };
+
+    return (
+        <Form.Item
+            name="declarationImage"
+            label="Declaración"
+            rules={[{ required: true, message: 'Por favor suba la declaración' }]}
+        >
+            <Upload
+                fileList={fileList}
+                onChange={handleChange}
+                beforeUpload={() => false} // Prevent auto upload
+                maxCount={1}
+            >
+                <Button icon={<UploadOutlined />}>Subir Declaración</Button>
+            </Upload>
+        </Form.Item>
+    );
+};

@@ -40,7 +40,7 @@ module.exports = {
         defaultValue: false
       },
 
-      shouldChargeWasteCollectionTax: {
+      chargeWasteCollection: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
       },

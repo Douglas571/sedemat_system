@@ -62,6 +62,7 @@ export interface Zonation {
 
 export type BranchOffice = {
     id?: number;
+    nickname: string;
     address: string;
     phone: string;
     businessId: number; // Assuming you have a reference to the business ID

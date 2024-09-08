@@ -18,4 +18,7 @@ router.put('/:id', grossIncomeController.update);
 // DELETE a gross income by ID
 router.delete('/:id', grossIncomeController.delete);
 
+// POST declaration image
+router.post('/declaration-image', grossIncomeController.uploadDeclarationImage);
+
 module.exports = router;

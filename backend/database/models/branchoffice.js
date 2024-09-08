@@ -90,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
 
-    shouldChargeWasteCollectionTax: {
+    chargeWasteCollection: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
