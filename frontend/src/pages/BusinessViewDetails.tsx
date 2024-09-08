@@ -365,6 +365,8 @@ function BusinessViewDetails(): JSX.Element {
     )
 }
 
+export default BusinessViewDetails
+
 function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Element {
 
     const [isDeleteOfficeModalOpen, setIsDeleteOfficeModal] = useState(false)
@@ -404,7 +406,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
 
     return (
         <>
-            <Flex gap="large" align='center'>
+            <Flex gap="large" align='center' justify='space-between'>
                 <Title level={2}>
                     Sucursales
                 </Title>
@@ -437,13 +439,12 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                     return (
                         <Flex key={office.id} vertical>
 
-                            <Flex gap={"small"} align='center'>
-                                <Title level={4}>
-                                    Sucursal #{index + 1}
-
-                                </Title>
-                                <Button onClick={() => onEdit(office.id)}>Editar</Button>
-                                <Button onClick={() => handleOpenDeleteModal(office.id)}>Eliminar</Button>
+                            <Flex gap={"small"} align='center' justify='space-between'>
+                                <Title level={4}>{office.nickname}</Title>
+                                <Flex gap={'small'}>
+                                    <Button onClick={() => onEdit(office.id)}>Editar</Button>
+                                    <Button onClick={() => handleOpenDeleteModal(office.id)}>Eliminar</Button>
+                                </Flex>
                             </Flex>
 
 
@@ -766,8 +767,6 @@ function PermitRender({data, title}) {
         </>
     )
 }
-
-export default BusinessViewDetails
 
 function GeneralInformationDescription({business}): JSX.Element {
     if (!business) { return <></> }

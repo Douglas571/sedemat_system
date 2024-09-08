@@ -175,6 +175,7 @@ export default function BranchOfficeForm(): JSX.Element {
         setBranchOffice(officeData)
         // set the office data in the form
         form.setFieldsValue({
+            nickname: officeData.nickname,
             address: officeData.address,
             type: officeData.type,
             dimensions: officeData.dimensions,
@@ -218,6 +219,12 @@ export default function BranchOfficeForm(): JSX.Element {
                     options={businessesOptions}
                 />
             </Form.Item> */}
+
+            <Form.Item label="Nombre Clave" name='nickname'
+                rules={[{ required: true }]}
+            >
+                <Input data-test={`branch-office-nickname`}/>
+            </Form.Item>
 
             <Form.Item label="Dirección" name='address'
                 rules={[{ required: true }]}
