@@ -483,6 +483,20 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                                     Propio
                                                 </>
                                             )
+                                    },
+                                    {
+                                        label: 'Cobrar Aseo Urbano',
+                                        children: office.shouldChargeWasteCollectionTax
+                                            ? (
+                                                <>
+                                                    SI
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    NO
+                                                </>
+                                            )
                                     }
                                 ]}
                             />

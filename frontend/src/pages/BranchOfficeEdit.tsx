@@ -1,6 +1,6 @@
 // crate the branch office form 
 
-import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload } from "antd"
+import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox } from "antd"
 import { useEffect, useState } from "react"
 
 import { ZONES } from "./BusinessShared"
@@ -64,10 +64,12 @@ export default function BranchOfficeForm(): JSX.Element {
 
             const newOffice: BranchOffice= {
                 businessId: Number(businessId),
+                nickname: values.nickname,
                 address: values.address,
                 type: values.type,
                 dimensions: values.dimensions,
-                isRented: values.isRented
+                isRented: values.isRented,
+                shouldChargeWasteCollectionTax: values.shouldChargeWasteCollectionTax
             }
 
             let newOfficeData
@@ -179,7 +181,8 @@ export default function BranchOfficeForm(): JSX.Element {
             address: officeData.address,
             type: officeData.type,
             dimensions: officeData.dimensions,
-            isRented: officeData.isRented
+            isRented: officeData.isRented,
+            shouldChargeWasteCollectionTax: officeData.shouldChargeWasteCollectionTax
         })
     }
 
@@ -266,6 +269,13 @@ export default function BranchOfficeForm(): JSX.Element {
                         unCheckedChildren="NO"/>
                 </Form.Item>
             </Flex>
+
+            <Form.Item
+                name="shouldChargeWasteCollectionTax"
+                valuePropName="checked"
+            >
+                <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
+            </Form.Item>
 
             {/* Origin */}
             <OriginUploadControls isRented={isRented} />
