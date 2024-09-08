@@ -63,6 +63,8 @@ function App(): JSX.Element {
 						<Route path='tax-collection' element={<TaxCollection />} />
 						<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
 						<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
+						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
+
 						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 
 						{/* Using path="*"" means "match anything", so this route

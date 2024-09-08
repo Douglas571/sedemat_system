@@ -1,48 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, DatePicker, InputNumber, Select, Button, Typography, Card, Flex, Checkbox, Upload } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { BranchOffice } from '../util/types';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 import dayjs from 'dayjs';
 
+
+interface IGrossIncome {
+    id: number;
+    businessId: number;
+    branchOfficeId?: number;
+    period: string;
+    amountBs: number;
+    chargeWasteCollection: boolean;
+    declarationImage: string;
+}
+
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
-
-    const monthMapper: { [key: number]: string } = {
-        1: "Enero",
-        2: "Febrero",
-        3: "Marzo",
-        4: "Abril",
-        5: "Mayo",
-        6: "Junio",
-        7: "Julio",
-        8: "Agosto",
-        9: "Septiembre",
-        10: "Octubre",
-        11: "Noviembre",
-        12: "Diciembre"
-    };
-
-    const onFinish = (values: any) => {
-        console.log('Form values:', values);
-        // Here you would typically send the data to your API
-        // After successful submission, navigate back to the main page
-        navigate(-1);
-    };
-
-    // i should get the list of branch offices for a business 
-    // with that list, i will generate a list of options for the branch office select
-
+    const { businessId, grossIncomeId } = useParams();
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>([]);
 
-    useEffect(() => {
-        loadBranchOffices();
-    }, []);
+    const hasBranchOffices = branchOffices.length > 0;
 
-    async function loadBranchOffices() {
+    useEffect(() => {
+        if (businessId && grossIncomeId) {
+            console.log('businessId:', businessId);
+            console.log('grossIncomeId:', grossIncomeId);
+
+            loadBusiness();
+            loadGrossIncome();
+        }
+
+    }, [businessId, grossIncomeId]);
+
+    async function loadBusiness() {
         // Dummy data for branch offices
         const dummyBranchOffices: BranchOffice[] = [
             { id: 1, nickname: "Sucursal Principal", address: "Av. Libertador 123", shouldChargeWasteCollection: true },
@@ -55,6 +52,43 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         // Set the branch offices state with dummy data
         setBranchOffices(dummyBranchOffices);
     }
+
+    async function loadGrossIncome() {
+    // Dummy data for a gross income
+        const dummyGrossIncome: IGrossIncome = {
+            id: Number(grossIncomeId),
+            businessId: Number(businessId),
+            branchOfficeId: 1,
+            period: '2023-07',
+            amountBs: 50000,
+            chargeWasteCollection: true,
+            declarationImage: 'https://example.com/dummy-image.jpg'
+        };
+
+        // Set the form values with the dummy data
+        form.setFieldsValue({
+            branchOffice: `${branchOffices.find(office => office.id === dummyGrossIncome.branchOfficeId)?.nickname} - ${branchOffices.find(office => office.id === dummyGrossIncome.branchOfficeId)?.address}`,
+            period: dayjs(dummyGrossIncome.period),
+            amount: dummyGrossIncome.amountBs,
+            chargeWasteCollection: dummyGrossIncome.chargeWasteCollection,
+            declarationImage: dummyGrossIncome.declarationImage
+        });
+
+        console.log('Loaded gross income:', dummyGrossIncome);
+    }
+
+    const onFinish = (values: any) => {
+        console.log('Form values:', values);
+        // Here you would typically send the data to your API
+        // After successful submission, navigate back to the main page
+        navigate(-1);
+    };
+
+    // i should get the list of branch offices for a business 
+    // with that list, i will generate a list of options for the branch office select
+
+    
+
 
     useEffect(() => {
         // update default values for branch office select 
@@ -90,7 +124,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     layout='horizontal'
                     name="branchOffice"
                     label="Sucursal"
-                    rules={[{ required: true, message: 'Por favor seleccione la sucursal' }]}
+                    rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sucursal' }]}
                 >
                     <Select
                         options={branchOfficeOptions}

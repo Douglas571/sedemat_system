@@ -238,7 +238,7 @@ function GrossIncomeTaxesTable(): JSX.Element {
             key: 'actions',
             render: (_, record: any) => (
                 <Flex gap="small">
-                    <Button onClick={() => null}>Editar</Button>
+                    <Button onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}>Editar</Button>
                     <Button onClick={() => null }>Detalles</Button>
                     <Button onClick={() => null}>Ver Factura</Button>
                 </Flex>
