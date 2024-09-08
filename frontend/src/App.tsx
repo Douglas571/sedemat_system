@@ -20,7 +20,7 @@ import PaymentsEdit from 'pages/PaymentsEdit'
 
 import TaxCollection from 'pages/TaxCollection'
 import TaxCollectionBusinessDetails from 'pages/TaxCollectionBusinessDetails'
-import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomes'
+import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomesEdit'
 import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusinessGrossIncomesInvoice'
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'

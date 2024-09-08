@@ -9,17 +9,6 @@ const { Option } = Select;
 
 import dayjs from 'dayjs';
 
-
-interface IGrossIncome {
-    id: number;
-    businessId: number;
-    branchOfficeId?: number;
-    period: string;
-    amountBs: number;
-    chargeWasteCollection: boolean;
-    declarationImage: string;
-}
-
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
@@ -79,6 +68,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
     const onFinish = (values: any) => {
         console.log('Form values:', values);
+        console.log('date', values.period.toJSON());
         // Here you would typically send the data to your API
         // After successful submission, navigate back to the main page
         navigate(-1);

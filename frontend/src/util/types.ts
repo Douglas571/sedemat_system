@@ -135,8 +135,38 @@ export interface CurrencyExchangeRate {
     id: number
     dolarBCVToBs: number
     eurosBCVToBs: number
-    dolarBlackToBs: number
-    euroBlackToBs: number
+    dolarBlackToBs?: number
+    euroBlackToBs?: number
     createdAt: string
     updatedAt: string
 }
+
+export interface IWasteCollectionTax {
+    id: number;
+    amountMMV: number;
+    period: string;
+}
+
+export interface IGrossIncome {
+    id: number;
+    businessId: number;
+    branchOfficeId?: number;
+    period: string;
+    amountBs: number;
+    chargeWasteCollection: boolean;
+    declarationImage: string;
+
+    wasteCollectionTax?: IWasteCollectionTax;
+    grossIncomeInvoiceId?: number;
+}
+
+export interface IGrossIncomeInvoice {
+    id: number;
+    grossIncomes: Array<IGrossIncome>
+    currencyExchangeRates: CurrencyExchangeRate
+    createdByUser: IUser
+    checkedByUser: IUser
+
+    paidAt: Date
+}
+

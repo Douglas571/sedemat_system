@@ -49,15 +49,13 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                         </Descriptions.Item>
                     </Descriptions>
 
-
                     <EconomicActivityDescription economicActivity={business.economicActivity} />
                     
                     <GrossIncomeInvoiceTable />
 
                     <GrossIncomeTaxesTable />
 
-                    <WasteCollectionTaxesTable />
-
+                    {/* <WasteCollectionTaxesTable /> */}
                     
                 </Flex>
             </Card>
