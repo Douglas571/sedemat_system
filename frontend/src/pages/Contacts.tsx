@@ -35,6 +35,7 @@ export default function Contacts(): JSX.Element {
             loadData()
         } catch(error) {
             console.error({error})
+            message.error('Error al eliminar el contacto')
         }
     }
 
