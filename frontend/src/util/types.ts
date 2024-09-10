@@ -151,7 +151,8 @@ export interface IWasteCollectionTax {
 export interface IGrossIncome {
     id: number;
     businessId: number;
-    branchOfficeId?: number;
+    branchOfficeId: number;
+    branchOffice: BranchOffice
     period: string;
     amountBs: number;
     chargeWasteCollection: boolean;
