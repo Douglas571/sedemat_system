@@ -64,7 +64,7 @@ export default function ContactsView(): JSX.Element {
                         status: 'done',
                         url: pfpUrl,
                         originFileObj: file,
-                    }
+                    } as UploadFile
                 ])
             } catch (error) {
                 console.log({error})
