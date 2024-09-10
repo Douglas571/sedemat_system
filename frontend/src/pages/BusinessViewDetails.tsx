@@ -486,7 +486,7 @@ function BranchOfficesDisplay({branchOffices, onEdit, onDelete, onNew}): JSX.Ele
                                     },
                                     {
                                         label: 'Cobrar Aseo Urbano',
-                                        children: office.shouldChargeWasteCollectionTax
+                                        children: office.chargeWasteCollection
                                             ? (
                                                 <>
                                                     SI

@@ -1,17 +1,17 @@
-// crate the branch office form 
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 
 import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox } from "antd"
-import { useEffect, useState } from "react"
+import { UploadFile, FormProps } from "antd"
 
 import { ZONES } from "./BusinessShared"
-import { Business } from 'util/types'
+import { Business, BranchOffice, CurrencyExchangeRate } from '../util/types'
 
 import * as api from 'util/api'
 import * as zonationsApi from 'util/zonations'
 import * as documentsApi from 'util/documents'
 import * as permitApi from 'util/permitdocs'
-import { BranchOffice } from "util/types"
-import { useParams, useNavigate } from "react-router-dom"
+import currencyExchangeRatesService from 'services/CurrencyExchangeRatesService'
 
 // add it to the app router 
 
@@ -31,6 +31,8 @@ export default function BranchOfficeForm(): JSX.Element {
 
     const [zonations, setZonations] = useState<Map<number, ZonationRaw>>(new Map())
 
+    
+
     const { businessId, branchOfficeId } = useParams()
     const isEditing = !!branchOfficeId
     const navigate = useNavigate()
@@ -39,6 +41,7 @@ export default function BranchOfficeForm(): JSX.Element {
     function showFormData() {
         console.log({formValues: form.getFieldsValue()})
     }
+
     useEffect(() => {
         //loadBusinesses()
 
@@ -48,12 +51,19 @@ export default function BranchOfficeForm(): JSX.Element {
             // TODO: load office data
             loadBranchOffice()
         }
+
+        
     }, [])
 
-    useEffect(() => {
-        console.log({zonations})
-    }, [zonations])
-
+    interface FormFields {
+        nickname: string
+        address: string
+        type: string
+        dimensions: number
+        isRented: boolean
+        chargeWasteCollection: boolean
+    }
+    
     const onFinish: FormProps<FormFields>['onFinish'] = async (values) => {
         try {    
             // set up the branch office data
@@ -69,7 +79,7 @@ export default function BranchOfficeForm(): JSX.Element {
                 type: values.type,
                 dimensions: values.dimensions,
                 isRented: values.isRented,
-                shouldChargeWasteCollectionTax: values.shouldChargeWasteCollectionTax
+                chargeWasteCollection: values.chargeWasteCollection
             }
 
             let newOfficeData
@@ -182,7 +192,7 @@ export default function BranchOfficeForm(): JSX.Element {
             type: officeData.type,
             dimensions: officeData.dimensions,
             isRented: officeData.isRented,
-            shouldChargeWasteCollectionTax: officeData.shouldChargeWasteCollectionTax
+            chargeWasteCollection: officeData.chargeWasteCollection
         })
     }
 
@@ -271,7 +281,7 @@ export default function BranchOfficeForm(): JSX.Element {
             </Flex>
 
             <Form.Item
-                name="shouldChargeWasteCollectionTax"
+                name="chargeWasteCollection"
                 valuePropName="checked"
             >
                 <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>

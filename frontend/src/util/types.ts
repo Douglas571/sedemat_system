@@ -64,14 +64,19 @@ export type BranchOffice = {
     id?: number;
     nickname: string;
     address: string;
-    phone: string;
+    
     businessId: number; // Assuming you have a reference to the business ID
+    
+    type: string;
+    dimensions: number;
+    isRented: boolean;
+    chargeWasteCollection: boolean;
 
     EconomicLicenses?: Array<License>
     lastEconomicLicense?: License
 
 
-    zonations: Zonation
+    zonations?: Zonation
     leaseDocs?: Array<ExpirableDocument>
     buildingDocs?: Array<ExpirableDocument>
 };

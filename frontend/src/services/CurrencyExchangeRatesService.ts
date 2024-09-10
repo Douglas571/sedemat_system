@@ -93,6 +93,22 @@ const HOST = "http://" + IP + ":" + PORT
       }
       return await response.json();
     }
+
+    async getLastOne(): Promise<CurrencyExchangeRate> {
+      const response = await fetch(`${this.baseUrl}/`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch last currency exchange rate');
+      }
+
+      const allRates = await response.json()
+      const lastRate = allRates
+        .sort((a: CurrencyExchangeRate, b: CurrencyExchangeRate) => dayjs(a.createdAt).isAfter(dayjs(b.createdAt)) ? -1 : 1)
+        [0]
+
+      return lastRate;
+    }
   }
   
   export default new CurrencyExchangeRatesService();

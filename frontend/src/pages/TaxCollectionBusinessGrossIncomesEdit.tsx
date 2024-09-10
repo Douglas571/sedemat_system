@@ -9,6 +9,7 @@ import { UploadProps } from 'antd';
 
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
+import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService';
 import { BranchOffice, Business, IGrossIncome } from '../util/types';
 import { completeUrl } from './BusinessShared';
 
@@ -24,15 +25,19 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [business, setBusiness] = useState<Business>();
     const hasBranchOffices = branchOffices?.length > 0;
 
+    const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
+
     const isEditing = grossIncomeId !== undefined;
 
     const [fileList, setFileList] = useState<UploadFile[]>([]);
 
     const branchOfficeOptions = branchOffices?.map(office => ({
         key: office.id,
-        value: `${office.nickname} - ${office.address}`,
+        value: office.id,
         label: `${office.nickname} - ${office.address}`
     }));
+
+    const branchOfficeId = Form.useWatch('branchOffice', form)
 
     useEffect(() => {
         // console.log('businessId:', businessId);
@@ -47,9 +52,10 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             loadGrossIncome();
         }
 
+        loadLastCurrencyExchangeRate()
+
     }, [businessId, grossIncomeId]);
 
-    
     useEffect(() => {
         // update default values for branch office select 
 
@@ -67,6 +73,16 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
         
     }, [branchOffices]);
+
+    useEffect(() => {
+        // update the value from chargeWasteCollection
+        const selectedBranchOffice = branchOffices.find(office => office.id === branchOfficeId)
+        console.log('selectedBranchOffice', selectedBranchOffice)
+
+        form.setFieldsValue({
+            chargeWasteCollection: selectedBranchOffice?.chargeWasteCollection
+        })
+    }, [branchOfficeId])
 
     useEffect(() => {
         // Update form with fetched gross income data
@@ -108,6 +124,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         }
     }, [grossIncome]);
 
+    async function loadLastCurrencyExchangeRate() {
+        const lastCurrencyExchangeRate = await currencyExchangeRatesService.getLastOne()
+        console.log({lastCurrencyExchangeRate})
+        setLastCurrencyExchangeRate(lastCurrencyExchangeRate)
+    }
 
     async function loadBusiness() {
         // Dummy data for branch offices
@@ -131,7 +152,6 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         // console.log('Loaded gross income:', fetchedGrossIncome);
         setGrossIncome(fetchedGrossIncome);
     }
-
 
     async function handleChange({ fileList: newFileList }: { fileList: UploadFile[] }) {
         console.log('newFileList', newFileList)
@@ -174,7 +194,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
                 branchOfficeId: branchOffices.find(office => `${office.nickname} - ${office.address}` === values.branchOffice)?.id,
-                declarationImage: declarationImageUrl
+                declarationImage: declarationImageUrl,
+
+                currencyExchangeRateId: lastCurrencyExchangeRate?.id
             };
 
             // if is editing, update the gross income
