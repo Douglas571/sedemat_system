@@ -1,122 +1,61 @@
 import React, { useState, useEffect } from 'react';
-
-import { UploadFile } from 'antd/es/upload/interface';
-import { UploadOutlined } from '@ant-design/icons';
-import { Form, Input, DatePicker, InputNumber, Select, Button, Typography, Card, Flex, Checkbox, Upload, message } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 
-import { BranchOffice, Business, IGrossIncome } from '../util/types';
+import { UploadOutlined } from '@ant-design/icons';
+import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload } from 'antd';
+import { UploadFile } from 'antd/es/upload/interface';
+import { UploadProps } from 'antd';
+
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
+import { BranchOffice, Business, IGrossIncome } from '../util/types';
+import { completeUrl } from './BusinessShared';
 
 const { Title } = Typography;
 const { Option } = Select;
-
-import dayjs from 'dayjs';
 
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const { businessId, grossIncomeId } = useParams();
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>([]);
+    const [grossIncome, setGrossIncome] = useState<IGrossIncome>();
     const [business, setBusiness] = useState<Business>();
     const hasBranchOffices = branchOffices?.length > 0;
 
-    useEffect(() => {
-        if (businessId) {
-            console.log('businessId:', businessId);
-            
+    const isEditing = grossIncomeId !== undefined;
 
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+    const branchOfficeOptions = branchOffices?.map(office => ({
+        key: office.id,
+        value: `${office.nickname} - ${office.address}`,
+        label: `${office.nickname} - ${office.address}`
+    }));
+
+    useEffect(() => {
+        // console.log('businessId:', businessId);
+        // console.log('grossIncomeId:', grossIncomeId);
+            
+        if (businessId) {  
             loadBusiness();
+            loadBranchOffices();
         }
 
         if (grossIncomeId) {
             loadGrossIncome();
-            console.log('grossIncomeId:', grossIncomeId);
         }
 
     }, [businessId, grossIncomeId]);
 
-    async function loadBusiness() {
-        // Dummy data for branch offices
-        let fetchedBusiness: Business
-        let fetchedBranchOffices: BranchOffice[]
-
-        fetchedBusiness = await api.fetchBusinessById(Number(businessId));
-        setBusiness(fetchedBusiness);
-
-        fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId))
-        setBranchOffices(fetchedBranchOffices);
-    }
-
-    async function loadGrossIncome() {
-    // Dummy data for a gross income
-        const dummyGrossIncome: IGrossIncome = {
-            id: Number(grossIncomeId),
-            businessId: Number(businessId),
-            branchOfficeId: 1,
-            period: '2023-07',
-            amountBs: 50000,
-            chargeWasteCollection: true,
-            declarationImage: 'https://example.com/dummy-image.jpg'
-        };
-
-        // Set the form values with the dummy data
-        form.setFieldsValue({
-            branchOffice: `${branchOffices.find(office => office.id === dummyGrossIncome.branchOfficeId)?.nickname} - ${branchOffices.find(office => office.id === dummyGrossIncome.branchOfficeId)?.address}`,
-            period: dayjs(dummyGrossIncome.period),
-            amount: dummyGrossIncome.amountBs,
-            chargeWasteCollection: dummyGrossIncome.chargeWasteCollection,
-            declarationImage: dummyGrossIncome.declarationImage
-        });
-
-        console.log('Loaded gross income:', dummyGrossIncome);
-    }
-
-    const onFinish = async (values: any) => {
-        console.log('Form values:', values);
-        console.log('date', values.period.toJSON());
-
-        try {
-            // Upload declaration image if provided
-            let declarationImageUrl = null;
-            if (values.declarationImage) {
-                try {
-                    declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(values.declarationImage.file);
-                    
-                } catch (error) {
-                    console.error('Error uploading declaration image:', error);
-                    message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
-                    return;
-                }
-            }
-
-            const grossIncome: IGrossIncome = {
-                ...values,
-                period: values.period.format('YYYY-MM-DD'),
-                businessId: Number(businessId),
-                branchOfficeId: branchOffices.find(office => `${office.nickname} - ${office.address}` === values.branchOffice)?.id,
-                declarationImage: declarationImageUrl
-            };
-
-            const newGrossIncome = await grossIncomeApi.registerGrossIncome(grossIncome);
-            console.log('newGrossIncome', JSON.stringify(newGrossIncome, null, 2));
-            message.success('Ingreso bruto registrado exitosamente');
-
-
-            navigate(-1);
-        } catch (error) {
-            console.error('Error al registrar ingreso bruto:', error);
-            message.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
-        }
-    };
-
+    
     useEffect(() => {
         // update default values for branch office select 
 
-        if (branchOffices?.length > 0) {
+        if (!grossIncomeId && branchOffices?.length > 0) {
             const firstOffice = branchOffices[0];
-
+    
             if (firstOffice) {
                 console.log('firstOffice', firstOffice)
                 form.setFieldsValue({
@@ -129,12 +68,147 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         
     }, [branchOffices]);
 
-    // Update the Select component to use the branchOffices state
-    const branchOfficeOptions = branchOffices?.map(office => ({
-        key: office.id,
-        value: `${office.nickname} - ${office.address}`,
-        label: `${office.nickname} - ${office.address}`
-    }));
+    useEffect(() => {
+        // Update form with fetched gross income data
+        if(grossIncome) {
+            // console.log('grossIncome', grossIncome)
+            form.setFieldsValue({
+                period: dayjs(grossIncome.period),
+                amountBs: grossIncome.amountBs,
+                chargeWasteCollection: grossIncome.chargeWasteCollection,
+                branchOffice: grossIncome.branchOffice ? 
+                    `${grossIncome.branchOffice.nickname} - ${grossIncome.branchOffice.address}` : 
+                    undefined,
+            });
+
+            const imageUrl = completeUrl(grossIncome.declarationImage)
+            
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(imageBlob => {
+                    const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
+
+                    const uploadFile = {
+                        uid: '-1',
+                        name: 'image.jpg',
+                        status: 'done',
+                        url: imageUrl,
+                        originFileObj: imageFile,
+                    } as UploadFile;
+                    
+                    setFileList([uploadFile]);
+
+                    form.setFieldsValue({
+                        declarationImage: uploadFile
+                    })
+                })
+                .catch(error => {
+                    console.error('Error fetching image:', error);
+                });
+        }
+    }, [grossIncome]);
+
+
+    async function loadBusiness() {
+        // Dummy data for branch offices
+        let fetchedBusiness: Business
+
+        fetchedBusiness = await api.fetchBusinessById(Number(businessId));
+        setBusiness(fetchedBusiness);
+    }
+
+    async function loadBranchOffices() {
+        let fetchedBranchOffices: BranchOffice[]
+
+        fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId))
+        setBranchOffices(fetchedBranchOffices);
+    }
+
+    async function loadGrossIncome() {
+        const fetchedGrossIncome: IGrossIncome = await grossIncomeApi.getGrossIncomeById(Number(grossIncomeId));
+
+
+        // console.log('Loaded gross income:', fetchedGrossIncome);
+        setGrossIncome(fetchedGrossIncome);
+    }
+
+
+    async function handleChange({ fileList: newFileList }: { fileList: UploadFile[] }) {
+        console.log('newFileList', newFileList)
+        setFileList(newFileList); // Only keep the last uploaded file
+    };
+
+    async function onFinish(values: any) {
+        console.log('Form values:', values);
+        console.log('date', values.period.toJSON());
+
+        try {
+            let declarationImageUrl = null;
+
+            if (!values.declarationImage) {
+                message.error('Por favor suba la declaración');
+                return false;
+            }
+
+            // if there is no new files, values.declarationImage will be undefined
+            if (values.declarationImage.uid === '-1') {
+                console.log('no new files')
+                declarationImageUrl = grossIncome?.declarationImage;
+            } else {
+                // otherwise, values.declarationImage will be the file object, in this case, should update the image
+                const file = values.declarationImage.file
+                
+                try {
+                    declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file);
+                    
+                } catch (error) {
+                    console.error('Error uploading declaration image:', error);
+                    message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
+                    return false;
+                }
+            }
+
+            const newGrossIncome: IGrossIncome = {
+                ...grossIncome,
+                ...values,
+                period: values.period.format('YYYY-MM-DD'),
+                businessId: Number(businessId),
+                branchOfficeId: branchOffices.find(office => `${office.nickname} - ${office.address}` === values.branchOffice)?.id,
+                declarationImage: declarationImageUrl
+            };
+
+            // if is editing, update the gross income
+            if (isEditing) {
+                const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome);
+                message.success('Ingreso bruto actualizado exitosamente');
+            } else {
+                const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome);
+                message.success('Ingreso bruto registrado exitosamente');
+            }
+
+            navigate(-1);
+            
+        } catch (error) {
+            console.error('Error al registrar ingreso bruto:', error);
+            message.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
+        }
+    };
+
+    const uploadProps: UploadProps = {
+        onPreview: async (file: UploadFile) => {
+            
+        },
+        onChange: ({ fileList: newFileList }) => {
+            setFileList(newFileList)
+        },
+        beforeUpload: (file) => {
+			console.log("adding files")
+			setFileList([...fileList, file]);
+			return false;
+		},
+		fileList,
+        maxCount: 1
+    }
 
     return (
         <Card title={<Title level={2}>Registrando Ingresos Brutos</Title>}>
@@ -208,7 +282,17 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 </Flex>
 
                 
-                <DeclarationImageUpload />
+                <Form.Item
+                    name="declarationImage"
+                    label="Declaración"
+                    rules={[{ required: true, message: 'Por favor suba la declaración' }]}
+                >
+                    <Upload
+                        {...uploadProps}
+                    >
+                        <Button icon={<UploadOutlined />}>Subir Declaración</Button>
+                    </Upload>
+                </Form.Item>
                 
                     
 
@@ -227,27 +311,40 @@ export default TaxCollectionBusinessGrossIncomesEdit;
 
 
 
-const DeclarationImageUpload: React.FC = () => {
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
+const DeclarationImageUpload: React.FC<{initialFileList: UploadFile[]}> = ({initialFileList}) => {
+    const [fileList, setFileList] = useState<UploadFile[]>(initialFileList);
 
     const handleChange = ({ fileList: newFileList }: { fileList: UploadFile[] }) => {
-        setFileList(newFileList.slice(-1)); // Only keep the last uploaded file
+        console.log('newFileList', newFileList)
+        setFileList([...newFileList]); // Only keep the last uploaded file
     };
 
+    useEffect(() => {
+        console.log('setting initialFileList', initialFileList)
+        setFileList([...initialFileList]);
+    }, [initialFileList]);
+
+    // const uploadProps: UploadProps = {
+	// 	onRemove: (file) => {
+	// 		const index = fileList.indexOf(file);
+	// 		const newFileList = fileList.slice();
+	// 		newFileList.splice(index, 1);
+	// 		setFileList(newFileList);
+	// 	},
+	// 	beforeUpload: (file) => {
+	// 		console.log("adding files")
+	// 		setFileList([...fileList, file]);
+
+	// 		return false;
+	// 	},
+	// 	onChange: ({ fileList: newFileList }) => {
+	// 		setFileList(newFileList)
+	// 	},
+	// 	fileList,
+	// 	maxCount: 1
+	// }
+
     return (
-        <Form.Item
-            name="declarationImage"
-            label="Declaración"
-            rules={[{ required: true, message: 'Por favor suba la declaración' }]}
-        >
-            <Upload
-                fileList={fileList}
-                onChange={handleChange}
-                beforeUpload={() => false} // Prevent auto upload
-                maxCount={1}
-            >
-                <Button icon={<UploadOutlined />}>Subir Declaración</Button>
-            </Upload>
-        </Form.Item>
+        <Upload></Upload>
     );
 };

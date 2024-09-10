@@ -37,7 +37,7 @@ export async function createPayment(paymentData: Payment): Promise<string> {
 // a function to update a payment
 export async function updatePayment(paymentData: Payment): Promise<string> {
     const response = await fetch(HOST + '/v1/payments/' + paymentData.id, {
-        method: 'PUT', // Specify the method
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -47,7 +47,7 @@ export async function updatePayment(paymentData: Payment): Promise<string> {
     if (!response.ok) {
         const data = await response.json()
         console.log({ data })
-        throw new Error(data.error.msg)
+        throw new Error(data.error)
     }
 
     // the payment was updated successfully was successful 

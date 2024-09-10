@@ -1,5 +1,5 @@
 // services/grossIncomeService.js
-const { GrossIncome } = require('../database/models');
+const { GrossIncome, BranchOffice } = require('../database/models');
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
@@ -9,7 +9,14 @@ class GrossIncomeService {
 
     // Fetch a single GrossIncome by ID
     async getGrossIncomeById(id) {
-        return await GrossIncome.findByPk(id);
+        return await GrossIncome.findByPk(id, {
+            include: [
+                {
+                    model: BranchOffice,
+                    as: 'branchOffice'
+                }
+            ]
+        });
     }
 
     // Create a new GrossIncome record
@@ -19,10 +26,18 @@ class GrossIncomeService {
 
     // Update an existing GrossIncome record by ID
     async updateGrossIncome(id, data) {
-        const grossIncome = await this.getGrossIncomeById(id);
+        const grossIncome = await this.getGrossIncomeById(id, {
+            include: [
+                {
+                    model: BranchOffice,
+                    as: 'branchOffice'
+                }
+            ]
+        });
         if (!grossIncome) {
             throw new Error('GrossIncome not found');
         }
+        console.log('grossIncome', grossIncome.toJSON())
         return await grossIncome.update(data);
     }
 
@@ -33,6 +48,20 @@ class GrossIncomeService {
             throw new Error('GrossIncome not found');
         }
         return await grossIncome.destroy();
+    }
+
+    async getAllGrossIncomesByBusinessId(businessId) {
+        return await GrossIncome.findAll({
+            where: {
+                businessId: businessId
+            },
+            include: [
+                {
+                    model: BranchOffice,
+                    as: 'branchOffice'
+                }
+            ]
+        });
     }
 }
 

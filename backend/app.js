@@ -71,6 +71,8 @@ app.use("/v1/currency-exchange-rates", currencyExchangeRates)
 app.use("/v1/invoice-item-types", invoiceItemTypeRouter)
 app.use("/v1/gross-incomes", grossIncomeRouter);
 
+console.log("Gross incomes router mounted")
+
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

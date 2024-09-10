@@ -21,6 +21,7 @@ exports.findAll = async () => {
         
         return payments;
     } catch (error) {
+        console.log({error})
         logger.error('Error fetching payments:', error);
         throw error;
     }
@@ -56,6 +57,11 @@ exports.findById = async (id) => {
 exports.createPayment = async (paymentData) => {
     logger.info('Creating new payment with data:', paymentData);
     try {
+
+        if (paymentData.businessId && paymentData.personId) {
+            throw new Error('Payment must have either businessId or personId, but not both');
+        }
+
         const payment = await PaymentModel.create(paymentData);
         logger.info('Payment created:', payment);
         return payment;
@@ -73,6 +79,22 @@ exports.createPayment = async (paymentData) => {
 exports.updatePayment = async (id, paymentData) => {
     logger.info(`Updating payment with ID ${id} with data:`, paymentData);
     try {
+
+        
+
+        const prevPayment = await PaymentModel.findByPk(id)
+        console.log({paymentData, prevPayment: prevPayment.toJSON()})
+
+        const newPaymentData = {
+            ...paymentData,
+            businessId: prevPayment.businessId,
+            personId: prevPayment.personId
+        }
+
+        if (newPaymentData.businessId && newPaymentData.personId) {
+            throw new Error('Payment must have either businessId or personId, but not both');
+        }
+
         const payment = await PaymentModel.findByPk(id);
         if (!payment) {
             console.error(`Payment with ID ${id} not found`);

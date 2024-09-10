@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      GrossIncome.belongsTo(models.BranchOffice, {
+        foreignKey: 'branchOfficeId',
+        as: 'branchOffice'
+      });
     }
     
   }

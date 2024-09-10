@@ -94,6 +94,17 @@ class GrossIncomeController {
       res.status(200).json({ url: fileUrl });
     });
   }
+
+  // GET /gross-incomes/business/:businessId
+  async getAllGrossIncomesByBusinessId(req, res) {
+    try {
+      const grossIncomes = await grossIncomeService.getAllGrossIncomesByBusinessId(req.params.businessId);
+      res.status(200).json(grossIncomes);
+    } catch (error) {
+      console.log({error});
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new GrossIncomeController();

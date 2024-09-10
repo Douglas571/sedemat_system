@@ -22,6 +22,10 @@ import TaxCollection from 'pages/TaxCollection'
 import TaxCollectionBusinessDetails from 'pages/TaxCollectionBusinessDetails'
 import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomesEdit'
 import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusinessGrossIncomesInvoice'
+import GrossIncomeDetails from 'pages/GrossIncomeDetails'
+
+import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
+
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
@@ -62,9 +66,12 @@ function App(): JSX.Element {
 
 						<Route path='tax-collection' element={<TaxCollection />} />
 						<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
+
 						<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
+						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId' element={<GrossIncomeDetails />} />
 						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
 
+						<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
 						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 
 						{/* Using path="*"" means "match anything", so this route

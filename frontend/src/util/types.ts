@@ -133,7 +133,7 @@ export interface Payment {
 }
 
 export interface CurrencyExchangeRate {
-    id: number
+    id?: number
     dolarBCVToBs: number
     eurosBCVToBs: number
     dolarBlackToBs?: number

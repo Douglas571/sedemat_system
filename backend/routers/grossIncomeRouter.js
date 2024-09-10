@@ -21,4 +21,7 @@ router.delete('/:id', grossIncomeController.delete);
 // POST declaration image
 router.post('/declaration-image', grossIncomeController.uploadDeclarationImage);
 
+// GET all gross incomes by business ID
+router.get('/business/:businessId', grossIncomeController.getAllGrossIncomesByBusinessId);
+
 module.exports = router;

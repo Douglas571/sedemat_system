@@ -219,9 +219,17 @@ function PaymentsEdit(): JSX.Element {
 			if (isABusiness) {
 				console.log(values.business)
 				newPaymentData.businessId = getBusinessFromOption(values.business, businesses)?.id
+
+				if(payment?.personId) {
+					newPaymentData.personId = null
+				}
 			} else {
 				console.log(values.person)
 				newPaymentData.personId = getPersonFromOption(values.person, people)?.id
+
+				if(payment?.businessId) {
+					newPaymentData.businessId = null
+				}
 			}
 
 			console.log({newPaymentData})
@@ -242,6 +250,7 @@ function PaymentsEdit(): JSX.Element {
 			// cleanDataFromForm()
 
 		} catch (error) {
+			console.log({error})
 			// process errors
 
 			// if reference is duplicated
@@ -250,7 +259,7 @@ function PaymentsEdit(): JSX.Element {
 
 			// if business is not registered 
 
-			// other unexpected errors 
+			// other unexpected errors
 			message.error(error.message)
 		}
 
