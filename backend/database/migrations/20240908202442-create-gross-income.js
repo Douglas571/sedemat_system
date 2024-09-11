@@ -11,11 +11,19 @@ module.exports = {
       },
       businessId: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'Businesses', // Reference the Businesses table
+          key: 'id'
+        },
       },
       branchOfficeId: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        allowNull: true,
+        references: {
+          model: 'BranchOffices', // Reference the BranchOffices table
+          key: 'id'
+        }
       },
       period: {
         type: Sequelize.DATE,
@@ -33,10 +41,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      grossIncomeInvoiceId: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

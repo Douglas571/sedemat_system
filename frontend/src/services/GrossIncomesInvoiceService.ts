@@ -10,7 +10,7 @@ class GrossIncomesInvoiceService {
   
     constructor(host: string = HOST) {
       this.host = host
-      this.baseUrl = host + '/v1/gross-incomes-invoice'
+      this.baseUrl = host + '/v1/gross-income-invoices'
     }
   
     // Get all gross income invoices
@@ -33,19 +33,18 @@ class GrossIncomesInvoiceService {
   
     // Create a new gross income invoice
     async create(data: IGrossIncomeInvoiceCreate): Promise<IGrossIncomeInvoice> {
-      // const response = await fetch(`${this.baseUrl}/`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(data),
-      // });
-      // if (!response.ok) {
-      //   const error = await response.json();
-      //   throw new Error(`Failed to create gross income invoice: ${error.message}`);
-      // }
-      // return await response.json();
-      return data
+      const response = await fetch(`${this.baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to create gross income invoice: ${error.message}`);
+      }
+      return await response.json();
     }
   
     // Update an existing gross income invoice

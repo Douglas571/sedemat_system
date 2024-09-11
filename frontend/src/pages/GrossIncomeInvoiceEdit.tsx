@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { Table, Button, message, Typography, Form, Select, InputNumber } from 'antd'
 import { ColumnsType } from 'antd/es/table'
@@ -99,6 +99,7 @@ const dummyData: IGrossIncome[] = [
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
     const { businessId } = useParams()
+    const navigate = useNavigate()
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
     const [business, setBusiness] = useState<Business>()
@@ -184,7 +185,16 @@ const GrossIncomeInvoice: React.FC = () => {
         const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
         console.log('fetchedGrossIncomes', fetchedGrossIncomes)
 
-        setGrossIncomes(fetchedGrossIncomes)
+        const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes.filter(grossIncome => !grossIncome.currencyExchangeRate);
+
+        if (grossIncomesWithoutCurrencyExchangeRate.length > 0) {
+            message.error("Algunas declaraciones de ingresos no tienen tasas de cambio registradas")
+            return false
+        }
+
+        const grossIncomesWithoutInvoice = fetchedGrossIncomes.filter(grossIncome => !grossIncome.grossIncomeInvoiceId)
+
+        setGrossIncomes(grossIncomesWithoutInvoice)
     }
 
     async function loadCurrencyExchangeRates() {
@@ -236,6 +246,8 @@ const GrossIncomeInvoice: React.FC = () => {
                 `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
             )
         }
+
+        navigate(-1)
     }
 
     const onFinish = (values: any) => {

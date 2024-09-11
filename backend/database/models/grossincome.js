@@ -25,13 +25,18 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'wasteCollectionTaxId',
         as: 'wasteCollectionTax'
       });
+
+      GrossIncome.belongsTo(models.GrossIncomeInvoice, {
+        foreignKey: 'grossIncomeInvoiceId',
+        as: 'grossIncomeInvoice'
+      });
     }
     
   }
   GrossIncome.init({
     businessId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     branchOfficeId: {
       type: DataTypes.INTEGER,
@@ -53,10 +58,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    grossIncomeInvoiceId: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
 
     currencyExchangeRatesId: {
       type: DataTypes.INTEGER,
@@ -66,7 +67,13 @@ module.exports = (sequelize, DataTypes) => {
     wasteCollectionTaxId: {
       type: DataTypes.INTEGER,
       allowNull: true
-    }
+    },
+
+    
+    grossIncomeInvoiceId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
 
   }, {
     sequelize,
