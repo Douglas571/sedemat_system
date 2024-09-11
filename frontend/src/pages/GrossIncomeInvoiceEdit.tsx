@@ -10,6 +10,8 @@ import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import dayjs from 'dayjs'
 
+import * as util from '../util'
+
 const dummyData: IGrossIncome[] = [
     {
         id: 1,
@@ -142,12 +144,15 @@ const GrossIncomeInvoice: React.FC = () => {
             title: 'Min. Trib.',
             dataIndex: 'business',
             key: 'minimumAmount',
-            render: (text: any, record: IGrossIncome) => <Typography.Text>{business?.economicActivity.minimumTax} Bs.</Typography.Text>
+            render: (text: any, record: IGrossIncome) => <Typography.Text>{business?.economicActivity.minimumTax * util.getMMVExchangeRate(record.currencyExchangeRate)} Bs.</Typography.Text>
         },
         {
             title: 'Aseo',
             dataIndex: 'wasteCollectionTax',
-            key: 'wasteCollectionTax'
+            key: 'wasteCollectionTax',
+            render: (text: string, record: any) => {
+                return (<Typography>{util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions) * util.getMMVExchangeRate(record.currencyExchangeRate)} Bs.</Typography>)
+            }
 
         },
         {
@@ -155,7 +160,16 @@ const GrossIncomeInvoice: React.FC = () => {
             dataIndex: 'subtotal',
             key: 'total',
             align: 'right',
-            render: (text: any, record: IGrossIncome) => <Typography.Text>{record.amountBs * business?.economicActivity.alicuota} Bs.</Typography.Text>
+            render: (text: any, record: IGrossIncome) => {
+                let tax = record.amountBs * business?.economicActivity.alicuota
+                let minTax = business?.economicActivity.minimumTax * util.getMMVExchangeRate(record.currencyExchangeRate)
+                let wasteCollectionTax = util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions) * util.getMMVExchangeRate(record.currencyExchangeRate)
+
+                let finalTax = Math.max(tax, minTax)
+
+                let subtotal = finalTax + wasteCollectionTax
+                return (<Typography.Text>{subtotal} Bs.</Typography.Text>)
+            }
         }
     ]
 
@@ -224,6 +238,11 @@ const GrossIncomeInvoice: React.FC = () => {
         handleCreateInvoice();
     }
 
+    let TOTAL = 0
+    const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
+    selectedGrossIncomes.forEach( g => TOTAL += util.getSubTotalFromGrossIncome(g, business))
+    TOTAL += formPrice
+
     return (
         <Form form={form} onFinish={handleCreateInvoice}>
             <Typography.Title level={2}>Nuevo Calculo de Ingresos Brutos</Typography.Title>
@@ -258,7 +277,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Table>
                 <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
                     <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
-                    <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>1000 Bs.</Typography.Text>}/>
+                    <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{TOTAL} Bs.</Typography.Text>}/>
                 </Table>
             </Form.Item>
             <Form.Item>
