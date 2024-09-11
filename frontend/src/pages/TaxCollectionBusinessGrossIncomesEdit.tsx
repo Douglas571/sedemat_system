@@ -76,6 +76,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
     useEffect(() => {
         // update the value from chargeWasteCollection
+        console.log('branchOfficeId in useEffect', branchOfficeId)
         const selectedBranchOffice = branchOffices.find(office => office.id === branchOfficeId)
         console.log('selectedBranchOffice', selectedBranchOffice)
 
@@ -159,8 +160,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     };
 
     async function onFinish(values: any) {
+
         console.log('Form values:', values);
-        console.log('date', values.period.toJSON());
 
         try {
             let declarationImageUrl = null;
@@ -193,7 +194,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 ...values,
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
-                branchOfficeId: branchOffices.find(office => `${office.nickname} - ${office.address}` === values.branchOffice)?.id,
+                branchOfficeId: branchOfficeId,
                 declarationImage: declarationImageUrl,
 
                 currencyExchangeRateId: lastCurrencyExchangeRate?.id

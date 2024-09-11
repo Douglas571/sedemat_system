@@ -159,6 +159,8 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
         onDelete(grossIncomeId); 
     };
 
+    console.log('grossIncomes', grossIncomes)
+
     const columns = [
         {
             title: 'Año',
@@ -186,7 +188,7 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
             dataIndex: 'branchOffice',
             key: 'branchOffice',
             // TODO: Create a dedicated page for branch offices
-            render: (value: any, record: any) => <Link to={`/business/${record.businessId}`}>{value.nickname}</Link>,
+            render: (value: any, record: any) => <Link to={`/business/${record.businessId}`}>{value?.nickname}</Link>,
         },
         // {
         //     title: 'Factura',
