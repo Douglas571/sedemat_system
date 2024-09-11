@@ -56,6 +56,11 @@ module.exports = (sequelize, DataTypes) => {
     currencyExchangeRatesId: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+
+    wasteCollectionTaxId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
 
   }, {
