@@ -4,7 +4,14 @@ const { GrossIncomeInvoice, GrossIncome } = require('../database/models');
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
     async getAllGrossIncomeInvoices() {
-        return await GrossIncomeInvoice.findAll();
+        return await GrossIncomeInvoice.findAll({
+            include: [
+                {
+                    model: GrossIncome,
+                    as: 'grossIncomes'
+                }
+            ]
+        });
     }
 
     // Fetch a single GrossIncomeInvoice by ID
@@ -45,6 +52,9 @@ class GrossIncomeInvoiceService {
 
     // Delete a GrossIncomeInvoice record by ID
     async deleteGrossIncomeInvoice(id) {
+
+        await GrossIncome.update({ grossIncomeInvoiceId: null }, { where: { grossIncomeInvoiceId: id } });
+
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
