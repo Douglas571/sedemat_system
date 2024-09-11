@@ -54,6 +54,7 @@ class GrossIncomeController {
       const newGrossIncome = await grossIncomeService.createGrossIncome(req.body);
       res.status(201).json(newGrossIncome);
     } catch (error) {
+      console.log({error})
       res.status(400).json({ error: error.message });
     }
   }
@@ -64,6 +65,7 @@ class GrossIncomeController {
       const updatedGrossIncome = await grossIncomeService.updateGrossIncome(req.params.id, req.body);
       res.status(200).json(updatedGrossIncome);
     } catch (error) {
+      console.log({error})
       res.status(400).json({ error: error.message });
     }
   }

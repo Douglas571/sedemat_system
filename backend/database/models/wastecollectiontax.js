@@ -15,7 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'branchOfficeId',
         as: 'branchOffice'
       });
-      
+
+      WasteCollectionTax.hasOne(models.GrossIncome, {
+        foreignKey: 'wasteCollectionTaxId',
+        as: 'grossIncome'
+      })
+
     }
   }
   WasteCollectionTax.init({

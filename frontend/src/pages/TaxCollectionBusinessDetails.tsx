@@ -189,6 +189,11 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
             // TODO: Create a dedicated page for branch offices
             render: (value: any, record: any) => <Link to={`/business/${record.businessId}`}>{value?.nickname}</Link>,
         },
+        {
+            title: 'Cobrar Aseo',
+            dataIndex: 'wasteCollectionTaxId',
+            render: (text: string) => text ? 'SI' : 'NO'
+        },
         // {
         //     title: 'Factura',
         //     dataIndex: 'grossIncomeInvoiceId',

@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'currencyExchangeRatesId',
         as: 'currencyExchangeRate'
       });
+
+      GrossIncome.belongsTo(models.WasteCollectionTax, {
+        foreignKey: 'wasteCollectionTaxId',
+        as: 'wasteCollectionTax'
+      });
     }
     
   }

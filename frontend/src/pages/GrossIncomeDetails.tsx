@@ -92,7 +92,7 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
             <Descriptions.Item label="Año">{grossIncome.period.year()}</Descriptions.Item>
             <Descriptions.Item label="Mes">{grossIncome.period.format('MMMM')}</Descriptions.Item>
             <Descriptions.Item label="Monto Declarado">{`${grossIncome.amountBs} Bs.`}</Descriptions.Item>
-            <Descriptions.Item label="Monto a Pagar">{`${grossIncome.amountToPay} Bs.`}</Descriptions.Item>
+            <Descriptions.Item label="Cobrar Aseo">{ grossIncome.wasteCollectionTaxId ? "SI" : "NO" }</Descriptions.Item>
             <Descriptions.Item label="Sucursal">{grossIncome.branchOffice.nickname}</Descriptions.Item>
         </Descriptions>
     );

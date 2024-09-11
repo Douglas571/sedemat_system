@@ -92,9 +92,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 period: dayjs(grossIncome.period),
                 amountBs: grossIncome.amountBs,
                 chargeWasteCollection: grossIncome.chargeWasteCollection,
-                branchOffice: grossIncome.branchOffice ? 
-                    `${grossIncome.branchOffice.nickname} - ${grossIncome.branchOffice.address}` : 
-                    undefined,
+                branchOffice: grossIncome.branchOffice.id
             });
 
             const imageUrl = completeUrl(grossIncome.declarationImage)
