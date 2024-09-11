@@ -4,10 +4,11 @@ import { useParams } from 'react-router-dom'
 import { Table, Button, message, Typography, Form, Select, InputNumber } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
-import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate } from '../util/types' // Importing IGrossIncome from types
+import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate } from '../util/types' // Importing IGrossIncome from types
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
+import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
 import dayjs from 'dayjs'
 
 import * as util from '../util'
@@ -151,7 +152,7 @@ const GrossIncomeInvoice: React.FC = () => {
             dataIndex: 'wasteCollectionTax',
             key: 'wasteCollectionTax',
             render: (text: string, record: any) => {
-                return (<Typography>{util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions) * util.getMMVExchangeRate(record.currencyExchangeRate)} Bs.</Typography>)
+                return (<Typography>{util.getWasteCollectionTaxInBs(record)} Bs.</Typography>)
             }
 
         },
@@ -161,13 +162,7 @@ const GrossIncomeInvoice: React.FC = () => {
             key: 'total',
             align: 'right',
             render: (text: any, record: IGrossIncome) => {
-                let tax = record.amountBs * business?.economicActivity.alicuota
-                let minTax = business?.economicActivity.minimumTax * util.getMMVExchangeRate(record.currencyExchangeRate)
-                let wasteCollectionTax = util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions) * util.getMMVExchangeRate(record.currencyExchangeRate)
-
-                let finalTax = Math.max(tax, minTax)
-
-                let subtotal = finalTax + wasteCollectionTax
+                let subtotal = util.getSubTotalFromGrossIncome(record, business)
                 return (<Typography.Text>{subtotal} Bs.</Typography.Text>)
             }
         }
@@ -216,25 +211,36 @@ const GrossIncomeInvoice: React.FC = () => {
         onChange: onSelectChange
     }
 
-    const handleCreateInvoice = () => {
+    const handleCreateInvoice = async () => {
         if (selectedRowKeys.length === 0) {
             message.warning('Seleccione al menos un calculo de ingresos brutos')
+            return false 
+        } 
+
+
+        const newInvoice: IGrossIncomeInvoiceCreate = {
+            formPriceBs: formPrice,
+            grossIncomesIds: selectedRowKeys.map(key => Number(key))
+        }
+
+        const registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
+
+        console.log({registeredInvoice})
+
+        if (selectedRowKeys.length === 1) { 
+            message.success(
+                `Calculo creado con el registro seleccionado`
+            )
         } else {
-            if (selectedRowKeys.length === 1) { 
-                message.success(
-                    `Calculo creado con el registro seleccionado`
-                )
-            } else {
-                message.success(
-                    `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
-                )
-            }
-            // Here you would typically call an API to create the invoice
+            message.success(
+                `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
+            )
         }
     }
 
     const onFinish = (values: any) => {
         console.log('Form values:', values);
+
         handleCreateInvoice();
     }
 

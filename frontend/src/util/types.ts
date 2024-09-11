@@ -167,6 +167,12 @@ export interface IGrossIncome {
     grossIncomeInvoiceId?: number;
 }
 
+// Gross Income Invoice 
+export interface IGrossIncomeInvoiceCreate {
+    formPriceBs: number;
+    grossIncomesIds: number[];
+}
+
 export interface IGrossIncomeInvoice {
     id: number;
     grossIncomes: Array<IGrossIncome>
@@ -176,4 +182,3 @@ export interface IGrossIncomeInvoice {
 
     paidAt: Date
 }
-
