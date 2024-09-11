@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'branchOfficeId',
         as: 'branchOffice'
       });
+
+      GrossIncome.belongsTo(models.CurrencyExchangeRates, {
+        foreignKey: 'currencyExchangeRatesId',
+        as: 'currencyExchangeRate'
+      });
     }
     
   }
@@ -46,7 +51,13 @@ module.exports = (sequelize, DataTypes) => {
     grossIncomeInvoiceId: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+
+    currencyExchangeRatesId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
+
   }, {
     sequelize,
     modelName: 'GrossIncome',

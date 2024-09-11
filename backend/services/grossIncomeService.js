@@ -1,5 +1,5 @@
 // services/grossIncomeService.js
-const { GrossIncome, BranchOffice } = require('../database/models');
+const { GrossIncome, BranchOffice, CurrencyExchangeRates } = require('../database/models');
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
@@ -14,6 +14,10 @@ class GrossIncomeService {
                 {
                     model: BranchOffice,
                     as: 'branchOffice'
+                },
+                {
+                    model: CurrencyExchangeRates,
+                    as: 'currencyExchangeRate'
                 }
             ]
         });
@@ -59,7 +63,11 @@ class GrossIncomeService {
                 {
                     model: BranchOffice,
                     as: 'branchOffice'
-                }
+                },
+                {
+                    model: CurrencyExchangeRates,
+                    as: 'currencyExchangeRate'
+                },
             ]
         });
     }

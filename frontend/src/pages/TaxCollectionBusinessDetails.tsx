@@ -167,7 +167,6 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
             dataIndex: 'period',
             key: 'year',
             render: (period: any) => {
-                console.log(period)
                 return period.year()
             },
         },

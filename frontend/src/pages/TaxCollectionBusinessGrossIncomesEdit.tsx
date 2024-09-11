@@ -65,9 +65,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             if (firstOffice) {
                 console.log('firstOffice', firstOffice)
                 form.setFieldsValue({
-                    branchOffice: firstOffice.nickname + ' - ' + firstOffice.address,
-                    chargeWasteCollection: firstOffice?.chargeWasteCollection
-                });
+                    branchOffice: branchOffices[0].id
+                })
             }
         }
 
@@ -189,6 +188,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 }
             }
 
+            console.log('lastCurrencyExchangeRate', lastCurrencyExchangeRate)
             const newGrossIncome: IGrossIncome = {
                 ...grossIncome,
                 ...values,
@@ -196,8 +196,6 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 businessId: Number(businessId),
                 branchOfficeId: branchOfficeId,
                 declarationImage: declarationImageUrl,
-
-                currencyExchangeRateId: lastCurrencyExchangeRate?.id
             };
 
             // if is editing, update the gross income
@@ -205,6 +203,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome);
                 message.success('Ingreso bruto actualizado exitosamente');
             } else {
+                newGrossIncome.currencyExchangeRatesId = lastCurrencyExchangeRate?.id
                 const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome);
                 message.success('Ingreso bruto registrado exitosamente');
             }
@@ -251,6 +250,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sucursal' }]}
                 >
                     <Select
+                        placeholder='Seleccione la sucursal'
                         options={branchOfficeOptions}
                         showSearch
                         onChange={ (value) => {
