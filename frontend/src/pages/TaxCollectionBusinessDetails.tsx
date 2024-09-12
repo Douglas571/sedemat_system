@@ -95,10 +95,10 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
                 <Flex vertical gap="large">
                     <Descriptions bordered title="Información de la Empresa">
-                        <Descriptions.Item label="Business Name">
+                        <Descriptions.Item label="Empresa">
                             <Text>{business.businessName}</Text>
                         </Descriptions.Item>
-                        <Descriptions.Item label="DNI/RIF">
+                        <Descriptions.Item label="Rif">
                             <Text>{business.dni}</Text>
                         </Descriptions.Item>
                     </Descriptions>
@@ -148,7 +148,7 @@ function EconomicActivityDescription({ economicActivity }: { economicActivity: E
         {
             key: '3',
             label: 'Alicuota',
-            children: alicuota + "%",
+            children: (alicuota * 100) + "%",
         },
         {
             key: '4',
