@@ -10,6 +10,15 @@ module.exports = {
         type: Sequelize.INTEGER
       },
 
+      businessId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Businesses',
+          key: 'id'
+        }
+      },
+
       formPriceBs: {
         type: Sequelize.FLOAT,
         allowNull: false,

@@ -19,13 +19,15 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const [business, setBusiness] = React.useState<Business | null>(null);
     const { businessId } = useParams<{ businessId: string }>();
     const [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([]);
-    const [grossIncomeInvoices, setGrossIncomeInvoices] = React.useState()
+    const [grossIncomeInvoices, setGrossIncomeInvoices] = React.useState<IGrossIncomeInvoice[]>()
 
     const loadGrossIncomeInvoices = async () => {
         const fetchedGrossIncomeInvoices = await grossIncomeInvoiceService.getAll()
 
-        console.log({fetchedGrossIncomeInvoices})
-        setGrossIncomeInvoices(fetchedGrossIncomeInvoices)
+        const filtered = fetchedGrossIncomeInvoices.filter( g => g.businessId === Number(businessId))
+
+        console.log({filtered})
+        setGrossIncomeInvoices([...filtered])
     }
 
     React.useEffect(() => {
@@ -75,7 +77,6 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
     const handleDeleteGrossIncomeInvoice = async (grossIncomeInvoiceId: number) => {
         try {
-            console.log("here!!!")
             await grossIncomeInvoiceService.delete(grossIncomeInvoiceId);
             message.success('Factura de Ingreso Bruto eliminada exitosamente');
             // Refresh the gross income invoices list
@@ -106,7 +107,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                     
                     <GrossIncomeInvoiceTable 
                         invoices={grossIncomeInvoices} 
-                        onDelete={handleDeleteGrossIncomeInvoice}/>
+                        onDelete={handleDeleteGrossIncomeInvoice}
+                        disableAdd={grossIncomes.length === 0}    
+                    />
 
                     <GrossIncomeTaxesTable 
                         grossIncomes={grossIncomes}
@@ -439,7 +442,7 @@ const WasteCollectionTaxesTable: React.FC = () => {
     );
 }
 
-function GrossIncomeInvoiceTable({invoices, onDelete}): JSX.Element {
+function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element {
     const navigate = useNavigate();
 
     const {businessId} = useParams()
@@ -539,6 +542,7 @@ function GrossIncomeInvoiceTable({invoices, onDelete}): JSX.Element {
             <Flex gap="small" align='center' justify='space-between'>
                 <Title level={3}>Calculos del Impuesto sobre Ingresos Brutos</Title>
                 <Button 
+                    disabled={disableAdd}
                     style={{alignSelf: 'end', marginBottom: '12px'}} 
                     onClick={() => navigate('gross-incomes-invoice/new')}
                 >

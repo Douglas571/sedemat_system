@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, Typography, Table, Descriptions, List } from 'antd';
 const { Title, Text } = Typography;
 
+import dayjs from 'dayjs'
+
 const GrossIncomeInvoiceDetails: React.FC = () => {
 	// Dummy data
 	const invoiceDetails = {

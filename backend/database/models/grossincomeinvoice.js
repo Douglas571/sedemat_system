@@ -26,6 +26,15 @@ module.exports = (sequelize, DataTypes) => {
     //   defaultValue: false
     // },
 
+    businessId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Business',
+        key: 'id'
+      }
+    },
+
     formPriceBs: {
       type: DataTypes.FLOAT,
       allowNull: false,

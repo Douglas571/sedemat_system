@@ -113,6 +113,10 @@ const GrossIncomeInvoice: React.FC = () => {
 
     const isEditing = grossIncomeInvoiceId !== undefined
 
+    if (!Number(businessId)) {
+        return <div>Ocurrió un error, llame al desarrollador :)</div>
+    }
+
     let TOTAL = 0
     const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
     selectedGrossIncomes.forEach( g => TOTAL += util.getSubTotalFromGrossIncome(g, business))
@@ -299,6 +303,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
         const newInvoice: IGrossIncomeInvoiceCreate = {
             id: Number(grossIncomeInvoiceId),
+            businessId: businessId,
             formPriceBs: formPrice,
             grossIncomesIds: selectedRowKeys.map(key => Number(key)),
             totalBs: TOTAL
