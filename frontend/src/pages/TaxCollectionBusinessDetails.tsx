@@ -284,12 +284,15 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
                     Agregar
                 </Button>
             </Flex>
-            <Table 
+            
+            <Table
+            style={{overflow: 'scroll'}} 
                 dataSource={grossIncomes} 
                 columns={columns} 
                 rowKey="id"
                 pagination={false}
             />
+            
         </Flex>
     );
 }
@@ -433,6 +436,7 @@ const WasteCollectionTaxesTable: React.FC = () => {
                 </Button>
             </Flex>
             <Table 
+                style={{overflow: 'scroll'}} 
                 dataSource={dummyData} 
                 columns={columns} 
                 rowKey="id"
@@ -552,6 +556,7 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
                 </Button>
             </Flex>
             <Table 
+                style={{overflow: 'scroll'}} 
                 dataSource={invoices} 
                 columns={columns} 
                 rowKey="id"
