@@ -20,7 +20,7 @@ module.exports = {
           unique: true
       },
       alicuota: {
-          type: Sequelize.DECIMAL(5, 2), // Tax percentage
+          type: Sequelize.FLOAT, // Tax percentage
           allowNull: false,
       },
       minimumTax: {

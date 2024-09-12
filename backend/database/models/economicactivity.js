@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true
     },
     alicuota: {
-        type: DataTypes.DECIMAL(5, 2), // Tax percentage
+        type: DataTypes.FLOAT, // Tax percentage
         allowNull: false,
     },
     minimumTax: {
