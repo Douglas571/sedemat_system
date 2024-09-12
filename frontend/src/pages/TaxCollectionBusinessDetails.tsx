@@ -519,6 +519,7 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             render: (_: any, record: any) => (
                 <Flex gap="small">
                     <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Ver Detalles</Button>
+                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${record.id}`)}>Imprimir</Button>
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
                     <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}>Editar</Button>
 

@@ -24,4 +24,7 @@ router.post('/declaration-image', grossIncomeController.uploadDeclarationImage);
 // GET all gross incomes by business ID
 router.get('/business/:businessId', grossIncomeController.getAllGrossIncomesByBusinessId);
 
+// GET all gross incomes by invoice ID
+router.get('/invoice/:invoiceId', grossIncomeController.getAllGrossIncomesByInvoiceId);
+
 module.exports = router;

@@ -1,17 +1,20 @@
+import zamoraFlagUrl from '/images/zamora_flag.png'
+
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'
 import { Card, Typography, Table, Descriptions, List, Flex} from 'antd';
 const { Title, Text } = Typography;
 
 import dayjs from 'dayjs'
+
 import { Business } from 'util/types';
-import { IGrossIncomeInvoice, IGrossIncome } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, CurrencyExchangeRate } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import * as util from '../util'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
-
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
@@ -27,6 +30,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const hasBranchOffice = grossIncomes?.length > 0 && grossIncomes[0]?.branchOfficeId !== undefined
     const branchOffice = hasBranchOffice && grossIncomes[0]?.branchOffice
     
+
+
+    // const branchOfficeDimensions = grossIncomes ? grossIncomes.branchOffices[0].dimensions : 0;
+    // console.log({branchOfficeDimensions})
 
     const loadLastCurrencyExchangeRate = async (): Promise<CurrencyExchangeRate> => {
         const lastCurrencyExchangeRate = await CurrencyExchangeRatesService.getLastOne()
@@ -45,11 +52,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const loadGrossIncomes = async (grossIncomeInvoiceId: number): Promise<IGrossIncome[]> => {
         const fetchedGIs = await grossIncomeApi.getAllGrossIncomesByInvoiceId(grossIncomeInvoiceId)
-        return fetchedGIs
+        return fetchedGIs.sort((a, b) => new dayjs(a.period) - new dayjs(b.period))
     }
 
     const loadData = async () => {
+        console.log("here")
 
+        const fetchedLastCurrencyExchangeRate = await loadLastCurrencyExchangeRate()
         // load the business
         const fetchedBusiness = await loadBusiness()
         // load the invoice 
@@ -57,11 +66,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         // load gross incomes 
         const fetchedGrossIncomes = await loadGrossIncomes(Number(grossIncomeInvoiceId))
 
+        
         // console.log(JSON.stringify({fetchedBusiness, fetchedGrossIncomes, fetchedInvoice}, null, 2))
-
+        setLastCurrencyExchangeRate(fetchedLastCurrencyExchangeRate)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice(fetchedInvoice)
         setGrossIncomes(fetchedGrossIncomes)
+        
     }
 
     useEffect(() => {
@@ -93,6 +104,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         },
 	};
 
+
     let MMVExchangeRate = 0 
 
     if (lastCurrencyExchangeRate) {
@@ -103,6 +115,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         );
     }
 
+    console.log({lastCurrencyExchangeRate, MMVExchangeRate})
+
     if (!business) {
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
@@ -111,7 +125,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
 
     return (
-        <Card title="Gross Income Invoice Details">
+        <Flex vertical>
+
+            <Flex align='center' justify='center' gap={10}>
+                <img src={"/images/zamora_flag.png"} width={100} alt="Zamora Flag" />
+                <img src={"/images/zamora_shield.png"} width={100} alt="Zamora Shield" />
+                <Flex style={{maxWidth: "350px", textAlign: 'center', fontFamily: "Arial"}}>
+                    REPÚBLICA BOLIVARIANA DE VENEZUELA<br/>
+                    ALCALDIA DEL MUNICIPIO ZAMORA ESTADO FALCÓN
+                </Flex>
+                <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
+            </Flex>
+            <Flex justify='right'>
+                <Text>Fecha: {dayjs().format('YYYY-MM-DD')}</Text>
+            </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
             <Descriptions bordered  size='small'>
@@ -285,7 +312,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
 
             
-        </Card>
+        </Flex>
     );
 };
 

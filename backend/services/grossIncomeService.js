@@ -119,6 +119,28 @@ class GrossIncomeService {
             ]
         });
     }
+
+    async getAllGrossIncomesByInvoiceId(invoiceId) {
+        return await GrossIncome.findAll({
+            where: {
+                grossIncomeInvoiceId: invoiceId
+            },
+            include: [
+                {
+                    model: BranchOffice,
+                    as: 'branchOffice'
+                },
+                {
+                    model: CurrencyExchangeRates,
+                    as: 'currencyExchangeRate'
+                },
+                {
+                    model: WasteCollectionTax,
+                    as: 'wasteCollectionTax'
+                }
+            ]
+        });
+    }
 }
 
 module.exports = new GrossIncomeService();

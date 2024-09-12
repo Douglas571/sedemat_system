@@ -26,6 +26,8 @@ import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
+import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
+
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
 
@@ -80,6 +82,8 @@ function App(): JSX.Element {
 						routes for. */}
 						<Route path='*' element={<NoMatch />} />
 					</Route>
+
+					<Route path='/printable/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<PrintableGrossIncomeInvoice />} />
 				</Routes>
 			</BrowserRouter>
 		</div>
