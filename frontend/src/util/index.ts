@@ -69,3 +69,10 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
 
     return subtotal
 }
+
+export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], business: Business, formPrice: number): number {
+    let TOTAL = 0;
+    grossIncomes.forEach(g => TOTAL += getSubTotalFromGrossIncome(g, business));
+    TOTAL += formPrice;
+    return TOTAL;
+}

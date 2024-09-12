@@ -117,11 +117,8 @@ const GrossIncomeInvoice: React.FC = () => {
         return <div>Ocurrió un error, llame al desarrollador :)</div>
     }
 
-    let TOTAL = 0
     const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
-    selectedGrossIncomes.forEach( g => TOTAL += util.getSubTotalFromGrossIncome(g, business))
-    TOTAL += formPrice
-
+    let TOTAL = util.calculateTotalGrossIncomeInvoice(selectedGrossIncomes, business, formPrice)
 
     const loadGrossIncomeInvoice = async () => {
         const fetchedGrossIncomeInvoice = await grossIncomesInvoiceService.getById(Number(grossIncomeInvoiceId))
