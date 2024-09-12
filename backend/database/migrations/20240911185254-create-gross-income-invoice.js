@@ -9,15 +9,22 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      
-      isPaid: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
+
       formPriceBs: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
+      },
+
+      paidAt: {
+        type: Sequelize.DATE,
+        allowNull: true 
+      },
+
+      totalBs: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
       },
 
       createdAt: {

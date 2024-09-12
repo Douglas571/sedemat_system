@@ -72,7 +72,8 @@ function App(): JSX.Element {
 						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
 
 						<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
-						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
+						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
+						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
 
 						{/* Using path="*"" means "match anything", so this route
 						acts like a catch-all for URLs that we don't have explicit

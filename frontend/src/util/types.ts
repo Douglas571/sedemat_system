@@ -164,6 +164,7 @@ export interface IGrossIncome {
     declarationImage: string;
 
     wasteCollectionTax?: IWasteCollectionTax;
+
     grossIncomeInvoiceId?: number;
 }
 
@@ -171,14 +172,17 @@ export interface IGrossIncome {
 export interface IGrossIncomeInvoiceCreate {
     formPriceBs: number;
     grossIncomesIds: number[];
+    removeGrossIncomesIds: number[];
+    totalBs: number;
 }
 
 export interface IGrossIncomeInvoice {
     id: number;
-    grossIncomes: Array<IGrossIncome>
-    currencyExchangeRates: CurrencyExchangeRate
-    createdByUser: IUser
-    checkedByUser: IUser
+    formPriceBs: number;
+    grossIncomes: IGrossIncome[];
+    // currencyExchangeRates: CurrencyExchangeRate
+    // createdByUser: IUser
+    // checkedByUser: IUser
 
-    paidAt: Date
+    // paidAt: Date
 }

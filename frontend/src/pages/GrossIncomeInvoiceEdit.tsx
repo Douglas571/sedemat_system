@@ -98,7 +98,7 @@ const dummyData: IGrossIncome[] = [
 
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
-    const { businessId } = useParams()
+    const { businessId, grossIncomeInvoiceId } = useParams()
     const navigate = useNavigate()
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
@@ -106,17 +106,58 @@ const GrossIncomeInvoice: React.FC = () => {
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>()
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>([])
     const [currencyExchangeRates, setCurrencyExchangeRates] = useState<CurrencyExchangeRate | undefined>(undefined)
+    const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice | undefined>(undefined)
 
     const selectedOfficeId = Form.useWatch('branchOfficeId', form);
     const formPrice = Form.useWatch('form', form);
 
+    const isEditing = grossIncomeInvoiceId !== undefined
+
+    let TOTAL = 0
+    const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
+    selectedGrossIncomes.forEach( g => TOTAL += util.getSubTotalFromGrossIncome(g, business))
+    TOTAL += formPrice
+
+
+    const loadGrossIncomeInvoice = async () => {
+        const fetchedGrossIncomeInvoice = await grossIncomesInvoiceService.getById(Number(grossIncomeInvoiceId))
+        setGrossIncomeInvoice(fetchedGrossIncomeInvoice)
+    }
+
+    const loadData = async () => {
+        await loadBusiness()
+        await loadBranchOffices()
+
+        if (isEditing) {
+            await loadGrossIncomeInvoice()
+        }
+
+        await loadGrossIncomes()
+    }
+
     useEffect(() => {
-        loadBusiness()
-        loadBranchOffices()
-        loadGrossIncomes()
+        loadData()
 
         form.setFieldValue('form', 1.6*40)
     }, [])
+
+    useEffect(() => {        
+        if (grossIncomeInvoice) {
+            const firstGrossIncome = grossIncomeInvoice.grossIncomes[0];
+            if (firstGrossIncome) {
+                const branchOfficeId = firstGrossIncome.branchOfficeId;
+                form.setFieldValue('branchOfficeId', branchOfficeId);
+            }
+        } else {
+            if (branchOffices) {
+                const branchOfficeId = branchOffices[0].id;
+                form.setFieldValue('branchOfficeId', branchOfficeId);
+            }
+            
+        }
+
+
+    }, [grossIncomeInvoice, branchOffices])
 
     const columns: ColumnsType<IGrossIncome> = [
         {
@@ -171,31 +212,63 @@ const GrossIncomeInvoice: React.FC = () => {
 
     async function loadBusiness() {
         const fetchedBusiness = await api.fetchBusinessById(Number(businessId));
-        console.log('fetchedBusiness', fetchedBusiness)
         setBusiness(fetchedBusiness)
     }
 
     async function loadBranchOffices() {
         const fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId));
-        console.log('fetchedBranchOffices', fetchedBranchOffices)
         setBranchOffices(fetchedBranchOffices)
     }
 
     async function loadGrossIncomes() {
         const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
-        console.log('fetchedGrossIncomes', fetchedGrossIncomes)
 
-        const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes.filter(grossIncome => !grossIncome.currencyExchangeRate);
+
+        const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes
+            .filter(grossIncome => !grossIncome.currencyExchangeRate)
 
         if (grossIncomesWithoutCurrencyExchangeRate.length > 0) {
             message.error("Algunas declaraciones de ingresos no tienen tasas de cambio registradas")
             return false
         }
 
-        const grossIncomesWithoutInvoice = fetchedGrossIncomes.filter(grossIncome => !grossIncome.grossIncomeInvoiceId)
+        setGrossIncomes(fetchedGrossIncomes)
 
-        setGrossIncomes(grossIncomesWithoutInvoice)
+        // if (isEditing) {
+        //     //const grossIncomesWithInvoice = fetchedGrossIncomes.filter(grossIncome => grossIncome.grossIncomeInvoiceId == Number(grossIncomeInvoiceId))
+        //     setGrossIncomes(fetchedGrossIncomes)
+
+        //     const selectedIds = grossIncomeInvoice.grossIncomes.map( g => g.id )
+            
+        //     setSelectedRowKeys(fetchedGrossIncomes.map(g => g.id).filter( id => selectedIds.includes(id)))
+        // } else {
+        //     const grossIncomesWithoutInvoice = fetchedGrossIncomes.filter(grossIncome => !grossIncome.grossIncomeInvoiceId)
+        //     setGrossIncomes(grossIncomesWithoutInvoice)
+        // }
     }
+
+    const [grossIncomesToDisplay, setGrossIncomesToDisplay] = useState<IGrossIncome[]>([])
+    useEffect(() => {
+
+        // filter by office 
+        let toDisplay = grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)
+    
+        // if is not editing, hide those who have grossIncomeInvoiceId
+        if (!isEditing) {
+            toDisplay = toDisplay.filter( g => g.grossIncomeInvoiceId === null)
+        } else {
+            if (grossIncomeInvoice) {
+                // gross incomes where the grossIncomeInvoiceId is null or equal to grossIncomeInvoiceId
+                toDisplay = toDisplay.filter(g => g.grossIncomeInvoiceId === null || g.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
+                const selectedIds = grossIncomeInvoice.grossIncomes.map( g => g.id )
+                setSelectedRowKeys([...selectedIds])
+            }
+        }
+
+        setGrossIncomesToDisplay([...toDisplay])
+
+
+    }, [grossIncomes, selectedOfficeId])
 
     async function loadCurrencyExchangeRates() {
         const fetchedCurrencyExchangeRates = await currencyExchangeRatesService.getAll();
@@ -207,10 +280,6 @@ const GrossIncomeInvoice: React.FC = () => {
 
         setCurrencyExchangeRates(lastCurrencyExchangeRate)
     }
-
-    useEffect(() => {
-        console.log('selectedRowKeys', selectedRowKeys)
-    }, [selectedRowKeys])
 
     const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
         setSelectedRowKeys(newSelectedRowKeys)
@@ -229,23 +298,39 @@ const GrossIncomeInvoice: React.FC = () => {
 
 
         const newInvoice: IGrossIncomeInvoiceCreate = {
+            id: Number(grossIncomeInvoiceId),
             formPriceBs: formPrice,
-            grossIncomesIds: selectedRowKeys.map(key => Number(key))
+            grossIncomesIds: selectedRowKeys.map(key => Number(key)),
+            totalBs: TOTAL
         }
 
-        const registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
+        let registeredInvoice
+
+        if (isEditing) {
+            newInvoice.removeGrossIncomesIds = grossIncomeInvoice.grossIncomes.map( g => g.id).filter( id => !selectedRowKeys.includes(id))
+            newInvoice.grossIncomesIds = selectedRowKeys.filter( id => !grossIncomeInvoice.grossIncomes.map( g => g.id).includes(id) )
+
+            console.log('newInvoice', newInvoice)
+            registeredInvoice = await grossIncomesInvoiceService.update(newInvoice)
+        } else {
+            newInvoice.grossIncomesIds = selectedRowKeys.map(key => Number(key))
+            registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
+            if (selectedRowKeys.length === 1) { 
+                message.success(
+                    `Calculo creado con el registro seleccionado`
+                )
+            } else {
+                message.success(
+                    `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
+                )
+            }
+        }
+
+        
 
         console.log({registeredInvoice})
 
-        if (selectedRowKeys.length === 1) { 
-            message.success(
-                `Calculo creado con el registro seleccionado`
-            )
-        } else {
-            message.success(
-                `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
-            )
-        }
+        
 
         navigate(-1)
     }
@@ -256,14 +341,9 @@ const GrossIncomeInvoice: React.FC = () => {
         handleCreateInvoice();
     }
 
-    let TOTAL = 0
-    const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
-    selectedGrossIncomes.forEach( g => TOTAL += util.getSubTotalFromGrossIncome(g, business))
-    TOTAL += formPrice
-
     return (
         <Form form={form} onFinish={handleCreateInvoice}>
-            <Typography.Title level={2}>Nuevo Calculo de Ingresos Brutos</Typography.Title>
+            <Typography.Title level={2}>{isEditing ? 'Editar Calculo de Ingresos Brutos' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
             <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
 
             <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
@@ -274,6 +354,8 @@ const GrossIncomeInvoice: React.FC = () => {
                         value: branchOffice.id,
                         label: branchOffice.nickname
                     }))} 
+
+                    disabled={isEditing}
                 />
             </Form.Item>
 
@@ -285,7 +367,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 <Table
                     rowSelection={rowSelection}
                     columns={columns}
-                    dataSource={grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)}
+                    dataSource={grossIncomesToDisplay}
                     rowKey='id'
                     pagination={false}
                 />

@@ -1,5 +1,5 @@
 // services/grossIncomeInvoiceService.js
-const { GrossIncomeInvoice, GrossIncome } = require('../database/models');
+const { GrossIncomeInvoice, GrossIncome, CurrencyExchangeRates } = require('../database/models');
 
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
@@ -20,7 +20,7 @@ class GrossIncomeInvoiceService {
             include: [
                 {
                     model: GrossIncome,
-                    as: 'grossIncomes'
+                    as: 'grossIncomes',
                 }
             ]
         });
@@ -43,10 +43,22 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data) {
+        console.log({id})
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
         }
+
+        // check if should add new gross incomes 
+        if (data?.grossIncomesIds?.length > 0) {
+            await GrossIncome.update({ grossIncomeInvoiceId: id }, { where: { id: data.grossIncomesIds } });
+        }
+
+        // check if should remove gross incomes
+        if (data?.removeGrossIncomesIds?.length > 0) {
+            await GrossIncome.update({ grossIncomeInvoiceId: null }, { where: { id: data.removeGrossIncomesIds } });
+        }
+
         return await grossIncomeInvoice.update(data);
     }
 

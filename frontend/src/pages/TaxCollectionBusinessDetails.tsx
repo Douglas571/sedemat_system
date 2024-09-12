@@ -2,7 +2,8 @@ import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
-import { Business, EconomicActivity, IGrossIncome } from '../util/types';
+import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
+import { Business, EconomicActivity, IGrossIncome, IGrossIncomeInvoice } from '../util/types';
 
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message } from 'antd';
@@ -18,10 +19,20 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const [business, setBusiness] = React.useState<Business | null>(null);
     const { businessId } = useParams<{ businessId: string }>();
     const [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([]);
+    const [grossIncomeInvoices, setGrossIncomeInvoices] = React.useState()
+
+    const loadGrossIncomeInvoices = async () => {
+        const fetchedGrossIncomeInvoices = await grossIncomeInvoiceService.getAll()
+
+        console.log({fetchedGrossIncomeInvoices})
+        setGrossIncomeInvoices(fetchedGrossIncomeInvoices)
+    }
 
     React.useEffect(() => {
         loadBusiness();
         loadGrossIncomes();
+
+        loadGrossIncomeInvoices()
     }, [businessId]);
 
     if (!business) {
@@ -62,6 +73,20 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         }
     };
 
+    const handleDeleteGrossIncomeInvoice = async (grossIncomeInvoiceId: number) => {
+        try {
+            console.log("here!!!")
+            await grossIncomeInvoiceService.delete(grossIncomeInvoiceId);
+            message.success('Factura de Ingreso Bruto eliminada exitosamente');
+            // Refresh the gross income invoices list
+            const updatedGrossIncomeInvoices = grossIncomeInvoices.filter(invoice => invoice.id !== grossIncomeInvoiceId);
+            setGrossIncomeInvoices(updatedGrossIncomeInvoices);
+            loadGrossIncomes()
+        } catch (error) {
+            message.error('Error al eliminar la factura de Ingreso Bruto');
+        }
+    };
+
     return (
         <Flex vertical gap="large">
 
@@ -79,7 +104,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
                     <EconomicActivityDescription economicActivity={business.economicActivity} />
                     
-                    <GrossIncomeInvoiceTable />
+                    <GrossIncomeInvoiceTable 
+                        invoices={grossIncomeInvoices} 
+                        onDelete={handleDeleteGrossIncomeInvoice}/>
 
                     <GrossIncomeTaxesTable 
                         grossIncomes={grossIncomes}
@@ -209,10 +236,15 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
             title: 'Estado',
             dataIndex: 'grossIncomeInvoice',
             key: 'status',
-            render: (invoice: any) => (
+            render: (invoice: any, record: any) => (
                 <Badge 
                     status={invoice?.isPaid ? 'success' : 'warning'} 
-                    text={invoice?.isPaid ? 'Pagado' : 'Pendiente'} 
+                    // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
+                    // if grossIncomeInvoice.isPaid == "Pago"
+                    // else "Pendiente"
+                    text={!record.grossIncomeInvoiceId 
+                        ? 'Sin Cálculo' 
+                        : (record?.grossIncomeInvoice?.isPaid ? "Pagado" : "Pendiente")} 
                 />
             ),
         },
@@ -407,8 +439,10 @@ const WasteCollectionTaxesTable: React.FC = () => {
     );
 }
 
-function GrossIncomeInvoiceTable(): JSX.Element {
+function GrossIncomeInvoiceTable({invoices, onDelete}): JSX.Element {
     const navigate = useNavigate();
+
+    const {businessId} = useParams()
     const dummyData = [
         // {
         //     id: 1,
@@ -449,12 +483,15 @@ function GrossIncomeInvoiceTable(): JSX.Element {
             title: 'Fecha de Pago',
             dataIndex: 'date',
             key: 'date',
+            render: (text: string) => text 
+                ? <Typography.Text>{dayjs(text).format('YYYY-MM-DD')}</Typography.Text> 
+                : <Typography.Text> -- </Typography.Text>
         },
         {
             title: 'Monto Total',
-            dataIndex: 'grossIncome',
+            dataIndex: 'totalBs',
             key: 'grossIncome',
-            render: (value: number) => `${value.toLocaleString().replace(',', '.')} Bs.`,
+            render: (value: number) => `${value} Bs.`,
         },
         // {
         //     title: 'Monto del Impuesto',
@@ -464,12 +501,12 @@ function GrossIncomeInvoiceTable(): JSX.Element {
         // },
         {
             title: 'Estado',
-            dataIndex: 'status',
-            key: 'status',
-            render: (status: string) => (
+            dataIndex: 'isPaid',
+            key: 'isPaid',
+            render: (isPaid: string) => (
                 <Badge 
-                    status={status === 'Pagado' ? 'success' : 'warning'} 
-                    text={status} 
+                    status={isPaid ? 'success' : 'warning'} 
+                    text={isPaid ? 'Pago' : 'Pendiente' } 
                 />
             ),
         },
@@ -478,8 +515,20 @@ function GrossIncomeInvoiceTable(): JSX.Element {
             key: 'actions',
             render: (_: any, record: any) => (
                 <Flex gap="small">
-                    <Button onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes-invoice/${record.id}`)}>Ver Detalles</Button>
-                    <Button onClick={() => null}>Descargar PDF</Button>
+                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Ver Detalles</Button>
+                    {/* <Button onClick={() => null}>Descargar PDF</Button> */}
+                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}>Editar</Button>
+
+                    
+                    <Popconfirm
+                        title="¿Está seguro de eliminar esta factura?"
+                        onConfirm={() => onDelete(record.id)}
+                        okText="Sí"
+                        cancelText="No"
+                    >
+                        <Button danger>Eliminar</Button>
+                    </Popconfirm>
+
                 </Flex>
             ),
         }
@@ -498,7 +547,7 @@ function GrossIncomeInvoiceTable(): JSX.Element {
                 </Button>
             </Flex>
             <Table 
-                dataSource={dummyData} 
+                dataSource={invoices} 
                 columns={columns} 
                 rowKey="id"
                 pagination={false}

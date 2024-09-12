@@ -48,8 +48,8 @@ class GrossIncomesInvoiceService {
     }
   
     // Update an existing gross income invoice
-    async update(id: number, data: IGrossIncomeInvoice): Promise<IGrossIncomeInvoice> {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
+    async update(data: IGrossIncomeInvoice): Promise<IGrossIncomeInvoice> {
+      const response = await fetch(`${this.baseUrl}/${data.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

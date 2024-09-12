@@ -20,14 +20,27 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   GrossIncomeInvoice.init({
-    isPaid: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
+    // isPaid: {
+    //   type: DataTypes.BOOLEAN,
+    //   allowNull: false,
+    //   defaultValue: false
+    // },
+
     formPriceBs: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 0
+    },
+
+    paidAt: {
+      type: DataTypes.DATE,
+      allowNull: true 
+    },
+
+    totalBs: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
