@@ -273,26 +273,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     width="15%"
                     render={(text: any) => <Text strong>{Number(TOTAL / MMVExchangeRate).toFixed(2)} MMV</Text>}
                 />
-            </Table>
-            <Typography.Paragraph style={{ textAlign: 'center', paddingTop: '10px', paddingBottom: '10px' }} strong>Tasa de cambio de la Moneda de Mayor Valor dle Banco Central de Venezuela (TCMMV)={MMVExchangeRate}Bs. desde el día 19/08/224 hasta el 23/08/2024.</Typography.Paragraph>
-
-            
-            <Descriptions bordered layout='vertical' size='small'>
-                <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{invoiceDetails.createdByUser.person.firstName} {invoiceDetails.createdByUser.person.lastName}</Descriptions.Item>
-                <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{invoiceDetails.checkedByUser.person.firstName} {invoiceDetails.checkedByUser.person.lastName}</Descriptions.Item>
-            </Descriptions>
-
-            <Title level={5} style={{ textAlign: 'center' }}>Datos para Depósitos y/o Transferencias a Nombre de SEDEMAT</Title>
-            <Descriptions bordered size='small'>
-                <Descriptions.Item label="Rif" span={1}>G-20012768-6</Descriptions.Item>
-                <Descriptions.Item label="Correo" span={3}>SEDEMATZAMORAFALCON.8@GMAIL.COM</Descriptions.Item>
-
-                <Descriptions.Item label="Banco de Venezuela" span={2}>Corriente 0102-0339-2500-0107-1892</Descriptions.Item>
-                <Descriptions.Item label="Banco Bicentenario" span={2}>Corriente 0175-0162-3100-7494-9290</Descriptions.Item>
-            </Descriptions>
-
-
-            
+            </Table>           
         </Card>
     );
 };
