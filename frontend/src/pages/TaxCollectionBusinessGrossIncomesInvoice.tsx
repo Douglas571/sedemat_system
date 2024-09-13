@@ -17,7 +17,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
     const { businessId, grossIncomeInvoiceId } = useParams()
-    console.log({businessId, grossIncomeInvoiceId})
 
 	const [business, setBusiness] = useState<Business>()
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
@@ -26,6 +25,18 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const hasBranchOffice = grossIncomes?.length > 0 && grossIncomes[0]?.branchOfficeId !== undefined
     const branchOffice = hasBranchOffice && grossIncomes[0]?.branchOffice
+
+    let MMVExchangeRate = 0 
+
+    if (lastCurrencyExchangeRate) {
+        
+        MMVExchangeRate = Math.max(
+            lastCurrencyExchangeRate.dolarBCVToBs, 
+            lastCurrencyExchangeRate.eurosBCVToBs
+        );
+    }
+
+    console.log(lastCurrencyExchangeRate)
     
 
     const loadLastCurrencyExchangeRate = async (): Promise<CurrencyExchangeRate> => {
@@ -50,6 +61,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const loadData = async () => {
 
+        const lastCER = await loadLastCurrencyExchangeRate()
+
         // load the business
         const fetchedBusiness = await loadBusiness()
         // load the invoice 
@@ -59,6 +72,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
         // console.log(JSON.stringify({fetchedBusiness, fetchedGrossIncomes, fetchedInvoice}, null, 2))
 
+        setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice(fetchedInvoice)
         setGrossIncomes(fetchedGrossIncomes)
@@ -92,16 +106,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             },
         },
 	};
-
-    let MMVExchangeRate = 0 
-
-    if (lastCurrencyExchangeRate) {
-        
-        MMVExchangeRate = Math.max(
-            lastCurrencyExchangeRate.dolarBCVToBs, 
-            lastCurrencyExchangeRate.eurosBCVToBs
-        );
-    }
 
     if (!business) {
         return <Flex align="center" justify="center">Cargando...</Flex>
