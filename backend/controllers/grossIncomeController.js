@@ -111,8 +111,7 @@ class GrossIncomeController {
   // GET /gross-incomes/invoice/:invoiceId
   async getAllGrossIncomesByInvoiceId(req, res) {
     try {
-      console.log('request params', req.params)
-      const grossIncomes = await grossIncomeService.getAllGrossIncomesByBusinessId(req.params.invoiceId);
+      const grossIncomes = await grossIncomeService.getAllGrossIncomesByInvoiceId(req.params.invoiceId);
       res.status(200).json(grossIncomes);
     } catch (error) {
       console.log({error});
