@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'grossIncomes'
       })
 
+      GrossIncomeInvoice.hasMany(models.Payment, {
+        foreignKey: 'grossIncomeInvoiceId',
+        as: 'payments'
+      })
     }
   }
   GrossIncomeInvoice.init({

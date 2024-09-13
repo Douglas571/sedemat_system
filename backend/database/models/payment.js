@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'bankId',
         as: 'bank'
       })
+
+      Payment.belongsTo(models.GrossIncomeInvoice, {
+        foreignKey: 'grossIncomeInvoiceId',
+        as: 'grossIncomeInvoice'
+      });
     }
   }
   Payment.init({
@@ -79,6 +84,14 @@ module.exports = (sequelize, DataTypes) => {
       // onDelete: 'CASCADE',
       // onUpdate: 'CASCADE',
     },
+
+    grossIncomeInvoiceId: {
+      type: DataTypes.INTEGER,
+      reference: {
+        model: 'GrossIncomeInvoices',
+        key: 'id'
+      }
+    }
 
 
   }, {
