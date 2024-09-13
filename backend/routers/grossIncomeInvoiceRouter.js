@@ -21,7 +21,13 @@ router.delete('/:id', grossIncomeInvoiceController.delete);
 // GET all gross income invoices with associated gross incomes
 router.get('/with-gross-incomes', grossIncomeInvoiceController.getAllWithGrossIncomes);
 
-// PATCH update payment status of a gross income invoice
-router.patch('/:id/payment-status', grossIncomeInvoiceController.updatePaymentStatus);
+// POST update payment status of a gross income invoice
+router.post('/:id/payment-status', grossIncomeInvoiceController.updatePaymentStatus);
+
+// POST /gross-incomes/:id/payments/:paymentId
+router.post('/:id/payments/:paymentId', grossIncomeInvoiceController.addPaymentToGrossIncomeInvoice);
+
+// DELETE /gross-incomes/:id/payments/:paymentId
+router.delete('/:id/payments/:paymentId', grossIncomeInvoiceController.removePaymentFromGrossIncomeInvoice);
 
 module.exports = router;

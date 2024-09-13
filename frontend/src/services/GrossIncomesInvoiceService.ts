@@ -89,6 +89,30 @@ class GrossIncomesInvoiceService {
 
       return lastInvoice;
     }
+
+    async addPayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentId }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to associate payment: ${error.message}`);
+      }
+    }
+
+    async removePayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to remove payment: ${error.message}`);
+      }
+    }
 }
   
 export default new GrossIncomesInvoiceService();

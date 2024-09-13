@@ -79,6 +79,31 @@ class GrossIncomeInvoiceController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    // PATCH /gross-income-invoices/:id/payment/:paymentId
+    async addPaymentToGrossIncomeInvoice(req, res) {
+        try {
+            const { id, paymentId } = req.params;
+            console.log({ paymentId })
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.addPaymentToGrossIncomeInvoice(id, paymentId);
+            res.status(200).json(updatedGrossIncomeInvoice);
+        } catch (error) {
+            console.log({ error });
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    // PATCH /gross-income-invoices/:id/payment/:paymentId
+    async removePaymentFromGrossIncomeInvoice(req, res) {
+        try {
+            const { id, paymentId } = req.params;
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.removePaymentFromGrossIncomeInvoice(paymentId);
+            res.status(200).json(updatedGrossIncomeInvoice);
+        } catch (error) {
+            console.log({ error });
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new GrossIncomeInvoiceController();

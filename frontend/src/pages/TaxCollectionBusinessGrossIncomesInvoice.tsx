@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Table, Descriptions, List, Flex, Button} from 'antd';
+import { Card, Typography, Table, Descriptions, List, Flex, Button, Popconfirm, message} from 'antd';
 const { Title, Text } = Typography;
-
+import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'
 import { Business } from 'util/types';
 import { IGrossIncomeInvoice, IGrossIncome } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import * as util from '../util'
+import * as paymentsApi from '../util/paymentsApi'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 
@@ -23,9 +24,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>()
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
+    const [payments, setPayments] = useState<Payment[]>()
+    const paymentsAllocated = payments?.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
 
     const hasBranchOffice = grossIncomes?.length > 0 && grossIncomes[0]?.branchOfficeId !== undefined
     const branchOffice = hasBranchOffice && grossIncomes[0]?.branchOffice
+
+    let totalPaymentsAllocated: number = 0
+
+    paymentsAllocated?.forEach(p => {
+        console.log({totalPaymentsAllocated})
+        totalPaymentsAllocated += Number(p.amount)
+    })
+
+    console.log({paymentsAllocated})
 
     let MMVExchangeRate = 0 
 
@@ -38,6 +50,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
     console.log(lastCurrencyExchangeRate)
+
+    const loadPayments = async (): Promise<Payment[]> => {
+        return paymentsApi.findAll()
+    }
     
 
     const loadLastCurrencyExchangeRate = async (): Promise<CurrencyExchangeRate> => {
@@ -64,6 +80,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
         const lastCER = await loadLastCurrencyExchangeRate()
 
+        const fetchedPayments = await loadPayments()
+
         // load the business
         const fetchedBusiness = await loadBusiness()
         // load the invoice 
@@ -73,6 +91,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
         // console.log(JSON.stringify({fetchedBusiness, fetchedGrossIncomes, fetchedInvoice}, null, 2))
 
+        setPayments(fetchedPayments)
         setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice(fetchedInvoice)
@@ -83,30 +102,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }, [])
 
-	// Dummy data
-	const invoiceDetails = {
-        currencyExchangeRates: {
-            id: 1,
-            dolarBCV: 38,
-            euroBCV: 43,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
+    const handleDeletePayment = (id: number) => {
+        loadData()
+    }
 
-        createdByUser: {
-            person: {
-                firstName: 'Jose',
-                lastName: 'Herrera',
-            },
-        },
-
-        checkedByUser: {
-            person: {
-                firstName: 'Hipólita',
-                lastName: 'Gonzales',
-            },
-        },
-	};
+    const handleAddPayment = (id: number) => {
+        loadData()
+    }
 
     if (!business) {
         return <Flex align="center" justify="center">Cargando...</Flex>
@@ -253,6 +255,26 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     render={(text: any) => <Text strong>{TOTAL} Bs.</Text>}
                 />
             </Table>
+            <Table 
+                size='small'
+                dataSource={[{ allocated: 1 }]} 
+                pagination={false}
+                showHeader={false}
+            >
+                <Table.Column 
+                    title="Allocated" 
+                    key="allocated" 
+                    render={(text: any) => <Text strong>Menos Total Abonado</Text>}
+                    align="right"
+                />
+                <Table.Column 
+                    title="Payment Allocation" 
+                    key="allocated" 
+                    align="right"
+                    width="15%"
+                    render={(text: any) => <Text strong>{TOTAL - totalPaymentsAllocated} Bs.</Text>}
+                />
+            </Table>
 
             <Table 
                 size='small'
@@ -271,11 +293,139 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{Number(TOTAL / MMVExchangeRate).toFixed(2)} MMV</Text>}
+                    render={(text: any) => <Text strong>{Number((TOTAL - totalPaymentsAllocated) / MMVExchangeRate).toFixed(2)} MMV</Text>}
                 />
             </Table>           
+
+            <br/>
+
+            <PaymentsAllocatedTable 
+                paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
+                payments={payments}
+                onDelete={handleDeletePayment}
+                onAdd={handleAddPayment}
+            />
         </Card>
     );
 };
 
 export default GrossIncomeInvoiceDetails;
+
+function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: {paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void}) {
+
+    console.log({paymentsAllocated})
+    const { grossIncomeInvoiceId } = useParams()
+
+    const [showPaymentAssociationModal, setShowPaymentAssociationModal] = useState(false)
+
+    const handleDelete = async (id: number) => {
+        console.log({id})
+        try {
+            const response = await GrossIncomesInvoiceService.removePayment(Number(grossIncomeInvoiceId), id)
+            console.log({response})
+        } catch (error) {
+            message.error('Error al eliminar el pago')
+            console.log({error})
+        }
+
+        onDelete(id)
+    }
+
+    const handlePaymentAssociation = async (id: number) => {
+        console.log({associatedPaymentId: id})
+
+        try {
+            const response = await GrossIncomesInvoiceService.addPayment(Number(grossIncomeInvoiceId), id)
+            console.log({response})
+        } catch (error) {
+            message.error('Error al asociar el pago')
+            console.log({error})
+        }
+        
+        setShowPaymentAssociationModal(false)
+        onAdd(id)
+    }
+
+    const columns = [
+        { 
+            title: "Pago", 
+            dataIndex: "reference", 
+            key: "payment", 
+            render: (text: any) => <Text strong>{text}</Text> 
+        },
+        { 
+            title: "Monto", 
+            dataIndex: "amount", 
+            key: "amount", 
+            render: (text: any) => <Text strong>{text} Bs.</Text> 
+        },
+        {
+            title: "Acciones",
+            key: "actions",
+            render: (text: any, record: any) => (
+                <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
+                    <Button danger>Eliminar</Button>
+                </Popconfirm>
+            ),
+        },
+    ];
+
+    
+
+    return (
+        <Flex vertical gap={10}>
+            <Flex align="center" justify="space-between">
+                <Typography.Title level={5}>Pagos Asociados</Typography.Title>
+                <Button icon={<PlusOutlined />} onClick={() => setShowPaymentAssociationModal(true)}>Agregar</Button>
+            </Flex>
+            <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} />
+
+            <PaymentAssociationModal 
+                visible={showPaymentAssociationModal} 
+                onCancel={() => setShowPaymentAssociationModal(false)} 
+                onOk={handlePaymentAssociation} 
+                payments={payments.filter(p => p.grossIncomeInvoiceId === null)} 
+            />
+        </Flex>
+    );
+}
+
+import { Modal, Select, Input, Form } from 'antd';
+
+const { Option } = Select;
+
+function PaymentAssociationModal({ visible, onCancel, onOk, payments }: { visible: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }) {
+    const [form] = Form.useForm();
+    const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+
+    const handleOk = () => {
+        form.validateFields().then(values => {
+            onOk(values.paymentId);
+        });
+    }
+
+    const paymentOptions = payments.map(payment => ({
+        key: payment.id,
+        value: payment.id,
+        label: payment.reference,
+    }));
+
+    return (
+        <Modal
+            title="Asociar Pago"
+            visible={visible}
+            onOk={() => handleOk()}
+            onCancel={onCancel}
+        >
+            <Form layout="vertical" form={form}>
+                <Form.Item label="Pago" name="paymentId">
+                    <Select style={{ width: '100%' }} showSearch options={paymentOptions} />
+                </Form.Item>
+                <Form.Item label="Monto">
+                    <Typography.Text>{form.getFieldValue('paymentId')?.amount} Bs.</Typography.Text>
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+}
+

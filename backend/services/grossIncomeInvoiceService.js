@@ -1,5 +1,5 @@
 // services/grossIncomeInvoiceService.js
-const { GrossIncomeInvoice, GrossIncome, CurrencyExchangeRates } = require('../database/models');
+const { GrossIncomeInvoice, GrossIncome, CurrencyExchangeRates, Payment } = require('../database/models');
 
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
@@ -93,6 +93,27 @@ class GrossIncomeInvoiceService {
             throw new Error('GrossIncomeInvoice not found');
         }
         return await grossIncomeInvoice.update({ isPaid });
+    }
+
+    async addPaymentToGrossIncomeInvoice(grossIncomeInvoiceId, paymentId) {
+        // lock for the payment and add the gross income id
+        const payment = await Payment.findByPk(paymentId)
+
+        if (payment.grossIncomeInvoiceId) {
+            throw new Error('This payment is already associated with an invoice.');
+        }
+
+        payment.grossIncomeInvoiceId = grossIncomeInvoiceId
+        await payment.save()
+
+        return payment
+    }
+
+    async removePaymentFromGrossIncomeInvoice(paymentId) {
+        const payment = await Payment.findByPk(paymentId)
+        payment.grossIncomeInvoiceId = null
+        await payment.save()
+        return payment
     }
 }
 
