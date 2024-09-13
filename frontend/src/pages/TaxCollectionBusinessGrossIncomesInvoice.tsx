@@ -279,36 +279,3 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 };
 
 export default GrossIncomeInvoiceDetails;
-
-
-function calculateTax(grossIncome: any, MMVExchangeRate: number) {
-    if (!business) {
-        return 0 
-    }
-
-    // Calculate the tax based on the gross income amount and alicuota
-    const calculatedTax = grossIncome.amountBs * business.economicActivity.alicuota;
-
-    // Get the minimum tax value
-    const minTax = grossIncome.business.economicActivity.minTax;
-
-    // Calculate the minimum tax threshold
-    const minTaxThreshold = minTax * MMVExchangeRate;
-
-    // Return the higher of the calculated tax and the minimum tax threshold
-    return Math.max(calculatedTax, minTaxThreshold);
-}
-    
-
-// a function to given the whole invoice details, calculate the total in bolivarse and mmv
-function calculateTotal(invoiceDetails: any) {
-    // calculate the total in bolivarse
-    const totalBs = invoiceDetails.grossIncomes.reduce((acc: any, curr: any) => acc + curr.amountBs, 0);
-
-    // calculate the total in mmv
-    const totalMMV = totalBs / MMVExchangeRate;
-
-    return { totalBs, totalMMV };
-    
-}
-
