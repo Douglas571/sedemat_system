@@ -450,35 +450,6 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
     const navigate = useNavigate();
 
     const {businessId} = useParams()
-    const dummyData = [
-        // {
-        //     id: 1,
-        //     invoiceNumber: 'INV-001',
-        //     date: '2023-01-15',
-        //     grossIncome: 50000,
-        //     taxAmount: 2500,
-        //     status: 'Pagado',
-        //     businessId: 1,
-        // },
-        // {
-        //     id: 2,
-        //     invoiceNumber: 'INV-002',
-        //     date: '2023-02-15',
-        //     grossIncome: 55000,
-        //     taxAmount: 2750,
-        //     status: 'Pendiente',
-        //     businessId: 1,
-        // },
-        // {
-        //     id: 3,
-        //     invoiceNumber: 'INV-003',
-        //     date: '2023-03-15',
-        //     grossIncome: 48000,
-        //     taxAmount: 2400,
-        //     status: 'Pagado',
-        //     businessId: 1,
-        // },
-    ];
 
     const columns = [
         {
@@ -500,12 +471,6 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             key: 'grossIncome',
             render: (value: number) => `${value} Bs.`,
         },
-        // {
-        //     title: 'Monto del Impuesto',
-        //     dataIndex: 'taxAmount',
-        //     key: 'taxAmount',
-        //     render: (value: number) => `${value.toLocaleString().replace(',', '.')} Bs.`,
-        // },
         {
             title: 'Estado',
             dataIndex: 'isPaid',
