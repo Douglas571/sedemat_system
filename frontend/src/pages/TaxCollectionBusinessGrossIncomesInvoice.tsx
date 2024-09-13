@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'
-import { Card, Typography, Table, Descriptions, List, Flex} from 'antd';
+import { useParams, useNavigate } from 'react-router-dom'
+import { Card, Typography, Table, Descriptions, List, Flex, Button} from 'antd';
 const { Title, Text } = Typography;
 
 import dayjs from 'dayjs'
@@ -17,6 +17,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
     const { businessId, grossIncomeInvoiceId } = useParams()
+    const navigate = useNavigate()
 
 	const [business, setBusiness] = useState<Business>()
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
@@ -115,7 +116,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
 
     return (
-        <Card title="Gross Income Invoice Details">
+        <Card title={<Flex align='center' justify='space-between'>
+            <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
+            <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
+        </Flex>}>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
             <Descriptions bordered  size='small'>
