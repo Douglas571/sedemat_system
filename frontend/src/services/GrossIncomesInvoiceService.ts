@@ -7,10 +7,11 @@ const HOST = "http://" + IP + ":" + PORT
 class GrossIncomesInvoiceService {
     private host: string;
     private baseUrl: string;
-  
+    private paymentsUrl: string;
     constructor(host: string = HOST) {
       this.host = host
       this.baseUrl = host + '/v1/gross-income-invoices'
+      this.paymentsUrl = host + '/v1/payments'
     }
   
     // Get all gross income invoices
@@ -91,12 +92,12 @@ class GrossIncomesInvoiceService {
     }
 
     async addPayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
-      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
-        method: 'POST',
+      const response = await fetch(`${this.paymentsUrl}/${paymentId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ paymentId }),
+        body: JSON.stringify({ grossIncomeInvoiceId }),
       });
       if (!response.ok) {
         const error = await response.json();
@@ -105,8 +106,12 @@ class GrossIncomesInvoiceService {
     }
 
     async removePayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
-      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
-        method: 'DELETE',
+      const response = await fetch(`${this.paymentsUrl}/${paymentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ grossIncomeInvoiceId: null }),
       });
       if (!response.ok) {
         const error = await response.json();
