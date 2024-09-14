@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Table, Descriptions, List, Flex, Button, Popconfirm, message} from 'antd';
+import { 
+    Card, 
+    Typography, 
+    Table, 
+    Descriptions, 
+    List, 
+    Flex, 
+    Button, 
+    Popconfirm, 
+    message, 
+    Modal, 
+    Select, 
+    Input, 
+    Form, 
+    InputNumber
+} from 'antd';
+
 const { Title, Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'
 import { Business } from 'util/types';
-import { IGrossIncomeInvoice, IGrossIncome } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, Payment } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import * as util from '../util'
@@ -393,25 +409,39 @@ function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: 
     );
 }
 
-import { Modal, Select, Input, Form } from 'antd';
-
-const { Option } = Select;
 
 function PaymentAssociationModal({ visible, onCancel, onOk, payments }: { visible: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }) {
     const [form] = Form.useForm();
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
     const handleOk = () => {
-        form.validateFields().then(values => {
-            onOk(values.paymentId);
-        });
+        
+        const ref = form.getFieldValue('paymentReference');
+        console.log({ref})
+        let paymentId = payments.find(p => p.reference === ref)?.id;
+
+        if (!paymentId) {
+            message.error('No se encontró el pago');
+            return;
+        }
+
+        onOk(paymentId);
+
+        form.resetFields()
     }
 
     const paymentOptions = payments.map(payment => ({
         key: payment.id,
-        value: payment.id,
+        value: payment.reference,
         label: payment.reference,
     }));
+
+    const handlePaymentChange = (reference: string) => {
+        const payment = payments.find(p => p.reference === reference);
+        if (payment) {
+            form.setFieldsValue({ amount: payment.amount });
+        }
+    };
 
     return (
         <Modal
@@ -421,12 +451,20 @@ function PaymentAssociationModal({ visible, onCancel, onOk, payments }: { visibl
             onCancel={onCancel}
         >
             <Form layout="vertical" form={form}>
-                <Form.Item label="Pago" name="paymentId">
-                    <Select style={{ width: '100%' }} showSearch options={paymentOptions} />
-                </Form.Item>
-                <Form.Item label="Monto">
-                    <Typography.Text>{form.getFieldValue('paymentId')?.amount} Bs.</Typography.Text>
-                </Form.Item>
+                <Flex gap={16} align='center'>
+                    <Form.Item label="Pago" 
+                        name="paymentReference"
+                    >
+                        <Select 
+                            style={{ minWidth: '150px' }} 
+                            showSearch options={paymentOptions} 
+                            onChange={(value) => handlePaymentChange(value)}
+                        />
+                    </Form.Item>
+                    <Form.Item label="Monto" name="amount">
+                        <InputNumber disabled suffix="Bs." style={{ minWidth: '200px' }} />
+                    </Form.Item>
+                </Flex>
             </Form>
         </Modal>
     );
