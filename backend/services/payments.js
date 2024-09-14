@@ -1,5 +1,7 @@
 const { Payment: PaymentModel, Person, Business } = require('../database/models')
 
+const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
+
 
 const logger = require('../utils/logger')
 
@@ -54,8 +56,21 @@ exports.findById = async (id) => {
     }
 };
 
+async function associatePaymentWithGrossIncomeInvoice(paymentData) {
+    if (paymentData.grossIncomeInvoiceId === null) {
+        await grossIncomeInvoiceService.removePayment(paymentData.id);
+    } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
+        await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, paymentData.id);
+    }
+    // paymentData.grossIncomeInvoiceId = undefined;
+}
+
 exports.createPayment = async (paymentData) => {
     logger.info('Creating new payment with data:', paymentData);
+
+    await associatePaymentWithGrossIncomeInvoice(paymentData)
+    paymentData.grossIncomeInvoiceId = undefined;
+
     try {
 
         if (paymentData.businessId && paymentData.personId) {
@@ -78,12 +93,13 @@ exports.createPayment = async (paymentData) => {
 
 exports.updatePayment = async (id, paymentData) => {
     logger.info(`Updating payment with ID ${id} with data:`, paymentData);
+
     try {
-
-        
-
         const prevPayment = await PaymentModel.findByPk(id)
         console.log({paymentData, prevPayment: prevPayment.toJSON()})
+
+        await associatePaymentWithGrossIncomeInvoice(paymentData)
+        paymentData.grossIncomeInvoiceId = undefined;
 
         const newPaymentData = {
             ...paymentData,
