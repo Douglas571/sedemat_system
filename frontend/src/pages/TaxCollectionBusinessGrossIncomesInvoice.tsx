@@ -120,7 +120,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     return (
         <Card title={<Flex align='center' justify='space-between'>
             <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
-            <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
+            <Flex gap={10} align='center' justify='end'>
+                <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
+                <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
+            </Flex>
         </Flex>}>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
