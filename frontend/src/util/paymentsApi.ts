@@ -57,9 +57,21 @@ export async function updatePayment(paymentData: Payment): Promise<string> {
     return JSON.stringify(data)
 }
 
+interface PaymentFilters {
+    grossIncomeInvoiceId?: number
+}
+
 // a function to fetch all payments
-export async function findAll() {
-    const response = await fetch(HOST + '/v1/payments')
+export async function findAll(filters: PaymentFilters) {
+    let queryParams = ''
+
+    if (filters) {
+        queryParams = '?' + new URLSearchParams(Object.entries(filters).filter(([key, value]) => value !== undefined)).toString()
+    }
+
+    console.log({ queryParams })
+
+    const response = await fetch(`${HOST}/v1/payments${queryParams}`)
     const data = await response.json()
     return data
 }
