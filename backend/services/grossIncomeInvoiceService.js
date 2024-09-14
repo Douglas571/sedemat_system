@@ -95,8 +95,9 @@ class GrossIncomeInvoiceService {
         return await grossIncomeInvoice.update({ isPaid });
     }
 
-    async addPaymentToGrossIncomeInvoice(grossIncomeInvoiceId, paymentId) {
+    async addPayment(grossIncomeInvoiceId, paymentId) {
         // lock for the payment and add the gross income id
+        console.log({grossIncomeInvoiceId, paymentId})
         const payment = await Payment.findByPk(paymentId)
 
         if (payment.grossIncomeInvoiceId) {
@@ -109,7 +110,8 @@ class GrossIncomeInvoiceService {
         return payment
     }
 
-    async removePaymentFromGrossIncomeInvoice(paymentId) {
+    async removePayment(paymentId) {
+        console.log({paymentId})
         const payment = await Payment.findByPk(paymentId)
         payment.grossIncomeInvoiceId = null
         await payment.save()

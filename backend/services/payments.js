@@ -56,20 +56,15 @@ exports.findById = async (id) => {
     }
 };
 
-async function associatePaymentWithGrossIncomeInvoice(paymentData) {
-    if (paymentData.grossIncomeInvoiceId === null) {
-        await grossIncomeInvoiceService.removePayment(paymentData.id);
-    } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
-        await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, paymentData.id);
-    }
-    // paymentData.grossIncomeInvoiceId = undefined;
-}
-
 exports.createPayment = async (paymentData) => {
     logger.info('Creating new payment with data:', paymentData);
 
-    await associatePaymentWithGrossIncomeInvoice(paymentData)
-    paymentData.grossIncomeInvoiceId = undefined;
+    // if (paymentData.grossIncomeInvoiceId === null) {
+    //     await grossIncomeInvoiceService.removePayment(paymentData.id);
+    // } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
+    //     await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, paymentData.id);
+    // }
+    // paymentData.grossIncomeInvoiceId = undefined;
 
     try {
 
@@ -98,7 +93,11 @@ exports.updatePayment = async (id, paymentData) => {
         const prevPayment = await PaymentModel.findByPk(id)
         console.log({paymentData, prevPayment: prevPayment.toJSON()})
 
-        await associatePaymentWithGrossIncomeInvoice(paymentData)
+        if (paymentData.grossIncomeInvoiceId === null) {
+            await grossIncomeInvoiceService.removePayment(id);
+        } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
+            await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, id);
+        }
         paymentData.grossIncomeInvoiceId = undefined;
 
         const newPaymentData = {
