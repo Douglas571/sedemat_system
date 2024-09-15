@@ -184,5 +184,5 @@ export interface IGrossIncomeInvoice {
     // createdByUser: IUser
     // checkedByUser: IUser
 
-    // paidAt: Date
+    paidAt: Date
 }

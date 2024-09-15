@@ -14,7 +14,8 @@ import {
     Select, 
     Input, 
     Form, 
-    InputNumber
+    InputNumber,
+    Divider
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -126,6 +127,36 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }
 
+    const toggleIsPaid = async () => {
+        console.log('mark as paid')
+
+        try {
+
+            let response
+            if (grossIncomeInvoice?.paidAt) {
+                response = await GrossIncomesInvoiceService.unmarkAsPaid(Number(grossIncomeInvoiceId))
+            } else {
+                response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId))
+            }
+            
+            console.log({response})
+
+            loadData()
+
+            if (response.paidAt) {
+                message.success('Factura marcados como pagados')
+            } else {
+                message.success('Factura desmarcados como pagados')
+            }
+
+        } catch (error) {
+            message.error('Error al marcar como pagado')
+            console.log({error})
+        }
+
+        
+    }
+
     if (!business) {
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
@@ -133,10 +164,24 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const {formPriceBs} = grossIncomeInvoice
     const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
 
+
+    const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
+    const canBeMarkedAsPaid = totalPaymentsAllocated === TOTAL
+    const markAsPaidButton = <Button onClick={() => toggleIsPaid()} 
+        disabled={ !canBeMarkedAsPaid }
+    >Marcar como Pagado</Button>
+
+    const unmarkAsPaidButton = <Button onClick={() => toggleIsPaid()} >Desmarcar como Pagado</Button>
+    
     return (
         <Card title={<Flex align='center' justify='space-between'>
             <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
             <Flex gap={10} align='center' justify='end'>
+                {
+                    grossIncomeInvoiceIsPaid 
+                    ? unmarkAsPaidButton
+                    : markAsPaidButton
+                }
                 <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
                 <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
             </Flex>
@@ -316,6 +361,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 />
             </Table>           
 
+            <Divider />
+
             <br/>
 
             <PaymentsAllocatedTable 
@@ -323,6 +370,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 payments={payments}
                 onDelete={handleDeletePayment}
                 onAdd={handleAddPayment}
+
+                disabled={grossIncomeInvoice?.paidAt !== null}
             />
         </Card>
     );
@@ -330,7 +379,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
 export default GrossIncomeInvoiceDetails;
 
-function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: {paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void}) {
+function PaymentsAllocatedTable(
+    {paymentsAllocated, payments, onDelete, onAdd, disabled} : 
+    {paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean}
+) {
 
     console.log({paymentsAllocated})
     const { grossIncomeInvoiceId } = useParams()
@@ -383,7 +435,7 @@ function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: 
             key: "actions",
             render: (text: any, record: any) => (
                 <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
-                    <Button danger>Eliminar</Button>
+                    <Button danger disabled={disabled}>Eliminar</Button>
                 </Popconfirm>
             ),
         },
@@ -395,11 +447,15 @@ function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: 
         <Flex vertical gap={10}>
             <Flex align="center" justify="space-between">
                 <Typography.Title level={5}>Pagos Asociados</Typography.Title>
-                <Button icon={<PlusOutlined />} onClick={() => setShowPaymentAssociationModal(true)}>Agregar</Button>
+                <Button 
+                    icon={<PlusOutlined />} 
+                    onClick={() => setShowPaymentAssociationModal(true)}
+                    disabled={disabled}
+                >Agregar</Button>
             </Flex>
             <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} />
 
-            <PaymentAssociationModal 
+            <PaymentAssociationModal
                 visible={showPaymentAssociationModal} 
                 onCancel={() => setShowPaymentAssociationModal(false)} 
                 onOk={handlePaymentAssociation} 
@@ -410,7 +466,10 @@ function PaymentsAllocatedTable({paymentsAllocated, payments, onDelete, onAdd}: 
 }
 
 
-function PaymentAssociationModal({ visible, onCancel, onOk, payments }: { visible: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }) {
+function PaymentAssociationModal(
+    { visible, onCancel, onOk, payments }
+    : { visible: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }
+) {
     const [form] = Form.useForm();
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 

@@ -118,6 +118,41 @@ class GrossIncomesInvoiceService {
         throw new Error(`Failed to remove payment: ${error.message}`);
       }
     }
+
+    async markAsPaid(grossIncomeInvoiceId: number): Promise<void> {
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paidAt: dayjs().toISOString() }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to mark as paid: ${error.message}`);
+      }
+
+      return await response.json()
+    }
+
+    async unmarkAsPaid(grossIncomeInvoiceId: number): Promise<void> {
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paidAt: null }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to unmark as paid: ${error.message}`);
+      }
+
+      return await response.json()
+      
+    }
 }
-  
+
 export default new GrossIncomesInvoiceService();

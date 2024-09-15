@@ -113,6 +113,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
                     <GrossIncomeTaxesTable 
                         grossIncomes={grossIncomes}
+                        grossIncomeInvoices={grossIncomeInvoices}
                         onDelete={handleGrossIncomeDelete}
                     />
 
@@ -182,7 +183,14 @@ const monthMapper: string[] = [
     "Diciembre"
 ];
 
-function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGrossIncome[], onDelete: (grossIncomeId: number) => void }): JSX.Element {
+function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }: 
+    { grossIncomes: IGrossIncome[] | undefined, grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, onDelete: (grossIncomeId: number) => void }): JSX.Element 
+{
+
+    if (!grossIncomes || !grossIncomeInvoices) {
+        return <p>No hay ingresos brutos</p>
+    }
+
     const navigate = useNavigate();
 
     const handleGrossIncomeDelete = async (grossIncomeId: number) => {
@@ -237,19 +245,29 @@ function GrossIncomeTaxesTable({ grossIncomes, onDelete }: { grossIncomes: IGros
         // },
         {
             title: 'Estado',
-            dataIndex: 'grossIncomeInvoice',
+            dataIndex: 'grossIncomeInvoiceId',
             key: 'status',
-            render: (invoice: any, record: any) => (
-                <Badge 
-                    status={invoice?.isPaid ? 'success' : 'warning'} 
-                    // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
-                    // if grossIncomeInvoice.isPaid == "Pago"
-                    // else "Pendiente"
-                    text={!record.grossIncomeInvoiceId 
-                        ? 'Sin Cálculo' 
-                        : (record?.grossIncomeInvoice?.isPaid ? "Pagado" : "Pendiente")} 
-                />
-            ),
+            render: (invoiceId: any, record: any) => {
+                const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
+                console.log('invoice', invoice)
+
+                if (!invoice) {
+                    return <Badge status='warning' text='Pendiente' />
+                }
+
+                return (
+
+                    <Badge 
+                        status={invoice?.paidAt !== null ? 'success' : 'warning'} 
+                        // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
+                        // if grossIncomeInvoice.isPaid == "Pago"
+                        // else "Pendiente"
+                        text={invoice?.paidAt !== null
+                            ? 'Pagado' 
+                            : "Pendiente"} 
+                    />
+                )
+            },
         },
         {
             title: 'Acciones',
@@ -473,12 +491,12 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
         },
         {
             title: 'Estado',
-            dataIndex: 'isPaid',
-            key: 'isPaid',
-            render: (isPaid: string) => (
+            dataIndex: 'paidAt',
+            key: 'paidAt',
+            render: (paidAt: string) => (
                 <Badge 
-                    status={isPaid ? 'success' : 'warning'} 
-                    text={isPaid ? 'Pago' : 'Pendiente' } 
+                    status={paidAt !== null ? 'success' : 'warning'} 
+                    text={paidAt !== null ? 'Pagado' : 'Pendiente' } 
                 />
             ),
         },
