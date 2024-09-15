@@ -238,7 +238,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 onFinish={onFinish}
                 initialValues={{
                     period: dayjs().subtract(1, 'month'),
-                    amount: 0
+                    amountBs: 0
                 }}
             >
                 <Form.Item
@@ -289,8 +289,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         <InputNumber
                             style={{ width: '100%' }}
                             addonAfter='Bs'
-                            min='0'
-                            step='0.01'
+                            min={0}
+                            step={0.01}
+                            decimalSeparator=','
                             />
                     </Form.Item>
 
