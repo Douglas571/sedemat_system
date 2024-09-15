@@ -290,51 +290,54 @@ const GrossIncomeInvoice: React.FC = () => {
         selectedRowKeys,
         onChange: onSelectChange
     }
-
     const handleCreateInvoice = async () => {
-        if (selectedRowKeys.length === 0) {
-            message.warning('Seleccione al menos un calculo de ingresos brutos')
-            return false 
-        } 
+        try {
+            if (selectedRowKeys.length === 0) {
+                message.warning('Seleccione al menos un calculo de ingresos brutos')
+                return false 
+            } 
 
 
-        const newInvoice: IGrossIncomeInvoiceCreate = {
-            id: Number(grossIncomeInvoiceId),
-            businessId: businessId,
-            formPriceBs: formPrice,
-            grossIncomesIds: selectedRowKeys.map(key => Number(key)),
-            totalBs: TOTAL
-        }
+            const newInvoice: IGrossIncomeInvoiceCreate = {
+                id: Number(grossIncomeInvoiceId),
+                businessId: businessId,
+                formPriceBs: formPrice,
+                grossIncomesIds: selectedRowKeys.map(key => Number(key)),
+                totalBs: TOTAL
+            }
 
-        let registeredInvoice
+            let registeredInvoice
 
-        if (isEditing) {
-            newInvoice.removeGrossIncomesIds = grossIncomeInvoice.grossIncomes.map( g => g.id).filter( id => !selectedRowKeys.includes(id))
-            newInvoice.grossIncomesIds = selectedRowKeys.filter( id => !grossIncomeInvoice.grossIncomes.map( g => g.id).includes(id) )
+            if (isEditing) {
+                newInvoice.removeGrossIncomesIds = grossIncomeInvoice.grossIncomes.map( g => g.id).filter( id => !selectedRowKeys.includes(id))
+                newInvoice.grossIncomesIds = selectedRowKeys.filter( id => !grossIncomeInvoice.grossIncomes.map( g => g.id).includes(id) )
 
-            console.log('newInvoice', newInvoice)
-            registeredInvoice = await grossIncomesInvoiceService.update(newInvoice)
-        } else {
-            newInvoice.grossIncomesIds = selectedRowKeys.map(key => Number(key))
-            registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
-            if (selectedRowKeys.length === 1) { 
-                message.success(
-                    `Calculo creado con el registro seleccionado`
-                )
+                console.log('newInvoice', newInvoice)
+                registeredInvoice = await grossIncomesInvoiceService.update(newInvoice)
             } else {
-                message.success(
-                    `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
-                )
+                newInvoice.grossIncomesIds = selectedRowKeys.map(key => Number(key))
+                registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
+                if (selectedRowKeys.length === 1) { 
+                    message.success(
+                        `Calculo creado con el registro seleccionado`
+                    )
+                } else {
+                    message.success(
+                        `Calculo creado con los ${selectedRowKeys.length} registros seleccionados`
+                    )
+                }
+            }
+
+            console.log({registeredInvoice})
+            navigate(-1)
+        } catch (error) {
+            console.log({error})
+            if (isEditing) {
+                message.error(`Error al editar la factura`)
+            } else {
+                message.error(`Error al crear la factura`)
             }
         }
-
-        
-
-        console.log({registeredInvoice})
-
-        
-
-        navigate(-1)
     }
 
     const onFinish = (values: any) => {

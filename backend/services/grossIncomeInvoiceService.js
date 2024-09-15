@@ -43,10 +43,15 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data) {
-        console.log({id})
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
+
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
+        }
+
+        // if gross income is paid, don't allow any other property aside of paidAt
+        if (grossIncomeInvoice.paidAt !== null &&Object.keys(data).length > 1) {
+            throw new Error('This invoice is already paid, only paidAt can be updated for a paid invoice');
         }
 
         // check if should add new gross incomes 
