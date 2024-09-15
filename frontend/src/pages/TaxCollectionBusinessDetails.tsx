@@ -4,6 +4,8 @@ import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
 import { Business, EconomicActivity, IGrossIncome, IGrossIncomeInvoice } from '../util/types';
+import { formatBolivares, CurrencyHandler } from '../util/currency';
+
 
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message } from 'antd';
@@ -218,7 +220,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             title: 'Ingreso Bruto',
             dataIndex: 'amountBs',
             key: 'amountBs',
-            render: (value: number) => `${value.toLocaleString().replace(',' , ".")} Bs.`,
+            render: (value: number) => formatBolivares(value),
         },
         {
             title: 'Sucursal',
@@ -487,7 +489,7 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             title: 'Monto Total',
             dataIndex: 'totalBs',
             key: 'grossIncome',
-            render: (value: number) => `${value} Bs.`,
+            render: (value: number) => formatBolivares(value),
         },
         {
             title: 'Estado',
