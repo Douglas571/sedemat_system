@@ -187,6 +187,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 }
                 <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
                 <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
+                <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Liquidación</Button>
             </Flex>
         </Flex>}>
                 

@@ -27,6 +27,7 @@ import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
 import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
+import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInvoiceSettlement'
 
 
 import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
@@ -84,6 +85,7 @@ function App(): JSX.Element {
 					</Route>
 
 					<Route path='/printable/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<PrintableGrossIncomeInvoice />} />
+					<Route path='/printable/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/settlement' element={<PrintableGrossIncomeInvoiceSettlement />} />
 				</Routes>
 			</BrowserRouter>
 		</div>
