@@ -10,91 +10,44 @@ import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
 import dayjs from 'dayjs'
+import currency from 'currency.js'
+
+const monthsInSpanish = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre"
+  ];
+
+
+const CurrencyHandler = (value: number | string) => currency(value, 
+    { 
+        pattern: '#', 
+        precision: 2,
+        separator: '.',
+        decimal: ','
+    }
+)
+
+const formatBolivares = (value: number | string) => currency(value, 
+    { 
+        symbol: 'Bs.', 
+        pattern: '# !', 
+        precision: 2,
+        separator: '.',
+        decimal: ','
+    }
+).format()
 
 import * as util from '../util'
-
-const dummyData: IGrossIncome[] = [
-    {
-        id: 1,
-        businessId: 101,
-        business: {
-            id: 101,
-            name: 'Business A'
-            // Add other required Business properties
-        },
-        branchOfficeId: 201,
-        branchOffice: {
-            id: 201,
-            nickname: 'Main Office'
-            // Add other required BranchOffice properties
-        },
-        period: dayjs('2023-01'), // Convert period into dayjs object
-        amountBs: 10000,
-        chargeWasteCollection: true,
-        declarationImage: 'path/to/image1.jpg',
-        wasteCollectionTax: {
-            // Add IWasteCollectionTax properties if available
-        },
-        grossIncomeInvoiceId: 301
-    },
-    {
-        id: 2,
-        businessId: 102,
-        business: {
-            id: 102,
-            name: 'Business B'
-            // Add other required Business properties
-        },
-        branchOfficeId: 202,
-        branchOffice: {
-            id: 202,
-            nickname: 'Branch 1'
-            // Add other required BranchOffice properties
-        },
-        period: dayjs('2023-02'),
-        amountBs: 12000,
-        chargeWasteCollection: true,
-        declarationImage: 'path/to/image2.jpg'
-    },
-    {
-        id: 33,
-        businessId: 103,
-        business: {
-            id: 103,
-            name: 'Business C'
-            // Add other required Business properties
-        },
-        branchOfficeId: 203,
-        branchOffice: {
-            id: 203,
-            nickname: 'Headquarters'
-            // Add other required BranchOffice properties
-        },
-        period: dayjs('2023-03'),
-        amountBs: 122200,
-        chargeWasteCollection: false,
-        declarationImage: 'path/to/image3.jpg'
-    },
-    {
-        id: 43,
-        businessId: 103,
-        business: {
-            id: 103,
-            name: 'Business C'
-            // Add other required Business properties
-        },
-        branchOfficeId: 203,
-        branchOffice: {
-            id: 203,
-            nickname: 'Headquarters'
-            // Add other required BranchOffice properties
-        },
-        period: dayjs('2023-03'),
-        amountBs: 122200,
-        chargeWasteCollection: false,
-        declarationImage: 'path/to/image3.jpg'
-    }
-]
 
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
@@ -138,8 +91,6 @@ const GrossIncomeInvoice: React.FC = () => {
 
     useEffect(() => {
         loadData()
-
-        form.setFieldValue('form', 1.6*40)
     }, [])
 
     useEffect(() => {        
@@ -149,12 +100,15 @@ const GrossIncomeInvoice: React.FC = () => {
                 const branchOfficeId = firstGrossIncome.branchOfficeId;
                 form.setFieldValue('branchOfficeId', branchOfficeId);
             }
+
+            form.setFieldValue('form', CurrencyHandler(grossIncomeInvoice.formPriceBs).value)
         } else {
             if (branchOffices) {
                 const branchOfficeId = branchOffices[0].id;
                 form.setFieldValue('branchOfficeId', branchOfficeId);
             }
-            
+
+            form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
         }
 
 
@@ -171,31 +125,45 @@ const GrossIncomeInvoice: React.FC = () => {
             title: 'Mes',
             dataIndex: 'period',
             key: 'month',
-            render: (value: dayjs.Dayjs) => value.month() + 1
+            render: (value: dayjs.Dayjs) => monthsInSpanish[value.month()]
         },
         {
             title: 'Ingresos',
             dataIndex: 'amountBs',
-            key: 'amountDeclared'
+            key: 'amountDeclared',
+            render: (text: any, record: IGrossIncome) => <Typography.Text>{CurrencyHandler(record.amountBs).format()}</Typography.Text>
         },
         {
             title: 'Impuesto',
             dataIndex: 'tax',
             key: 'amountToPay',
-            render: (text: any, record: IGrossIncome) => <Typography.Text>{record.amountBs * business?.economicActivity.alicuota} Bs.</Typography.Text>
+            render: (text: any, record: IGrossIncome) => {
+                const {amountBs} = record
+                const alicuota = business?.economicActivity.alicuota
+
+                if (!alicuota || amountBs === 0) {
+                    return <Typography.Text>{CurrencyHandler(0).format()}</Typography.Text>
+                } 
+
+                return (<Typography.Text>{CurrencyHandler(amountBs).multiply(alicuota).format()}</Typography.Text>)
+            }
         },
         {
             title: 'Min. Trib.',
             dataIndex: 'business',
             key: 'minimumAmount',
-            render: (text: any, record: IGrossIncome) => <Typography.Text>{business?.economicActivity.minimumTax * util.getMMVExchangeRate(record.currencyExchangeRate)} Bs.</Typography.Text>
+            render: (text: any, record: IGrossIncome) => <Typography.Text>{
+                CurrencyHandler(business?.economicActivity.minimumTax)
+                        .multiply(util.getMMVExchangeRate(record.currencyExchangeRate))
+                        .format()
+                }</Typography.Text>
         },
         {
             title: 'Aseo',
             dataIndex: 'wasteCollectionTax',
             key: 'wasteCollectionTax',
             render: (text: string, record: any) => {
-                return (<Typography>{util.getWasteCollectionTaxInBs(record)} Bs.</Typography>)
+                return (<Typography>{CurrencyHandler(util.getWasteCollectionTaxInBs(record)).format()}</Typography>)
             }
 
         },
@@ -206,7 +174,7 @@ const GrossIncomeInvoice: React.FC = () => {
             align: 'right',
             render: (text: any, record: IGrossIncome) => {
                 let subtotal = util.getSubTotalFromGrossIncome(record, business)
-                return (<Typography.Text>{subtotal} Bs.</Typography.Text>)
+                return (<Typography.Text>{formatBolivares(subtotal)}</Typography.Text>)
             }
         }
     ]
@@ -295,8 +263,7 @@ const GrossIncomeInvoice: React.FC = () => {
             if (selectedRowKeys.length === 0) {
                 message.warning('Seleccione al menos un calculo de ingresos brutos')
                 return false 
-            } 
-
+            }
 
             const newInvoice: IGrossIncomeInvoiceCreate = {
                 id: Number(grossIncomeInvoiceId),
@@ -365,7 +332,8 @@ const GrossIncomeInvoice: React.FC = () => {
             </Form.Item>
 
             <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
-                <InputNumber min={0} max={999999999} addonAfter="Bs"/>
+                <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+            
             </Form.Item>
 
             <Form.Item name="selectedItems" initialValue={[]}>
@@ -378,11 +346,11 @@ const GrossIncomeInvoice: React.FC = () => {
                 />
                 <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
                     <Table.Column title="label" render={() => <Typography.Text>Formulario</Typography.Text>}/>
-                    <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formPrice} Bs.</Typography.Text>}/>
+                    <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formatBolivares(formPrice)}</Typography.Text>}/>
                 </Table>
                 <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
                     <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
-                    <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{TOTAL} Bs.</Typography.Text>}/>
+                    <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{formatBolivares(TOTAL)}</Typography.Text>}/>
                 </Table>
             </Form.Item>
             <Form.Item>
