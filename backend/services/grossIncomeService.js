@@ -92,6 +92,11 @@ class GrossIncomeService {
     // Delete a GrossIncome record by ID
     async deleteGrossIncome(id) {
         const grossIncome = await this.getGrossIncomeById(id);
+
+        if (grossIncome.grossIncomeInvoiceId) {
+            throw new Error('GrossIncome is already associated with an invoice');
+        }
+
         if (!grossIncome) {
             throw new Error('GrossIncome not found');
         }
