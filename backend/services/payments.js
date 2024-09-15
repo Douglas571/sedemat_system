@@ -126,17 +126,19 @@ exports.updatePayment = async (id, paymentData) => {
 
 exports.deletePayment = async (id) => {
     logger.info(`Deleting payment with ID ${id}`);
-    try {
-        const payment = await PaymentModel.findByPk(id);
-        if (!payment) {
-            logger.error(`Payment with ID ${id} not found`);
-            throw new Error(`Payment with ID ${id} not found`);
-        }
-        await payment.destroy();
-        logger.info('Payment deleted:', payment);
-        return payment;
-    } catch (error) {
-        console.error('Error deleting payment:', error);
-        throw error;
+    const payment = await PaymentModel.findByPk(id);
+
+    if (payment.grossIncomeInvoiceId) {
+        let err = new Error('Payment is already associated with an invoice');
+        err.name = "AssociatedWithInvoiceError"
+        throw err
     }
+
+    if (!payment) {
+        logger.error(`Payment with ID ${id} not found`);
+        throw new Error(`Payment with ID ${id} not found`);
+    }
+    await payment.destroy();
+    logger.info('Payment deleted:', payment);
+    return payment;
 };

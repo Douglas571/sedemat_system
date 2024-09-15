@@ -89,10 +89,16 @@ router.delete('/:id', async (req, res) => {
         res.status(204).json(deletedPayment);
     } catch (error) {
         console.log({error})
+
+        if (error.name === "AssociatedWithInvoiceError") {
+            return res.status(400).json({ error: error.message });
+        }
+
         if (error.message.includes('not found')) {
             res.status(404).json({ error: error.message });
+
         } else {
-            res.status(500).json({ error: 'Error deleting payment' });
+            res.status(500).json(error);
         }
     }
 });
