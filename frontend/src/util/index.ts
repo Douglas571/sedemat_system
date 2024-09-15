@@ -1,5 +1,7 @@
 import { CurrencyExchangeRate, IGrossIncome } from "./types"
 
+import { CurrencyHandler, formatBolivares } from "./currency"
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -43,7 +45,8 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
 
 export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
     if (grossIncome.chargeWasteCollection && grossIncome.branchOffice) {
-        return getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions) * getMMVExchangeRate(grossIncome.currencyExchangeRate)
+        return CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
+            .multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
     }
 
     return 0
@@ -51,28 +54,34 @@ export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
 }
 
 export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: Business): number {
-    console.log({grossIncome, business})
     if (!business) {
         return 0
     }
-    let tax = grossIncome.amountBs * business?.economicActivity.alicuota
-    let minTax = business?.economicActivity.minimumTax * getMMVExchangeRate(grossIncome.currencyExchangeRate)
+    let tax = CurrencyHandler(grossIncome.amountBs).multiply(business?.economicActivity.alicuota).value
+    let minTax = CurrencyHandler(business?.economicActivity.minimumTax).multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
     let wasteCollectionTax = 0
 
     if (grossIncome.chargeWasteCollection) {
-        wasteCollectionTax = getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions) * getMMVExchangeRate(grossIncome.currencyExchangeRate)
+        wasteCollectionTax = CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
+            .multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
     }
 
     let finalTax = Math.max(tax, minTax)
 
-    let subtotal = finalTax + wasteCollectionTax
+    let subtotal = CurrencyHandler(finalTax).add(wasteCollectionTax).value
 
     return subtotal
 }
 
 export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], business: Business, formPrice: number): number {
-    let TOTAL = 0;
-    grossIncomes.forEach(g => TOTAL += getSubTotalFromGrossIncome(g, business));
-    TOTAL += formPrice;
-    return TOTAL;
+    let TOTAL = CurrencyHandler(0);
+    console.log('TOTAL', TOTAL.value)
+    grossIncomes.forEach(g => TOTAL = TOTAL.add(getSubTotalFromGrossIncome(g, business)));
+
+    console.log('TOTAL 2', TOTAL.value)
+
+    TOTAL = TOTAL.add(formPrice);
+
+    console.log('TOTAL 3', TOTAL.value)
+    return TOTAL.value;
 }

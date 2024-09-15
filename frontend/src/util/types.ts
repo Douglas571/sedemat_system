@@ -163,6 +163,8 @@ export interface IGrossIncome {
     chargeWasteCollection: boolean;
     declarationImage: string;
 
+    currencyExchangeRate: CurrencyExchangeRate
+    
     wasteCollectionTax?: IWasteCollectionTax;
 
     grossIncomeInvoiceId?: number;

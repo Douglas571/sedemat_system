@@ -10,7 +10,9 @@ import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
 import dayjs from 'dayjs'
-import currency from 'currency.js'
+
+import { CurrencyHandler, formatBolivares } from '../util/currency'
+
 
 const monthsInSpanish = [
     "Enero",
@@ -26,26 +28,6 @@ const monthsInSpanish = [
     "Noviembre",
     "Diciembre"
   ];
-
-
-const CurrencyHandler = (value: number | string) => currency(value, 
-    { 
-        pattern: '#', 
-        precision: 2,
-        separator: '.',
-        decimal: ','
-    }
-)
-
-const formatBolivares = (value: number | string) => currency(value, 
-    { 
-        symbol: 'Bs.', 
-        pattern: '# !', 
-        precision: 2,
-        separator: '.',
-        decimal: ','
-    }
-).format()
 
 import * as util from '../util'
 
