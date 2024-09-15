@@ -29,6 +29,19 @@ class GrossIncomeService {
 
     // Create a new GrossIncome record
     async createGrossIncome(newGrossIncome) {
+
+        // check if there is already a gross income with the same period and branchOfficeId
+        const existingGrossIncome = await GrossIncome.findOne({
+            where: {
+                period: newGrossIncome.period,
+                branchOfficeId: newGrossIncome.branchOfficeId
+            }
+        });
+        
+        if (existingGrossIncome) {  
+            throw new Error('Gross income already exists for the same period and branch office');
+        }
+
         let wasteCollectionTax
 
         if (newGrossIncome.chargeWasteCollection && newGrossIncome.branchOfficeId) {
