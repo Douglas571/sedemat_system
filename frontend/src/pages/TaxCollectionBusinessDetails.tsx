@@ -480,7 +480,7 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             dataIndex: 'paidAt',
             key: 'date',
             render: (paidAt: string) => paidAt 
-                ? <Typography.Text>{dayjs(paidAt).format('DD-MM-YYYY')}</Typography.Text> 
+                ? <Typography.Text>{dayjs(paidAt).format('DD/MM/YYYY')}</Typography.Text> 
                 : <Typography.Text> -- </Typography.Text>
         },
         {
