@@ -30,6 +30,7 @@ import * as util from '../util'
 import * as paymentsApi from '../util/paymentsApi'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
+import { CurrencyHandler, formatBolivares } from 'util/currency';
 
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
@@ -67,7 +68,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         );
     }
 
-    console.log(lastCurrencyExchangeRate)
+    const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
+    const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
+    const totalLessPaymentsAllocatedBs = CurrencyHandler(TOTAL).subtract(totalPaymentsAllocated).value
+    const totalLessPaymentsAllocatedMMV = CurrencyHandler(totalLessPaymentsAllocatedBs).divide(MMVExchangeRate).value
+
+    const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
+    const canBeMarkedAsPaid = totalPaymentsAllocated === TOTAL
 
     const loadPayments = async (): Promise<Payment[]> => {
         return paymentsApi.findAll()
@@ -162,12 +169,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
 
-    const {formPriceBs} = grossIncomeInvoice
-    const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
 
-
-    const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
-    const canBeMarkedAsPaid = totalPaymentsAllocated === TOTAL
     const markAsPaidButton = <Button onClick={() => toggleIsPaid()} 
         disabled={ !canBeMarkedAsPaid }
     >Marcar como Pagado</Button>
@@ -233,12 +235,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Ingreso" 
                     dataIndex="amountBs" 
                     key="amountBs" 
-                    render={(amountBs: number) => `${amountBs} Bs.`}
+                    render={(amountBs: number) => formatBolivares(amountBs)}
                 />
                 <Table.Column 
                     title="Alicuota"
                     key="amountBs" 
-                    render={(_: any) => `${business.economicActivity.alicuota * 100}%`}
+                    render={(_: any) => `${business?.economicActivity?.alicuota * 100}%`}
                     width="8%"
                     align="center"
                 />
@@ -246,9 +248,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Impuesto" 
                     dataIndex="amountBs" 
                     key="tax" 
-                    render={(amountBs: number, record: any) => {
-                        const tax = amountBs * business.economicActivity.alicuota;
-                        return `${tax.toFixed(2)} Bs.`;
+                    render={(amountBs: number, record: IGrossIncome) => {
+                        const {alicuota} = business?.economicActivity
+                        const tax = CurrencyHandler(amountBs).multiply(alicuota).value
+                        return formatBolivares(tax);
                     }}
                     width="15%"
                 />
@@ -262,7 +265,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         const MMVExchangeRate = util.getMMVExchangeRate(cer)
                         const minTaxThreshold = economicActivity.minimumTax * MMVExchangeRate;
                         console.log({cer, economicActivity, MMVExchangeRate, minTax})
-                        return `${minTaxThreshold.toFixed(2)} Bs.`;
+                        return formatBolivares(minTaxThreshold);
                     }}
                     width="15%"
                 />
@@ -276,7 +279,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                             return 0
                         }
                         const tax = util.getWasteCollectionTaxInBs(record)
-                        return `${tax} Bs.`
+                        return formatBolivares(tax)
                     }}
                 />
                 <Table.Column 
@@ -284,7 +287,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="subtotal" 
                     render={(text: any, record: any) => {
                         const tax = util.getSubTotalFromGrossIncome(record, business)
-                        return `${tax.toFixed(2)} Bs.`;
+                        return formatBolivares(tax);
                     }}
                     width="15%"
                     align="right"
@@ -303,7 +306,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     render={() => (
                         <>
                             <Text>Formulario</Text>
-                            <Text style={{ float: 'right' }}>{grossIncomeInvoice.formPriceBs} Bs.</Text>
+                            <Text style={{ float: 'right' }}>{formatBolivares(formPriceBs)}</Text>
                         </>
                     )}
                 />
@@ -326,7 +329,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{TOTAL} Bs.</Text>}
+                    render={(text: any) => <Text strong>{formatBolivares(TOTAL)}</Text>}
                 />
             </Table>
             <Table 
@@ -346,7 +349,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="allocated" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{TOTAL - totalPaymentsAllocated} Bs.</Text>}
+                    render={(text: any) => <Text strong>{formatBolivares(totalLessPaymentsAllocatedBs)}</Text>}
                 />
             </Table>
 
@@ -367,7 +370,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{Number((TOTAL - totalPaymentsAllocated) / MMVExchangeRate).toFixed(2)} MMV</Text>}
+                    render={(text: any) => <Text strong>{CurrencyHandler(totalLessPaymentsAllocatedMMV).format()} MMV</Text>}
                 />
             </Table>           
 
@@ -438,7 +441,7 @@ function PaymentsAllocatedTable(
             title: "Monto", 
             dataIndex: "amount", 
             key: "amount", 
-            render: (text: any) => <Text strong>{text} Bs.</Text> 
+            render: (amount: number) => <Text strong>{formatBolivares(amount)}</Text> 
         },
         {
             title: "Acciones",

@@ -1,4 +1,4 @@
-import { CurrencyExchangeRate, IGrossIncome } from "./types"
+import { CurrencyExchangeRate, IGrossIncome, Business } from "./types"
 
 import { CurrencyHandler, formatBolivares } from "./currency"
 
@@ -43,6 +43,12 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
     return 0;
 }
 
+/**
+ * Calculates the waste collection tax in Bolivares based on the gross income object.
+ * 
+ * @param {IGrossIncome} grossIncome - The gross income object containing relevant information.
+ * @returns {number} The waste collection tax in Bolivares.
+ */
 export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
     if (grossIncome.chargeWasteCollection && grossIncome.branchOffice) {
         return CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
@@ -53,6 +59,13 @@ export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
     
 }
 
+/**
+ * Calculates the subtotal in bolivares from the gross income object.
+ * 
+ * @param {IGrossIncome} grossIncome - The gross income object containing relevant information.
+ * @param {Business} business - The business object containing relevant information.
+ * @returns {number} The subtotal in Bolivares.
+ */
 export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: Business): number {
     if (!business) {
         return 0
@@ -73,15 +86,17 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
     return subtotal
 }
 
+/**
+ * Calculates the total gross income invoice amount in Bolivares.
+ * 
+ * @param {IGrossIncome[]} grossIncomes - Array of gross income objects.
+ * @param {Business} business - The business object containing relevant information.
+ * @param {number} formPrice - The price of the form in Bolivares.
+ * @returns {number} The total gross income invoice amount in Bolivares.
+ */
 export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], business: Business, formPrice: number): number {
     let TOTAL = CurrencyHandler(0);
-    console.log('TOTAL', TOTAL.value)
-    grossIncomes.forEach(g => TOTAL = TOTAL.add(getSubTotalFromGrossIncome(g, business)));
-
-    console.log('TOTAL 2', TOTAL.value)
-
+    grossIncomes?.forEach(g => TOTAL = TOTAL.add(getSubTotalFromGrossIncome(g, business)));
     TOTAL = TOTAL.add(formPrice);
-
-    console.log('TOTAL 3', TOTAL.value)
     return TOTAL.value;
 }
