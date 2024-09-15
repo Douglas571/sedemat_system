@@ -15,7 +15,8 @@ import {
     Input, 
     Form, 
     InputNumber,
-    Divider
+    Divider,
+    Alert
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -186,6 +187,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
             </Flex>
         </Flex>}>
+                
+            {
+                grossIncomeInvoiceIsPaid ? (
+                    <Alert message={`Esta factura fue pagada el día ${dayjs(grossIncomeInvoice.paidAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
+                )
+                : (
+                    <Alert message="Esta factura no ha sido pagada" type="warning" showIcon />
+                )
+            }
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
             <Descriptions bordered  size='small'>
