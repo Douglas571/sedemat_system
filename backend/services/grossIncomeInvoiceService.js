@@ -65,9 +65,16 @@ class GrossIncomeInvoiceService {
     // Delete a GrossIncomeInvoice record by ID
     async deleteGrossIncomeInvoice(id) {
 
-        await GrossIncome.update({ grossIncomeInvoiceId: null }, { where: { grossIncomeInvoiceId: id } });
-
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
+
+        if (grossIncomeInvoice.paidAt !== null) {
+            throw new Error('This invoice is already paid')
+        }
+
+        await GrossIncome.update({ grossIncomeInvoiceId: null }, { where: { grossIncomeInvoiceId: id } });
+        await Payment.update({ grossIncomeInvoiceId: null }, { where: { grossIncomeInvoiceId: id } });
+
+        
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
         }
@@ -84,15 +91,6 @@ class GrossIncomeInvoiceService {
                 }
             ]
         });
-    }
-
-    // Update the isPaid status of a GrossIncomeInvoice
-    async updateInvoicePaymentStatus(id, isPaid) {
-        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
-        if (!grossIncomeInvoice) {
-            throw new Error('GrossIncomeInvoice not found');
-        }
-        return await grossIncomeInvoice.update({ isPaid });
     }
 
     async addPayment(grossIncomeInvoiceId, paymentId) {
