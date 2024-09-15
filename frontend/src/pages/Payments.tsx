@@ -145,28 +145,20 @@ function Payments(): JSX.Element {
         const url = `${HOST}/v1/payments/${id}`;
 
         console.log('deleting payment ' + id)
-
-        try {
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            // const result = await response.json();
-            // console.log({ result })
-            if (response.ok) {
-                console.log('Payment deleted successfully');
-            } else {
-                // console.log({ result })
-                throw Error('Error al eliminar el pago');
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
-        } catch (error) {
-            console.log({ error })
-            console.error('Error:', error);
+        });
 
-            throw error
+        // const result = await response.json();
+        // console.log({ result })
+        if (response.ok) {
+            console.log('Payment deleted successfully');
+        } else {
+            // console.log({ result })
+            throw Error('Error al eliminar el pago');
         }
     }
 
@@ -182,8 +174,8 @@ function Payments(): JSX.Element {
         catch (error) {
             // if it fail
             // show error
-
-            messageApi.error(error.message)
+            console.log({ error })
+            messageApi.error("Error al eliminar el pago")
         }
     }
 
