@@ -26,7 +26,6 @@ interface Payment {
 }
 
 async function getPayments(): Promise<Array<Payment>> {
-    console.log({ HOST })
     let payments: Array<Payment> = [];
 
     try {
@@ -285,6 +284,7 @@ function Payments(): JSX.Element {
 
     return (
         <div>
+            {contextHolder}
             <Flex justify='space-between' align='center'>
                 <Typography.Title level={1}> Pago</Typography.Title>
                 <Button onClick={() => navigate('new')}>
