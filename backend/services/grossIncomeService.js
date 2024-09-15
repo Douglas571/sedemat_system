@@ -1,5 +1,6 @@
 // services/grossIncomeService.js
 const { GrossIncome, BranchOffice, CurrencyExchangeRates, WasteCollectionTax } = require('../database/models');
+const dayjs = require('dayjs');
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
@@ -30,6 +31,12 @@ class GrossIncomeService {
     // Create a new GrossIncome record
     async createGrossIncome(newGrossIncome) {
 
+        
+
+        newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
+
+        console.log({newGrossIncome})
+
         // check if there is already a gross income with the same period and branchOfficeId
         const existingGrossIncome = await GrossIncome.findOne({
             where: {
@@ -57,6 +64,7 @@ class GrossIncomeService {
 
     // Update an existing GrossIncome record by ID
     async updateGrossIncome(id, data) {
+
         const grossIncome = await this.getGrossIncomeById(id, {
             include: [
                 {
@@ -67,6 +75,21 @@ class GrossIncomeService {
         });
         if (!grossIncome) {
             throw new Error('GrossIncome not found');
+        }
+
+        if (data.period) {
+            data.period = dayjs(data.period).set('date', 3).toDate()
+
+            const existingIncome = await GrossIncome.findOne({
+                where: {
+                    period: data.period,
+                    branchOfficeId: data.branchOfficeId || grossIncome.branchOfficeId
+                }
+            })
+            
+            if (existingIncome && existingIncome.id !== Number(id)) {
+                throw new Error('Gross income already exists for the same period and branch office');
+            }
         }
         console.log('grossIncome', grossIncome.toJSON())
 
