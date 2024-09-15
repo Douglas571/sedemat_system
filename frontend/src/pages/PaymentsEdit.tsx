@@ -400,10 +400,10 @@ function PaymentsEdit(): JSX.Element {
 						>
 							<InputNumber
 								addonAfter='Bs'
-								type='number'
-								defaultValue='0'
-								min='0'
-								step='0.01'
+								defaultValue={0}
+								min={0}
+								step={0.01}
+								decimalSeparator=','
 							/>
 						</Form.Item>
 
