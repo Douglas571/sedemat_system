@@ -10,7 +10,7 @@ module.exports = {
       },
 
       dni: Sequelize.STRING,
-      amount: Sequelize.STRING,
+      amount: Sequelize.DOUBLE,
       account: Sequelize.STRING,
 
       reference: {

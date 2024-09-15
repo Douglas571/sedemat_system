@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
     },
     dni: DataTypes.STRING,
-    amount: DataTypes.STRING,
+    amount: DataTypes.DECIMAL,
     account: DataTypes.STRING,
     reference: {
         type: DataTypes.STRING,
