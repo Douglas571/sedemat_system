@@ -1,5 +1,5 @@
 // services/grossIncomeService.js
-const { GrossIncome, BranchOffice, CurrencyExchangeRates, WasteCollectionTax } = require('../database/models');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax } = require('../database/models');
 const dayjs = require('dayjs');
 
 class GrossIncomeService {
@@ -70,11 +70,24 @@ class GrossIncomeService {
                 {
                     model: BranchOffice,
                     as: 'branchOffice'
+                }, 
+                {
+                    model: GrossIncomeInvoice,
+                    as: 'grossIncomeInvoice'
                 }
             ]
         });
+
         if (!grossIncome) {
-            throw new Error('GrossIncome not found');
+            throw new Error('Gross Income not found');
+        }
+
+        console.log({grossIncomeOriginal: grossIncome})
+
+        const invoice = grossIncome?.grossIncomeInvoiceId && await GrossIncomeInvoice.findByPk(grossIncome.grossIncomeInvoiceId)
+
+        if (invoice?.paidAt) {
+            throw new Error('Gross Income has an paid invoice associated')
         }
 
         if (data.period) {
@@ -91,7 +104,6 @@ class GrossIncomeService {
                 throw new Error('Gross income already exists for the same period and branch office');
             }
         }
-        console.log('grossIncome', grossIncome.toJSON())
 
         // if chargeWasteCollectionTax is null, then we need to disassociate the waste collection tax
         let wasteCollectionTax
