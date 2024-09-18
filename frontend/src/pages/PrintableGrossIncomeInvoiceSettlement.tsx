@@ -1,31 +1,186 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography, Flex, Descriptions, DescriptionsProps, Table, TableProps } from 'antd';
 
 const { Title } = Typography;
 
-import { formatBolivares } from '../util/currency';
-import { IGrossIncomeInvoice, Business } from '../types';
+import { formatBolivares, CurrencyHandler } from '../util/currency';
+import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate } from '../util/types';
+
+import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
+import * as paymentApi from '../util/paymentsApi'
+import * as grossIncomeService from '../util/grossIncomeApi'
+import * as api from '../util/api'
+import { useParams } from 'react-router-dom';
+
+import dayjs from 'dayjs';
+
+import * as util from '../util'
+import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
+
+
+const isBadDebt = ({
+  grossIncome,
+  paidAt
+}: {
+  grossIncome: IGrossIncome,
+  paidAt: Date
+}): boolean => {
+  const grossIncomeDate = dayjs(grossIncome.period);
+  const monthsDifference = dayjs(paidAt).diff(grossIncomeDate, 'month');
+
+  // console.log({monthsDifference})
+
+  // console.log({monthBadDeb: grossIncomeDate.get('month')})
+  return monthsDifference > 2;
+}
+
+const getBadDebtTax = ({
+  grossIncomes,
+  paidAt,
+  alicuota,
+  minTaxMMV,
+  MMVToBs
+}: {
+  grossIncomes: IGrossIncome[],
+  paidAt: Date | undefined,
+  alicuota: number,
+  minTaxMMV: number,
+  MMVToBs: number
+}): number => {
+    // calculate the badDebt 
+
+    // sume the taxes for the gross incomes which are delayed by more than two months since the invoice paid at date 
+      // if i have January, February and March, and i end up paying in march. January is a delayed month.
+      // so being in the month 8 and having finished of paid the 6th month, will be a bad debt
+    if (!grossIncomes || !paidAt) return 0;
+
+    let badDebts = grossIncomes.filter(g => isBadDebt({grossIncome: g, paidAt}))
+
+    let totalTaxes = badDebts.map( b => util.getGrossIncomeTaxInBs({
+      grossIncomeInBs: b.amountBs,
+      alicuota: alicuota,
+      minTaxMMV: minTaxMMV,
+      MMVToBs: MMVToBs
+    }))
+
+    console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
+
+  return totalTaxes.reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0);
+}
+
+const getEconomicActivityTax = ({
+  grossIncomes,
+  paidAt,
+  alicuota,
+  minTaxMMV,
+  MMVToBs
+}: {
+  grossIncomes: IGrossIncome[],
+  paidAt: Date | undefined,
+  alicuota: number,
+  minTaxMMV: number,
+  MMVToBs: number
+}): number => {
+
+  if (!grossIncomes || !paidAt) return 0;
+
+    let badDebts = grossIncomes.filter(g => !isBadDebt({grossIncome: g, paidAt}))
+
+    let totalTaxes = badDebts.map( b => util.getGrossIncomeTaxInBs({
+      grossIncomeInBs: b.amountBs,
+      alicuota: alicuota,
+      minTaxMMV: minTaxMMV,
+      MMVToBs: MMVToBs
+    }))
+
+    console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
+
+  return totalTaxes.reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0);
+}
+
+const getWasteCollectionTax = (props: { grossIncomes: IGrossIncome[] }): number => {
+  let {grossIncomes} = props
+
+  if (!grossIncomes) return 0
+
+  let tax = grossIncomes.map(g => util.getWasteCollectionTaxInBs(g)).reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0)
+
+  return tax 
+}
 
 const GrossIncomeInvoiceSettlement: React.FC = () => {
+  const { businessId, grossIncomeInvoiceId } = useParams()
 
-  type Settlement = {
-    business: Business,
+  const [business, setBusiness] = React.useState<Business>();
+  const [grossIncomeInvoice, setGrossIncomeInvoice] = React.useState<IGrossIncomeInvoice>();
+  const [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([]);
+  const [currencyExchangeRate, setCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
 
-    grossIncomeInvoice: IGrossIncomeInvoice
+  let MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
-    description: string
-    amountBs: number
+  let badDebtTax = getBadDebtTax({
+    grossIncomes,
+    paidAt: grossIncomeInvoice?.paidAt,
+    MMVToBs: MMVToBs,
+    minTaxMMV: business?.economicActivity?.minimumTax || 0,
+    alicuota: business?.economicActivity?.alicuota || 0
+  })
+  let economicActivityTax = getEconomicActivityTax({
+    grossIncomes,
+    paidAt: grossIncomeInvoice?.paidAt,
+    MMVToBs: MMVToBs,
+    minTaxMMV: business?.economicActivity?.minimumTax || 0,
+    alicuota: business?.economicActivity?.alicuota || 0
+  })
+  let wasteCollectionTax = getWasteCollectionTax({grossIncomes})
+  let formTax = grossIncomeInvoice?.formPriceBs || 0
+
+  let totalBs = CurrencyHandler(badDebtTax).add(economicActivityTax).add(wasteCollectionTax).add(formTax).value
+
+  // calculate the economic activity tax 
+    // get the last month previews to payment date
+
+  // calculate the waste collection tax 
+
+  const loadData = async () => {
+    const invoice = await grossIncomeInvoiceService.getById(Number(grossIncomeInvoiceId))
+    setGrossIncomeInvoice(invoice)
+    
+    let grossIncomes = await grossIncomeService.getAllGrossIncomesByInvoiceId(Number(grossIncomeInvoiceId))
+    setGrossIncomes(grossIncomes)
+
+    let business = await api.fetchBusinessById(Number(businessId))
+    setBusiness(business)
+    console.log({business})
+
+    console.log({grossIncomes})
+    let cerId = grossIncomes[0].currencyExchangeRatesId
+    let currencyExchangeRate = await CurrencyExchangeRatesService.getById(cerId)
+    setCurrencyExchangeRate(currencyExchangeRate)
+
+    console.log({invoice, grossIncomes, business})
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  if (!business || !grossIncomeInvoice || !grossIncomes) {
+    return <Flex><Typography.Text>Cargando...</Typography.Text></Flex>
+  }
+
+  interface Settlement {
+    number: number;
+    business: Business;
+
+    grossIncomeInvoice: IGrossIncomeInvoice;
+
+    description: string;
+    amountBs: number;
   }
 
   const settlement: Settlement = {
-    business: {
-      businessName: "Supermercado Amir",
-      dni: "V-12184106-8",
-      economicActivity: {
-        code: "123456",
-        title: "Comercio"
-      }
-    },
+    number: "0001",
     grossIncomeInvoice: {
       id: 1,
       date: new Date(),
@@ -36,7 +191,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     description: "PAGO POR :  IMPUESTO  SOBRE ACTIVIDAD ECONOMICA CORRESPONDIENTE A LOS MESES DE ABRIL Y MAYO AÑO 2024.",
   }
 
-  const {business} = settlement
+  
 
   const headerItems: DescriptionsProps['items'] = [
     {
@@ -60,7 +215,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     {
       key: '4',
       label: 'MONTO',
-      children: formatBolivares(settlement.grossIncomeInvoice.amountBs),
+      children: formatBolivares(totalBs),
       span: 2,
     },{
       key: '5',
@@ -99,17 +254,22 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     {
       code: '301021200',
       description: 'DEUDAS MOROSAS',
-      amountBs: 1178.1,
+      amountBs: formatBolivares(badDebtTax),
     },
     {
-      code: '301090101',
-      description: 'INGRESO POR FORMULARIOS Y GACETAS MUNICIPALES',
-      amountBs: 83.90, // Assuming amount is not specified
+      code: '301020700',
+      description: 'PATENTE DE INDUSTRIA Y COMERCIO',
+      amountBs: formatBolivares(economicActivityTax), // Assuming amount is not specified
     },
     {
       code: '301035400',
       description: 'ASEO DOMICILIARIO',
-      amountBs: 784, // Assuming amount is not specified
+      amountBs: formatBolivares(wasteCollectionTax), // Assuming amount is not specified
+    },
+    {
+      code: '301090101',
+      description: 'INGRESO POR FORMULARIOS Y GACETAS MUNICIPALES',
+      amountBs: formatBolivares(formTax), // Assuming amount is not specified
     },
   ];
 
@@ -161,7 +321,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°9095</Typography.Text></Flex>
+      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{settlement.number}</Typography.Text></Flex>
       <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; 05 DE AGOSTO 2024</Typography.Text></Flex>
 
       <Descriptions 
@@ -181,12 +341,12 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
         style={{marginBottom: "20px"}}
         summary={(pageData) => {
 
-          console.log(pageData)
+          // console.log(pageData)
 
           return (
           <Table.Summary.Row style={{ borderTop: "1px solid rgba(5, 5, 5, 0.06)"}}>
             <Table.Summary.Cell index={0} colSpan={2} align='right'>TOTAL COMPROBANTE DE INGRESO:</Table.Summary.Cell>
-            <Table.Summary.Cell index={0} colSpan={2} align='right'>{formatBolivares(settlement.grossIncomeInvoice.amountBs)}</Table.Summary.Cell>
+            <Table.Summary.Cell index={0} colSpan={2} align='right'>{formatBolivares(totalBs)}</Table.Summary.Cell>
           </Table.Summary.Row>)
 
         }}

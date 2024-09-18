@@ -23,7 +23,7 @@ export type EconomicActivity = {
     code: string
     title: string
     alicuota: number
-    minimiunTax: number
+    minimumTax: number
 }
 
 export type License = {
@@ -164,6 +164,7 @@ export interface IGrossIncome {
     declarationImage: string;
 
     currencyExchangeRate: CurrencyExchangeRate
+    currencyExchangeRatesId: number
     
     wasteCollectionTax?: IWasteCollectionTax;
 

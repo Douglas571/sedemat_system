@@ -1,15 +1,6 @@
 import dayjs from "dayjs"
 
-interface CurrencyExchangeRate {
-    id?: number;
-    dolarBCVToBs: number;
-    eurosBCVToBs: number;
-    dolarBlackToBs: number;
-    euroBlackToBs: number;
-    createdAt?: string;
-    updatedAt?: string;
-  }
-  
+import { CurrencyExchangeRate } from "../util/types"
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"

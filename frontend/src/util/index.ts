@@ -1,6 +1,7 @@
 import { CurrencyExchangeRate, IGrossIncome, Business } from "./types"
 
 import { CurrencyHandler, formatBolivares } from "./currency"
+import GrossIncomeInvoice from "pages/GrossIncomeInvoiceEdit"
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -41,6 +42,23 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
 
     // Return 0 if none of the conditions are met
     return 0;
+}
+
+export function getGrossIncomeTaxInBs({
+    grossIncomeInBs,
+    alicuota,
+    minTaxMMV,
+    MMVToBs
+}: {
+    grossIncomeInBs: number,
+    alicuota: number,
+    minTaxMMV: number,
+    MMVToBs: number
+}): number {
+    let taxInBs = CurrencyHandler(grossIncomeInBs).multiply(alicuota).value
+    let minTaxInBs = CurrencyHandler(minTaxMMV).multiply(MMVToBs).value
+
+    return Math.max(taxInBs, minTaxInBs)
 }
 
 /**
