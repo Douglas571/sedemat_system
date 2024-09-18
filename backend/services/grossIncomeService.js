@@ -30,9 +30,6 @@ class GrossIncomeService {
 
     // Create a new GrossIncome record
     async createGrossIncome(newGrossIncome) {
-
-        
-
         newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
 
         console.log({newGrossIncome})

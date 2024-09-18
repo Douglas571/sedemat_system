@@ -13,7 +13,10 @@ const paymentService = require('../services/payments')
 
 router.get('/', async (req, res) => {
     try {
-        const payments = await paymentService.findAll();
+        let filters = req.query
+        // validate filters 
+
+        const payments = await paymentService.findAll({filters});
         res.json(payments);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching payments' });

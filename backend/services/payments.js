@@ -5,8 +5,9 @@ const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
 
 const logger = require('../utils/logger')
 
-exports.findAll = async () => {
+exports.findAll = async ({filters}) => {
     logger.info('Looking into DB');
+
     try {
         const payments = await PaymentModel.findAll({
             include: [
@@ -19,6 +20,7 @@ exports.findAll = async () => {
                     as: 'business',
                 },
             ],
+            where: filters
         });
         
         return payments;
