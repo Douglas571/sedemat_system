@@ -177,19 +177,21 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const unmarkAsPaidButton = <Button onClick={() => toggleIsPaid()} >Desmarcar como Pagado</Button>
     
     return (
-        <Card title={<Flex align='center' justify='space-between'>
-            <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
-            <Flex gap={10} align='center' justify='end'>
-                {
-                    grossIncomeInvoiceIsPaid 
-                    ? unmarkAsPaidButton
-                    : markAsPaidButton
-                }
-                <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
-                <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
-                <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Liquidación</Button>
+        <Card title={
+            <Flex align='center' justify='space-between' wrap>
+                <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
+                <Flex gap={10} align='center' justify='end' wrap>
+                    {
+                        grossIncomeInvoiceIsPaid 
+                        ? unmarkAsPaidButton
+                        : markAsPaidButton
+                    }
+                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
+                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
+                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Liquidación</Button>
+                </Flex>
             </Flex>
-        </Flex>}>
+        }>
                 
             {
                 grossIncomeInvoiceIsPaid ? (
@@ -225,6 +227,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 size='small'
                 dataSource={grossIncomes ? grossIncomes : []} 
                 pagination={false}
+
+                style={{
+                    overflow: 'scroll'
+                }}
             >
                 <Table.Column 
                     title="Periodo" 
