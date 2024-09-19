@@ -118,3 +118,133 @@ export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], b
     TOTAL = TOTAL.add(formPrice);
     return TOTAL.value;
 }
+
+
+
+/////
+
+/**
+ * Converts a number to a string representation in a specific currency format.
+ * 
+ * @param {number} num - The number to convert.
+ * @param {string} [tipoCambio1="bolívar"] - The singular form of the currency name.
+ * @param {string} [tipoCambio2="bolívares"] - The plural form of the currency name.
+ * @param {number} [centavos=1] - Indicates if centavos should be included. 0 for no centavos, 1 for centavos with words.
+ * @param {string} [denominacion=''] - An additional denomination to append to the result.
+ * @returns {string} The string representation of the number in the specified currency format.
+ */
+export function numbersToWords(
+    num: number,
+    tipoCambio1: string = 'bolívar',
+    tipoCambio2: string = 'bolívares',
+    centavos: number = 1,
+    denominacion: string = ''
+  ): string {
+    let nEntero: number = Math.floor(num);
+    let nDecimal: number = Math.floor(Math.round((num - nEntero) * 100));
+    let texto: string = cNumero(nEntero);
+  
+    // Agrega la moneda
+    if (nEntero === 1) {
+      texto += ` ${tipoCambio1}`;
+    } else {
+      if (nEntero % 1000000 === 0) {
+        texto += ' De';
+      }
+      texto += ` ${tipoCambio2}`;
+    }
+  
+    // Agrega los centavos
+    if (centavos === 1) {
+      if (nDecimal !== 0) {
+        texto += ` con ${cNumero(nDecimal)}`;
+        texto += nDecimal === 1 ? ' céntimo' : ' céntimos';
+      }
+    } else if (centavos === 0) {
+      if (nDecimal !== 0) {
+        texto += ` ${nDecimal.toString().padStart(2, '0')}/100`;
+      }
+    }
+  
+    // return texto.toUpperCase() + ' ' + denominacion;
+    return texto + ' ' + denominacion;
+  }
+  
+  function cNumero(num: number): string {
+    let texto: string = '';
+  
+    const cUnidades = [
+      '', 'Un', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve', 'Diez',
+      'Once', 'Doce', 'Trece', 'Catorce', 'Quince', 'Dieciséis', 'Diecisiete', 'Dieciocho', 'Diecinueve', 'Veinte',
+      'Veintiuno', 'Veintidós', 'Veintitrés', 'Veinticuatro', 'Veinticinco', 'Veintiséis', 'Veintisiete', 'Veintiocho', 'Veintinueve'
+    ];
+    const cDecenas = [
+      '', 'Diez', 'Veinte', 'Treinta', 'Cuarenta', 'Cincuenta', 'Sesenta', 'Setenta', 'Ochenta', 'Noventa', 'Cien'
+    ];
+    const cCentenas = [
+      '', 'Ciento', 'Doscientos', 'Trescientos', 'Cuatrocientos', 'Quinientos', 'Seiscientos', 'Setecientos', 'Ochocientos', 'Novecientos'
+    ];
+  
+    const nMillones = Math.floor(num / 1000000);
+    const nMiles = Math.floor(num / 1000) % 1000;
+    const nCentenas = Math.floor(num / 100) % 10;
+    const nDecenas = Math.floor(num / 10) % 10;
+    const nUnidades = num % 10;
+  
+    // Evaluación de Millones
+    if (nMillones === 1) {
+      texto = `Un Millón${num % 1000000 !== 0 ? ' ' + cNumero(num % 1000000) : ''}`;
+      return texto;
+    } else if (nMillones >= 2 && nMillones <= 999) {
+      texto = `${cNumero(Math.floor(num / 1000000))} Millones${num % 1000000 !== 0 ? ' ' + cNumero(num % 1000000) : ''}`;
+      return texto;
+    }
+  
+    // Evaluación de Miles
+    if (nMiles === 1) {
+      texto = `Mil${num % 1000 !== 0 ? ' ' + cNumero(num % 1000) : ''}`;
+      return texto;
+    } else if (nMiles >= 2 && nMiles <= 999) {
+      texto = `${cNumero(Math.floor(num / 1000))} Mil${num % 1000 !== 0 ? ' ' + cNumero(num % 1000) : ''}`;
+      return texto;
+    }
+  
+    // Evaluación desde 0 a 999
+    if (num === 100) {
+      texto = cDecenas[10];
+      return texto;
+    } else if (num === 0) {
+      texto = 'Cero';
+      return texto;
+    }
+  
+    if (nCentenas !== 0) {
+      texto = cCentenas[nCentenas];
+    }
+  
+    if (nDecenas !== 0) {
+      if (nDecenas === 1 || nDecenas === 2) {
+        if (nCentenas !== 0) {
+          texto += ' ';
+        }
+        texto += cUnidades[num % 100];
+        return texto;
+      } else {
+        if (nCentenas !== 0) {
+          texto += ' ';
+        }
+        texto += cDecenas[nDecenas];
+      }
+    }
+  
+    if (nUnidades !== 0) {
+      if (nDecenas !== 0) {
+        texto += ' y ';
+      } else if (nCentenas !== 0) {
+        texto += ' ';
+      }
+      texto += cUnidades[nUnidades];
+    }
+  
+    return texto;
+  }

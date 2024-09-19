@@ -311,7 +311,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
       labelStyle: {
         display: "none",
       },
-      children: 'LETRAS',
+      children: util.numbersToWords(totalBs).toUpperCase(),
       span: 4,
     },
   ];
