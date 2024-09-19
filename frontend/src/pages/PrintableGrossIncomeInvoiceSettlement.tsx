@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Typography, Flex, Descriptions, DescriptionsProps, Table, TableProps } from 'antd';
 
 const { Title } = Typography;
 
 import { formatBolivares, CurrencyHandler } from '../util/currency';
-import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment } from '../util/types';
 
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
-import * as paymentApi from '../util/paymentsApi'
+import * as paymentsApi from '../util/paymentsApi'
 import * as grossIncomeService from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import { useParams } from 'react-router-dom';
@@ -108,6 +108,54 @@ const getWasteCollectionTax = (props: { grossIncomes: IGrossIncome[] }): number 
   return tax 
 }
 
+  // sort gross incomes from from older to new
+  // crete an Map 
+    // each key is a year
+    // each key contains an array of months for each year 
+  // for each year, 
+    // join the months 
+    // the last one will have "y `${month}"
+    // using this "const month = date.toLocaleString('default', { month: 'long' });"
+  //
+  
+// nov-23, dic-23, jan-24, feb-24
+// { 2023: ['noviembre', 'diciembre'], 2024: ['enero', 'febrero']}
+
+// result: "Noviembre y Diciembre del 2023, así como Enero y Febrero del 2024"
+// Function to format the description of gross incomes by year and month
+const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
+  const monthMap: { [key: number]: string[] } = {};
+
+  if (grossIncomes.length === 0) return '';
+  
+  if (grossIncomes.length === 1) {
+    const date = new Date(grossIncomes[0].period);
+    const year = date.getFullYear();
+    const month = date.toLocaleString('default', { month: 'long' });
+    return `impuesto sobre actividad economica correspondiente al mes de ${month} del ${year}`;
+  }
+
+  grossIncomes.forEach(g => {
+    const date = new Date(g.period);
+    const year = date.getFullYear();
+    const month = date.toLocaleString('default', { month: 'long' });
+
+    if (!monthMap[year]) {
+      monthMap[year] = [];
+    }
+    if (!monthMap[year].includes(month)) {
+      monthMap[year].push(month);
+    }
+  });
+
+  const formattedParts = Object.entries(monthMap).map(([year, months]) => {
+    const lastMonth = months.pop();
+    return `${months.join(', ')}${months.length ? ' y ' : ''}${lastMonth} del ${year}`;
+  });
+
+  return `Impuesto sobre actividad economica correspondiente a los meses de ${formattedParts.join(', así como ')}`;
+}
+
 const GrossIncomeInvoiceSettlement: React.FC = () => {
   const { businessId, grossIncomeInvoiceId } = useParams()
 
@@ -115,6 +163,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const [grossIncomeInvoice, setGrossIncomeInvoice] = React.useState<IGrossIncomeInvoice>();
   const [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([]);
   const [currencyExchangeRate, setCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
+  const [payments, setPayments] = useState<Payment[]>([])
 
   let MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
@@ -137,10 +186,46 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
   let totalBs = CurrencyHandler(badDebtTax).add(economicActivityTax).add(wasteCollectionTax).add(formTax).value
 
-  // calculate the economic activity tax 
-    // get the last month previews to payment date
+  const REFERENCE_SEPARATOR = ' - '
+  let references: string = useMemo(() => payments.reduce((acc: string, curr: Payment) => acc ? acc + REFERENCE_SEPARATOR + curr.reference : curr.reference, ''), [payments])
 
-  // calculate the waste collection tax 
+  let DATE_SEPARATOR = ' - '
+  let paymentDate: string = useMemo(() => {
+    let minDate = new Date()
+    let maxDate = new Date()
+
+    payments.forEach( p => {
+      console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
+  
+      let curr = new Date(p.paymentDate)
+  
+      // if min and max empty, them them current 
+      if (!minDate && !maxDate) {
+        minDate = curr
+        maxDate = curr
+      }
+  
+      // if current is greater than max date, 
+      if (curr > maxDate) {
+        maxDate = curr 
+      }
+        // max date = current date
+      // if current is less than min date, set min date = current date 
+      if (minDate > curr) {
+        minDate = curr 
+      }
+    })
+
+    if (dayjs(maxDate).format('DD/MM/YYYY') === dayjs(minDate).format('DD/MM/YYYY')) {
+      return dayjs(maxDate).format('DD/MM/YYYY')
+    }
+
+    return dayjs(minDate).format('DD/MM') + DATE_SEPARATOR + dayjs(maxDate).format('DD/MM/YYYY')
+  }, [payments])
+
+  let description = formatGrossIncomeDescription(grossIncomes)
+
+
 
   const loadData = async () => {
     const invoice = await grossIncomeInvoiceService.getById(Number(grossIncomeInvoiceId))
@@ -152,6 +237,10 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     let business = await api.fetchBusinessById(Number(businessId))
     setBusiness(business)
     console.log({business})
+
+    let payments = await paymentsApi.findAll({grossIncomeInvoiceId: Number(grossIncomeInvoiceId)}) 
+    setPayments(payments)
+    console.log({payments})
 
     console.log({grossIncomes})
     let cerId = grossIncomes[0].currencyExchangeRatesId
@@ -209,7 +298,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     {
       key: '3',
       label: 'DESCRIPCIÓN DEL PAGO',
-      children: settlement.description,
+      children: <><strong>PAGO POR: </strong> {description.toUpperCase()}</>,
       span: 6,
     },
     {
@@ -292,12 +381,12 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   {
     key: '4',
     label: 'FECHA',
-    children: "DD/MM/YYYY",
+    children: paymentDate,
   },
   {
     key: '5',
     label: 'REFERENCIA',
-    children: "111111-111111",
+    children: references,
   },
   {
     key: '6',
