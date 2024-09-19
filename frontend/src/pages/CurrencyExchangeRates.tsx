@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Table, message, Modal, Flex, Row, Col, Statistic, Card, StatisticProps, Typography, Alert } from 'antd';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'; 
+
+
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 
 import { useNavigate } from 'react-router-dom';
@@ -157,24 +160,30 @@ const CurrencyExchangeRatesPage: React.FC = () => {
 
   return (
     <Flex vertical gap={20}>
-      <Flex wrap justify='space-between' align='center'>
-        <Typography.Title level={1}>Tasas de Cambio</Typography.Title>
-        <Flex gap={20} wrap>
-          <Button onClick={() => navigate('new')}>
-            Nuevo
-          </Button>
-          <Button onClick={handleCurrencyUpdateFromBCV}>
-            Actualizar
-          </Button>
+      <Card title={
+        <Flex wrap justify='space-between' align='center' style={{ marginBottom: '10px'}}>
+          <Typography.Title level={1}>Tasas de Cambio</Typography.Title>
+          <Flex gap={20} wrap>
+            <Button onClick={handleCurrencyUpdateFromBCV} icon={<ReloadOutlined />}>
+              Actualizar
+            </Button>
+          </Flex>
         </Flex>
-      </Flex>
+      }>
+        
 
-      <ResumeCards lastRate={lastRate} MMV={MMV} />
+        <ResumeCards lastRate={lastRate} MMV={MMV} />
+      </Card>
 
       {/* <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} /> */}
 
       <Card title={
-        <Typography.Title level={3}>Historial</Typography.Title>
+        <Flex justify='space-between' align='center' wrap style={{marginBottom: '10px'}}>
+          <Typography.Title level={3}>Historial</Typography.Title>
+          <Button onClick={() => navigate('new')} icon={<PlusOutlined />}>
+            Agregar
+          </Button>
+        </Flex>
       }>
         
 
@@ -220,51 +229,38 @@ const ResumeCards: React.FC = ({lastRate, MMV}) => {
     }    
   }
 
+  const cardData = [
+    [lastRate.dolarBCVToBs, "Dólar"],
+    [lastRate.eurosBCVToBs, "Euro"],
+    [MMV.exchangeRate, `MMV (${MMV.symbol})`]
+  ];
+
   return (
-    <Row gutter={[16, 16]}  wrap style={{ overflow: 'scroll'}}>
-      <Col span={8} >
-        <Card bordered={false}
-          onClick={() => copyToClipboard(lastRate.dolarBCVToBs)}
+    <Flex wrap gap={15}>
+      {cardData.map(([value, title], index) => (
+        <Card 
+          key={index} 
+          // bordered={false} 
+          onClick={() => copyToClipboard(value)}
+          style={{
+            minWidth: '150px',
+            minHeight: '150px',
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
           <Statistic
-            title="Dólas"
-            value={lastRate.dolarBCVToBs}
+            title={title}
+            value={value}
             precision={2}
-            //valueStyle={{ color: '#3f8600' }}
             suffix="Bs."
             formatter={formatter}
           />
         </Card>
-      </Col>
-      <Col span={8} >
-        <Card bordered={false}
-          onClick={() => copyToClipboard(lastRate.eurosBCVToBs)}
-        >
-          <Statistic
-            title="Euro"
-            value={lastRate.eurosBCVToBs}
-            precision={2}
-            // valueStyle={{ color: '#3f8600' }}
-            suffix="Bs."
-            formatter={formatter}
-          />
-        </Card>
-      </Col>
-      <Col span={8} >
-        <Card bordered={false}
-          onClick={() => copyToClipboard(MMV.exchangeRate)}
-        >
-          <Statistic
-            title={`MMV (${MMV.symbol})`}
-            value={MMV.exchangeRate}
-            precision={2}
-            // valueStyle={{ color: '#3f8600' }}
-            suffix='Bs. '
-            formatter={formatter}
-          />
-        </Card>
-      </Col>
-    </Row>
+      ))}
+    </Flex>
   );
 }
   
