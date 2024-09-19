@@ -173,16 +173,22 @@ const CurrencyExchangeRatesPage: React.FC = () => {
 
       {/* <CurrencyExchangeRateEditForm form={form} onFinish={onFinish} /> */}
 
-      <div>
+      <Card title={
         <Typography.Title level={3}>Historial</Typography.Title>
+      }>
+        
 
         <Table
           columns={columns}
           dataSource={rates}
           rowKey="id"
           loading={loading}
+
+          style={{
+            overflow:'scroll'
+          }}
         />
-      </div>
+      </Card>
     </Flex>
   );
 };
@@ -215,7 +221,7 @@ const ResumeCards: React.FC = ({lastRate, MMV}) => {
   }
 
   return (
-    <Row gutter={[16, 16]} wrap>
+    <Row gutter={[16, 16]}  wrap style={{ overflow: 'scroll'}}>
       <Col span={8} >
         <Card bordered={false}
           onClick={() => copyToClipboard(lastRate.dolarBCVToBs)}

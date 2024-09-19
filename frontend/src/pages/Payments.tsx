@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { PopconfirmProps } from 'antd';
-import { Table, Button, Space, message, Popconfirm, Select, Typography, Flex } from 'antd';
+import { Table, Button, Space, message, Popconfirm, Select, Typography, Flex, Card } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+
 import axios from 'axios';
 
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
@@ -285,17 +287,20 @@ function Payments(): JSX.Element {
     return (
         <div>
             {contextHolder}
-            <Flex justify='space-between' align='center'>
-                <Typography.Title level={1}> Pago</Typography.Title>
-                <Button onClick={() => navigate('new')}>
-                    Nuevo
-                </Button>
-            </Flex>
-
-            <Table
-                dataSource={dataSource}
-                columns={columns}
-            />
+            <Card title={
+                <Flex justify='space-between' align='center'>
+                    <Typography.Title level={1}> Pago</Typography.Title>
+                    <Button onClick={() => navigate('new')} icon={<PlusOutlined />}>
+                        Agregar
+                    </Button>
+                </Flex>
+            }>
+                <Table
+                    dataSource={dataSource}
+                    columns={columns}
+                    style={{ overflow: 'scroll' }}
+                />
+            </Card>
         </div>
     )
 
