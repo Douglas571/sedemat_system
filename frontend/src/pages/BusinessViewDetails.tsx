@@ -187,16 +187,15 @@ function BusinessViewDetails(): JSX.Element {
             case "EMAIL":
                 if (business.preferredContact === "OWNER") {
                     communicationPreference.sendCalculosTo = business.owner.email;
-                } else if (business.preferredContact === "ACCOUNTANT") {
+                } else if (business.preferredContact === "ACCOUNTANT" && business.accountant) {
                     communicationPreference.sendCalculosTo = business.accountant.email;
-                } else if (business.preferredContact === "ADMIN") {
+                } else if (business.preferredContact === "ADMIN" && business.administrator) {
                     communicationPreference.sendCalculosTo = business.administrator.email;
                 }
                 break;
             default:
                 communicationPreference.sendCalculosTo = "Desconocido";
         }
-
         return communicationPreference;
     }
 
