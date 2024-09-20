@@ -135,6 +135,17 @@ export interface Payment {
     businessId?: number
     person?: Person
     business?: Business
+
+    bankId: number,
+
+    // deprecated
+    account: string,
+}
+
+export interface IBankAccount {
+    id?: number,
+    accountNumber: string,
+    name: string
 }
 
 export interface CurrencyExchangeRate {

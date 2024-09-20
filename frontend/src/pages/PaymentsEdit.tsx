@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { DatePickerProps, FormProps } from 'antd'
 import { Upload, Switch, message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete, Flex, Typography } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
@@ -10,10 +10,11 @@ import dayjs from 'dayjs';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import * as api from '../util/api'
-import { Person, Business, Payment } from '../util/types';
+import { Person, Business, Payment, IBankAccount } from '../util/types';
 
 import * as paymentsApi from '../util/paymentsApi'
 import { completeUrl } from './BusinessShared';
+import bankAccountService from 'services/bankAccountService';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -45,13 +46,7 @@ interface FieldType {
 	paymentDate: Date
 }
 
-const originTypesOptions = ['Persona', 'Comercio'].map(t => ({ label: t, value: t }))
-
-const accountNumbers = ['1892', '3055', '9290', '5565'];
-const accounts = accountNumbers.map(number => ({
-	value: number,
-	label: number
-}));
+const originTypesOptions = ['Comercio', 'Persona'].map(t => ({ label: t, value: t }))
 
 const methodNames = ['Transferencia', 'PagoMovil', 'BioPago'];
 const methods = methodNames.map(method => ({
@@ -64,13 +59,13 @@ function PaymentsEdit(): JSX.Element {
 	const [messageApi, contextHolder] = message.useMessage()
 	const [form] = Form.useForm();
 
-	// get the payment id from url using useParams
 	const { id } = useParams()
 
 	const [businesses, setBusinesses] = React.useState<Business[]>([])
 	const [people, setPeople] = React.useState<Person[]>([])
 	const [businessOptions, setBusinessOptions] = React.useState<Array<{ label: string, value: string }>>()
 	const [personOptions, setPersonOptions] = React.useState<Array<{ label: string, value: string }>>()
+	const [bankAccounts, setBankAccounts] = useState<IBankAccount[]>()
 	const navigate = useNavigate()
 
 	const [payment, setPayment] = React.useState<Payment>()
@@ -83,7 +78,31 @@ function PaymentsEdit(): JSX.Element {
 	// if id is present, set isEditing to true
 	const isEditing = id !== undefined
 
+	
+	const accounts = bankAccounts?.map(b => ({
+		key: b.id,
+		value: b.id,
+		label: b.accountNumber.split('-')[4]
+	}));
+
 	useEffect(() => {
+		form.setFieldsValue({
+			account: accounts && accounts[0].label
+		})
+	}, [bankAccounts])
+
+
+	const loadBancAccounts = async () => {
+		// fetch with bankAccountService.findAll()
+		const fetchedBankAccounts = await bankAccountService.findAll()
+		// set the bancAccounts state object 
+		setBankAccounts(fetchedBankAccounts)
+
+		console.log({fetchedBankAccounts})
+	}
+
+	useEffect(() => {
+		loadBancAccounts()
 		loadBusiness()
 		loadPeople()
 
@@ -206,14 +225,21 @@ function PaymentsEdit(): JSX.Element {
 			console.log({boucherImageUrl})
 
 			// map all values to a ready to ship payment object
+			const bank = bankAccounts?.find(({accountNumber}) => accountNumber.includes(values.account))
+
+			if (!bank?.id) {
+				throw Error('Banco inválido')
+			}
+			
 			let newPaymentData: Payment = {
-				id: id,
+				id: Number(id),
 				reference: values.reference,
 				amount: values.amount,
-				account: values.account,
+				account: bank.accountNumber,
 				paymentDate: values.paymentDate,
 				image: boucherImageUrl,
 				state: 'received',
+				bankId: bank.id
 			}
 
 			if (isABusiness) {
@@ -341,12 +367,11 @@ function PaymentsEdit(): JSX.Element {
 				<Typography.Title level={2}>{isEditing ? "Editando Pago" : "Nuevo Pago"}</Typography.Title>
 
 				<Form form={form}
-					initialValues={{}}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
 
 					initialValues={{
-						typeOfEntity: 'Persona',
+						typeOfEntity: 'Comercio',
 					}}
 				>
 
@@ -360,6 +385,7 @@ function PaymentsEdit(): JSX.Element {
 							? (
 								<>
 									<Form.Item name='business' label='Comercio'
+										rules={[{ required: true, message: 'El comercio es requerido' }]}
 										style={{ flex: '30%' }}>
 										<Select
 											options={businessOptions}
@@ -419,8 +445,7 @@ function PaymentsEdit(): JSX.Element {
 						<Form.Item<FieldType>
 							label='Cuentas'
 							name='account'
-							initialValue={accounts[0].value}
-							style={{ marginRight: '20px' }}
+							style={{ marginRight: '20px', minWidth: '150px' }}
 						>
 							<Select
 								optionFilterProp='label'

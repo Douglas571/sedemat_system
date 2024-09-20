@@ -1,31 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import type { PopconfirmProps } from 'antd';
-import { Table, Button, Space, message, Popconfirm, Select, Typography, Flex, Card } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import type { PopconfirmProps } from 'antd';
+import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
 
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
 
-import { useNavigate, Link } from 'react-router-dom';
 import { render } from '@testing-library/react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { Payment } from '../util/types';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-interface Payment {
-    id: number;
-    amount: number;
-    reference: string;
-    dni: string;
-    account: string;
-    paymentDate: string;
-    businessName: string;
-    image: string;
-    isVerified: boolean,
-    liquidationDate?: Date
-}
 
 async function getPayments(): Promise<Array<Payment>> {
     let payments: Array<Payment> = [];
@@ -58,23 +48,11 @@ function Payments(): JSX.Element {
         console.log("Cargando pagos...")
         try {
             const payments = await getPayments();
+            console.log({payments})
             const mappedData = payments.map(payment => {
                 const newPayment = {
-                    id: payment.id,
-                    key: payment.id.toString(),
-                    amount: payment.amount,
-                    reference: payment.reference,
-                    dni: payment.dni,
-                    account: payment.account,
+                    ...payment,
                     paymentDate: new Date(payment.paymentDate).toLocaleDateString(),
-                    businessName: payment.businessName,
-                    image: payment.image,
-                    isVerified: payment.isVerified,
-                    status: '',
-                    businessId: payment.businessId,
-                    personId: payment.personId,
-                    business: payment.business,
-                    person: payment.person,
                 }
 
                 if (payment.isVerified) {
@@ -142,7 +120,7 @@ function Payments(): JSX.Element {
         window.open(`${HOST}/${imageUrl}`, '_blank', 'noopener,noreferrer');
     }
 
-    async function sendRequestToDeletePayment(id) {
+    async function sendRequestToDeletePayment(id: number) {
         const url = `${HOST}/v1/payments/${id}`;
 
         console.log('deleting payment ' + id)
@@ -164,7 +142,7 @@ function Payments(): JSX.Element {
     }
 
 
-    const deletePayment = async (id: string) => {
+    const deletePayment = async (id: number) => {
         try {
             // send the request
             await sendRequestToDeletePayment(id)
@@ -222,7 +200,6 @@ function Payments(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.reference.localeCompare(b.reference),
             render: (text: string, record) => {
-                console.log({ record })
                 return <Link to={`/payments/${record.key}`}>{text}</Link>
             }
         },
@@ -255,11 +232,11 @@ function Payments(): JSX.Element {
         {
             title: 'Acciones',
             key: 'action',
-            render: (_, record) => (
+            render: (_: any, record: Payment) => (
                 <Space size="middle">
 
                     <Button
-                        onClick={() => updateVerifiedStatus(record.key, !record.isVerified)}
+                        onClick={() => updateVerifiedStatus(record.id, !record.isVerified)}
                         shape="circle"
                     >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>
 
@@ -267,8 +244,8 @@ function Payments(): JSX.Element {
                         title="Eliminar Pago"
                         description="¿Estás seguro de que deseas eliminar el pago?"
                         onConfirm={() => {
-                            console.log("the payment will be deleted")
-                            deletePayment(record.key)
+                            console.log("thes payment will be deleted")
+                            deletePayment(record.id)
                         }}
                         //onCancel={cancel}
                         okText="Si"
