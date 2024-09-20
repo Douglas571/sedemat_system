@@ -225,6 +225,26 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
   let description = formatGrossIncomeDescription(grossIncomes)
 
+  let bankNames = new Set(payments.map( p => p?.bank?.name ).filter( name => name !== undefined))
+  let bankAccountNumbers = new Set(payments.map( p => p.bank?.accountNumber ).filter( num => num !== undefined))
+
+  let displayBankName = ''
+  let displayBankAccountNumber = ''
+
+  // create a set of names
+  if (bankNames.size === 1) {
+    displayBankName = bankNames.values().next().value;
+  } else {
+    displayBankName = 'Multiple Banks';
+  }
+
+  // create a set of numbers 
+  if (bankAccountNumbers.size === 1) {
+    displayBankAccountNumber = bankAccountNumbers.values().next().value;
+  } else {
+    displayBankAccountNumber = 'Multiple Accounts';
+  }
+
 
 
   const loadData = async () => {
@@ -238,7 +258,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     setBusiness(business)
     console.log({business})
 
-    let payments = await paymentsApi.findAll({grossIncomeInvoiceId: Number(grossIncomeInvoiceId)}) 
+    let payments = await paymentsApi.findAll({grossIncomeInvoiceId: Number(grossIncomeInvoiceId)})
     setPayments(payments)
     console.log({payments})
 
@@ -286,13 +306,13 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     {
       key: '1',
       label: 'RAZÓN SOCIAL',
-      children: business.businessName,
+      children: business.businessName.toUpperCase(),
       span: 3,
     },
     {
       key: '2',
       label: 'RIF',
-      children: business.dni,
+      children: business.dni.toUpperCase(),
       span: 3,
     },
     {
@@ -366,12 +386,12 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   {
     key: '1',
     label: 'BANCO',
-    children: "BANCO VENEZUELA C.A",
+    children: displayBankName.toUpperCase(),
   },
   {
     key: '2',
     label: 'CUENTA',
-    children: "0102-0339...1892",
+    children: displayBankAccountNumber,
   },
   {
     key: '3',

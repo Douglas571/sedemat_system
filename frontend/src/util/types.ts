@@ -118,10 +118,17 @@ export interface PermitDoc {
 }
 
 
+
 export interface CertificateOfIncorporation {
     businessId: number
     expirationDate: Date
     docImages: File[]
+}
+
+export interface Bank {
+    id: number,
+    name: string,
+    accountNumber: string,
 }
 
 export interface Payment {
@@ -137,6 +144,7 @@ export interface Payment {
     business?: Business
 
     bankId: number,
+    bank?: Bank,
 
     // deprecated
     account: string,

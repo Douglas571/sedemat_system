@@ -1,0 +1,28 @@
+const IP = process.env.BACKEND_IP || "localhost"
+const PORT = "3000"
+const HOST = "http://" + IP + ":" + PORT
+
+const bankAccountService = {
+    findAll: async () => {
+        return await fetch(`${HOST}/v1/bank-account`).then(res => res.json());
+    },
+    findById: async (id) => {
+        return await fetch(`${HOST}/v1/bank-account/${id}`).then(res => res.json());
+    },
+    update: async (id, data) => {
+        return await fetch(`${HOST}/v1/bank-account/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(res => res.json());
+    },
+    delete: async (id) => {
+        return await fetch(`${HOST}/v1/bank-account/${id}`, {
+            method: 'DELETE',
+        }).then(res => res.json());
+    }
+};
+
+export default bankAccountService;

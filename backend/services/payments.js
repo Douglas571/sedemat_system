@@ -1,4 +1,4 @@
-const { Payment: PaymentModel, Person, Business } = require('../database/models')
+const { Payment: PaymentModel, Person, Business, Bank } = require('../database/models')
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
 
@@ -19,6 +19,10 @@ exports.findAll = async ({filters}) => {
                     model: Business,
                     as: 'business',
                 },
+                {
+                    model: Bank,
+                    as: 'bank'
+                }
             ],
             where: filters
         });
