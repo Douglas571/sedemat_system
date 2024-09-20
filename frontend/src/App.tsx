@@ -32,6 +32,9 @@ import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInv
 import LoginForm from 'pages/Login'
 import SingUpForm from 'pages/SingUp'
 
+import Users from 'pages/Users'
+import UsersEdit from 'pages/UsersEdit'
+
 
 import { Routes, Route, Outlet, Link, BrowserRouter, useNavigate } from 'react-router-dom'
 
@@ -82,6 +85,12 @@ function App(): JSX.Element {
 							<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
 							<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 							<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
+
+
+							<Route path='users' element={<Users />} />
+							<Route path='users/new' element={<UsersEdit />} />
+							<Route path='users/:userId/edit' element={<UsersEdit />} />
+							
 						</Route>
 						
 

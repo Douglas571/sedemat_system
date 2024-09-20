@@ -1,3 +1,9 @@
+export interface IUser {
+    id: number,
+    username: string,
+    role: string,
+}
+
 export interface DocumentPayload {
     branchOfficeId: number;
     expirationDate: Date;

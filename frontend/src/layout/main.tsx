@@ -68,6 +68,11 @@ const items: MenuProp['items'] = [
 		key: '/payments',
 		icon: '',
 		label: 'Pagos'
+	},
+	{
+		key: '/users',
+		icon: '',
+		label: 'Usuarios'
 	}
 ]
 
