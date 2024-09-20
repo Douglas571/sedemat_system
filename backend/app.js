@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require('cors');
+const passport = require('passport');
+
 const path = require('path');
 
 const fs = require('fs');
@@ -43,9 +45,13 @@ const grossIncomeInvoiceRouter = require('./routers/grossIncomeInvoiceRouter');
 
 const bankAccountRouter = require('./routers/bankAccountRouter')
 
+const authRouter = require('./routers/authRouter');
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
+
+app.use(passport.initialize());
 
 
 const requestLogger = (req, res, next) => {
@@ -78,6 +84,8 @@ app.use("/v1/gross-incomes", grossIncomeRouter);
 app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
 
 app.use('/v1/bank-accounts', bankAccountRouter)
+
+app.use('/v1/auth', authRouter);
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -6,6 +6,7 @@ module.exports = {
     return queryInterface.bulkInsert('Users', [
       {
         id: 1,
+        username: 'adminUser',
         email: 'admin@example.com',
         password: '12345',
         roleId: 1,
@@ -14,6 +15,7 @@ module.exports = {
       },
       {
         id: 2,
+        username: 'directorUser',
         email: 'director@example.com',
         password: '12345',
         roleId: 2,
@@ -22,6 +24,7 @@ module.exports = {
       },
       {
         id: 3,
+        username: 'asesorUser',
         email: 'asesor@example.com',
         password: '12345',
         roleId: 3,
@@ -30,6 +33,7 @@ module.exports = {
       },
       {
         id: 4,
+        username: 'recaudadorUser',
         email: 'recaudador@example.com',
         password: '12345',
         roleId: 4,
@@ -38,6 +42,7 @@ module.exports = {
       },
       {
         id: 5,
+        username: 'coordinadorUser',
         email: 'coordinador@example.com',
         password: '12345',
         roleId: 5,
@@ -46,6 +51,7 @@ module.exports = {
       },
       {
         id: 6,
+        username: 'fiscalUser',
         email: 'fiscal@example.com',
         password: '12345',
         roleId: 6,
@@ -54,6 +60,7 @@ module.exports = {
       },
       {
         id: 7,
+        username: 'contribuyenteUser',
         email: 'contribuyente@example.com',
         password: '12345',
         roleId: 7,
