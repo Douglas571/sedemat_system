@@ -29,8 +29,11 @@ import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
 import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInvoiceSettlement'
 
+import LoginForm from 'pages/Login'
+import SingUpForm from 'pages/SingUp'
 
-import { Routes, Route, Outlet, Link, BrowserRouter } from 'react-router-dom'
+
+import { Routes, Route, Outlet, Link, BrowserRouter, useNavigate } from 'react-router-dom'
 
 import MainLayout from 'layout/main'
 
@@ -39,44 +42,48 @@ function App(): JSX.Element {
 		<div>
 			<BrowserRouter>
 				<Routes>
-					<Route path='/' element={<MainLayout />}>
-						{/* <Route index element={<Home />} /> */}
+					<Route path='/' element={<AdministrativeGuardRoute/>}>
 
-						<Route index element={<Home />} />
+						<Route element={<MainLayout />}>
 
-						<Route path='payments' element={<Payments />} />
-						<Route path='payments/new' element={<PaymentsEdit />} />
-						<Route path='payments/:id' element={<PaymentsEdit />} />
+							{/* <Route index element={<Home />} /> */}
+
+							<Route index element={<Home />} />
+							<Route path='payments' element={<Payments />} />
+							<Route path='payments/new' element={<PaymentsEdit />} />
+							<Route path='payments/:id' element={<PaymentsEdit />} />
+
+							<Route path='business' element={<BusinessView />} />
+							<Route path='business/new' element={<NewBusinessForm />}/>
+							<Route path='business/edit/:businessId' element={<NewBusinessForm />}/>
+							<Route path='business/:businessId' element={<BusinessViewDetails />}/>
+							<Route path='businesses/:businessId/branch-offices/new' element={<BranchOfficeEdit />}/>
+							<Route path='businesses/:businessId/branch-offices/:branchOfficeId/edit' element={<BranchOfficeEdit />}/>
+
+							<Route path='business/:businessId/licenses/new' element={<EconomicLicenseEdit />}/>
+							<Route path='business/:businessId/licenses/:licenseId/edit' element={<EconomicLicenseEdit />}/>
+
+							<Route path='contacts' element={<Contacts/>}/>
+							<Route path='contacts/:id' element={<ContactsView/>}/>
+							<Route path='contacts/new' element={<ContactEdit/>}/>
+							<Route path='contacts/:contactId/edit' element={<ContactEdit/>}/>
+
+							<Route path='currency-exchange-rates' element={<CurrencyExchangeRatesPage />} />
+							<Route path='currency-exchange-rates/new' element={<CurrencyExchangeRatesEditForm />} />
+							<Route path='currency-exchange-rates/edit/:id' element={<CurrencyExchangeRatesEditForm />} />
+
+							<Route path='tax-collection' element={<TaxCollection />} />
+							<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
+
+							<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
+							<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId' element={<GrossIncomeDetails />} />
+							<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
+
+							<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
+							<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
+							<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
+						</Route>
 						
-						<Route path='business' element={<BusinessView />} />
-						<Route path='business/new' element={<NewBusinessForm />}/>
-						<Route path='business/edit/:businessId' element={<NewBusinessForm />}/>
-						<Route path='business/:businessId' element={<BusinessViewDetails />}/>
-						<Route path='businesses/:businessId/branch-offices/new' element={<BranchOfficeEdit />}/>
-						<Route path='businesses/:businessId/branch-offices/:branchOfficeId/edit' element={<BranchOfficeEdit />}/>
-
-						<Route path='business/:businessId/licenses/new' element={<EconomicLicenseEdit />}/>
-						<Route path='business/:businessId/licenses/:licenseId/edit' element={<EconomicLicenseEdit />}/>
-
-						<Route path='contacts' element={<Contacts/>}/>
-						<Route path='contacts/:id' element={<ContactsView/>}/>
-						<Route path='contacts/new' element={<ContactEdit/>}/>
-						<Route path='contacts/:contactId/edit' element={<ContactEdit/>}/>
-
-						<Route path='currency-exchange-rates' element={<CurrencyExchangeRatesPage />} />
-						<Route path='currency-exchange-rates/new' element={<CurrencyExchangeRatesEditForm />} />
-						<Route path='currency-exchange-rates/edit/:id' element={<CurrencyExchangeRatesEditForm />} />
-
-						<Route path='tax-collection' element={<TaxCollection />} />
-						<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
-
-						<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
-						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId' element={<GrossIncomeDetails />} />
-						<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
-
-						<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
-						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
-						<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
 
 						{/* Using path="*"" means "match anything", so this route
 						acts like a catch-all for URLs that we don't have explicit
@@ -86,9 +93,29 @@ function App(): JSX.Element {
 
 					<Route path='/printable/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<PrintableGrossIncomeInvoice />} />
 					<Route path='/printable/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/settlement' element={<PrintableGrossIncomeInvoiceSettlement />} />
+
+
+					<Route path={'/login'} element={<LoginForm/>}/>
+					<Route path={'/singup'} element={<SingUpForm/>}/>
 				</Routes>
 			</BrowserRouter>
 		</div>
+	)
+}
+
+function ProtectedRoute() {
+	return (<h1>
+		I'm protected 
+	</h1>)
+}
+
+function AdministrativeGuardRoute() {
+	let navigate = useNavigate()
+	if (false) {
+		navigate('/login')
+	}
+	return (
+		<Outlet></Outlet>
 	)
 }
 
