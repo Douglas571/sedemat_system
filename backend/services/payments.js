@@ -59,7 +59,6 @@ exports.findById = async (id) => {
 };
 
 exports.createPayment = async (paymentData) => {
-    logger.info('Creating new payment with data:', paymentData);
 
     // if (paymentData.grossIncomeInvoiceId === null) {
     //     await grossIncomeInvoiceService.removePayment(paymentData.id);
@@ -75,7 +74,6 @@ exports.createPayment = async (paymentData) => {
         }
 
         const payment = await PaymentModel.create(paymentData);
-        logger.info('Payment created:', payment);
         return payment;
     } catch (error) {
 

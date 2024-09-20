@@ -41,6 +41,8 @@ const grossIncomeRouter = require('./routers/grossIncomeRouter');
 
 const grossIncomeInvoiceRouter = require('./routers/grossIncomeInvoiceRouter');
 
+const bankAccountRouter = require('./routers/bankAccountRouter')
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -75,7 +77,7 @@ app.use("/v1/gross-incomes", grossIncomeRouter);
 
 app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
 
-console.log("Gross incomes router mounted")
+app.use('/v1/bank-accounts', bankAccountRouter)
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
