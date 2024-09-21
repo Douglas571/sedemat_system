@@ -1,24 +1,37 @@
 import { Typography, Flex, Table, Card, Button, Popconfirm} from 'antd';
 import { PlusOutlined } from '@ant-design/icons'; // Updated import for PlusOutlined
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { IUser } from '../util/types';
+import userService from 'services/UserService';
 
 
 const Users: React.FC = () => {
     const navigate = useNavigate()
 
+    const [users, setUsers] = useState<IUser[]>()
+
     const handleDelete = async (id: number) => {
         // call api to delete user
     }
 
+    const loadData = async () => {
+        let users = await userService.findAll()
+        setUsers(users)
+    }
     // add a useeffect to load users 
+    useEffect(() => {
+        loadData()
+    }, [])
+
 
     const columns = [
         {
             title: 'Nombre de Usuario',
-            dataIndex: 'nickname',
-            key: 'nickname',
+            dataIndex: 'username',
+            key: 'username',
         },
         {
             title: 'Contacto',
@@ -54,9 +67,6 @@ const Users: React.FC = () => {
         },
     ];
 
-    const dataSource: IUsers[] = [
-        { id: 1, nickname: 'John Doe', contact: 'john.doe@example.com', email: 'john.doe@example.com' }]
-
     return (
         <Flex vertical>
             <Card title={
@@ -65,7 +75,7 @@ const Users: React.FC = () => {
                     <Button  onClick={() => navigate('/users/new')} icon={<PlusOutlined />}>Agregar</Button>
                 </Flex>}
             >
-                <Table dataSource={dataSource} columns={columns} />
+                <Table dataSource={users} columns={columns} />
             </Card>
         </Flex>
     );

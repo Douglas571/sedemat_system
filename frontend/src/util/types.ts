@@ -1,7 +1,12 @@
+export interface IRole {
+    id: number,
+    name: string
+}
+
 export interface IUser {
     id: number,
     username: string,
-    role: string,
+    role: IRole,
 }
 
 export interface DocumentPayload {

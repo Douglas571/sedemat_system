@@ -1,15 +1,10 @@
-import { createContext, useState } from "react";
+// useAuthentication.jsx
+import { useContext } from "react";
+import { AuthenticationContext, IAuthContext } from "../contexts/AuthenticationProvider";
+import { IUser } from "../util/types";
 
-export const AuthenticationContext = createContext({});
+const useAuthentication = () => {
+    return useContext(AuthenticationContext) as IAuthContext;
+};
 
-export function AuthenticationProvider({ children }) {
-    const [userAuth, setUserAuth] = useState(null); // Initialize to null for unauthenticated state
-
-    return (
-        <AuthenticationContext.Provider value= {{ userAuth, setUserAuth }
-}>
-    { children }
-    </AuthenticationContext.Provider>
-  );
-}
-export default AuthenticationProvider;
+export default useAuthentication;

@@ -21,6 +21,7 @@ import {
 	useNavigate
 } from 'react-router-dom'
 import { locale } from 'dayjs'
+import useAuthentication from 'hooks/useAuthentication'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -37,45 +38,6 @@ const siderStyle: React.CSSProperties = {
 	zIndex: 9000
 }
 
-const items: MenuProp['items'] = [
-	{
-		key: '/',
-		icon: '',
-		label: 'Inicio',
-		route: 'home'
-	},
-	{
-		key: '/business',
-		icon: '',
-		label: 'Contribuyentes'
-	},
-	{
-		key: '/contacts',
-		icon: '',
-		label: 'Contactos'
-	},
-	{
-		key: '/tax-collection',
-		icon: '',
-		label: 'Recaudación'
-	},
-	{
-		key: '/currency-exchange-rates',
-		icon: '',
-		label: 'Tasas de Cambio'
-	},
-	{
-		key: '/payments',
-		icon: '',
-		label: 'Pagos'
-	},
-	{
-		key: '/users',
-		icon: '',
-		label: 'Usuarios'
-	}
-]
-
 const App: React.FC = () => {
 	const navigate = useNavigate()
 	const {
@@ -83,9 +45,60 @@ const App: React.FC = () => {
 	} = theme.useToken()
 
 	const onClick: MenuProps['onClick'] = data => {
-		//     console.log({data})
+		// console.log({data})
 		navigate(data.key)
 	}
+
+	const { userAuth } = useAuthentication()
+
+	const items: MenuProps['items'] = [
+		{
+			key: '/',
+			icon: '',
+			label: 'Inicio',
+		},
+		{
+			key: '/business',
+			icon: '',
+			label: 'Contribuyentes'
+		},
+		{
+			key: '/contacts',
+			icon: '',
+			label: 'Contactos'
+		},
+		{
+			key: '/tax-collection',
+			icon: '',
+			label: 'Recaudación'
+		},
+		{
+			key: '/currency-exchange-rates',
+			icon: '',
+			label: 'Tasas de Cambio'
+		},
+		{
+			key: '/payments',
+			icon: '',
+			label: 'Pagos'
+		},		
+	]
+
+	if (userAuth.user?.role.name === 'Administrador') {
+		items.push({
+			key: '/users',
+			icon: '',
+			label: 'Usuarios'
+		}, )
+	}
+	if (userAuth.token) {
+		items.push({
+			key: '/logout',
+			icon: '',
+			label: 'Cerrar Sesión'
+		})
+	}
+	
 
 	return (
 		<Layout>
