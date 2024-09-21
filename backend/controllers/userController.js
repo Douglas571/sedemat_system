@@ -1,3 +1,5 @@
+const userService = require('../services/userService');
+
 // controllers/userController.js
 class UserController {
     constructor(userService) {
@@ -51,4 +53,4 @@ class UserController {
     }
 }
 
-module.exports = UserController;
+module.exports = new UserController(userService);

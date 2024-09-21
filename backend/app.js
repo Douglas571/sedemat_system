@@ -45,6 +45,7 @@ const grossIncomeInvoiceRouter = require('./routers/grossIncomeInvoiceRouter');
 
 const bankAccountRouter = require('./routers/bankAccountRouter')
 
+const userRouter = require('./routers/userRouter')
 const authRouter = require('./routers/authRouter');
 
 const app = express ();
@@ -85,6 +86,7 @@ app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
 
 app.use('/v1/bank-accounts', bankAccountRouter)
 
+app.use('/v1/users', userRouter)
 app.use('/v1/auth', authRouter);
 
 // Middleware to serve static files from the 'uploads' directory

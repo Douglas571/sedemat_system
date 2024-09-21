@@ -69,16 +69,30 @@ class AuthService {
     async login(userData) {
         const { username, password } = userData
 
+
         try {
             const user = await User.findOne({ where: { username } });
             if (!user) {
-                throw new Error('User not found');
+                let error = new Error('User not registered')
+                error.name = 'UserNotRegistered'
+                throw error;
             }
             if (user.password !== password) {
-                throw new Error('Password is incorrect');
+                let error = new Error('Incorrect password');
+                error.name = 'IncorrectPassword'
+                throw error
             }
             const token = jwt.sign({ id: user.id }, this.secret, { expiresIn: '1h' });
-            return token;
+
+            const role = await user.getRole()
+
+            return {
+                token,
+                user: {
+                    ...user.toJSON(),
+                    role: role.toJSON(),
+                }
+            };
         } catch (error) {
             console.log({ error })
             throw error

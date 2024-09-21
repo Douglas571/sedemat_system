@@ -1,3 +1,5 @@
+const { User } = require('../database/models')
+
 // services/userService.js
 class UserService {
     constructor(User) {
@@ -33,4 +35,4 @@ class UserService {
     }
 }
 
-module.exports = UserService;
+module.exports = new UserService(User);

@@ -11,15 +11,28 @@ class AuthController {
     }
 
     async login(req, res) {
+        
         try {
-            const token = await authService.login(req.body);
-            res.json({ token });
+            const data = await authService.login(req.body);
+            res.json(data);
         } catch (error) {
             console.log(error.message)
-            if (error.message.toLowerCase() === "user not found") {
-                return res.status(404).json({ error: error.message })
+            if (error.name === "UserNotRegistered") {
+                return res.status(404).json({ error: {
+                    message: error.message,
+                    name: error.name
+                } })
             }
-            res.status(401).json({ error: error.message });
+
+            if (error.name === "IncorrectPassword") {
+                return res.status(400).json({
+                    error: {
+                        message: error.message,
+                        name: error.name
+                    }
+                })
+            }
+            res.status(401).json({ error: { message: error.message } });
         }
     }
 
