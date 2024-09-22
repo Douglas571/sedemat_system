@@ -66,6 +66,10 @@ const requestLogger = (req, res, next) => {
 };
 app.use(requestLogger);
 
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong')
+})
+
 app.use("/v1/payments", paymentsRouter)
 app.use("/v1/businesses", businessesRouter)
 app.use("/v1/branch-offices", branchOfficesRouter) // todo: fix this url to use hyphens instead of camelCase
