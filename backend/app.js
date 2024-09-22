@@ -96,7 +96,7 @@ app.use('/v1/auth', authRouter);
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.get("status", (request, response) => {
+app.get("/status", (request, response) => {
     console.log("get here")
     const status = {
         "Status": "Running"
