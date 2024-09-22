@@ -67,3 +67,11 @@ export async function uploadRifPicture(file: File): Promise<string> {
     // else, return data.dniPictureUrl
     return data.url
 }
+
+import * as api from './api'
+
+const fetchAll = api.getPeople
+
+export default {
+    fetchAll
+}

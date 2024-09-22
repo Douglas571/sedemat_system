@@ -93,6 +93,7 @@ app.use('/v1/auth', authRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("status", (request, response) => {
+    console.log("get here")
     const status = {
         "Status": "Running"
     };

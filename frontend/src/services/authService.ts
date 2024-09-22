@@ -1,4 +1,4 @@
-import { IUser } from "../util/types";
+import { IRole, IUser } from "../util/types";
 
 const IP = process.env.BACKEND_IP || "localhost";
 const PORT = "3000";
@@ -79,6 +79,18 @@ const authService = {
                 'Authorization': `Bearer ${token}`,
             },
         }).then(res => res.json());
+    },
+
+    getRoles: async (): Promise<IRole[]> => {
+        let res = await fetch(`${HOST}/v1/auth/roles`)
+
+        let data = await res.json()
+        
+        if (res.status !== 200) {
+            throw new Error(data.error.message)
+        }
+
+        return data 
     }
 };
 

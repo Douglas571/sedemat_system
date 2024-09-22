@@ -41,6 +41,12 @@ class AuthController {
         
         res.status(200).json({ existsAdministrator })
     }
+
+    async getRoles(req, res) {
+        let roles = await authService.getRoles()
+        console.log({roles})
+        res.status(200).json({ roles })
+    }
 }
 
 module.exports = new AuthController();

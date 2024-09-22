@@ -10,9 +10,25 @@ const ROLES = {
 }
 
 class AuthService {
+    
+    
     constructor() {
         this.secret = 'your_jwt_secret'; // Use a secure secret
         this.initPassport();
+
+        this.ROLES = [
+            { id: 1, name: 'Administrador', createdAt: new Date(), updatedAt: new Date() },
+            { id: 2, name: 'Director', createdAt: new Date(), updatedAt: new Date() },
+            { id: 3, name: 'Asesor Jurídico', createdAt: new Date(), updatedAt: new Date() },
+            { id: 4, name: 'Recaudador', createdAt: new Date(), updatedAt: new Date() },
+            { id: 5, name: 'Coordinador', createdAt: new Date(), updatedAt: new Date() },
+            { id: 6, name: 'Fiscal', createdAt: new Date(), updatedAt: new Date() },
+            { id: 7, name: 'Contribuyente', createdAt: new Date(), updatedAt: new Date() }
+        ]
+    }
+
+    async getRoles() {
+        return this.ROLES
     }
 
     async existsAdministrator() {

@@ -16,7 +16,7 @@ const Users: React.FC = () => {
     const handleDelete = async (id: number) => {
         // call api to delete user
     }
-
+    
     const loadData = async () => {
         let users = await userService.findAll()
         setUsers(users)
