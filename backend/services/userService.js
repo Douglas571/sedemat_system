@@ -7,7 +7,8 @@ class UserService {
     }
 
     async createUser(data) {
-        return this.User.create(data);
+        let newUser = this.User.create(data);
+        return newUser
     }
 
     async getUserById(id) {
@@ -31,7 +32,9 @@ class UserService {
     async deleteUser(id) {
         const user = await this.getUserById(id);
         if (!user) throw new Error('User not found');
-        return user.destroy();
+        let deletedUser = await user.destroy();
+        
+        return deletedUser
     }
 }
 

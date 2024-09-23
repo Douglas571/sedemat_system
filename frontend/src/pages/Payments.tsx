@@ -254,7 +254,7 @@ function Payments(): JSX.Element {
                         <Button danger shape="circle"><DeleteFilled /></Button>
                     </Popconfirm>
 
-                    <Button onClick={() => navigate(`/payments/${record.key}`)}>Editar</Button>
+                    <Button onClick={() => navigate(`/payments/${record.id}`)}>Editar</Button>
                     <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
                 </Space>
             ),

@@ -4,14 +4,11 @@ const {User, Role} = require('../database/models'); // Assuming you have a User 
 const jwt = require('jsonwebtoken');
 
 
-const ROLES = {
-    administrator: "Administrador",
-
-}
+// const ROLES = {
+//     administrator: "Administrador",
+// }
 
 class AuthService {
-    
-    
     constructor() {
         this.secret = 'your_jwt_secret'; // Use a secure secret
         this.initPassport();
@@ -25,6 +22,8 @@ class AuthService {
             { id: 6, name: 'Fiscal', createdAt: new Date(), updatedAt: new Date() },
             { id: 7, name: 'Contribuyente', createdAt: new Date(), updatedAt: new Date() }
         ]
+
+        console.log({roles: this.ROLES})
     }
 
     async getRoles() {

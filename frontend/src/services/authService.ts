@@ -85,7 +85,7 @@ const authService = {
         let res = await fetch(`${HOST}/v1/auth/roles`)
 
         let data = await res.json()
-        
+
         if (res.status !== 200) {
             throw new Error(data.error.message)
         }

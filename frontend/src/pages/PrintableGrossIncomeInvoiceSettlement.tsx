@@ -359,28 +359,40 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     }
   ];
 
-  const tableItems: TableProps['dataSource'] = [
-    {
-      code: '301021200',
-      description: 'DEUDAS MOROSAS',
-      amountBs: formatBolivares(badDebtTax),
-    },
-    {
-      code: '301020700',
-      description: 'PATENTE DE INDUSTRIA Y COMERCIO',
-      amountBs: formatBolivares(economicActivityTax), // Assuming amount is not specified
-    },
-    {
-      code: '301035400',
-      description: 'ASEO DOMICILIARIO',
-      amountBs: formatBolivares(wasteCollectionTax), // Assuming amount is not specified
-    },
+  let tableItems = [
     {
       code: '301090101',
       description: 'INGRESO POR FORMULARIOS Y GACETAS MUNICIPALES',
       amountBs: formatBolivares(formTax), // Assuming amount is not specified
     },
   ];
+
+  if (wasteCollectionTax > 0) {
+    tableItems.push({
+      code: '301035400',
+      description: 'ASEO DOMICILIARIO',
+      amountBs: formatBolivares(wasteCollectionTax), // Assuming amount is not specified
+    },);
+  }
+
+  if (economicActivityTax > 0) {
+    tableItems.push({
+      code: '301020700',
+      description: 'PATENTE DE INDUSTRIA Y COMERCIO',
+      amountBs: formatBolivares(economicActivityTax),
+    });
+  }
+
+  if (badDebtTax > 0) {
+    tableItems.push({
+      code: '301021200',
+      description: 'DEUDA MOROSA',
+      amountBs: formatBolivares(badDebtTax),
+    });
+  }
+
+  // reverse for styling purpose 
+  tableItems = tableItems.reverse();
 
   const descriptionPaymentDetails: DescriptionsProps['items'] = [
   {

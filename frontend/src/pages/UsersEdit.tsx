@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Button, Flex, Card, Typography, Divider } from 'antd';
-import { useParams } from 'react-router-dom';
+import { Form, Input, Select, Button, Flex, Card, Typography, Divider, message } from 'antd';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useForm } from 'antd/es/form/Form';
 import { IRole, IUser, Person } from '../util/types';
@@ -15,6 +15,8 @@ import authService from 'services/authService';
 function UserEditForm() {
     const { userId } = useParams()
     const [form] = Form.useForm();
+    const navigate = useNavigate()
+    const [messageApi, contextHandler] = message.useMessage()
 
     const [user, setUser] = useState<IUser>();
     const [contacts, setContacts] = useState<Person[]>()
@@ -37,17 +39,29 @@ function UserEditForm() {
         }
     }) || []
 
+    console.log({selectOptionsRole})
+
     const toggleChangePassword = () => setChangePassword(!changePassword);
 
     const loadData = async () => {
-        let user = await userService.findById(Number(userId))
-        setUser(user)
+        
+        try {
 
-        let contacts = await peopleService.fetchAll()
-        setContacts(contacts)
+            if (isEditing) {
+                let user = await userService.findById(Number(userId))
+                setUser(user)
+            }
+            
 
-        let roles = await authService.getRoles()
-        setRoles(roles)
+            let contacts = await peopleService.fetchAll()
+            setContacts(contacts)
+
+            let roles = await authService.getRoles()
+            
+            setRoles(roles)
+        } catch (error) {
+            console.log({error})
+        }
     }
 
     const updateUser = async (user: IUser) => {
@@ -55,8 +69,27 @@ function UserEditForm() {
             const newUser = await userService.update(Number(userId), user)
 
             console.log({newUser})
+
+            message.success("Usuario actualizado exitosamente")
+            navigate('/users')
+
         } catch (error) {
             console.log(error)
+            messageApi.error(error.message)
+        }
+    }
+
+    const createUser = async (user: IUser) => {
+        try {
+            const newUser = await userService.create(user)
+            console.log({newUser})
+
+            message.success("Usuario creado exitosamente")
+            navigate('/users')
+
+        } catch (error) {
+            console.log({error})
+            messageApi.error(error.message)
         }
     }
 
@@ -64,11 +97,23 @@ function UserEditForm() {
         // Handle form submission with values
 
         console.log({values})
-        let updateUserData: IUser = {
-            ...values, 
-            password: changePassword ? values.password : undefined
+
+        if (isEditing) {
+            let updateUserData: IUser = {
+                ...values, 
+                password: changePassword ? values.password : undefined
+            }
+            updateUser(updateUserData)
+        } else {
+            let newUser: IUser = {
+                ...values
+            }
+
+            console.log({preNewUser: newUser})
+
+            createUser(newUser)
         }
-        updateUser(updateUserData)
+        
     };
 
     useEffect(() => {
@@ -84,6 +129,7 @@ function UserEditForm() {
 
     return (
         <Flex vertical>
+            {contextHandler}
             <Card title={
                 <Typography.Title>{isEditing ? "Editando Usuario" : "Registrando Usuario"}</Typography.Title>
             }>
@@ -112,7 +158,7 @@ function UserEditForm() {
                     )}
 
                     {!isEditing && (
-                        <Form.Item label="Password">
+                        <Form.Item label="password" name="password">
                             <Input.Password />
                         </Form.Item>
                     )}

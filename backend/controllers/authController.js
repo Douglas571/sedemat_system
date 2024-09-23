@@ -44,8 +44,7 @@ class AuthController {
 
     async getRoles(req, res) {
         let roles = await authService.getRoles()
-        console.log({roles})
-        res.status(200).json({ roles })
+        res.status(200).json(roles)
     }
 }
 

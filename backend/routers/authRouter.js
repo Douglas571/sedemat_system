@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const AuthController = require('../controllers/authController'); // Adjust the path as necessary
-const authService = require('../services/authService');
+
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.get('/protected', passport.authenticate('jwt', { session: false }), (req,
 
 router.get('/exists-admin', AuthController.existsAdministrator.bind(AuthController));
 
-router.get('/roles', authService.getRoles)
+router.get('/roles', AuthController.getRoles.bind(AuthController))
 
 
 

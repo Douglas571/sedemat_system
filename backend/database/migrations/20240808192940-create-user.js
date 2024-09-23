@@ -12,16 +12,21 @@ module.exports = {
 
       username: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true,
       },
       
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
+
       roleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -47,6 +52,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+
+      deletedAt: {
+        type: Sequelize.DATE,
+        allowNull: true // This will be populated when the record is soft deleted
       }
     });
   },

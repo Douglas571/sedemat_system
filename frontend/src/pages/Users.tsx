@@ -2,9 +2,9 @@ import { Typography, Flex, Table, Card, Button, Popconfirm} from 'antd';
 import { PlusOutlined } from '@ant-design/icons'; // Updated import for PlusOutlined
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { IUser } from '../util/types';
+import { IUser, Person } from '../util/types';
 import userService from 'services/UserService';
 
 
@@ -15,11 +15,16 @@ const Users: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         // call api to delete user
+        let deleted = await userService.delete(id)
+
+        loadData()
     }
     
     const loadData = async () => {
         let users = await userService.findAll()
         setUsers(users)
+
+        console.log({users})	
     }
     // add a useeffect to load users 
     useEffect(() => {
@@ -35,8 +40,14 @@ const Users: React.FC = () => {
         },
         {
             title: 'Contacto',
-            dataIndex: 'contact',
+            dataIndex: 'person',
             key: 'contact',
+            render: (person: Person) => {
+                if (!person) {
+                    return 'Sin contacto'
+                }
+                return <Link to={`/contacts/${person.id}`}>{person.firstName} {person.lastName}</Link>
+            }
         },
         {
             title: 'Correo',
