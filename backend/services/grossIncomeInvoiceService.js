@@ -1,5 +1,13 @@
 // services/grossIncomeInvoiceService.js
-const { GrossIncomeInvoice, GrossIncome, CurrencyExchangeRates, Payment } = require('../database/models');
+const {
+    GrossIncomeInvoice,
+    GrossIncome,
+    CurrencyExchangeRates,
+    Payment,
+    Person,
+    User,
+    Settlement,
+} = require('../database/models');
 
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
@@ -21,15 +29,40 @@ class GrossIncomeInvoiceService {
                 {
                     model: GrossIncome,
                     as: 'grossIncomes',
+                },
+                {
+                    model: User,
+                    as: 'createdByUser',
+                    include: [
+                        {
+                            model: Person,
+                            as: 'person'
+                        }
+                    ]
+                }, 
+                {
+                    model: User,
+                    as: 'settledByUser',
+                    include: [
+                        {
+                            model: Person,
+                            as: 'person'
+                        }
+                    ]
                 }
             ]
         });
     }
 
     // Create a new GrossIncomeInvoice record
-    async createGrossIncomeInvoice(newGrossIncomeInvoice) {
+    async createGrossIncomeInvoice(data, user = {}) {
         // return await GrossIncomeInvoice.create(newGrossIncomeInvoice);
         console.log("Executing gross income invoice create")
+
+        let newGrossIncomeInvoice = {
+            ...data,
+            createdByUserId: user.id,
+        }
 
         if (newGrossIncomeInvoice?.grossIncomesIds?.length === 0) {
             throw new Error("Include at least one gross income id within grossIncomesIds")
@@ -42,7 +75,7 @@ class GrossIncomeInvoiceService {
     }
 
     // Update an existing GrossIncomeInvoice record by ID
-    async updateGrossIncomeInvoice(id, data) {
+    async updateGrossIncomeInvoice(id, data, user = {}) {
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
 
         if (!grossIncomeInvoice) {
@@ -50,7 +83,7 @@ class GrossIncomeInvoiceService {
         }
 
         // if gross income is paid, don't allow any other property aside of paidAt
-        if (grossIncomeInvoice.paidAt !== null &&Object.keys(data).length > 1) {
+        if (grossIncomeInvoice.paidAt !== null && Object.keys(data).length > 1) {
             throw new Error('This invoice is already paid, only paidAt can be updated for a paid invoice');
         }
 
@@ -64,6 +97,24 @@ class GrossIncomeInvoiceService {
             await GrossIncome.update({ grossIncomeInvoiceId: null }, { where: { id: data.removeGrossIncomesIds } });
         }
 
+        // check if it is being paid for the first time
+        if (data.paidAt && grossIncomeInvoice.paidAt === null) {
+            data.settledByUserId = user.id
+
+
+            // // TODO: in this case, we have to create a new settlement, with:
+            // let newSettlement = await Settlement.create({
+            //     settledByUserId: user.id,
+            //     grossIncomeInvoiceId: id,
+            //     code: data.settlementCode
+            // })
+
+            // console.log({newSettlement})
+                // the user data
+                // the gross income invoice id
+                // assign a code to the settlement
+        }
+        
         return await grossIncomeInvoice.update(data);
     }
 

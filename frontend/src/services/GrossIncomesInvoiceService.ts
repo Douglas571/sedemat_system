@@ -1,4 +1,6 @@
 import dayjs from "dayjs"  
+import { ISettlementCreate } from "util/types";
+import { ISettlement } from "util/types";
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -33,11 +35,17 @@ class GrossIncomesInvoiceService {
     }
   
     // Create a new gross income invoice
-    async create(data: IGrossIncomeInvoiceCreate): Promise<IGrossIncomeInvoice> {
+    async create(data: IGrossIncomeInvoiceCreate, token: string = ''): Promise<IGrossIncomeInvoice> {
+
+      if (!token){
+        throw new Error('No token provided');
+      }
+
       const response = await fetch(`${this.baseUrl}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -49,11 +57,17 @@ class GrossIncomesInvoiceService {
     }
   
     // Update an existing gross income invoice
-    async update(data: IGrossIncomeInvoice): Promise<IGrossIncomeInvoice> {
+    async update(data: IGrossIncomeInvoice, token: string = ''): Promise<IGrossIncomeInvoice> {
+
+      if (!token){
+        throw new Error('No token provided');
+      }
+
       const response = await fetch(`${this.baseUrl}/${data.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -119,13 +133,18 @@ class GrossIncomesInvoiceService {
       }
     }
 
-    async markAsPaid(grossIncomeInvoiceId: number): Promise<void> {
+    async markAsPaid(grossIncomeInvoiceId: number, token: string): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ paidAt: dayjs().toISOString() }),
+        body: JSON.stringify({ 
+          paidAt: dayjs().toISOString(),
+          // TODO: DELETE
+          settlementCode: String(new Date())
+        }),
       });
 
       if (!response.ok) {
@@ -136,13 +155,16 @@ class GrossIncomesInvoiceService {
       return await response.json()
     }
 
-    async unmarkAsPaid(grossIncomeInvoiceId: number): Promise<void> {
+    async unmarkAsPaid(grossIncomeInvoiceId: number, token: string): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ paidAt: null }),
+        body: JSON.stringify({ 
+          paidAt: null
+        }),
       });
 
       if (!response.ok) {

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
-import { Business, BranchOffice } from '../util/types'
+import { Business, BranchOffice, Person, EconomicActivity } from '../util/types'
 import { 
     Button, 
     DatePicker, 

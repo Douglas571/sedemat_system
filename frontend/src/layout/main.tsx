@@ -10,7 +10,7 @@ import {
 	VideoCameraOutlined
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
-import { Layout, Menu, theme } from 'antd'
+import { Layout, Menu, theme, Typography, Flex, Divider } from 'antd'
 
 import {
 	Routes,
@@ -32,10 +32,11 @@ const siderStyle: React.CSSProperties = {
 	// insetInlineStart: 0,
 	// top: 0,
 	// bottom: 0,
-	paddingTop: '64px',
+	// paddingTop: '64px',
 	// scrollbarWidth: 'thin',
 	// scrollbarColor: 'unset',
-	zIndex: 9000
+	zIndex: 9000,
+	padding: 10
 }
 
 const App: React.FC = () => {
@@ -98,6 +99,9 @@ const App: React.FC = () => {
 			label: 'Cerrar Sesión'
 		})
 	}
+
+	let userName = userAuth.user?.person ? `${userAuth.user?.person.firstName} ${userAuth.user?.person.lastName}` : userAuth.user?.username
+	let roleName = userAuth.user?.role.name
 	
 
 	return (
@@ -115,6 +119,13 @@ const App: React.FC = () => {
 			
 			>
 				{/* <div className='demo-logo-vertical' /> */}
+				<Flex vertical style={{ padding: '16px'}}>
+					<Typography.Title level={3} style={{ color: '#ffffffa6'}}>{userName}</Typography.Title>
+					<Typography.Text type='secondary' style={{ color: '#ffffffa6'}}>{roleName}</Typography.Text>
+				</Flex>
+
+				<Divider style={{ backgroundColor: '#ffffffa6'}} />
+
 				<Menu
 					theme='dark'
 					mode='inline'

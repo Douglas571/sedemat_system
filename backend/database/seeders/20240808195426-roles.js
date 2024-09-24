@@ -10,7 +10,8 @@ module.exports = {
       { id: 4, name: 'Recaudador', createdAt: new Date(), updatedAt: new Date() },
       { id: 5, name: 'Coordinador', createdAt: new Date(), updatedAt: new Date() },
       { id: 6, name: 'Fiscal', createdAt: new Date(), updatedAt: new Date() },
-      { id: 7, name: 'Contribuyente', createdAt: new Date(), updatedAt: new Date() }
+      { id: 7, name: 'Contribuyente', createdAt: new Date(), updatedAt: new Date() },
+      { id: 8, name: 'Liquidador', createdAt: new Date(), updatedAt: new Date() }
     ], {});
   },
 

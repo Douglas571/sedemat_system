@@ -15,12 +15,16 @@ import * as api from '../util/api'
 import * as util from '../util'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
+import useAuthentication from 'hooks/useAuthentication';
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
     const { businessId, grossIncomeInvoiceId } = useParams()
     console.log({businessId, grossIncomeInvoiceId})
+
+    const { userAuth } = useAuthentication()
+    console.log({userAuth})
 
 	const [business, setBusiness] = useState<Business>()
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
@@ -29,8 +33,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const hasBranchOffice = grossIncomes?.length > 0 && grossIncomes[0]?.branchOfficeId !== undefined
     const branchOffice = hasBranchOffice && grossIncomes[0]?.branchOffice
-    
 
+    const createdByUser = grossIncomeInvoice?.createdByUser
+    const createdByPerson = createdByUser?.person
+    console.log({grossIncomeInvoice})
 
     // const branchOfficeDimensions = grossIncomes ? grossIncomes.branchOffices[0].dimensions : 0;
     // console.log({branchOfficeDimensions})
@@ -297,7 +303,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             
             <Descriptions bordered layout='vertical' size='small'>
-                <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{invoiceDetails.createdByUser.person.firstName} {invoiceDetails.createdByUser.person.lastName}</Descriptions.Item>
+                <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{createdByPerson?.firstName} {createdByPerson?.lastName}</Descriptions.Item>
                 <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{invoiceDetails.checkedByUser.person.firstName} {invoiceDetails.checkedByUser.person.lastName}</Descriptions.Item>
             </Descriptions>
 
@@ -309,9 +315,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Descriptions.Item label="Banco de Venezuela" span={2}>Corriente 0102-0339-2500-0107-1892</Descriptions.Item>
                 <Descriptions.Item label="Banco Bicentenario" span={2}>Corriente 0175-0162-3100-7494-9290</Descriptions.Item>
             </Descriptions>
-
-
-            
         </Flex>
     );
 };

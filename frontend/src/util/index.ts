@@ -153,13 +153,17 @@ export function numbersToWords(
       }
       texto += ` ${tipoCambio2}`;
     }
-  
+
     // Agrega los centavos
     if (centavos === 1) {
+      
       if (nDecimal !== 0) {
         texto += ` con ${cNumero(nDecimal)}`;
         texto += nDecimal === 1 ? ' céntimo' : ' céntimos';
+      } else {
+        texto += ' con cero céntimos';
       }
+
     } else if (centavos === 0) {
       if (nDecimal !== 0) {
         texto += ` ${nDecimal.toString().padStart(2, '0')}/100`;

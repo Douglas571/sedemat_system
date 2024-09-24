@@ -1,6 +1,6 @@
 const passport = require('passport');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const {User, Role} = require('../database/models'); // Assuming you have a User model
+const {User, Role, Person} = require('../database/models'); // Assuming you have a User model
 const jwt = require('jsonwebtoken');
 
 
@@ -13,15 +13,9 @@ class AuthService {
         this.secret = 'your_jwt_secret'; // Use a secure secret
         this.initPassport();
 
-        this.ROLES = [
-            { id: 1, name: 'Administrador', createdAt: new Date(), updatedAt: new Date() },
-            { id: 2, name: 'Director', createdAt: new Date(), updatedAt: new Date() },
-            { id: 3, name: 'Asesor Jurídico', createdAt: new Date(), updatedAt: new Date() },
-            { id: 4, name: 'Recaudador', createdAt: new Date(), updatedAt: new Date() },
-            { id: 5, name: 'Coordinador', createdAt: new Date(), updatedAt: new Date() },
-            { id: 6, name: 'Fiscal', createdAt: new Date(), updatedAt: new Date() },
-            { id: 7, name: 'Contribuyente', createdAt: new Date(), updatedAt: new Date() }
-        ]
+        Role.findAll().then(roles => {
+            this.ROLES = roles
+        })
 
         console.log({roles: this.ROLES})
     }
@@ -61,7 +55,7 @@ class AuthService {
                         {
                             model: Role,
                             as: 'role'
-                        }
+                        },
                     ]
                 })
                 console.log({user})
@@ -86,7 +80,7 @@ class AuthService {
 
 
         try {
-            const user = await User.findOne({ where: { username } });
+            const user = await User.findOne({ where: { username }});
             if (!user) {
                 let error = new Error('User not registered')
                 error.name = 'UserNotRegistered'
@@ -100,12 +94,14 @@ class AuthService {
             const token = jwt.sign({ id: user.id }, this.secret, { expiresIn: '1h' });
 
             const role = await user.getRole()
+            const person = await user.getPerson()
 
             return {
                 token,
                 user: {
                     ...user.toJSON(),
                     role: role.toJSON(),
+                    person: person?.toJSON(),
                 }
             };
         } catch (error) {

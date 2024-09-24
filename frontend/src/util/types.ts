@@ -7,6 +7,8 @@ export interface IUser {
     id: number,
     username: string,
     role: IRole,
+
+    person: Person,
 }
 
 export interface DocumentPayload {
@@ -159,6 +161,8 @@ export interface Payment {
 
     // deprecated
     account: string,
+
+    grossIncomeInvoiceId?: number,
 }
 
 export interface IBankAccount {
@@ -199,6 +203,7 @@ export interface IGrossIncome {
     wasteCollectionTax?: IWasteCollectionTax;
 
     grossIncomeInvoiceId?: number;
+    
 }
 
 // Gross Income Invoice 
@@ -216,6 +221,25 @@ export interface IGrossIncomeInvoice {
     // currencyExchangeRates: CurrencyExchangeRate
     // createdByUser: IUser
     // checkedByUser: IUser
+    
+    createdByUser: IUser;
+    checkedByUser?: IUser;
+    settledByUser?: IUser;
 
     paidAt: Date
+}
+
+export interface ISettlement {
+    id: number;
+    code: string;
+    settledByUserId: number;
+    grossIncomeInvoiceId: number;
+    grossIncomeInvoice: IGrossIncomeInvoice
+    settledAt: Date
+}
+
+export interface ISettlementCreate {
+    code: string;
+    settledByUserId: number;
+    grossIncomeInvoiceId: number;
 }

@@ -36,6 +36,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'checkedByUserId',
         as: 'economicLicensesChecked'
       });
+      
+      // user can have one settlement
+      User.hasMany(models.Settlement, {
+        foreignKey: 'settledByUserId',
+        as: 'settlements'
+      });
     }
   }
 

@@ -21,6 +21,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'grossIncomeInvoiceId',
         as: 'payments'
       })
+
+      GrossIncomeInvoice.belongsTo(models.User, {
+        foreignKey: 'checkedByUserId',
+        as: 'checkedByUser'
+      })
+
+      GrossIncomeInvoice.belongsTo(models.User, {
+        foreignKey: 'createdByUserId',
+        as: 'createdByUser'
+      })
+
+      GrossIncomeInvoice.belongsTo(models.User, {
+        foreignKey: 'settledByUserId',
+        as: 'settledByUser'
+      })
+
+      GrossIncomeInvoice.hasOne(models.Settlement, {
+        foreignKey: 'grossIncomeInvoiceId',
+        as: 'settlement'
+      })
     }
   }
   GrossIncomeInvoice.init({
@@ -48,6 +68,33 @@ module.exports = (sequelize, DataTypes) => {
     paidAt: {
       type: DataTypes.DATE,
       allowNull: true 
+    },
+
+    createdByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+
+    checkedByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+
+    settledByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     },
 
     totalBs: {

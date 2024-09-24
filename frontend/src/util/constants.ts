@@ -1,0 +1,10 @@
+export const ROLES = {
+    ADMINISTRATOR: 1,
+    DIRECTOR: 2,
+    ASESOR_JURIDICO: 3,
+    RECAUDADOR: 4,
+    COORDINADOR: 5,
+    FISCAL: 6,
+    CONTRIBUYENTE: 7,
+    LIQUIDADOR: 8,
+}

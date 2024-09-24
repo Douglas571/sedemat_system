@@ -48,6 +48,8 @@ const bankAccountRouter = require('./routers/bankAccountRouter')
 const userRouter = require('./routers/userRouter')
 const authRouter = require('./routers/authRouter');
 
+const settlementRouter = require('./routers/settlementRouter');
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -87,6 +89,7 @@ app.use("/v1/invoice-item-types", invoiceItemTypeRouter)
 app.use("/v1/gross-incomes", grossIncomeRouter);
 
 app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
+app.use('/v1/settlements', settlementRouter);
 
 app.use('/v1/bank-accounts', bankAccountRouter)
 

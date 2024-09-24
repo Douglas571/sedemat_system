@@ -27,9 +27,10 @@ const monthsInSpanish = [
     "Octubre",
     "Noviembre",
     "Diciembre"
-  ];
+];
 
 import * as util from '../util'
+import useAuthentication from 'hooks/useAuthentication'
 
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
@@ -47,6 +48,8 @@ const GrossIncomeInvoice: React.FC = () => {
     const formPrice = Form.useWatch('form', form);
 
     const isEditing = grossIncomeInvoiceId !== undefined
+
+    const { userAuth } = useAuthentication()
 
     if (!Number(businessId)) {
         return <div>Ocurrió un error, llame al desarrollador :)</div>
@@ -262,10 +265,10 @@ const GrossIncomeInvoice: React.FC = () => {
                 newInvoice.grossIncomesIds = selectedRowKeys.filter( id => !grossIncomeInvoice.grossIncomes.map( g => g.id).includes(id) )
 
                 console.log('newInvoice', newInvoice)
-                registeredInvoice = await grossIncomesInvoiceService.update(newInvoice)
+                registeredInvoice = await grossIncomesInvoiceService.update(newInvoice, userAuth.token)
             } else {
                 newInvoice.grossIncomesIds = selectedRowKeys.map(key => Number(key))
-                registeredInvoice = await grossIncomesInvoiceService.create(newInvoice)
+                registeredInvoice = await grossIncomesInvoiceService.create(newInvoice, userAuth.token)
                 if (selectedRowKeys.length === 1) { 
                     message.success(
                         `Calculo creado con el registro seleccionado`

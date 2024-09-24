@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'
 import { 
@@ -22,15 +23,19 @@ import {
 const { Title, Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'
-import { Business } from 'util/types';
-import { IGrossIncomeInvoice, IGrossIncome, Payment } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
+import * as paymentsApi from '../util/paymentsApi'
 import * as api from '../util/api'
 import * as util from '../util'
-import * as paymentsApi from '../util/paymentsApi'
+
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import { CurrencyHandler, formatBolivares } from 'util/currency';
+import useAuthentication from 'hooks/useAuthentication';
+
+import { ROLES } from 'util/constants'
+import GrossIncomeInvoice from './GrossIncomeInvoiceEdit';
 
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
@@ -46,17 +51,25 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [payments, setPayments] = useState<Payment[]>()
     const paymentsAllocated = payments?.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
 
+    const createdByUser = grossIncomeInvoice?.createdByUser
+    const checkedByUser = grossIncomeInvoice?.checkedByUser
+    const settledByUser = grossIncomeInvoice?.settledByUser
+
     const hasBranchOffice = grossIncomes?.length > 0 && grossIncomes[0]?.branchOfficeId !== undefined
     const branchOffice = hasBranchOffice && grossIncomes[0]?.branchOffice
+
+    const authContext = useAuthentication()
+    const token = authContext.userAuth.token || ''
+    const user = authContext.userAuth.user
 
     let totalPaymentsAllocated: number = 0
 
     paymentsAllocated?.forEach(p => {
-        console.log({totalPaymentsAllocated})
+        // console.log({totalPaymentsAllocated})
         totalPaymentsAllocated += Number(p.amount)
     })
 
-    console.log({paymentsAllocated})
+    // console.log({paymentsAllocated})
 
     let MMVExchangeRate = 0 
 
@@ -75,6 +88,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
     const canBeMarkedAsPaid = totalPaymentsAllocated === TOTAL
+    const isSettled = grossIncomeInvoiceIsPaid
 
     const loadPayments = async (): Promise<Payment[]> => {
         return paymentsApi.findAll()
@@ -83,7 +97,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const loadLastCurrencyExchangeRate = async (): Promise<CurrencyExchangeRate> => {
         const lastCurrencyExchangeRate = await CurrencyExchangeRatesService.getLastOne()
-        console.log({lastCurrencyExchangeRate})
+        // console.log({lastCurrencyExchangeRate})
 
         return lastCurrencyExchangeRate
     }
@@ -119,7 +133,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setPayments(fetchedPayments)
         setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
-        setGrossIncomeInvoice(fetchedInvoice)
+        setGrossIncomeInvoice({...fetchedInvoice})
         setGrossIncomes(fetchedGrossIncomes)
     }
 
@@ -135,19 +149,18 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }
 
-    const toggleIsPaid = async () => {
-        console.log('mark as paid')
+    const toggleIsSettled = async () => {
+        // console.log('mark as settled')
 
         try {
-
             let response
             if (grossIncomeInvoice?.paidAt) {
-                response = await GrossIncomesInvoiceService.unmarkAsPaid(Number(grossIncomeInvoiceId))
+                response = await GrossIncomesInvoiceService.unmarkAsPaid(Number(grossIncomeInvoiceId), token)
             } else {
-                response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId))
+                response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId), token)
             }
             
-            console.log({response})
+            // console.log({response})
 
             loadData()
 
@@ -170,35 +183,43 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
 
-    const markAsPaidButton = <Button onClick={() => toggleIsPaid()} 
+    const markAsSettledButton = <Button onClick={() => toggleIsSettled()} 
         disabled={ !canBeMarkedAsPaid }
-    >Marcar como Pagado</Button>
+    >Marcar como liquidado</Button>
 
-    const unmarkAsPaidButton = <Button onClick={() => toggleIsPaid()} >Desmarcar como Pagado</Button>
+    const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
+
+    const unmarkAsSettledButton = <Button onClick={() => toggleIsSettled()} >Desmarcar como liquidado</Button>
     
     return (
         <Card title={
             <Flex align='center' justify='space-between' wrap>
                 <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
-                <Flex gap={10} align='center' justify='end' wrap>
+                <Flex gap={10} align='center' justify='end' wrap>                    
+                    { canEdit && <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
+                        disabled={isSettled}
+                        >Editar</Button>
+                    }
+                    
                     {
                         grossIncomeInvoiceIsPaid 
-                        ? unmarkAsPaidButton
-                        : markAsPaidButton
+                        ? unmarkAsSettledButton
+                        : markAsSettledButton
                     }
-                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}>Editar</Button>
-                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir</Button>
-                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Liquidación</Button>
+                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir Recibo</Button>
+                    {
+                        isSettled && <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Imprimir Liquidación</Button>
+                    }
                 </Flex>
             </Flex>
         }>
                 
             {
                 grossIncomeInvoiceIsPaid ? (
-                    <Alert message={`Esta factura fue pagada el día ${dayjs(grossIncomeInvoice.paidAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
+                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice.paidAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
                 )
                 : (
-                    <Alert message="Esta factura no ha sido pagada" type="warning" showIcon />
+                    <Alert message="Esta factura no ha sido liquidada" type="warning" showIcon />
                 )
             }
 
@@ -271,7 +292,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         const {economicActivity} = business
                         const MMVExchangeRate = util.getMMVExchangeRate(cer)
                         const minTaxThreshold = economicActivity.minimumTax * MMVExchangeRate;
-                        console.log({cer, economicActivity, MMVExchangeRate, minTax})
+                        // console.log({cer, economicActivity, MMVExchangeRate, minTax})
                         return formatBolivares(minTaxThreshold);
                     }}
                     width="15%"
@@ -385,6 +406,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <br/>
 
+            <UsersInvolved grossIncomeInvoice={grossIncomeInvoice} />
+
             <PaymentsAllocatedTable 
                 paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
                 payments={payments}
@@ -397,6 +420,52 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     );
 };
 
+function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeInvoice}) {
+
+    if (grossIncomeInvoice === undefined) {
+        return <></>;
+    }
+
+    const { createdByUser, checkedByUser, settledByUser } = grossIncomeInvoice
+    
+
+    let items: DescriptionsProps['items'] = [];
+    
+    if (createdByUser?.id) {
+        let person = createdByUser.person
+        let text = person?.id ? `${person.firstName} ${person.lastName}` : createdByUser.username 
+        items.push({
+            key: '1',
+            label: 'Creado por',
+            children: text,
+        });
+    }
+
+    if (checkedByUser?.id) {
+        let person = checkedByUser.person
+        let text = person?.id ? `${person.firstName} ${person.lastName}` : checkedByUser.username 
+        items.push({
+            key: '2',
+            label: 'Revisado por',
+            children: text,
+        });
+    }
+
+    if (settledByUser?.id) {
+        let person = settledByUser.person
+        let text = person?.id ? `${person.firstName} ${person.lastName}` : settledByUser.username 
+        items.push({
+            key: '3',
+            label: 'Liquidado por',
+            children: text,
+        });
+    }
+
+    return (
+        <Descriptions title="Usuarios involucrados" bordered size="small" items={items} />
+    );
+}
+
 export default GrossIncomeInvoiceDetails;
 
 function PaymentsAllocatedTable(
@@ -404,16 +473,16 @@ function PaymentsAllocatedTable(
     {paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean}
 ) {
 
-    console.log({paymentsAllocated})
+    // console.log({paymentsAllocated})
     const { grossIncomeInvoiceId } = useParams()
 
     const [showPaymentAssociationModal, setShowPaymentAssociationModal] = useState(false)
 
     const handleDelete = async (id: number) => {
-        console.log({id})
+        // console.log({id})
         try {
             const response = await GrossIncomesInvoiceService.removePayment(Number(grossIncomeInvoiceId), id)
-            console.log({response})
+            // console.log({response})
         } catch (error) {
             message.error('Error al eliminar el pago')
             console.log({error})
@@ -423,11 +492,11 @@ function PaymentsAllocatedTable(
     }
 
     const handlePaymentAssociation = async (id: number) => {
-        console.log({associatedPaymentId: id})
+        // console.log({associatedPaymentId: id})
 
         try {
             const response = await GrossIncomesInvoiceService.addPayment(Number(grossIncomeInvoiceId), id)
-            console.log({response})
+            // console.log({response})
         } catch (error) {
             message.error('Error al asociar el pago')
             console.log({error})
@@ -476,7 +545,7 @@ function PaymentsAllocatedTable(
             <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} />
 
             <PaymentAssociationModal
-                visible={showPaymentAssociationModal} 
+                open={showPaymentAssociationModal} 
                 onCancel={() => setShowPaymentAssociationModal(false)} 
                 onOk={handlePaymentAssociation} 
                 payments={payments.filter(p => p.grossIncomeInvoiceId === null)} 
@@ -487,8 +556,8 @@ function PaymentsAllocatedTable(
 
 
 function PaymentAssociationModal(
-    { visible, onCancel, onOk, payments }
-    : { visible: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }
+    { open, onCancel, onOk, payments }
+    : { open: boolean, onCancel: () => void, onOk: (id: number) => void, payments: Payment[] }
 ) {
     const [form] = Form.useForm();
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
@@ -496,7 +565,7 @@ function PaymentAssociationModal(
     const handleOk = () => {
         
         const ref = form.getFieldValue('paymentReference');
-        console.log({ref})
+        // console.log({ref})
         let paymentId = payments.find(p => p.reference === ref)?.id;
 
         if (!paymentId) {
@@ -525,7 +594,7 @@ function PaymentAssociationModal(
     return (
         <Modal
             title="Asociar Pago"
-            visible={visible}
+            open={open}
             onOk={() => handleOk()}
             onCancel={onCancel}
         >

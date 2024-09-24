@@ -165,6 +165,9 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const [currencyExchangeRate, setCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
   const [payments, setPayments] = useState<Payment[]>([])
 
+  const settledByUser = grossIncomeInvoice?.settledByUser
+  const settledByPerson = settledByUser?.person
+
   let MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
   let badDebtTax = getBadDebtTax({
@@ -193,6 +196,10 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   let paymentDate: string = useMemo(() => {
     let minDate = new Date()
     let maxDate = new Date()
+
+    if (payments.length === 0) return ''
+
+    if (payments.length === 1) return dayjs(payments[0].paymentDate).format('DD/MM/YYYY')
 
     payments.forEach( p => {
       console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
@@ -422,10 +429,13 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   },
   {
     key: '6',
-    label: 'VERIFICADO POR',
-    children: "TRABAJADOR",
+    label: 'LIQUIDADOR',
+    children: `${settledByPerson?.firstName} ${settledByPerson?.lastName}`.toUpperCase(),
   },    
 ];
+
+let settledAt = dayjs(grossIncomeInvoice.paidAt)
+let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMMM')} de ${settledAt.format('YYYY')}`
 
   return (
     <Flex vertical style={{ width: '100%' }}>
@@ -443,7 +453,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
       </Flex>
 
       <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{settlement.number}</Typography.Text></Flex>
-      <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; 05 DE AGOSTO 2024</Typography.Text></Flex>
+      <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</Typography.Text></Flex>
 
       <Descriptions 
         column={6}

@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const grossIncomeInvoiceController = require('../controllers/grossIncomeInvoiceController');
 
+const passport = require('passport');
+
 // GET all gross income invoices
 router.get('/', grossIncomeInvoiceController.getAll);
 
@@ -10,10 +12,10 @@ router.get('/', grossIncomeInvoiceController.getAll);
 router.get('/:id', grossIncomeInvoiceController.getById);
 
 // POST a new gross income invoice
-router.post('/', grossIncomeInvoiceController.create);
+router.post('/', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.create);
 
 // PUT (update) an existing gross income invoice by ID
-router.put('/:id', grossIncomeInvoiceController.update);
+router.put('/:id', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.update);
 
 // DELETE a gross income invoice by ID
 router.delete('/:id', grossIncomeInvoiceController.delete);

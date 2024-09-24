@@ -27,8 +27,11 @@ class GrossIncomeInvoiceController {
 
     // POST /gross-income-invoices
     async create(req, res) {
+
+        let user = req.user 
+        let data = req.body
         try {
-            const newGrossIncomeInvoice = await grossIncomeInvoiceService.createGrossIncomeInvoice(req.body);
+            const newGrossIncomeInvoice = await grossIncomeInvoiceService.createGrossIncomeInvoice(data, user);
             res.status(201).json(newGrossIncomeInvoice);
         } catch (error) {
             console.log({ error })
@@ -39,7 +42,14 @@ class GrossIncomeInvoiceController {
     // PUT /gross-income-invoices/:id
     async update(req, res) {
         try {
-            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.updateGrossIncomeInvoice(req.params.id, req.body);
+            let user = req.user
+
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.updateGrossIncomeInvoice(req.params.id, req.body, user);
+            
+
+            // look for a settlement with the invoice id and update its gross income
+            
+
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error })

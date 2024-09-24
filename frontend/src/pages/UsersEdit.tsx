@@ -10,8 +10,6 @@ import peopleService from '../util/people'
 import authService from 'services/authService';
 
 
-
-
 function UserEditForm() {
     const { userId } = useParams()
     const [form] = Form.useForm();
