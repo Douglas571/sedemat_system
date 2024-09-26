@@ -13,9 +13,22 @@ services:
     env_file:
       - ./backend/.env.prod
 
+    container_name: backend_prod
+
     command: "npm run start"
 
-  frontend-dev:
+  frontend:
+    # build:
+    #   context: ./frontend
+    #   dockerfile: ./dockerfile.prod
+
+    # container_name: frontend_prod
+
+    ports:
+      - "8080:8080"
+
+    command: sh -c "npm run build && serve -s dist -p 8080"
+    
     # build:
     #   context: ./frontend
     #   dockerfile: ./dockerfile.dev

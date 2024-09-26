@@ -49,10 +49,10 @@ services:
 
     command: "npm run start:dev"
 
-  frontend-dev:
+  frontend:
     build:
       context: ./frontend
-      dockerfile: ./dockerfile.dev
+      dockerfile: ./dockerfile
 
     container_name: frontend
 
@@ -61,11 +61,15 @@ services:
 
     networks:
       - mynet
+
     volumes:
       - ./frontend:/app # Mounts the current directory to /app in the container
       - /app/node_modules # Prevents conflicts with node_modules on the host
+      
     environment:
       - CHOKIDAR_USEPOLLING=true # Enables file change detection in Docker for Windows/Mac
+
+    command: ["npm", "run", "dev"]
 
 networks:
   # The presence of these objects is sufficient to define them

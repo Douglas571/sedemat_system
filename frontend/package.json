@@ -8,7 +8,7 @@
 		"commit": "cz",
 		"dev": "vite --no-open --host",
 		"prepare": "husky install",
-		"preview": "vite preview --port=8081 --host",
+		"preview": "vite preview --port=8080 --host",
 		"preview:test": "start-server-and-test preview http://localhost:4173",
 		"test": "vitest",
 		"test:ci": "vitest run",

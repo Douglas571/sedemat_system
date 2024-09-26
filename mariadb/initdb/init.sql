@@ -6,8 +6,7 @@ grant all on sedemat_prod.* to 'sedemat_server'@'%';
 grant all on sedemat_test.* to 'sedemat_server'@'%';
 grant all on sedemat_dev.* to 'sedemat_server'@'%';
 
-GRANT USAGE ON *.* TO ping@'%' IDENTIFIED BY 'ping';
-
+GRANT USAGE ON *.* TO ping@'%' IDENTIFIED BY 'ping'; -- remove this in the future, it's useless for now
 
 -- USE sedemat;
 
