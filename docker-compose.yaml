@@ -16,6 +16,13 @@ services:
       - ./backup/database_${NODE_ENV}:/backups
       - ./mariadb/initdb:/docker-entrypoint-initdb.d
 
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   app:
     build:
       context: ./backend
@@ -29,7 +36,9 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+        
     networks:
       - mynet
     volumes:
@@ -38,7 +47,7 @@ services:
       - /app/node_modules
       - ./backup/backend/logs:/app/data/logs
 
-    command: npm run start:dev
+    command: "npm run start:dev"
 
   frontend-dev:
     build:

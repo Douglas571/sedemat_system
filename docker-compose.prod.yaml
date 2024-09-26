@@ -1,0 +1,34 @@
+version: '3.8' # or the appropriate version for your setup
+
+services:
+  mariadb:
+    env_file:
+      - ./backend/.env.prod
+
+    volumes:
+      - ./backup/database_prod:/backups
+      - ./mariadb/initdb:/docker-entrypoint-initdb.d
+
+  app:
+    env_file:
+      - ./backend/.env.prod
+
+    command: "npm run start"
+
+  frontend-dev:
+    # build:
+    #   context: ./frontend
+    #   dockerfile: ./dockerfile.dev
+
+    # container_name: frontend
+
+    # ports:
+    #   - "5173:5173"
+
+    # networks:
+    #   - mynet
+    # volumes:
+    #   - ./frontend:/app # Mounts the current directory to /app in the container
+    #   - /app/node_modules # Prevents conflicts with node_modules on the host
+    # environment:
+    #   - CHOKIDAR_USEPOLLING=true # Enables file change detection in Docker for Windows/Mac

@@ -1,3 +1,14 @@
+create database if not exists sedemat_prod;
+create database if not exists sedemat_test;
+create database if not exists sedemat_dev;
+
+grant all on sedemat_prod.* to 'sedemat_server'@'%';
+grant all on sedemat_test.* to 'sedemat_server'@'%';
+grant all on sedemat_dev.* to 'sedemat_server'@'%';
+
+GRANT USAGE ON *.* TO ping@'%' IDENTIFIED BY 'ping';
+
+
 -- USE sedemat;
 
 -- CREATE TABLE economic_activities (

@@ -1,3 +1,9 @@
+require('dotenv').config({ path: ['.env.prod', '.env.dev', '.env.test', '.env'] })
+
+const {TESTING_KEY} = process.env
+
+console.log(TESTING_KEY)
+
 const express = require("express");
 const cors = require('cors');
 const passport = require('passport');
