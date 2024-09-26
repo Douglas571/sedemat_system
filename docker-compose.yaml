@@ -3,9 +3,11 @@ version: '3.8' # or the appropriate version for your setup
 services:
   mariadb:
     image: docker.io/library/mariadb:11.4.2
+
     container_name: mariadb
+
     env_file:
-      - .env
+      - ./backend/.env
 
     ports:
       - "3307:3306"
@@ -31,7 +33,7 @@ services:
     container_name: backend
 
     env_file:
-      - .env
+      - ./backend/.env
 
     ports:
       - "3000:3000"
@@ -65,7 +67,7 @@ services:
     volumes:
       - ./frontend:/app # Mounts the current directory to /app in the container
       - /app/node_modules # Prevents conflicts with node_modules on the host
-      
+
     environment:
       - CHOKIDAR_USEPOLLING=true # Enables file change detection in Docker for Windows/Mac
 

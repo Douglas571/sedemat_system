@@ -1,14 +1,6 @@
 const path = require('path'); 
 
-// load .env when is a migration 
-if (!process.env.NODE_ENV) { // attempt to read any kay from .env
-    // this path will be toke form the dir where is 
-    // executed the command for migration 
-    console.log("loading .env.migration")
-    require('dotenv').config({ path: '.env.migration' });
-}
-// don't load .env when is running server
-console.log({NODE_ENV: process.env.NODE_ENV})
+// load .env when is a migration
 
 module.exports = {
     dev: {
