@@ -82,7 +82,12 @@ const App: React.FC = () => {
 			key: '/payments',
 			icon: '',
 			label: 'Pagos'
-		},		
+		},
+		{
+			key: '/economic-activities',
+			icon: '',
+			label: 'Actividades Económicas'
+		},
 	]
 
 	if (userAuth.user?.role.name === 'Administrador') {

@@ -24,8 +24,11 @@ import TaxCollection from 'pages/TaxCollection'
 import TaxCollectionBusinessDetails from 'pages/TaxCollectionBusinessDetails'
 import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomesEdit'
 import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusinessGrossIncomesInvoice'
-import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 
+import EconomicActivityEdit from 'pages/EconomicActivityEdit';
+import EconomicActivityAll from 'pages/EconomicActivityAll';
+
+import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
 import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
@@ -96,6 +99,12 @@ function App(): JSX.Element {
 								<Route path='users' element={<Users />} />
 								<Route path='users/new' element={<UsersEdit />} />
 								<Route path='users/:userId/edit' element={<UsersEdit />} />
+
+
+								<Route path='economic-activities' element={<EconomicActivityAll/>}/>
+								<Route path='economic-activities/:economicActivityId' element={(<h1>Economic Activity Details</h1>)}/>
+								<Route path='economic-activities/new' element={<EconomicActivityEdit />} />
+								<Route path='economic-activities/:economicActivityId/edit' element={<EconomicActivityEdit />} />
 								
 							</Route>
 							
