@@ -2,7 +2,7 @@ const economicActivityService = require('../services/EconomicActivitiesService')
 
 
 function parseError(error) {
-    if (error.original.code === 'ER_DUP_ENTRY') {
+    if (error?.original?.code === 'ER_DUP_ENTRY') {
         if (Object.keys(error.fields).includes('code')) {
             return {
                 message: 'Code already exists',
@@ -10,12 +10,16 @@ function parseError(error) {
             }
         }
         
-        if (Object.keys(error.fields).includes('title')) {
+        if (Object?.keys(error.fields)?.includes('title')) {
             return {
                 message: 'Title already exists',
                 code: "DuplicatedTitle"
             }
         }
+    }
+
+    return {
+        message: error.message,
     }
 }
 class EconomicActivityController {
@@ -26,7 +30,8 @@ class EconomicActivityController {
             const economicActivities = await economicActivityService.getAllEconomicActivities();
             res.status(200).json(economicActivities);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.log({ error })
+            res.status(500).json({ error: { message: error.message } });
         }
     }
 
@@ -39,6 +44,7 @@ class EconomicActivityController {
             }
             res.status(200).json(economicActivity);
         } catch (error) {
+            console.log({ error })
             res.status(500).json({ error: error.message });
         }
     }
@@ -88,10 +94,22 @@ class EconomicActivityController {
     // DELETE /economic-activities/:id
     async delete(req, res) {
         try {
-            await economicActivityService.deleteEconomicActivity(req.params.id);
-            res.status(204).send();
+            let deletedEconomicActivity = await economicActivityService.deleteEconomicActivity(req.params.id);
+
+            res.status(200).json({...deletedEconomicActivity.toJSON()});
+
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            console.log({ error })
+
+            if (error?.original?.code === 'ER_ROW_IS_REFERENCED_2') {
+                
+                return res.status(400).json({ error: {
+                    message: 'EconomicActivity is in use',
+                    code: "CurrentlyInUse"
+                } });
+            }
+            
+            res.status(400).json({ error: { message: error.message} });
         }
     }
 }

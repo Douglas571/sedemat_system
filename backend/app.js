@@ -35,6 +35,7 @@ const businessesRouter = require("./controllers/businesses")
 const branchOfficesRouter = require("./controllers/branchOffices")
 
 const economicActivitiesRouter = require("./routers/economicActivitiesRouter")
+const alicuotaHistoryRouter = require("./routers/alicuotaHistoryRouter")
 
 const economicLicenseRouter = require("./routers/economicLicenseRouter")
 const peopleRouter = require("./controllers/people")
@@ -81,10 +82,15 @@ app.get('/ping', (req, res) => {
 })
 
 app.use("/v1/payments", paymentsRouter)
+
 app.use("/v1/businesses", businessesRouter)
 app.use("/v1/branch-offices", branchOfficesRouter) // todo: fix this url to use hyphens instead of camelCase
+
 app.use("/v1/economic-activities", economicActivitiesRouter)
+app.use("/v1/alicuota-history", alicuotaHistoryRouter)
+
 app.use("/v1/economic-licenses", economicLicenseRouter)
+
 app.use("/v1/people", peopleRouter)
 
 app.use("/v1/zonations", zonationsRouter)

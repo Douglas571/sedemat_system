@@ -17,11 +17,17 @@ const EconomicActivitiesTable = () => {
     const handleDeleteEconomicActivity = async (economicActivityId: number) => {
         try {
             await economicActivitiesService.delete(economicActivityId, userAuth.token);
-            setEconomicActivities(economicActivities.filter(e => e.id !== economicActivityId));
+            // setEconomicActivities(economicActivities.filter(e => e.id !== economicActivityId));
+
+            message.success('Actividad económica eliminada correctamente');
+
+            loadData(); 
         } catch (error) {
             console.log({error});
-            message.error('No se ha podido eliminar la actividad económica');
+            message.error((error as Error).message);
         }
+
+        
     }
 
     const loadData = async () => {
@@ -62,7 +68,7 @@ const EconomicActivitiesTable = () => {
                 <Flex gap={16} align="center">
                     <Button onClick={() => navigate(`/economic-activities/${record.id}/edit`)}>Editar</Button>
                     <Popconfirm
-                        title="¿Estás seguro de eliminar esta actividad económica?"
+                        title="¿Estás seguro de eliminar ésta actividad económica?"
                         onConfirm={() => handleDeleteEconomicActivity(record.id)}
                         okText="Sí"
                         cancelText="No"

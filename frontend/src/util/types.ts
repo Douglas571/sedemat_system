@@ -31,12 +31,14 @@ export interface ExpirableDocument {
     docImages: Array<DocImages>
 }
 
-interface IAlicuota {
+export interface IAlicuota {
     id: number;
     taxPercent: number;
-    minTax: number;
+    minTaxMMV: number;
     createdAt: Date;
     updatedAt: Date;
+
+    economicActivityId: number;
 }
 
 export type EconomicActivity = {

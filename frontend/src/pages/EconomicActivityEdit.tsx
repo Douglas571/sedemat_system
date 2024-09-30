@@ -17,20 +17,13 @@ import {
     message, 
     Card, 
     Flex, 
-    Table, Popconfirm, DatePicker, Modal} from 'antd';
+    Table, Popconfirm, DatePicker, Modal,
+    Descriptions} from 'antd';
 // own libraries 
-import { EconomicActivity } from '../util/types';
+import { EconomicActivity, IAlicuota } from '../util/types';
 import economicActivitiesService from '../services/EconomicActivitiesService';
+import alicuotaService from '../services/alicuotaService';
 import useAuthentication from '../hooks/useAuthentication';
-
-
-interface IAlicuota {
-    id: number;
-    taxPercent: number;
-    minTax: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
 
 interface IEconomicActivityForm {
     code: string;
@@ -47,21 +40,13 @@ export default function EconomicActivityForm() {
     const { userAuth } = useAuthentication()
 
     const [showEditAlicuotaModal, setShowEditAlicuotaModal] = useState(false);
-    const [selectedAlicuota, setSelectedAlicuota] = useState(null);
+    const [selectedAlicuota, setSelectedAlicuota] = useState<IAlicuota | undefined>();
 
     // data from api
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>({} as EconomicActivity);
 
     const isEdit = !!Number(economicActivityId);
     const title = isEdit ? 'Editando Actividad Económica' : 'Nueva Actividad Económica';
-
-    const dummyAlicuotas: IAlicuota[] = [
-        {id: 1, taxPercent: 0.10, minTax: 100, createdAt: new Date(), updatedAt: new Date()},
-        {id: 2, taxPercent: 0.20, minTax: 200, createdAt: new Date(), updatedAt: new Date()},
-        {id: 3, taxPercent: 0.30, minTax: 300, createdAt: new Date(), updatedAt: new Date()},
-        {id: 4, taxPercent: 0.40, minTax: 400, createdAt: new Date(), updatedAt: new Date()},
-        {id: 5, taxPercent: 0.50, minTax: 500, createdAt: new Date(), updatedAt: new Date()},
-    ];
 
     // component functions 
     const onFinish: FormProps<IEconomicActivityForm>['onFinish'] = async (values: IEconomicActivityForm) => {
@@ -98,11 +83,50 @@ export default function EconomicActivityForm() {
         
     }
 
+    const handleNewAlicuota = async (alicuota: IAlicuota) => {
+        try {
+            console.log({NewAlicuota: alicuota})
+
+            setShowEditAlicuotaModal(false);
+
+            let newAlicuota = await alicuotaService.create({
+                ...alicuota,
+                economicActivityId: economicActivity.id
+            }, userAuth.token)
+            console.log({newAlicuota})
+
+            loadEconomicActivityData();
+
+            message.success('Alicuota registrada correctamente');
+        } catch (error) {
+            message.error((error as Error).message);
+        }
+    }
+
+    const handleEditAlicuota = async (id: number, alicuota: IAlicuota) => {
+        try {
+            console.log({EditedAlicuota: alicuota})
+
+            let updatedAlicuota = await alicuotaService.update(id, alicuota, userAuth.token);
+
+            setShowEditAlicuotaModal(false);
+            setSelectedAlicuota(undefined);
+
+            loadEconomicActivityData();
+
+            message.success('Alicuota actualizada correctamente');
+        } catch (error) {
+            message.error((error as Error).message);
+        }
+    }
+
     // loading data
     const loadEconomicActivityData = async () => {
         if (isEdit) {
             const fetchedEconomicActivity = await economicActivitiesService.findById(Number(economicActivityId));
             setEconomicActivity({...fetchedEconomicActivity});
+
+            console.log({fetchedEconomicActivity})
 
             form.setFieldsValue({code: fetchedEconomicActivity.code, title: fetchedEconomicActivity.title})
         } else {
@@ -145,15 +169,45 @@ export default function EconomicActivityForm() {
         </>
     )
 
-    const openEditAlicuotaModal = (id: number) => {
-        console.log("new alicuota")
-        setShowEditAlicuotaModal(true);
-        setSelectedAlicuota(id);
+    const openEditAlicuotaModal = (id?: number) => {
+        if (id) {
+            console.log(`Editing alicuota ${id}`)
+            setShowEditAlicuotaModal(true);
+            setSelectedAlicuota(economicActivity.alicuotaHistory?.find(a => a.id === id));
+            
+        } else {
+            console.log("new alicuota")
+            setShowEditAlicuotaModal(true);
+            
+        }
+        
     }
 
     const deleteAlicuota = (id: number) => {
         console.log(`Deleting alicuota ${id}`)
     }
+
+    const alicuotaCurrentData = (
+        <>
+        
+            <Form.Item
+                label="Alicuota actual"
+                
+                
+            >
+                <Input disabled value={`${(economicActivity.currentAlicuota?.taxPercent ?? 0) * 100}%`} />
+            </Form.Item>
+
+            <Form.Item
+                label="Min. Tributario actual"
+                
+                
+            >
+                <Input disabled value={`${economicActivity.currentAlicuota?.minTaxMMV ?? 0} MMV-BCV`} />
+            </Form.Item>
+        
+        </>
+    )
 
     return (
         <Flex vertical gap={16}>
@@ -166,48 +220,61 @@ export default function EconomicActivityForm() {
                     onFinish={onFinish}
                     onFinishFailed={(error) => console.log(error)}
                 >
-                    <Flex gap={16}>
-                        <Form.Item<IEconomicActivityForm>
-                            label="Código"
-                            name="code"
-                            rules={[{ required: true, message: 'Introduzca un código' }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item<IEconomicActivityForm>
-                            label="Título"
-                            name="title"
-                            rules={[{ required: true, message: 'Introduzca un título' }]}
-                        >
-                            <Input />
+                    <Flex vertical gap={16}>
+                        <Flex gap={16}>
+                            <Form.Item<IEconomicActivityForm>
+                                label="Código"
+                                name="code"
+                                rules={[{ required: true, message: 'Introduzca un código' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item<IEconomicActivityForm>
+                                label="Título"
+                                name="title"
+                                rules={[{ required: true, message: 'Introduzca un título' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            { !isEdit ? firstAlicuotaInputFields : null }
+
+                            { isEdit ? alicuotaCurrentData : null }
+
+                        </Flex>
+
+                        
+
+
+                        
+                        
+
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit">
+                                {economicActivityId ? 'Guardar cambios' : 'Registrar'}
+                            </Button>
                         </Form.Item>
                     </Flex>
-
-                    { !isEdit ? firstAlicuotaInputFields : null }
-                    
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            {economicActivityId ? 'Guardar cambios' : 'Registrar'}
-                        </Button>
-                    </Form.Item>
                 </Form>
             </Card>
 
             {
                 isEdit && (
                     <>
-                        <EconomicActivityAlicuotaHistory alicuotas={dummyAlicuotas}
-                        onNewAlicuota={() => openEditAlicuotaModal(dummyAlicuotas.length + 1)}
-                        onEditAlicuota={(id) => openEditAlicuotaModal(id)}
-                        onDeleteAlicuota={(id) => deleteAlicuota(id)}
-                    />
+                        <EconomicActivityAlicuotaHistory 
+                            alicuotas={economicActivity.alicuotaHistory}
+                            onNewAlicuota={() => openEditAlicuotaModal()}
+                            onEditAlicuota={(id) => openEditAlicuotaModal(id)}
+                            onDeleteAlicuota={(id) => deleteAlicuota(id)}
+                        />
 
-                    <EditAlicuotaModal
-                        open={showEditAlicuotaModal}
-                        onSubmit={(values) => console.log(values)}
-                        onCancel={() => setShowEditAlicuotaModal(false)}
-                    />
+                        <EditAlicuotaModal
+                            alicuota={selectedAlicuota}
+                            open={showEditAlicuotaModal}
+                            onNew={handleNewAlicuota}
+                            onEdit={handleEditAlicuota}
+                            onCancel={() => setShowEditAlicuotaModal(false)}
+                        />
                     </>
                 )
             }
@@ -216,14 +283,52 @@ export default function EconomicActivityForm() {
     );
 }
 
-function EditAlicuotaModal({open, onSubmit, onCancel}) {
+interface EditAlicuotaModalProps {
+    alicuota?: IAlicuota;
+    open: boolean;
+    onNew: (values: EditAlicuotaFormValues) => void;
+    onEdit: (id: number, values: EditAlicuotaFormValues) => void;
+    onCancel: () => void;
+}
+
+interface EditAlicuotaFormValues extends IAlicuota {
+
+}
+
+function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuotaModalProps) {
     const [form] = Form.useForm();
+
+    const isEditing = alicuota !== undefined || alicuota !== null;
+
     const submit = () => {
+        console.log("submiting")
         form.validateFields().then((values) => {
-            onSubmit(values);
+            if(isEditing && alicuota) {
+                onEdit(alicuota.id,values);
+            } else {
+                onNew(values);
+            }
+    
             form.resetFields();
         })
     }
+
+
+    const loadData = () => {
+        if (alicuota?.id) {
+            form.setFieldsValue({
+                taxPercent: alicuota.taxPercent,
+                minTaxMMV: alicuota.minTaxMMV,
+                createdAt: dayjs(alicuota.createdAt),
+            });
+            console.log({alicuota})
+        }
+    }
+
+    useEffect(() => {
+        loadData();
+    }, [alicuota]) 
+    
     return (
         <Modal
             open={open}
@@ -235,9 +340,9 @@ function EditAlicuotaModal({open, onSubmit, onCancel}) {
         >
             <Form form={form} layout="vertical">
                 <Flex gap={16}>
-                    <Form.Item
+                    <Form.Item<EditAlicuotaFormValues>
                         label="Alicuota"
-                        name="newAlicuota"
+                        name="taxPercent"
                         rules={[{ required: true, message: 'Introduzca una alicuota' }]}
                     >
                         <InputNumber min={0} step={0.01} 
@@ -247,9 +352,9 @@ function EditAlicuotaModal({open, onSubmit, onCancel}) {
                         
                         />
                     </Form.Item>
-                    <Form.Item
-                        label="Mínimo Tributario TCMMV-BCV"
-                        name="newMinTaxMMV"
+                    <Form.Item<EditAlicuotaFormValues>
+                        label="Mínimo Tributario MMV-BCV"
+                        name="minTaxMMV"
                         rules={[{ required: true, message: 'Introduzca un monto' }]}
                     >
                         <InputNumber min={0} step={0.01} 
@@ -259,7 +364,7 @@ function EditAlicuotaModal({open, onSubmit, onCancel}) {
                         />
                     </Form.Item>
                 </Flex>
-                <Form.Item
+                <Form.Item<EditAlicuotaFormValues>
                     name="createdAt"
                     label="Fecha de creación"
                     rules={[{ required: true, message: 'Debe introducir una fecha de creación' }]}
@@ -279,11 +384,11 @@ function EconomicActivityAlicuotaHistory({ alicuotas, onNewAlicuota, onEditAlicu
             dataIndex: 'taxPercent',
             sorter: (a, b) => a.taxPercent - b.taxPercent,
             showSorterTooltip: false,
-            render: (value: string) => `${value}%`,
+            render: (value: number) => `${value * 100}%`,
         },
         {
             title: 'Mínimo Tributario TCMMV-BCV',
-            dataIndex: 'minTax',
+            dataIndex: 'minTaxMMV',
             sorter: (a, b) => a.minTax - b.minTax,
             showSorterTooltip: false,
             render: (value: string) => `${value} MMV-BCV`,
