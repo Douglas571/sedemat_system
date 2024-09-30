@@ -8,6 +8,10 @@ const jwt = require('jsonwebtoken');
 //     administrator: "Administrador",
 // }
 
+// config variables
+let expiresIn = '1d';
+
+
 class AuthService {
     constructor() {
         this.secret = 'your_jwt_secret'; // Use a secure secret
@@ -91,7 +95,7 @@ class AuthService {
                 error.name = 'IncorrectPassword'
                 throw error
             }
-            const token = jwt.sign({ id: user.id }, this.secret, { expiresIn: '1h' });
+            const token = jwt.sign({ id: user.id }, this.secret, { expiresIn });
 
             const role = await user.getRole()
             const person = await user.getPerson()
