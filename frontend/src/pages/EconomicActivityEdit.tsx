@@ -183,8 +183,19 @@ export default function EconomicActivityForm() {
         
     }
 
-    const deleteAlicuota = (id: number) => {
-        console.log(`Deleting alicuota ${id}`)
+    const deleteAlicuota = async (id: number) => {
+        try {
+            console.log(`Deleting alicuota ${id}`)
+
+            let deleted = await alicuotaService.delete(id, userAuth.token);
+            
+            message.success('Alicuota eliminada correctamente');
+
+            loadEconomicActivityData();
+        } catch (error) {
+            console.log({error})
+            message.error((error as Error).message);
+        }
     }
 
     const alicuotaCurrentData = (

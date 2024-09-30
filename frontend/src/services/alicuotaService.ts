@@ -74,12 +74,25 @@ class AlicuotaService {
     }
 
     async delete(id: number, token: string = ''): Promise<void> {
-        await fetch(`${this.endpoint}/${id}`, {
+        const response = await fetch(`${this.endpoint}/${id}`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (data.error) {
+                throw new Error(`${data.error.message}`);
+            }
+
+            throw new Error('Failed to delete alicuota history');
+        }
+
+        return data;
     }
 }
 export default new AlicuotaService(HOST, '/v1/alicuota-history');

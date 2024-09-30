@@ -14,22 +14,23 @@ class AlicuotaHistoryService {
     }
 
     async update(id, data) {
-        const alicuotaHistory = await this.findById(id);
+        const alicuotaHistory = await Alicuota.findByPk(id);
 
         if (!alicuotaHistory) {
             throw new Error('AlicuotaHistory not found');
         }
-
+        
         return await alicuotaHistory.update(data);
     }
 
     async delete(id) {
-        const alicuotaHistory = await this.findById(id);
+        const alicuotaHistory = await Alicuota.findByPk(id);
 
         if (!alicuotaHistory) {
-            throw new Error('AlicuotaHistory not found');
+            throw new Error('Alicuota not found');
+            
         }
-        return await Alicuota.destroy();
+        return await alicuotaHistory.destroy();
     }
 }
 

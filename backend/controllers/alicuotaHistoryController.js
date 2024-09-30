@@ -47,7 +47,10 @@ class AlicuotaHistoryController {
             await alicuotaHistoryService.delete(req.params.id);
             res.status(204).send();
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            console.log({error})
+            res.status(400).json({ error: {
+                message: error.message
+            } });
         }
     }
 }
