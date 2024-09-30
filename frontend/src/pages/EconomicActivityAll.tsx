@@ -14,7 +14,7 @@ const EconomicActivitiesTable = () => {
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
 
     
-    const handleDeleteEcoconomicActivity = async (economicActivityId: number) => {
+    const handleDeleteEconomicActivity = async (economicActivityId: number) => {
         try {
             await economicActivitiesService.delete(economicActivityId, userAuth.token);
             setEconomicActivities(economicActivities.filter(e => e.id !== economicActivityId));
@@ -63,7 +63,7 @@ const EconomicActivitiesTable = () => {
                     <Button onClick={() => navigate(`/economic-activities/${record.id}/edit`)}>Editar</Button>
                     <Popconfirm
                         title="¿Estás seguro de eliminar esta actividad económica?"
-                        onConfirm={() => handleDeleteEcoconomicActivity(record.id)}
+                        onConfirm={() => handleDeleteEconomicActivity(record.id)}
                         okText="Sí"
                         cancelText="No"
                     >
