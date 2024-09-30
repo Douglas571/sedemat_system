@@ -85,6 +85,10 @@ class AlicuotaService {
         const data = await response.json();
 
         if (!response.ok) {
+            if (data?.error?.code === 'TheOnlyOne') {
+                throw new Error("No se puede eliminar la única alicuota");
+            }
+
             if (data.error) {
                 throw new Error(`${data.error.message}`);
             }

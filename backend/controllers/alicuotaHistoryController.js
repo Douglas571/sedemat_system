@@ -47,6 +47,12 @@ class AlicuotaHistoryController {
             await alicuotaHistoryService.delete(req.params.id);
             res.status(204).send();
         } catch (error) {
+            if (error?.code === 'TheOnlyOne') {
+                return res.status(400).json({ error: {
+                    message: 'Cannot delete the only alicuota in use',
+                    code: error.code
+                } });
+            }
             console.log({error})
             res.status(400).json({ error: {
                 message: error.message
