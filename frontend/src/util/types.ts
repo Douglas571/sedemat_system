@@ -31,12 +31,27 @@ export interface ExpirableDocument {
     docImages: Array<DocImages>
 }
 
+interface IAlicuota {
+    id: number;
+    taxPercent: number;
+    minTax: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export type EconomicActivity = {
     id: number
     code: string
     title: string
-    alicuota: number
-    minimumTax: number
+    minimumTax: number,
+
+    alicuotaHistory: Array<IAlicuota>,
+    currentAlicuota: IAlicuota,
+
+    /*
+    * @deprecated Should use currentAlicuota instead
+    */
+    alicuota: number,
 }
 
 export type License = {

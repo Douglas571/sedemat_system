@@ -11,32 +11,78 @@ class EconomicActivitiesService {
         this.endpoint = `${baseUrl}${apiEndpoint}`;
     }
 
-    async findById(id: number): Promise<EconomicActivity> {
-        const response = await fetch(`${this.endpoint}/${id}`);
-        return await response.json();
-    }
-
-    async findAll(): Promise<EconomicActivity[]> {
-        const response = await fetch(this.endpoint);
-        return await response.json();
-    }
-
-    async update(id: number, economicActivity: EconomicActivity): Promise<EconomicActivity> {
+    async findById(id: number, token: string = ''): Promise<EconomicActivity> {
         const response = await fetch(`${this.endpoint}/${id}`, {
-            method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return await response.json();
+    }
+
+    async findAll(token: string = ''): Promise<EconomicActivity[]> {
+        const response = await fetch(this.endpoint, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return await response.json();
+    }
+
+    
+    async create(economicActivity: EconomicActivity, token: string = ''): Promise<EconomicActivity> {
+        const response = await fetch(this.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(economicActivity)
         });
-        return await response.json();
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (data.error.code === 'DuplicatedCode') {
+                throw new Error(`El código ingresado ya existe`);
+            }
+
+            throw new Error(`${data.error.message}`);
+        }
+
+        return data;
     }
 
-    async delete(id: number): Promise<void> {
+    async update(id: number, economicActivity: EconomicActivity, token: string = ''): Promise<EconomicActivity> {
+        const response = await fetch(`${this.endpoint}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(economicActivity)
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (data.error.code === 'DuplicatedCode') {
+                throw new Error(`El código ingresado ya existe`);
+            }
+
+            throw new Error(`${data.error.message}`);
+        }
+
+        return data;
+    }
+
+    async delete(id: number, token: string = ''): Promise<void> {
         await fetch(`${this.endpoint}/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
     }
 }
-
-export const economicActivitiesService = new EconomicActivitiesService(HOST, '/v1/economic-activities');
+export default new EconomicActivitiesService(HOST, '/v1/economic-activities');

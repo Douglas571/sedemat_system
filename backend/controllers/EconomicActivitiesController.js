@@ -1,5 +1,23 @@
 const economicActivityService = require('../services/EconomicActivitiesService');
 
+
+function parseError(error) {
+    if (error.original.code === 'ER_DUP_ENTRY') {
+        if (Object.keys(error.fields).includes('code')) {
+            return {
+                message: 'Code already exists',
+                code: "DuplicatedCode"
+            }
+        }
+        
+        if (Object.keys(error.fields).includes('title')) {
+            return {
+                message: 'Title already exists',
+                code: "DuplicatedTitle"
+            }
+        }
+    }
+}
 class EconomicActivityController {
     // GET /economic-activities
     async getAll(req, res) {
@@ -30,12 +48,21 @@ class EconomicActivityController {
 
         let user = req.user 
         let data = req.body
+
+        // TODO: Remove alicuota and minminTaxMMV
+        data.alicuota = req.body.firstAlicuota || 0
+        data.minimumTax = req.body.firstMinTaxMMV || 0
+
+        console.log({newEconomicActivity: data, ali: data.alicuota})
         try {
             const newEconomicActivity = await economicActivityService.createEconomicActivity(data, user);
             res.status(201).json(newEconomicActivity);
         } catch (error) {
             console.log({ error })
-            res.status(400).json({ error: error.message });
+
+            let err = parseError(error)
+
+            res.status(400).json({ error: err });
         }
     }
 
@@ -51,7 +78,10 @@ class EconomicActivityController {
             res.status(200).json(updatedEconomicActivity);
         } catch (error) {
             console.log({ error })
-            res.status(400).json({ error: error.message });
+
+            let err = parseError(error)
+
+            res.status(400).json({ error: err });
         }
     }
 

@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EconomicActivity } from '../util/types';
 
-import { economicActivitiesService } from '../services/EconomicActivitiesService';
+import economicActivitiesService from '../services/EconomicActivitiesService';
 
 const EconomicActivitiesTable = () => {
     const navigate = useNavigate();
@@ -14,7 +14,6 @@ const EconomicActivitiesTable = () => {
     const loadData = async () => {
         let fetchedEconomicActivities = await economicActivitiesService.findAll();
         setEconomicActivities(fetchedEconomicActivities);
-
     }
     useEffect(() => {
         loadData();

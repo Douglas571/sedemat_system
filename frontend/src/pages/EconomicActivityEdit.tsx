@@ -1,10 +1,27 @@
-// this will be the form for economic activities 
-
+// react related libraries 
 import {useState, useEffect} from 'react'; 
-import { useParams } from 'react-router-dom';
-import {PlusOutlined} from '@ant-design/icons';
-import { Form, Input, InputNumber, Typography, Button, message, Card, Flex, Table, Popconfirm, DatePicker, Modal} from 'antd';
+import { useParams, useNavigate } from 'react-router-dom';
+
+// third party libraries
 import dayjs from 'dayjs';
+
+// component libraries 
+import {PlusOutlined} from '@ant-design/icons';
+import { 
+    Form, 
+    FormProps,
+    Input, 
+    InputNumber, 
+    Typography, 
+    Button, 
+    message, 
+    Card, 
+    Flex, 
+    Table, Popconfirm, DatePicker, Modal} from 'antd';
+// own libraries 
+import { EconomicActivity } from '../util/types';
+import economicActivitiesService from '../services/EconomicActivitiesService';
+import useAuthentication from '../hooks/useAuthentication';
 
 
 interface IAlicuota {
@@ -15,11 +32,25 @@ interface IAlicuota {
     updatedAt: Date;
 }
 
+interface IEconomicActivityForm {
+    code: string;
+    title: string;
+    firstAlicuota?: number;
+    firstMinTaxMMV?: number;
+}
+
 export default function EconomicActivityForm() {
     const { economicActivityId } = useParams();
-    
+    const [form] = Form.useForm();
+    const navigate = useNavigate();
+
+    const { userAuth } = useAuthentication()
+
     const [showEditAlicuotaModal, setShowEditAlicuotaModal] = useState(false);
     const [selectedAlicuota, setSelectedAlicuota] = useState(null);
+
+    // data from api
+    const [economicActivity, setEconomicActivity] = useState<EconomicActivity>({} as EconomicActivity);
 
     const isEdit = !!Number(economicActivityId);
     const title = isEdit ? 'Editando Actividad Económica' : 'Nueva Actividad Económica';
@@ -32,10 +63,62 @@ export default function EconomicActivityForm() {
         {id: 5, taxPercent: 0.50, minTax: 500, createdAt: new Date(), updatedAt: new Date()},
     ];
 
+    // component functions 
+    const onFinish: FormProps<IEconomicActivityForm>['onFinish'] = async (values: IEconomicActivityForm) => {
+        console.log('Received values:', values);
+        try {
+            // if is new 
+                // this will only load the general information 
+                // if first alicuota is filled, send it together 
+
+            // if is editing 
+                // just update the code and title with economic activities service
+                // it require a token 
+
+                if (isEdit) {
+                    let updatedEconomicActivity = await economicActivitiesService.update(Number(economicActivityId), {...values}, userAuth.token);
+
+                    console.log({updatedEconomicActivity})
+                } else {
+                    let createdEconomicActivity = await economicActivitiesService.create({...values}, userAuth.token);
+                    console.log({createdEconomicActivity})
+                    
+                }
+
+                message.success(`Actividad Económica ${isEdit ? 'editada' : 'creada'} con éxito`);
+
+                navigate('/economic-activities')
+
+        } catch (error) {
+            console.log({error})
+
+
+            message.error((error as Error).message);
+        }
+        
+    }
+
+    // loading data
+    const loadEconomicActivityData = async () => {
+        if (isEdit) {
+            const fetchedEconomicActivity = await economicActivitiesService.findById(Number(economicActivityId));
+            setEconomicActivity({...fetchedEconomicActivity});
+
+            form.setFieldsValue({code: fetchedEconomicActivity.code, title: fetchedEconomicActivity.title})
+        } else {
+            setEconomicActivity({} as EconomicActivity);
+        }
+    }
+
+    // use effects 
+    useEffect(() => {
+        loadEconomicActivityData();
+    }, []);
+
     const firstAlicuotaInputFields = (
         <>
             <Flex gap={16}>
-                <Form.Item
+                <Form.Item<IEconomicActivityForm>
                     label="Alicuota"
                     name="firstAlicuota"
                     rules={[{ required: true, message: 'Introduzca una alicuota' }]}
@@ -47,7 +130,7 @@ export default function EconomicActivityForm() {
                     
                     />
                 </Form.Item>
-                <Form.Item
+                <Form.Item<IEconomicActivityForm>
                     label="Mínimo Tributario TCMMV-BCV"
                     name="firstMinTaxMMV"
                     rules={[{ required: true, message: 'Introduzca un monto' }]}
@@ -76,21 +159,22 @@ export default function EconomicActivityForm() {
         <Flex vertical gap={16}>
             <Card title={<Typography.Title level={1}>{title}</Typography.Title>}>                
                 <Form
+                    form={form}
                     name="basic"
                     layout="vertical"
                     initialValues={{ remember: true }}
-                    onFinish={(values) => console.log(values)}
+                    onFinish={onFinish}
                     onFinishFailed={(error) => console.log(error)}
                 >
                     <Flex gap={16}>
-                        <Form.Item
+                        <Form.Item<IEconomicActivityForm>
                             label="Código"
                             name="code"
                             rules={[{ required: true, message: 'Introduzca un código' }]}
                         >
                             <Input />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item<IEconomicActivityForm>
                             label="Título"
                             name="title"
                             rules={[{ required: true, message: 'Introduzca un título' }]}
@@ -110,23 +194,29 @@ export default function EconomicActivityForm() {
                 </Form>
             </Card>
 
-            <EconomicActivityAlicuotaHistory alicuotas={dummyAlicuotas}
-                onNewAlicuota={() => openEditAlicuotaModal(dummyAlicuotas.length + 1)}
-                onEditAlicuota={(id) => openEditAlicuotaModal(id)}
-                onDeleteAlicuota={(id) => deleteAlicuota(id)}
-            />
+            {
+                isEdit && (
+                    <>
+                        <EconomicActivityAlicuotaHistory alicuotas={dummyAlicuotas}
+                        onNewAlicuota={() => openEditAlicuotaModal(dummyAlicuotas.length + 1)}
+                        onEditAlicuota={(id) => openEditAlicuotaModal(id)}
+                        onDeleteAlicuota={(id) => deleteAlicuota(id)}
+                    />
 
-            <EditAlicuotaModal
-                visible={showEditAlicuotaModal}
-                onSubmit={(values) => console.log(values)}
-                onCancel={() => setShowEditAlicuotaModal(false)}
-            />
+                    <EditAlicuotaModal
+                        open={showEditAlicuotaModal}
+                        onSubmit={(values) => console.log(values)}
+                        onCancel={() => setShowEditAlicuotaModal(false)}
+                    />
+                    </>
+                )
+            }
 
         </Flex>
     );
 }
 
-function EditAlicuotaModal({visible, onSubmit, onCancel}) {
+function EditAlicuotaModal({open, onSubmit, onCancel}) {
     const [form] = Form.useForm();
     const submit = () => {
         form.validateFields().then((values) => {
@@ -136,7 +226,7 @@ function EditAlicuotaModal({visible, onSubmit, onCancel}) {
     }
     return (
         <Modal
-            visible={visible}
+            open={open}
             title="Editar o crear una alicuota"
             okText="Guardar"
             cancelText="Cancelar"

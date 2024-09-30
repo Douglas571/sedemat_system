@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
     },
     minimumTax: {
+        // in MMV
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
     }
