@@ -120,6 +120,11 @@ export default function EconomicActivityForm() {
         }
     }
 
+    const handleCancelEditAlicuota = () => {
+        setShowEditAlicuotaModal(false);
+        setSelectedAlicuota(undefined);
+    }
+
     // loading data
     const loadEconomicActivityData = async () => {
         if (isEdit) {
@@ -284,7 +289,7 @@ export default function EconomicActivityForm() {
                             open={showEditAlicuotaModal}
                             onNew={handleNewAlicuota}
                             onEdit={handleEditAlicuota}
-                            onCancel={() => setShowEditAlicuotaModal(false)}
+                            onCancel={() => handleCancelEditAlicuota()}
                         />
                     </>
                 )
@@ -336,6 +341,11 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
         }
     }
 
+    const handleCancelEditAlicuota = () => {
+        form.resetFields();
+        onCancel();
+    }
+
     useEffect(() => {
         loadData();
     }, [alicuota]) 
@@ -347,7 +357,7 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
             okText="Guardar"
             cancelText="Cancelar"
             onOk={submit}
-            onCancel={onCancel}
+            onCancel={handleCancelEditAlicuota}
         >
             <Form form={form} layout="vertical">
                 <Flex gap={16}>
