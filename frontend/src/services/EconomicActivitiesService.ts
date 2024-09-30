@@ -1,5 +1,9 @@
 import { EconomicActivity } from '../util/types';
 
+const IP = process.env.BACKEND_IP ?? "localhost"
+const PORT = process.env.PORT ?? "3000"
+const HOST = "http://" + IP + ":" + PORT
+
 class EconomicActivitiesService {
     private readonly endpoint: string;
 
@@ -35,4 +39,4 @@ class EconomicActivitiesService {
     }
 }
 
-export const economicActivitiesService = new EconomicActivitiesService('http://localhost:3000', '/economic-activities');
+export const economicActivitiesService = new EconomicActivitiesService(HOST, '/v1/economic-activities');

@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Flex, Button, Table, Typography, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EconomicActivity } from '../util/types';
 
+import { economicActivitiesService } from '../services/EconomicActivitiesService';
+
 const EconomicActivitiesTable = () => {
     const navigate = useNavigate();
+
+    const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
+
+    const loadData = async () => {
+        let fetchedEconomicActivities = await economicActivitiesService.findAll();
+        setEconomicActivities(fetchedEconomicActivities);
+
+    }
+    useEffect(() => {
+        loadData();
+    }, []);
 
     const columns = [
         {
@@ -73,7 +86,7 @@ const EconomicActivitiesTable = () => {
                 <Button icon={<PlusOutlined />} onClick={() => navigate('/economic-activities/new')}>Agregar</Button>
             </Flex>
         }>
-            <Table columns={columns} dataSource={data} />
+            <Table columns={columns} dataSource={economicActivities} />
         </Card>
     );
 };
