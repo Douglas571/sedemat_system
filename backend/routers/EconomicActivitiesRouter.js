@@ -18,6 +18,6 @@ router.post('/', passport.authenticate('jwt', { session: false }), economicActiv
 router.put('/:id', passport.authenticate('jwt', { session: false }), economicActivitiesController.update);
 
 // DELETE an economic activity by ID
-router.delete('/:id', economicActivitiesController.delete);
+router.delete('/:id', passport.authenticate('jwt', { session: false }), economicActivitiesController.delete);
 
 module.exports = router;

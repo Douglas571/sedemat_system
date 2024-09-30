@@ -1,20 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Flex, Button, Table, Typography, Popconfirm } from 'antd';
+import { Card, Flex, Button, Table, Typography, Popconfirm, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EconomicActivity } from '../util/types';
 
 import economicActivitiesService from '../services/EconomicActivitiesService';
+import useAuthentication from '../hooks/useAuthentication';
 
 const EconomicActivitiesTable = () => {
     const navigate = useNavigate();
+    const { userAuth } = useAuthentication();
 
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
+
+    
+    const handleDeleteEcoconomicActivity = async (economicActivityId: number) => {
+        try {
+            await economicActivitiesService.delete(economicActivityId, userAuth.token);
+            setEconomicActivities(economicActivities.filter(e => e.id !== economicActivityId));
+        } catch (error) {
+            console.log({error});
+            message.error('No se ha podido eliminar la actividad económica');
+        }
+    }
 
     const loadData = async () => {
         let fetchedEconomicActivities = await economicActivitiesService.findAll();
         setEconomicActivities(fetchedEconomicActivities);
     }
+
     useEffect(() => {
         loadData();
     }, []);
@@ -45,17 +59,17 @@ const EconomicActivitiesTable = () => {
             dataIndex: 'actions',
             key: 'actions',
             render: (_: string, record: EconomicActivity) => (
-                <Flex justify="space-between" align="center">
-                    <Button type="link" onClick={() => navigate(`/economic-activities/${record.id}/edit`)}>Editar</Button>
+                <Flex gap={16} align="center">
+                    <Button onClick={() => navigate(`/economic-activities/${record.id}/edit`)}>Editar</Button>
                     <Popconfirm
                         title="¿Estás seguro de eliminar esta actividad económica?"
-                        onConfirm={() => console.log(`deleting economic activity ${record.id}`)}
+                        onConfirm={() => handleDeleteEcoconomicActivity(record.id)}
                         okText="Sí"
                         cancelText="No"
                     >
-                        <Button type="link">Eliminar</Button>
+                        <Button danger>Eliminar</Button>
                     </Popconfirm>
-                    <Button type="link" onClick={() => navigate(`/economic-activities/${record.id}`)}>Detalles</Button>
+                    {/* <Button type="link" onClick={() => navigate(`/economic-activities/${record.id}`)}>Detalles</Button> */}
                 </Flex>
             ),
         },
