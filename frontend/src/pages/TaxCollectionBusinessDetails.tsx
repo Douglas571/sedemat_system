@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
 import { Business, EconomicActivity, IGrossIncome, IGrossIncomeInvoice } from '../util/types';
-import { formatBolivares, CurrencyHandler } from '../util/currency';
+import { formatBolivares, CurrencyHandler, percentHandler } from '../util/currency';
+import economicActivitiesService from '../services/EconomicActivitiesService';
 
 
 
@@ -18,29 +19,46 @@ const { Title, Text } = Typography;
 
 const TaxCollectionBusinessDetails: React.FC = () => {
 
-    const [business, setBusiness] = React.useState<Business | null>(null);
+    const [business, setBusiness] = useState<Business>();
     const { businessId } = useParams<{ businessId: string }>();
-    const [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([]);
-    const [grossIncomeInvoices, setGrossIncomeInvoices] = React.useState<IGrossIncomeInvoice[]>()
+    const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>([]);
+    const [grossIncomeInvoices, setGrossIncomeInvoices] = useState<IGrossIncomeInvoice[]>()
+    const [economicActivity, setEconomicActivity] = useState<EconomicActivity>()
 
     const loadGrossIncomeInvoices = async () => {
         const fetchedGrossIncomeInvoices = await grossIncomeInvoiceService.getAll()
 
-        const filtered = fetchedGrossIncomeInvoices.filter( g => g.businessId === Number(businessId))
+        const filtered = fetchedGrossIncomeInvoices.filter(g => g.businessId === Number(businessId))
 
-        console.log({filtered})
+        console.log({ filtered })
         setGrossIncomeInvoices([...filtered])
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         loadBusiness();
         loadGrossIncomes();
-
         loadGrossIncomeInvoices()
     }, [businessId]);
 
+    useEffect(() => {
+        if (business?.id) {
+            loadEconomicActivity()
+        }
+    }, [business])
+
     if (!business) {
         return <div>Loading...</div>;
+    }
+
+    async function loadEconomicActivity() {
+        if (business) {
+            const {economicActivityId} = business
+            const economicActivity = await economicActivitiesService.findById(economicActivityId)
+
+            console.log({economicActivityId, economicActivity})
+        
+            setEconomicActivity(economicActivity)
+        }
     }
 
     async function loadBusiness() {
@@ -82,7 +100,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             await grossIncomeInvoiceService.delete(grossIncomeInvoiceId);
             message.success('Factura de Ingreso Bruto eliminada exitosamente');
             // Refresh the gross income invoices list
-            const updatedGrossIncomeInvoices = grossIncomeInvoices.filter(invoice => invoice.id !== grossIncomeInvoiceId);
+            const updatedGrossIncomeInvoices = grossIncomeInvoices?.filter(invoice => invoice.id !== grossIncomeInvoiceId) ?? [];
             setGrossIncomeInvoices(updatedGrossIncomeInvoices);
             loadGrossIncomes()
         } catch (error) {
@@ -105,22 +123,22 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                         </Descriptions.Item>
                     </Descriptions>
 
-                    <EconomicActivityDescription economicActivity={business.economicActivity} />
-                    
-                    <GrossIncomeInvoiceTable 
-                        invoices={grossIncomeInvoices} 
+                    <EconomicActivityDescription economicActivity={economicActivity} />
+
+                    <GrossIncomeInvoiceTable
+                        invoices={grossIncomeInvoices}
                         onDelete={handleDeleteGrossIncomeInvoice}
-                        disableAdd={grossIncomes.length === 0}    
+                        disableAdd={grossIncomes.length === 0}
                     />
 
-                    <GrossIncomeTaxesTable 
+                    <GrossIncomeTaxesTable
                         grossIncomes={grossIncomes}
                         grossIncomeInvoices={grossIncomeInvoices}
                         onDelete={handleGrossIncomeDelete}
                     />
 
                     {/* <WasteCollectionTaxesTable /> */}
-                    
+
                 </Flex>
             </Card>
 
@@ -130,13 +148,13 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
 export default TaxCollectionBusinessDetails;
 
-function EconomicActivityDescription({ economicActivity }: { economicActivity: EconomicActivity }): JSX.Element {
+function EconomicActivityDescription({ economicActivity }: { economicActivity: EconomicActivity | undefined }): JSX.Element {
 
     if (!economicActivity) {
         return <p>Actividad Económica no registrada</p>
     }
 
-    let { title, code, alicuota, minimumTax } = economicActivity
+    let { title, code, alicuota, minimumTax, currentAlicuota } = economicActivity
     const economicActivityDescriptions = [
         {
             key: '1',
@@ -151,12 +169,14 @@ function EconomicActivityDescription({ economicActivity }: { economicActivity: E
         {
             key: '3',
             label: 'Alicuota',
-            children: (alicuota * 100) + "%",
+            children: percentHandler((currentAlicuota?.taxPercent ?? 0))
+                .multiply(100).format(),
         },
         {
             key: '4',
             label: 'Mínimo Tributario',
-            children: minimumTax + " TCMMV-BCV"
+            children: CurrencyHandler((currentAlicuota?.minTaxMMV ?? 0))
+                .format() + " TCMMV-BCV"
         },
     ]
 
@@ -185,9 +205,8 @@ const monthMapper: string[] = [
     "Diciembre"
 ];
 
-function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }: 
-    { grossIncomes: IGrossIncome[] | undefined, grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, onDelete: (grossIncomeId: number) => void }): JSX.Element 
-{
+function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
+    { grossIncomes: IGrossIncome[] | undefined, grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, onDelete: (grossIncomeId: number) => void }): JSX.Element {
 
     if (!grossIncomes || !grossIncomeInvoices) {
         return <p>No hay ingresos brutos</p>
@@ -196,7 +215,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
     const navigate = useNavigate();
 
     const handleGrossIncomeDelete = async (grossIncomeId: number) => {
-        onDelete(grossIncomeId); 
+        onDelete(grossIncomeId);
     };
 
     console.log('grossIncomes', grossIncomes)
@@ -259,14 +278,14 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
 
                 return (
 
-                    <Badge 
-                        status={invoice?.paidAt !== null ? 'success' : 'warning'} 
+                    <Badge
+                        status={invoice?.paidAt !== null ? 'success' : 'warning'}
                         // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
                         // if grossIncomeInvoice.isPaid == "Pago"
                         // else "Pendiente"
                         text={invoice?.paidAt !== null
-                            ? 'Pagado' 
-                            : "Pendiente"} 
+                            ? 'Pagado'
+                            : "Pendiente"}
                     />
                 )
             },
@@ -297,22 +316,22 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
 
             <Flex gap="small" align='center' justify='space-between'>
                 <Title level={3}>Ingresos Brutos Declarados</Title>
-                <Button 
+                <Button
                     onClick={() => navigate('gross-incomes/new')}
-                    style={{alignSelf: 'end', marginBottom: '12px'}}>
+                    style={{ alignSelf: 'end', marginBottom: '12px' }}>
                     <PlusOutlined />
                     Agregar
                 </Button>
             </Flex>
-            
+
             <Table
-            style={{overflow: 'scroll'}} 
-                dataSource={grossIncomes} 
-                columns={columns} 
+                style={{ overflow: 'scroll' }}
+                dataSource={grossIncomes}
+                columns={columns}
                 rowKey="id"
                 pagination={false}
             />
-            
+
         </Flex>
     );
 }
@@ -427,9 +446,9 @@ const WasteCollectionTaxesTable: React.FC = () => {
             dataIndex: 'status',
             key: 'status',
             render: (status: string) => (
-                <Badge 
-                    status={status === 'Pagado' ? 'success' : 'warning'} 
-                    text={status} 
+                <Badge
+                    status={status === 'Pagado' ? 'success' : 'warning'}
+                    text={status}
                 />
             ),
         },
@@ -450,15 +469,15 @@ const WasteCollectionTaxesTable: React.FC = () => {
         <Flex vertical gap="middle">
             <Flex gap="small" align='center' justify='space-between'>
                 <Title level={3}>Impuestos de Recolección de Desechos</Title>
-                <Button style={{alignSelf: 'end', marginBottom: '12px'}}>
+                <Button style={{ alignSelf: 'end', marginBottom: '12px' }}>
                     <PlusOutlined />
                     Agregar
                 </Button>
             </Flex>
-            <Table 
-                style={{overflow: 'scroll'}} 
-                dataSource={dummyData} 
-                columns={columns} 
+            <Table
+                style={{ overflow: 'scroll' }}
+                dataSource={dummyData}
+                columns={columns}
                 rowKey="id"
                 pagination={false}
             />
@@ -466,10 +485,10 @@ const WasteCollectionTaxesTable: React.FC = () => {
     );
 }
 
-function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element {
+function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Element {
     const navigate = useNavigate();
 
-    const {businessId} = useParams()
+    const { businessId } = useParams()
 
     const columns = [
         {
@@ -481,8 +500,8 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             title: 'Fecha de Pago',
             dataIndex: 'paidAt',
             key: 'date',
-            render: (paidAt: string) => paidAt 
-                ? <Typography.Text>{dayjs(paidAt).format('DD/MM/YYYY')}</Typography.Text> 
+            render: (paidAt: string) => paidAt
+                ? <Typography.Text>{dayjs(paidAt).format('DD/MM/YYYY')}</Typography.Text>
                 : <Typography.Text> -- </Typography.Text>
         },
         {
@@ -496,9 +515,9 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             dataIndex: 'paidAt',
             key: 'paidAt',
             render: (paidAt: string) => (
-                <Badge 
-                    status={paidAt !== null ? 'success' : 'warning'} 
-                    text={paidAt !== null ? 'Pagado' : 'Pendiente' } 
+                <Badge
+                    status={paidAt !== null ? 'success' : 'warning'}
+                    text={paidAt !== null ? 'Pagado' : 'Pendiente'}
                 />
             ),
         },
@@ -507,12 +526,12 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
             key: 'actions',
             render: (_: any, record: any) => (
                 <Flex gap="small">
-                    
+
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
                     <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}>Editar</Button>
                     <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Detalles</Button>
 
-                    
+
                     <Popconfirm
                         title="¿Está seguro de eliminar esta factura?"
                         onConfirm={() => onDelete(record.id)}
@@ -531,19 +550,19 @@ function GrossIncomeInvoiceTable({invoices, disableAdd, onDelete}): JSX.Element 
         <Flex vertical>
             <Flex gap="small" align='center' justify='space-between'>
                 <Title level={3}>Calculos del Impuesto sobre Ingresos Brutos</Title>
-                <Button 
+                <Button
                     disabled={disableAdd}
-                    style={{alignSelf: 'end', marginBottom: '12px'}} 
+                    style={{ alignSelf: 'end', marginBottom: '12px' }}
                     onClick={() => navigate('gross-incomes-invoice/new')}
                 >
                     <PlusOutlined />
                     Agregar
                 </Button>
             </Flex>
-            <Table 
-                style={{overflow: 'scroll'}} 
-                dataSource={invoices} 
-                columns={columns} 
+            <Table
+                style={{ overflow: 'scroll' }}
+                dataSource={invoices}
+                columns={columns}
                 rowKey="id"
                 pagination={false}
             />

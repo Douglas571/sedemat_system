@@ -9,6 +9,14 @@ export const CurrencyHandler = (value: number | string) => currency(value,
     }
 )
 
+export const percentHandler = (value: number | string) => currency(value, {
+    symbol: '%',
+    pattern: '# !',
+    precision: 2,
+    separator: '.',
+    decimal: ','
+})
+
 export const formatBolivares = (value: number | string) => currency(value, 
     { 
         symbol: 'Bs.', 
