@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import { UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload } from 'antd';
-import { UploadFile } from 'antd/es/upload/interface';
-import { UploadProps } from 'antd';
+import { Button, Card, Checkbox, DatePicker, Flex, Form, InputNumber, message, Select, Typography, Upload } from 'antd';
+
+import type { UploadFile } from 'antd/es/upload/interface';
+import type { UploadProps } from 'antd';
 
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService';
-import { BranchOffice, Business, IGrossIncome } from '../util/types';
+import economicActivitiesService from '../services/EconomicActivitiesService';
+
+import type { BranchOffice, Business, IGrossIncome, EconomicActivity, CurrencyExchangeRate } from '../util/types';
 import { completeUrl } from './BusinessShared';
 
 const { Title } = Typography;
-const { Option } = Select;
+// const { Option } = Select;
 
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [form] = Form.useForm();
@@ -23,6 +27,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [branchOffices, setBranchOffices] = useState<BranchOffice[]>([]);
     const [grossIncome, setGrossIncome] = useState<IGrossIncome>();
     const [business, setBusiness] = useState<Business>();
+    const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
     const hasBranchOffices = branchOffices?.length > 0;
 
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
@@ -38,6 +43,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     }));
 
     const branchOfficeId = Form.useWatch('branchOffice', form)
+
+    useEffect(() => {
+        // load economic activity with current alicuota
+        loadEconomicActivity();
+    }, [business]);
 
     useEffect(() => {
         // console.log('businessId:', businessId);
@@ -122,6 +132,24 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         }
     }, [grossIncome]);
 
+    async function loadEconomicActivity() {
+        if (business?.economicActivityId) {
+            const fetchedEconomicActivity = await economicActivitiesService.findById(business.economicActivityId);
+
+            if (!fetchedEconomicActivity?.currentAlicuota?.id) {
+                message.error('La actividad económica no tiene Alicuota actual')
+                navigate(-1)
+            }
+
+            console.log({fetchedEconomicActivity})
+            // form.setFieldsValue({
+            //     alicuota: fetchedEconomicActivity.alicuota
+            // });
+
+            setEconomicActivity(fetchedEconomicActivity);
+        }
+    }
+
     async function loadLastCurrencyExchangeRate() {
         const lastCurrencyExchangeRate = await currencyExchangeRatesService.getLastOne()
         console.log({lastCurrencyExchangeRate})
@@ -188,13 +216,16 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
             console.log('lastCurrencyExchangeRate', lastCurrencyExchangeRate)
             const newGrossIncome: IGrossIncome = {
-                ...grossIncome,
+                ...grossIncome, // Why do i set it again? 
                 ...values,
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
                 branchOfficeId: branchOfficeId,
                 declarationImage: declarationImageUrl,
+                alicuotaId: economicActivity?.currentAlicuota?.id
             };
+
+            console.log('newGrossIncome', newGrossIncome)
 
             // if is editing, update the gross income
             if (isEditing) {
@@ -333,40 +364,40 @@ export default TaxCollectionBusinessGrossIncomesEdit;
 
 
 
-const DeclarationImageUpload: React.FC<{initialFileList: UploadFile[]}> = ({initialFileList}) => {
-    const [fileList, setFileList] = useState<UploadFile[]>(initialFileList);
+// const DeclarationImageUpload: React.FC<{initialFileList: UploadFile[]}> = ({initialFileList}) => {
+//     const [fileList, setFileList] = useState<UploadFile[]>(initialFileList);
 
-    const handleChange = ({ fileList: newFileList }: { fileList: UploadFile[] }) => {
-        console.log('newFileList', newFileList)
-        setFileList([...newFileList]); // Only keep the last uploaded file
-    };
+//     // const handleChange = ({ fileList: newFileList }: { fileList: UploadFile[] }): void => {
+//     //     console.log('newFileList', newFileList)
+//     //     setFileList([...newFileList]); // Only keep the last uploaded file
+//     // };
 
-    useEffect(() => {
-        console.log('setting initialFileList', initialFileList)
-        setFileList([...initialFileList]);
-    }, [initialFileList]);
+//     useEffect(() => {
+//         // console.log('setting initialFileList', initialFileList)
+//         setFileList([...initialFileList]);
+//     }, [initialFileList]);
 
-    // const uploadProps: UploadProps = {
-	// 	onRemove: (file) => {
-	// 		const index = fileList.indexOf(file);
-	// 		const newFileList = fileList.slice();
-	// 		newFileList.splice(index, 1);
-	// 		setFileList(newFileList);
-	// 	},
-	// 	beforeUpload: (file) => {
-	// 		console.log("adding files")
-	// 		setFileList([...fileList, file]);
+//     // const uploadProps: UploadProps = {
+// 	// 	onRemove: (file) => {
+// 	// 		const index = fileList.indexOf(file);
+// 	// 		const newFileList = fileList.slice();
+// 	// 		newFileList.splice(index, 1);
+// 	// 		setFileList(newFileList);
+// 	// 	},
+// 	// 	beforeUpload: (file) => {
+// 	// 		console.log("adding files")
+// 	// 		setFileList([...fileList, file]);
 
-	// 		return false;
-	// 	},
-	// 	onChange: ({ fileList: newFileList }) => {
-	// 		setFileList(newFileList)
-	// 	},
-	// 	fileList,
-	// 	maxCount: 1
-	// }
+// 	// 		return false;
+// 	// 	},
+// 	// 	onChange: ({ fileList: newFileList }) => {
+// 	// 		setFileList(newFileList)
+// 	// 	},
+// 	// 	fileList,
+// 	// 	maxCount: 1
+// 	// }
 
-    return (
-        <Upload></Upload>
-    );
-};
+//     return (
+//         <Upload/>
+//     );
+// };
