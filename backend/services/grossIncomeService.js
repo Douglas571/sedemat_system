@@ -1,11 +1,18 @@
 // services/grossIncomeService.js
-const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax } = require('../database/models');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota } = require('../database/models');
 const dayjs = require('dayjs');
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
     async getAllGrossIncomes() {
-        return await GrossIncome.findAll();
+        return await GrossIncome.findAll({
+            include: [
+                {
+                    model: Alicuota,
+                    as: 'alicuota'
+                }
+            ]
+        });
     }
 
     // Fetch a single GrossIncome by ID
@@ -23,6 +30,10 @@ class GrossIncomeService {
                 {
                     model: WasteCollectionTax,
                     as: 'wasteCollectionTax'
+                },
+                {
+                    model: Alicuota,
+                    as: 'alicuota'
                 }
             ]
         });
@@ -165,6 +176,10 @@ class GrossIncomeService {
                 {
                     model: WasteCollectionTax,
                     as: 'wasteCollectionTax'
+                },
+                {
+                    model: Alicuota,
+                    as: 'alicuota'
                 }
             ]
         });

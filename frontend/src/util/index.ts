@@ -74,7 +74,6 @@ export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
     }
 
     return 0
-    
 }
 
 /**
@@ -86,15 +85,27 @@ export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
  */
 export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: Business): number {
     if (!business) {
-        return 0
+        return 0 //throw new Error('Business not found')
     }
-    let tax = CurrencyHandler(grossIncome.amountBs).multiply(business?.economicActivity.alicuota).value
-    let minTax = CurrencyHandler(business?.economicActivity.minimumTax).multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
+
+    if (!grossIncome.alicuota) {
+      return 0 // throw new Error('Alicuota not found')
+    }
+
+    let {taxPercent, minTaxMMV} = grossIncome.alicuota
+    let {currencyExchangeRate} = grossIncome
+    let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
+
+    
+
+    let tax = CurrencyHandler(grossIncome.amountBs).multiply(taxPercent).value
+    let minTax = CurrencyHandler(minTaxMMV).multiply(MMVtoBs).value
+
     let wasteCollectionTax = 0
 
     if (grossIncome.chargeWasteCollection) {
         wasteCollectionTax = CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
-            .multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
+            .multiply(MMVtoBs).value
     }
 
     let finalTax = Math.max(tax, minTax)
@@ -114,7 +125,12 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
  */
 export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], business: Business, formPrice: number): number {
     let TOTAL = CurrencyHandler(0);
-    grossIncomes?.forEach(g => TOTAL = TOTAL.add(getSubTotalFromGrossIncome(g, business)));
+
+    grossIncomes?.forEach(g =>{ 
+      let subtotal = getSubTotalFromGrossIncome(g, business)
+      TOTAL = TOTAL.add(subtotal)
+    });
+
     TOTAL = TOTAL.add(formPrice);
     return TOTAL.value;
 }

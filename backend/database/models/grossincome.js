@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'grossIncomeInvoiceId',
         as: 'grossIncomeInvoice'
       });
+
+      GrossIncome.belongsTo(models.Alicuota, {
+        foreignKey: 'alicuotaId',
+        as: 'alicuota'
+      })
     }
     
   }
@@ -68,12 +73,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-
     
     grossIncomeInvoiceId: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+
+    alicuotaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onUpdate: 'CASCADE',
+      onDelete: 'RESTRICT'
+    },
+    
 
   }, {
     sequelize,

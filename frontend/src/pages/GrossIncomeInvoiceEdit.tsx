@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Table, Button, message, Typography, Form, Select, InputNumber } from 'antd'
+import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate } from '../util/types' // Importing IGrossIncome from types
@@ -11,7 +11,7 @@ import currencyExchangeRatesService from '../services/CurrencyExchangeRatesServi
 import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
 import dayjs from 'dayjs'
 
-import { CurrencyHandler, formatBolivares } from '../util/currency'
+import { CurrencyHandler, formatBolivares, percentHandler } from '../util/currency'
 
 
 const monthsInSpanish = [
@@ -99,6 +99,9 @@ const GrossIncomeInvoice: React.FC = () => {
 
     }, [grossIncomeInvoice, branchOffices])
 
+    // TODO: Refactor this as a map, that calculate every data needed to display
+    // in the table. Then pass the array of objects to the table.
+
     const columns: ColumnsType<IGrossIncome> = [
         {
             title: 'Año',
@@ -124,33 +127,49 @@ const GrossIncomeInvoice: React.FC = () => {
             key: 'amountToPay',
             render: (text: any, record: IGrossIncome) => {
                 const {amountBs} = record
-                const alicuota = business?.economicActivity.alicuota
+                const alicuotaTaxPercent = record.alicuota?.taxPercent
 
-                if (!alicuota || amountBs === 0) {
+                if (!alicuotaTaxPercent || amountBs === 0) {
                     return <Typography.Text>{CurrencyHandler(0).format()}</Typography.Text>
                 } 
 
-                return (<Typography.Text>{CurrencyHandler(amountBs).multiply(alicuota).format()}</Typography.Text>)
+                return (<Tooltip title={
+                    `${formatBolivares(amountBs)} x ${percentHandler(alicuotaTaxPercent).multiply(100).format()}`
+                }>
+                    <Typography.Text>{CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).format()}</Typography.Text>
+                </Tooltip>)
             }
         },
         {
             title: 'Min. Trib.',
             dataIndex: 'business',
             key: 'minimumAmount',
-            render: (text: any, record: IGrossIncome) => <Typography.Text>{
-                CurrencyHandler(business?.economicActivity.minimumTax)
-                        .multiply(util.getMMVExchangeRate(record.currencyExchangeRate))
-                        .format()
-                }</Typography.Text>
+            render: (text: any, record: IGrossIncome) => 
+            {
+                console.log({record})
+                return (<Tooltip title={
+                    `${CurrencyHandler(record.alicuota?.minTaxMMV).format()} TCMMV-BCV x ${CurrencyHandler(util.getMMVExchangeRate(record.currencyExchangeRate)).format()} Bs.`
+                }>
+                    <Typography.Text>
+                        {
+                            CurrencyHandler(record.alicuota?.minTaxMMV)
+                                .multiply(util.getMMVExchangeRate(record.currencyExchangeRate))
+                                .format()
+                        }
+                    </Typography.Text>
+                </Tooltip>)
+            }
         },
         {
             title: 'Aseo',
             dataIndex: 'wasteCollectionTax',
             key: 'wasteCollectionTax',
-            render: (text: string, record: any) => {
-                return (<Typography>{CurrencyHandler(util.getWasteCollectionTaxInBs(record)).format()}</Typography>)
+            render: (text: string, record: IGrossIncome) => {
+                return (<Typography>{
+                    CurrencyHandler(util.getWasteCollectionTaxInBs(record))
+                        .format()
+                }</Typography>)
             }
-
         },
         {
             title: 'Subtotal',

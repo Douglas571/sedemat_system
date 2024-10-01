@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'economicActivityId',
         as: 'economicActivity',
       });
+
+      Alicuota.hasMany(models.GrossIncome, {
+        foreignKey: 'alicuotaId',
+        as: 'grossIncomes',
+      });
     }
   }
   Alicuota.init({
