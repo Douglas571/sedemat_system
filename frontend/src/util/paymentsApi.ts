@@ -62,7 +62,7 @@ interface PaymentFilters {
 }
 
 // a function to fetch all payments
-export async function findAll(filters: PaymentFilters) {
+export async function findAll(filters?: PaymentFilters) {
     let queryParams = ''
 
     if (filters) {
