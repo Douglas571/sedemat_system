@@ -202,6 +202,10 @@ class GrossIncomeService {
                 {
                     model: WasteCollectionTax,
                     as: 'wasteCollectionTax'
+                },
+                {
+                    model: Alicuota,
+                    as: 'alicuota'
                 }
             ]
         });

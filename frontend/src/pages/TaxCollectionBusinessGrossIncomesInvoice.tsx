@@ -31,7 +31,7 @@ import * as util from '../util'
 
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
-import { CurrencyHandler, formatBolivares } from 'util/currency';
+import { CurrencyHandler, formatBolivares, percentHandler } from 'util/currency';
 import useAuthentication from 'hooks/useAuthentication';
 
 import { ROLES } from 'util/constants'
@@ -242,6 +242,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 }
             </Descriptions>
 
+
+            { /** TABLE OF GROSS INCOMES */}
             <Title level={5} style={{ textAlign: 'center' }}>Estado de Cuenta</Title>
 
             <Table 
@@ -268,7 +270,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Table.Column 
                     title="Alicuota"
                     key="amountBs" 
-                    render={(_: any) => `${business?.economicActivity?.alicuota * 100}%`}
+                    render={(_: any, grossIncome: IGrossIncome) => {
+                        console.log({grossIncome})
+                        let {taxPercent} = grossIncome?.alicuota
+                        return `${percentHandler(taxPercent).multiply(100).format()}`;
+                    }}
                     width="8%"
                     align="center"
                 />
@@ -277,8 +283,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex="amountBs" 
                     key="tax" 
                     render={(amountBs: number, record: IGrossIncome) => {
-                        const {alicuota} = business?.economicActivity
-                        const tax = CurrencyHandler(amountBs).multiply(alicuota).value
+                        const {taxPercent} = record.alicuota
+                        const tax = CurrencyHandler(amountBs).multiply(taxPercent).value
                         return formatBolivares(tax);
                     }}
                     width="15%"
@@ -289,9 +295,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="minTax" 
                     render={(minTax: number, record: IGrossIncome) => {
                         const cer = record.currencyExchangeRate
+                        const {minTaxMMV} = record.alicuota
                         const {economicActivity} = business
                         const MMVExchangeRate = util.getMMVExchangeRate(cer)
-                        const minTaxThreshold = economicActivity.minimumTax * MMVExchangeRate;
+                        const minTaxThreshold = minTaxMMV * MMVExchangeRate;
                         // console.log({cer, economicActivity, MMVExchangeRate, minTax})
                         return formatBolivares(minTaxThreshold);
                     }}
