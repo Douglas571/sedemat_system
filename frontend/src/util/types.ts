@@ -204,6 +204,18 @@ export interface IWasteCollectionTax {
     period: string;
 }
 
+export interface INewGrossIncome {
+    businessId: number;
+    branchOfficeId: number;
+    period: string;
+    amountBs: number; // TODO: the amount declared by the business
+    chargeWasteCollection: boolean;
+    declarationImage: string; // TODO: this is an url, change property name
+
+    currencyExchangeRatesId: number
+    
+    alicuotaId: number;
+}
 export interface IGrossIncome {
     id: number;
     businessId: number;
@@ -220,6 +232,9 @@ export interface IGrossIncome {
     wasteCollectionTax?: IWasteCollectionTax;
 
     grossIncomeInvoiceId?: number;
+
+    alicuotaId: number;
+    alicuota: IAlicuota;
     
 }
 
