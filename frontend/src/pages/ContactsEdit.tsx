@@ -1,4 +1,4 @@
-import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormProps, message, Button, Divider, UploadProps } from 'antd'
+import { Flex, Typography, Image, Space, UploadFile, Upload, Form, Input, FormProps, message, Button, Divider, UploadProps, Card } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 
 import {useEffect, useState} from 'react'
@@ -231,12 +231,15 @@ export default function ContactsView(): JSX.Element {
     }
 
     return (
-        <>
+        <Card>
             <Form onFinish={onFinish} form={form}>
-                <Typography.Title level={3}>
-                    Propietario
-                </Typography.Title>
-                <Space>
+                {
+                    <Typography.Title level={1}>
+                        {isEditing ? "Editando" : "Nuevo"} Contacto
+                    </Typography.Title>
+                }
+
+                <Flex style={{ marginBottom: '16px' }}>
                     {previewImage && (
                         <Image
                             wrapperStyle={{ display: 'none' }}
@@ -254,14 +257,14 @@ export default function ContactsView(): JSX.Element {
                     >
                         {fileList.length < 5 ? uploadButton : null }
                     </Upload>
-                </Space>
+                </Flex>
 
-                <Flex wrap>
+                <Flex wrap gap={16}>
                     <Form.Item
                         rules={[
                             {
                                 required: true,
-                                message: "El nombre del propietario es requerido"
+                                message: "El nombre es requerido"
                             }
                         ]}
                         label='Nombre: '
@@ -273,7 +276,7 @@ export default function ContactsView(): JSX.Element {
                         rules={[
                             {
                                 required: true,
-                                message: "El apellido del propietario es requerido"
+                                message: "El apellido es requerido"
                             }
                         ]}
                         label='Apellido: '
@@ -285,7 +288,7 @@ export default function ContactsView(): JSX.Element {
                         rules={[
                             {
                                 required: true,
-                                message: "La cédula del propietario es requerida"
+                                message: "La cédula es requerida"
                             },
                             {
                                 pattern: /^[VE]-\d{1,2}\.\d{3}\.\d{3}$/,
@@ -401,7 +404,7 @@ export default function ContactsView(): JSX.Element {
                     </Button>
                 </Form.Item>
             </Form>
-        </>
+        </Card>
     )
 
 }
