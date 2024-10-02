@@ -47,8 +47,8 @@ class AlicuotaHistoryController {
 
     async delete(req, res) {
         try {
-            await alicuotaHistoryService.delete(req.params.id);
-            res.status(204).send();
+            let result = await alicuotaHistoryService.delete(req.params.id);
+            res.status(200).send({result});
         } catch (error) {
             if (error?.code === 'TheOnlyOne') {
                 return res.status(400).json({ error: {
