@@ -24,6 +24,7 @@ const { Title } = Typography;
 // const { Option } = Select;
 
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
+    const [messageApi, contextHolder] = message.useMessage();
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const { businessId, grossIncomeId } = useParams();
@@ -218,8 +219,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             const fetchedEconomicActivity = await economicActivitiesService.findById(business.economicActivityId);
 
             if (!fetchedEconomicActivity?.currentAlicuota?.id) {
-                message.error('La actividad económica no tiene Alicuota actual')
-                navigate(-1)
+                messageApi.error('La actividad económica no tiene Alicuota actual')
+                console.error('La actividad económica no tiene Alicuota actual')
+                
+                setTimeout(() => {
+                    navigate(-1)
+                }, 1000)
             }
 
             console.log({fetchedEconomicActivity})
@@ -324,7 +329,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             
         } catch (error) {
             console.error('Error al registrar ingreso bruto:', error);
-            message.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
+            messageApi.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
         }
     };
 
@@ -345,113 +350,116 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     }
 
     return (
-        <Card title={<Title level={2}>Registrando Ingresos Brutos</Title>}>
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={onFinish}
-                initialValues={{
-                    period: dayjs().subtract(1, 'month'),
-                    amountBs: 0
-                }}
-            >
-                <Form.Item
-                    layout='horizontal'
-                    name="branchOffice"
-                    label="Sucursal"
-                    rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sucursal' }]}
+        <>
+            {contextHolder}
+            <Card title={<Title level={2}>Registrando Ingresos Brutos</Title>}>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={onFinish}
+                    initialValues={{
+                        period: dayjs().subtract(1, 'month'),
+                        amountBs: 0
+                    }}
                 >
-                    <Select
-                        placeholder='Seleccione la sucursal'
-                        options={branchOfficeOptions}
-                        showSearch
-                        onChange={ (value) => {
-                            // Get the selected branch office
-                            const selectedBranchOffice = branchOffices.find(office => `${office.nickname} - ${office.address}` === value);
-                            
-                            // Update shouldChargeWasteCollection in form
-                            if (selectedBranchOffice) {
-                                form.setFieldsValue({
-                                    chargeWasteCollection: selectedBranchOffice.shouldChargeWasteCollection
-                                });
-                            } else {
-                                // If there's an error or no branch office found, set to false
-                                form.setFieldsValue({
-                                    chargeWasteCollection: false
-                                });
-                            }
-                        }}
-                    />
-                </Form.Item>
-
-                <Flex wrap gap={16} align='center'>
                     <Form.Item
                         layout='horizontal'
-                        name="period"
-                        label="Periodo"
-                        rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
+                        name="branchOffice"
+                        label="Sucursal"
+                        rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sucursal' }]}
                     >
-                        <DatePicker picker="month"/>
+                        <Select
+                            placeholder='Seleccione la sucursal'
+                            options={branchOfficeOptions}
+                            showSearch
+                            onChange={ (value) => {
+                                // Get the selected branch office
+                                const selectedBranchOffice = branchOffices.find(office => `${office.nickname} - ${office.address}` === value);
+                                
+                                // Update shouldChargeWasteCollection in form
+                                if (selectedBranchOffice) {
+                                    form.setFieldsValue({
+                                        chargeWasteCollection: selectedBranchOffice.shouldChargeWasteCollection
+                                    });
+                                } else {
+                                    // If there's an error or no branch office found, set to false
+                                    form.setFieldsValue({
+                                        chargeWasteCollection: false
+                                    });
+                                }
+                            }}
+                        />
                     </Form.Item>
 
-                    <Form.Item
-                        layout='horizontal'
-                        name="amountBs"
-                        label="Ingreso Bruto"
-                        rules={[{ required: true, message: 'Por favor ingrese el ingreso bruto' }]}
-                    >
-                        <InputNumber
-                            style={{ width: '100%' }}
-                            addonAfter='Bs'
-                            min={0}
-                            step={0.01}
-                            decimalSeparator=','
-                            />
-                    </Form.Item>
+                    <Flex wrap gap={16} align='center'>
+                        <Form.Item
+                            layout='horizontal'
+                            name="period"
+                            label="Periodo"
+                            rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
+                        >
+                            <DatePicker picker="month"/>
+                        </Form.Item>
 
                         <Form.Item
-                            name="chargeWasteCollection"
-                            valuePropName="checked"
+                            layout='horizontal'
+                            name="amountBs"
+                            label="Ingreso Bruto"
+                            rules={[{ required: true, message: 'Por favor ingrese el ingreso bruto' }]}
                         >
-                            <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                addonAfter='Bs'
+                                min={0}
+                                step={0.01}
+                                decimalSeparator=','
+                                />
                         </Form.Item>
-                </Flex>
-                
-                <Form.Item
-                    name="alicuotaId"
-                    label="Alicuota"
-                    rules={[{ required: true, message: 'Por favor seleccione una alicuota' }]}
-                >
-                    <Select placeholder="Seleccione una alicuota" options={alicuotaHistoryOptions}/>
-                </Form.Item>
 
-                <Form.Item
-                    name="currencyExchangeRatesId"
-                    label="Tasa de Cambio"
-                    rules={[{ required: true, message: 'Por favor seleccione una tasa de cambio' }]}
-                >
-                    <Select placeholder="Seleccione una tasa de cambio" options={currencyExchangeRateOptions}/>
-                </Form.Item>
-
-                <Form.Item
-                    name="declarationImage"
-                    label="Declaración"
-                    rules={[{ required: true, message: 'Por favor suba la declaración' }]}
-                >
-                    <Upload
-                        {...uploadProps}
+                            <Form.Item
+                                name="chargeWasteCollection"
+                                valuePropName="checked"
+                            >
+                                <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
+                            </Form.Item>
+                    </Flex>
+                    
+                    <Form.Item
+                        name="alicuotaId"
+                        label="Alicuota"
+                        rules={[{ required: true, message: 'Por favor seleccione una alicuota' }]}
                     >
-                        <Button icon={<UploadOutlined />}>Subir Declaración</Button>
-                    </Upload>
-                </Form.Item>
+                        <Select placeholder="Seleccione una alicuota" options={alicuotaHistoryOptions}/>
+                    </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Guardar
-                    </Button>
-                </Form.Item>
-            </Form>
-        </Card>
+                    <Form.Item
+                        name="currencyExchangeRatesId"
+                        label="Tasa de Cambio"
+                        rules={[{ required: true, message: 'Por favor seleccione una tasa de cambio' }]}
+                    >
+                        <Select placeholder="Seleccione una tasa de cambio" options={currencyExchangeRateOptions}/>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="declarationImage"
+                        label="Declaración"
+                        rules={[{ required: true, message: 'Por favor suba la declaración' }]}
+                    >
+                        <Upload
+                            {...uploadProps}
+                        >
+                            <Button icon={<UploadOutlined />}>Subir Declaración</Button>
+                        </Upload>
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Guardar
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Card>
+        </>
     );
 };
 
