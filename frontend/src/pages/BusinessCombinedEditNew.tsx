@@ -4,32 +4,35 @@ import { useNavigate, useParams } from "react-router-dom";
 import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
 import { Business, BranchOffice, Person, EconomicActivity } from '../util/types'
-import { 
-    Button, 
-    DatePicker, 
-    Divider, 
-    Flex, 
-    Form, 
-    Input, 
-    Select, 
+import {
+    Button,
+    DatePicker,
+    Divider,
+    Flex,
+    Form,
+    Input,
+    Select,
     Typography,
     Upload,
     UploadProps,
-    message
+    message,
+    Card
 } from "antd";
 
-import { 
-    BusinessFormFields, 
-    channelOptions, 
-    ContactForm, 
-    contactOptions, 
-    getBase64, 
-    reminderIntervalMap, 
-    reminderIntervalOptions, 
+import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+
+import {
+    BusinessFormFields,
+    channelOptions,
+    ContactForm,
+    contactOptions,
+    getBase64,
+    reminderIntervalMap,
+    reminderIntervalOptions,
     ZONES,
     reminderIntervalMapReverse,
     getPreferredChannelName,
-    getPreferredContactType, 
+    getPreferredContactType,
 } from './BusinessShared'
 import dayjs from "dayjs";
 
@@ -49,9 +52,9 @@ export default function BusinessForm(): JSX.Element {
     const { businessId } = useParams();
 
     let isNewTaxPayer = businessId ? false : true
-    
+
     useEffect(() => {
-        if(businessId) {
+        if (businessId) {
             loadBusinessData(businessId)
         } else {
             console.log("Creating a new tax payer")
@@ -61,7 +64,7 @@ export default function BusinessForm(): JSX.Element {
         loadPeople()
     }, [])
 
-    async function loadBusinessData(businessId: string){
+    async function loadBusinessData(businessId: string) {
         let businessData = await api.fetchBusinessById(Number(businessId))
         let branchOffices = await api.fetchBranchOffices(Number(businessId))
 
@@ -70,7 +73,7 @@ export default function BusinessForm(): JSX.Element {
 
         console.log(JSON.stringify(businessData, null, 2))
 
-        const formInitData ={
+        const formInitData = {
             businessName: businessData.businessName,
             dni: businessData.dni,
             economicActivity: businessData.economicActivity.title,
@@ -85,18 +88,18 @@ export default function BusinessForm(): JSX.Element {
             reminderInterval: '',
         }
 
-        if(businessData.reminderInterval) {
+        if (businessData.reminderInterval) {
             formInitData.reminderInterval = reminderIntervalMapReverse[businessData.reminderInterval]
         }
 
         if (businessData.owner?.id) {
             formInitData.owner = `${businessData.owner.dni} - ${businessData.owner.firstName} ${businessData.owner.lastName}`;
         }
-        
+
         if (businessData.accountant?.id) {
             formInitData.accountant = `${businessData.accountant.dni} - ${businessData.accountant.firstName} ${businessData.accountant.lastName}`;
         }
-        
+
         if (businessData.administrator?.id) {
             formInitData.administrator = `${businessData.administrator.dni} - ${businessData.administrator.firstName} ${businessData.administrator.lastName}`;
         }
@@ -110,7 +113,7 @@ export default function BusinessForm(): JSX.Element {
         try {
             // Load economic activities
             const economicActivities = await api.getEconomicActivities();
-            console.log({economicActivities})
+            console.log({ economicActivities })
             setEconomicActivities(economicActivities);
 
         } catch (error) {
@@ -125,10 +128,10 @@ export default function BusinessForm(): JSX.Element {
 
         setPeople(peopleData)
     }
-    
+
     function showFormData() {
         const formData = form.getFieldsValue()
-        console.log({formData})
+        console.log({ formData })
     }
 
     // Map preferredChannel and sentCalculosTo to corresponding values
@@ -144,13 +147,13 @@ export default function BusinessForm(): JSX.Element {
         'Propietario': 'OWNER',
         'Contador': 'ACCOUNTANT'
     }
-    
+
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
-            console.log(JSON.stringify(values, null, 2) );
-            console.log({branchOffices})
-            
+            console.log(JSON.stringify(values, null, 2));
+            console.log({ branchOffices })
+
             // set up the business data to register
             const businessData: Business = {
                 businessName: values.businessName,
@@ -162,7 +165,7 @@ export default function BusinessForm(): JSX.Element {
                 preferredChannel: values.preferredChannel,
                 sendCalculosTo: values.sendCalculosTo,
                 preferredContact: values.preferredContact,
-            } 
+            }
 
             // get economic activity id
             const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
@@ -171,9 +174,9 @@ export default function BusinessForm(): JSX.Element {
             businessData.economicActivityId = economicActivityId
 
             // get the contacts ids 
-            const { 
-                owner: ownerString, 
-                accountant: accountantString, 
+            const {
+                owner: ownerString,
+                accountant: accountantString,
                 administrator: administratorString } = values;
 
             const owner = getSelectedPerson(ownerString)
@@ -193,10 +196,10 @@ export default function BusinessForm(): JSX.Element {
             businessData.preferredContact = contactMapping[values.preferredContact]
 
             // create the business
-            console.log({businessData})
+            console.log({ businessData })
             let newBusinessData: Business
             if (businessId) {
-                newBusinessData =await api.updateBusinessData(Number(businessId), businessData)
+                newBusinessData = await api.updateBusinessData(Number(businessId), businessData)
             } else {
                 newBusinessData = await api.sendBusinessData(businessData)
             }
@@ -207,45 +210,45 @@ export default function BusinessForm(): JSX.Element {
             if (newBusinessData.id && values?.certificateOfIncorporationUpload?.fileList?.length > 0) {
                 console.log("HERE")
                 // if there is files to upload
-                
+
                 // make up the file to upload
                 const coi = {
                     businessId: newBusinessData.id,
                     expirationDate: values.companyExpirationDate,
-                    docImages: values.certificateOfIncorporationUpload.fileList.map( f => f.originFileObj)
+                    docImages: values.certificateOfIncorporationUpload.fileList.map(f => f.originFileObj)
                 }
 
                 // send with businessApi.uploadCertificateOfIncorporation
                 const uploadedCoi = await businessesApi.uploadCertificateOfIncorporation(coi)
 
-                console.log({uploadedCoi})
+                console.log({ uploadedCoi })
             }
 
-            
 
-            console.log({newBusinessData})
+
+            console.log({ newBusinessData })
 
             message.success("Contribuyente guardado exitosamente");
 
             setTimeout(() => {
                 navigate(`/business/${newBusinessData.id}`)
             })
-            
+
         } catch (error) {
-            console.log({error})
+            console.log({ error })
 
             let msg = "Hubo un error";
             msg = error.message;
-        
+
             if (error.message === "duplicated dni") {
                 messageApi.open({
-                type: 'error',
-                content: `RIF ya registrado`,
+                    type: 'error',
+                    content: `RIF ya registrado`,
                 });
-        
+
                 return;
             }
-        
+
             messageApi.open({
                 type: 'error',
                 content: msg,
@@ -256,11 +259,11 @@ export default function BusinessForm(): JSX.Element {
     function getSelectedPerson(personString: string): Person | undefined {
         // divide the string and get the dni
 
-        if(!personString) return undefined
+        if (!personString) return undefined
 
         const dni = personString.split(' - ')[0]
         // find the person with that dni 
-        const selectedPerson = people?.find( p => p.dni === dni )
+        const selectedPerson = people?.find(p => p.dni === dni)
         // return that person
         return selectedPerson
     }
@@ -268,47 +271,48 @@ export default function BusinessForm(): JSX.Element {
     return (
         <>
             {contextHolder}
-            <Flex vertical>
-                { isNewTaxPayer 
-                    ? <Typography.Title level={1}>Nuevo Contribuyente</Typography.Title> 
-                    : <Typography.Title level={1}>Editar Contribuyente</Typography.Title>}
+            <Card>
+                <Flex vertical>
+                    {isNewTaxPayer
+                        ? <Typography.Title level={1}>Nuevo Contribuyente</Typography.Title>
+                        : <Typography.Title level={1}>Editando Contribuyente</Typography.Title>}
 
-                <Form 
-                    form={form} 
-                    onFinish={onFinish}>
-                    <BusinessBasicInformarionForm 
-                        economicActivities={economicActivities}
-                    />
+                    <Form
+                        form={form}
+                        onFinish={onFinish}>
+                        <BusinessBasicInformarionForm
+                            economicActivities={economicActivities}
+                        />
 
-                    <CertificateOfIncorporationForm
-                                        
-                    />
+                        
 
-                    <BusinessContactInformationForm 
-                        people={people}
-                    />
+                        <BusinessContactInformationForm
+                            people={people}
+                        />
 
-                    <BusinessContactPreferenceForm 
-                    
-                    />
-    
-                    <Form.Item>
-                        <Button 
-                            data-test='submit-button'
-                            type='primary' htmlType='submit'>Guardar</Button>
-                    </Form.Item>
+                        <BusinessContactPreferenceForm
 
-                    {/* <Button onClick={() => showFormData()}>
-                        Show form data
-                    </Button> */}
-                </Form>
-            </Flex>
+                        />
+
+                        <Form.Item>
+                            <Button
+                                data-test='submit-button'
+                                type='primary' htmlType='submit'>Guardar</Button>
+                        </Form.Item>
+
+                        {/* <Button onClick={() => showFormData()}>
+                            Show form data
+                        </Button> */}
+                    </Form>
+                </Flex>
+            </Card>
+
         </>
-        
+
     )
 }
 
-function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
+function BusinessBasicInformarionForm({ economicActivities }): JSX.Element {
     return (
         <>
             <Flex gap='middle'>
@@ -325,7 +329,7 @@ function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
                         width: '70%'
                     }}
                 >
-                    <Input data-test='business-name-input'/>
+                    <Input data-test='business-name-input' />
                 </Form.Item>
                 <Form.Item
                     rules={[
@@ -344,48 +348,24 @@ function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
                         width: '30%'
                     }}
                 >
-                    <Input data-test='business-dni-input'/>
+                    <Input data-test='business-dni-input' />
                 </Form.Item>
             </Flex>
 
             <Form.Item
                 // it can be normal or special 
-                label='Tipo de Contribuyente: '
+                label='Tipo de Contribuyente'
                 name='type'
             >
                 <Select
                     showSearch
                     defaultValue={'Normal'}
                     options={[
-                        {label: "Especial", value: "Especial"},
-                        {lable: "Normal", value: "Normal"}
+                        { label: "Especial", value: "Especial" },
+                        { lable: "Normal", value: "Normal" }
                     ]}
                 />
             </Form.Item>
-
-            <Flex wrap gap="middle">
-                {/* Define good names */}
-                
-                <Form.Item
-                    label='Fecha Constitución: '
-                    name='companyIncorporationDate'
-                >
-                    <DatePicker data-test="business-incorporation-date-input"/>
-                </Form.Item>
-
-                <Form.Item
-                    label='Fecha Vencimiento de la Empresa: '
-                    name='companyExpirationDate'
-                >
-                    <DatePicker data-test="business-expiration-date-input"/>
-                </Form.Item>
-                <Form.Item
-                    label='Fecha Vencimiento Junta Directiva: '
-                    name='directorsBoardExpirationDate'
-                >
-                    <DatePicker data-test="business-board-expiration-date-input"/>
-                </Form.Item>
-            </Flex>
 
             <Form.Item
                 rules={[
@@ -395,30 +375,32 @@ function BusinessBasicInformarionForm({economicActivities}): JSX.Element {
                     }
                 ]}
                 // it can be normal or special 
-                label='Actividad Económica: '
+                label='Actividad Económica'
                 name='economicActivity'
             >
                 <Select
                     data-test='business-economic-activity-input'
                     //defaultValue={economicActivities[0]?.title}
                     showSearch
-                    options={economicActivities.map( e => ({ label: e?.title, value: e?.title}))}
+                    options={economicActivities.map(e => ({ label: e?.title, value: e?.title }))}
                 />
             </Form.Item>
 
-            <Divider/>
+            <Divider />
+
+            <CertificateOfIncorporationForm />
         </>
     )
 }
 
-function BusinessContactInformationForm({people}): JSX.Element{
+function BusinessContactInformationForm({ people }): JSX.Element {
     const form = Form.useFormInstance();
 
-    const peopleOptions = people.map( p => {
+    const peopleOptions = people.map(p => {
         // i need to convert to format that is valid for select
 
         return {
-            label: p.dni + ' - ' + p?.fullName, 
+            label: p.dni + ' - ' + p?.fullName,
             value: p.dni + ' - ' + p?.fullName,
             key: p.id,
         }
@@ -431,116 +413,116 @@ function BusinessContactInformationForm({people}): JSX.Element{
             </Typography.Title>
 
             <Flex gap='middle'>
-                <Form.Item 
+                <Form.Item
                     name={"owner"}
                     label={"Propietario"}
-                    style={{width: '100%'}}
-                    rules={[{required: true, message: "Seleccione un propietario"}]}>
+                    style={{ width: '100%' }}
+                    rules={[{ required: true, message: "Seleccione un propietario" }]}>
                     <Select
                         showSearch
                         options={peopleOptions}
                     />
                 </Form.Item>
             </Flex>
-                
+
             <Flex gap='middle'>
-                <Form.Item 
+                <Form.Item
                     name={"accountant"}
                     label={"Contador"}
-                    style={{width: '80%'}}>
+                    style={{ width: '80%' }}>
                     <Select
                         showSearch
                         options={peopleOptions}
                     />
-                    
-                </Form.Item>
-                <Button onClick={() => {
-                    // take accountant and clear the content
-                    form.setFieldsValue({accountant: ''})
-                }}>Eliminar</Button>
-            </Flex>            
-            
 
-            <Flex gap='middle'>
-                <Form.Item 
-                    name={"administrator"}
-                    label={"Administrador"}
-                    style={{width: '80%'}}>
-                    <Select
-                        showSearch
-                        options={peopleOptions}
-                    />
-                    
                 </Form.Item>
-                <Button onClick={() => {
+                <Button danger onClick={() => {
                     // take accountant and clear the content
-                    form.setFieldsValue({administrator: ''})
-                }}>Eliminar</Button>
+                    form.setFieldsValue({ accountant: '' })
+                }}><DeleteOutlined/> Remover</Button>
             </Flex>
 
-            <Divider/>
+
+            <Flex gap='middle'>
+                <Form.Item
+                    name={"administrator"}
+                    label={"Administrador"}
+                    style={{ width: '80%' }}>
+                    <Select
+                        showSearch
+                        options={peopleOptions}
+                    />
+
+                </Form.Item>
+                <Button danger onClick={() => {
+                    // take accountant and clear the content
+                    form.setFieldsValue({ administrator: '' })
+                }}><DeleteOutlined/> Remover</Button>
+            </Flex>
+
+            <Divider />
         </>
     )
 }
 
 
-function BusinessContactPreferenceForm(): JSX.Element{
+function BusinessContactPreferenceForm(): JSX.Element {
 
     return (
         <>
             <Typography.Title level={3}>
                 Preferencias de comunicación
             </Typography.Title>
-            
-            <Form.Item<FormFields> 
-                label='Agente encargado de finanzas: '
+
+            <Form.Item<FormFields>
+                label='Agente encargado de finanzas'
                 name='preferredContact'
             >
                 <Select
                     data-test="communication-options-preferred-contact"
                     showSearch
-                    style={{minWidth: "150px"}}
+                    style={{ minWidth: "150px" }}
                     options={contactOptions}
                 />
             </Form.Item>
             <Form.Item<FormFields>
-                label='Medio preferido de comunicación: '
+                label='Medio preferido de comunicación'
                 name="preferredChannel"
             >
                 <Select
                     data-test="communication-options-preferred-channel"
                     showSearch
-                    style={{minWidth: "150px"}}
+                    style={{ minWidth: "150px" }}
                     options={channelOptions}
                 />
             </Form.Item>
 
             <Form.Item<FormFields>
-                label="Enviar cálculos al: "
+                label="Enviar cálculos al"
                 name="sendCalculosTo"
             >
                 <Select
                     data-test="communication-options-send-calculos"
                     showSearch
-                    style={{minWidth: "150px"}}
+                    style={{ minWidth: "150px" }}
                     options={channelOptions}
                 />
             </Form.Item>
-            
+
             <Form.Item<FormFields>
-                label="Recordatorios: "
+                label="Recordatorios"
                 name="reminderInterval"
             >
                 <Select
                     data-test="communication-options-reminder-interval"
                     showSearch
-                    style={{minWidth: "150px"}}
+                    style={{ minWidth: "150px" }}
                     options={reminderIntervalOptions}
                 />
             </Form.Item>
 
-            <Divider/>
-        
+            <Divider />
+
         </>
     )
 
@@ -550,10 +532,10 @@ function CertificateOfIncorporationForm(): JSX.Element {
 
     const uploadProps: UploadProps = {
         beforeUpload: (file) => {
-			console.log("adding dni")
-			// setFileList([...fileList, file]);
-			return false;
-		},
+            console.log("adding dni")
+            // setFileList([...fileList, file]);
+            return false;
+        },
     }
     return (
         <>
@@ -562,17 +544,42 @@ function CertificateOfIncorporationForm(): JSX.Element {
                     Registro Comercial
                 </Typography.Title>
 
+                <Flex wrap gap="middle">
+                    {/* Define good names */}
+
+                    <Form.Item
+                        label='Fecha Constitución'
+                        name='companyIncorporationDate'
+                    >
+                        <DatePicker data-test="business-incorporation-date-input" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label='Fecha Vencimiento de la Empresa'
+                        name='companyExpirationDate'
+                    >
+                        <DatePicker data-test="business-expiration-date-input" />
+                    </Form.Item>
+                    <Form.Item
+                        label='Fecha Vencimiento Junta Directiva'
+                        name='directorsBoardExpirationDate'
+                    >
+                        <DatePicker data-test="business-board-expiration-date-input" />
+                    </Form.Item>
+                </Flex>
+
                 <Form.Item name={"certificateOfIncorporationUpload"}>
                     <Upload {...uploadProps}>
                         <Button>
+                            <UploadOutlined />
                             Agregar Imágenes
                         </Button>
                     </Upload>
                 </Form.Item>
             </Flex>
-            <Divider/>
+            <Divider />
         </>
-        
+
 
     )
 }

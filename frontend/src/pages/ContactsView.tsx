@@ -1,4 +1,5 @@
-import { Flex, Typography, Image, Button, Popconfirm } from 'antd'
+import { Flex, Typography, Image, Button, Popconfirm, Card } from 'antd'
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Person } from 'util/api'
@@ -76,15 +77,15 @@ export default function ContactsView(): JSX.Element {
             {contact ?
 
                 (
-                    <>
+                    <Card title={
                         <Flex align='center' gap={'middle'} justify='space-between'>
-                            <Typography.Title level={4}>
+                            <Typography.Title level={1}>
                                 {contact.firstName + " " + contact.lastName}
                             </Typography.Title>
 
                             <Flex gap={20} wrap>
                                 <Button onClick={() => navigate(`edit`)}>
-                                    Editar
+                                    <EditOutlined /> Editar
                                 </Button>
                                 <Popconfirm
                                     title="Eliminar Pago"
@@ -99,12 +100,14 @@ export default function ContactsView(): JSX.Element {
                                 >
 
                                     <Button danger onClick={() => handleDelete(contact.id)}>
-                                        Eliminar
+                                        <DeleteOutlined /> Eliminar
                                     </Button>
                                 </Popconfirm>
                                 
                             </Flex>
                         </Flex>
+                    }>
+                        
 
                         <Flex gap='large'>
                             <Image
@@ -126,7 +129,7 @@ export default function ContactsView(): JSX.Element {
                                 Whatsapp: {contact.whatsapp}<br />
                             </Typography.Paragraph>
                         </Flex>
-                    </>
+                    </Card>
                 )
                 : (
                     <Typography.Paragraph>

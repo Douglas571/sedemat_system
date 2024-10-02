@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox } from "antd"
+import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox, Card } from "antd"
 import { UploadFile, FormProps } from "antd"
 
 import { ZONES } from "./BusinessShared"
@@ -213,13 +213,13 @@ export default function BranchOfficeForm(): JSX.Element {
     }
 
     return (
-        <>
+        <Card>
         <Form 
             form={form}
             onFinish={onFinish}
         >
-            <Typography.Title level={2}>
-                { isEditing ? "Editar Sucursal" : "Registrar Sucursal"}
+            <Typography.Title level={1}>
+                { isEditing ? "Editando Sucursal" : "Nueva Sucursal"}
             </Typography.Title>
 
             {/* <Form.Item 
@@ -307,7 +307,7 @@ export default function BranchOfficeForm(): JSX.Element {
         {/* <Button onClick={() => showFormData()}>
             show data
         </Button> */}
-        </>
+        </Card>
     )
 }
 
