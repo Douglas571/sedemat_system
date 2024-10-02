@@ -1,8 +1,10 @@
 const { Alicuota } = require('../database/models');
 
 class AlicuotaHistoryService {
-    async findAll() {
-        return await Alicuota.findAll();
+    async findAll({filters = {}}) { 
+        const alicuotas = await Alicuota.findAll({ where: { ...filters } });
+        console.log({ alicuotas})
+        return alicuotas
     }
 
     async findById(id) {

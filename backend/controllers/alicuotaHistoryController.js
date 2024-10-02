@@ -3,9 +3,12 @@ const alicuotaHistoryService = require('../services/alicuotaHistoryService');
 class AlicuotaHistoryController {
     async getAll(req, res) {
         try {
-            const alicuotaHistories = await alicuotaHistoryService.findAll();
+            const filters = req.query;
+            
+            const alicuotaHistories = await alicuotaHistoryService.findAll({filters});
             res.status(200).json(alicuotaHistories);
         } catch (error) {
+            console.log({error})
             res.status(500).json({ error: error.message });
         }
     }
