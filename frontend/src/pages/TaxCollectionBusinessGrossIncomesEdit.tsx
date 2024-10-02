@@ -11,10 +11,13 @@ import type { UploadProps } from 'antd';
 
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
+import alicuotaService from '../services/alicuotaService';
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService';
 import economicActivitiesService from '../services/EconomicActivitiesService';
 
-import type { BranchOffice, Business, IGrossIncome, EconomicActivity, CurrencyExchangeRate } from '../util/types';
+import * as util from '../util';
+
+import type { BranchOffice, Business, IGrossIncome, EconomicActivity, CurrencyExchangeRate, IAlicuota } from '../util/types';
 import { completeUrl } from './BusinessShared';
 
 const { Title } = Typography;
@@ -28,6 +31,32 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [grossIncome, setGrossIncome] = useState<IGrossIncome>();
     const [business, setBusiness] = useState<Business>();
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
+
+    // a variable for storing all currency exchange rates 
+    const [alicuotaHistory, setAlicuotaHistory] = useState<IAlicuota[]>([]);
+
+    // a variable for storing all alicuotas related to the economic activity of the business
+    const [currencyExchangeRateHistory, setCurrencyExchangeRateHistory] = useState<CurrencyExchangeRate[]>([]);
+
+    const alicuotaHistoryOptions = alicuotaHistory
+        ?.sort((a, b) => dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1)
+        ?.map(a => ({
+            key: a.id,
+            value: a.id,
+            label: `${dayjs(a.createdAt).format('DD/MM/YYYY')} - ${a.taxPercent * 100}%`
+        }));
+
+    const currencyExchangeRateOptions = currencyExchangeRateHistory
+        ?.sort((a, b) => dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1)
+        ?.map(c => {
+            const MMVtoBsExchangeRate = util.getMMVExchangeRate(c);
+            return {
+                key: c.id,
+                value: c.id,
+                label: `${dayjs(c.createdAt).format('DD/MM/YYYY')} - ${MMVtoBsExchangeRate} Bs.`
+            }
+        });
+
     const hasBranchOffices = branchOffices?.length > 0;
 
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
@@ -44,14 +73,33 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
     const branchOfficeId = Form.useWatch('branchOffice', form)
 
-    useEffect(() => {
-        // load economic activity with current alicuota
-        loadEconomicActivity();
-    }, [business]);
+    // TODO
+    // i will load the alicuota history after getting the economic activity id 
+
+    // i will load the currency exchange rate history at the beginnign of the page
+
+
+    /* load 
+        business, 
+        branch offices
+        gross incomes data if it exists
+        currency exchange rate
+    */
 
     useEffect(() => {
-        // console.log('businessId:', businessId);
-        // console.log('grossIncomeId:', grossIncomeId);
+        loadLastCurrencyExchangeRate()
+        loadLastCurrencyExchangeRateHistory()
+    }, []);
+
+    useEffect(() => {
+        if (lastCurrencyExchangeRate) {
+            form.setFieldsValue({
+                currencyExchangeRatesId: lastCurrencyExchangeRate.id
+            })
+        }
+    }, [lastCurrencyExchangeRate])
+
+    useEffect(() => {
             
         if (businessId) {  
             loadBusiness();
@@ -62,9 +110,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             loadGrossIncome();
         }
 
-        loadLastCurrencyExchangeRate()
-
     }, [businessId, grossIncomeId]);
+
+    // load economic activity with current alicuota
+    useEffect(() => {
+        loadEconomicActivity();
+    }, [business]);
 
     useEffect(() => {
         // update default values for branch office select 
@@ -83,26 +134,29 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         
     }, [branchOffices]);
 
+    // update the value from chargeWasteCollection
     useEffect(() => {
-        // update the value from chargeWasteCollection
-        console.log('branchOfficeId in useEffect', branchOfficeId)
+        // console.log('branchOfficeId in useEffect', branchOfficeId)
         const selectedBranchOffice = branchOffices.find(office => office.id === branchOfficeId)
-        console.log('selectedBranchOffice', selectedBranchOffice)
+        // console.log('selectedBranchOffice', selectedBranchOffice)
 
         form.setFieldsValue({
             chargeWasteCollection: selectedBranchOffice?.chargeWasteCollection
         })
     }, [branchOfficeId])
 
+    // Update form with fetched gross income data
     useEffect(() => {
-        // Update form with fetched gross income data
         if(grossIncome) {
             // console.log('grossIncome', grossIncome)
             form.setFieldsValue({
                 period: dayjs(grossIncome.period),
                 amountBs: grossIncome.amountBs,
                 chargeWasteCollection: grossIncome.chargeWasteCollection,
-                branchOffice: grossIncome.branchOffice.id
+                // TODO: Modify the branch office name 
+                branchOffice: grossIncome.branchOfficeId,
+                alicuotaId: grossIncome.alicuotaId,
+                currencyExchangeRatesId: grossIncome.currencyExchangeRatesId,
             });
 
             const imageUrl = completeUrl(grossIncome.declarationImage)
@@ -129,8 +183,35 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 .catch(error => {
                     console.error('Error fetching image:', error);
                 });
+
+            console.log({grossIncome})
         }
     }, [grossIncome]);
+
+    useEffect(() => {
+        if (economicActivity) {
+            loadAlicuotaHistory(economicActivity.id)
+        }
+
+        if (economicActivity && !grossIncome?.alicuotaId) {
+            form.setFieldsValue({
+                alicuotaId: economicActivity?.currentAlicuota?.id
+            })
+        }
+    }, [economicActivity])
+
+    async function loadLastCurrencyExchangeRateHistory() {
+        const cerHistory = await currencyExchangeRatesService.getAll()
+        setCurrencyExchangeRateHistory(cerHistory)
+    }
+
+    async function loadAlicuotaHistory(economicActivityId: number) {
+        const alicuotaHistory = await alicuotaService.findAll(
+            {
+                economicActivityId
+            })
+        setAlicuotaHistory(alicuotaHistory)
+    }
 
     async function loadEconomicActivity() {
         if (business?.economicActivityId) {
@@ -221,18 +302,20 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
                 branchOfficeId: branchOfficeId,
-                declarationImage: declarationImageUrl,
-                alicuotaId: economicActivity?.currentAlicuota?.id
+                declarationImage: declarationImageUrl
             };
+
+            newGrossIncome.alicuotaId = values.alicuotaId
+            newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRateId
 
             console.log('newGrossIncome', newGrossIncome)
 
             // if is editing, update the gross income
             if (isEditing) {
+
                 const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome);
                 message.success('Ingreso bruto actualizado exitosamente');
             } else {
-                newGrossIncome.currencyExchangeRatesId = lastCurrencyExchangeRate?.id
                 const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome);
                 message.success('Ingreso bruto registrado exitosamente');
             }
@@ -333,8 +416,23 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
                         </Form.Item>
                 </Flex>
-
                 
+                <Form.Item
+                    name="alicuotaId"
+                    label="Alicuota"
+                    rules={[{ required: true, message: 'Por favor seleccione una alicuota' }]}
+                >
+                    <Select placeholder="Seleccione una alicuota" options={alicuotaHistoryOptions}/>
+                </Form.Item>
+
+                <Form.Item
+                    name="currencyExchangeRatesId"
+                    label="Tasa de Cambio"
+                    rules={[{ required: true, message: 'Por favor seleccione una tasa de cambio' }]}
+                >
+                    <Select placeholder="Seleccione una tasa de cambio" options={currencyExchangeRateOptions}/>
+                </Form.Item>
+
                 <Form.Item
                     name="declarationImage"
                     label="Declaración"
@@ -346,8 +444,6 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         <Button icon={<UploadOutlined />}>Subir Declaración</Button>
                     </Upload>
                 </Form.Item>
-                
-                    
 
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
