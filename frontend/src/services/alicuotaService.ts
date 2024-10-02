@@ -4,6 +4,11 @@ const IP = process.env.BACKEND_IP ?? "localhost"
 const PORT = process.env.PORT ?? "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+interface IAlicuotaServiceFilters {
+    economicActivityId?: number
+}    
+
+
 class AlicuotaService {
     private readonly endpoint: string;
 
@@ -20,12 +25,21 @@ class AlicuotaService {
         return await response.json();
     }
 
-    async findAll(token: string = ''): Promise<IAlicuota[]> {
-        const response = await fetch(this.endpoint, {
+    async findAll(filters: IAlicuotaServiceFilters, token: string = ''): Promise<IAlicuota[]> {
+        let urlWithSearchParams = new URL(this.endpoint);
+
+        for (const [key, value] of Object.entries(filters)) {
+            if (value) {
+                urlWithSearchParams.searchParams.append(key, value.toString());
+            }
+        }
+
+        const response = await fetch(urlWithSearchParams.toString(), {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
+        
         return await response.json();
     }
 
