@@ -36,7 +36,7 @@ const siderStyle: React.CSSProperties = {
 	// scrollbarWidth: 'thin',
 	// scrollbarColor: 'unset',
 	zIndex: 9000,
-	padding: 10
+	//padding: 10
 }
 
 const App: React.FC = () => {
@@ -59,43 +59,67 @@ const App: React.FC = () => {
 			label: 'Inicio',
 		},
 		{
-			key: '/business',
+			key: '/register',
 			icon: '',
-			label: 'Contribuyentes'
+			label: 'Registro',
+			children: [
+				{
+					key: '/business',
+					icon: '',
+					label: 'Contribuyentes'
+				},
+				{
+					key: '/contacts',
+					icon: '',
+					label: 'Contactos'
+				},
+			]
 		},
 		{
-			key: '/contacts',
+			key: '/tax-collection-general',
 			icon: '',
-			label: 'Contactos'
+			label: 'Recaudación',
+			children: [
+				{
+					key: '/tax-collection',
+					icon: '',
+					label: 'Contribuyentes'
+				},
+				{
+					key: '/payments',
+					icon: '',
+					label: 'Pagos'
+				},
+			]
 		},
 		{
-			key: '/tax-collection',
+			key: '/config',
 			icon: '',
-			label: 'Recaudación'
-		},
-		{
-			key: '/currency-exchange-rates',
-			icon: '',
-			label: 'Tasas de Cambio'
-		},
-		{
-			key: '/payments',
-			icon: '',
-			label: 'Pagos'
-		},
-		{
-			key: '/economic-activities',
-			icon: '',
-			label: 'Actividades Económicas'
-		},
+			label: 'Configuración',
+			children: [
+				{
+					key: '/economic-activities',
+					icon: '',
+					label: 'Actividades Económicas'
+				},
+				{
+					key: '/currency-exchange-rates',
+					icon: '',
+					label: 'Tasas de Cambio'
+				},
+			]
+		}
 	]
 
 	if (userAuth.user?.role.name === 'Administrador') {
-		items.push({
-			key: '/users',
-			icon: '',
-			label: 'Usuarios'
-		}, )
+		const configItem = items.find(i => i?.key === '/config')
+		if (configItem) {
+			configItem.children?.push({
+				key: '/users',
+				icon: '',
+				label: 'Usuarios'
+			})
+		}
 	}
 	if (userAuth.token) {
 		items.push({
@@ -112,7 +136,7 @@ const App: React.FC = () => {
 	return (
 		<Layout>
 			<Sider 
-				style={siderStyle}
+				//style={siderStyle}
 				breakpoint="lg"
 				collapsedWidth="0"
 				onBreakpoint={(broken) => {
@@ -124,8 +148,12 @@ const App: React.FC = () => {
 			
 			>
 				{/* <div className='demo-logo-vertical' /> */}
-				<Flex vertical style={{ padding: '16px'}}>
-					<Typography.Title level={3} style={{ color: '#ffffffa6'}}>{userName}</Typography.Title>
+				<Flex vertical style={{ 
+						padding: '16px'
+				}}>
+					<Typography.Title level={3} style={{ color: '#ffffffa6'}}>
+						{userName}
+					</Typography.Title>
 					<Typography.Text type='secondary' style={{ color: '#ffffffa6'}}>{roleName}</Typography.Text>
 				</Flex>
 
@@ -142,7 +170,11 @@ const App: React.FC = () => {
 			<Layout 
 				style={{ minHeight: '100vh' }}
 			>
-				<Header style={{ padding: 0, background: colorBgContainer }} />
+				<Header style={{ 
+					padding: 0, 
+					background: colorBgContainer 
+				}} 
+				/>
 
 				<Content 
 					style={{ 
