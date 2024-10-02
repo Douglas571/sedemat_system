@@ -6,6 +6,7 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 
 import { Business, BranchOffice, License, EconomicActivity } from '../util/types'
 
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { CurrencyHandler, percentHandler } from '../util/currency';
 
 import * as api from '../util/api'
@@ -14,6 +15,7 @@ import * as economicLicenseApi from '../util/economicLicenseApi'
 import economicActivitiesService from '../services/EconomicActivitiesService'
 
 import { completeUrl, getCommunicationPreference } from './BusinessShared';
+import { build } from 'vite';
 
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -255,8 +257,8 @@ function BusinessViewDetails(): JSX.Element {
   }
 
   return (
-    <div>
-      <div>
+    <Card
+      title={
         <Flex align='center' wrap style={{ marginBottom: '20px' }} justify='space-between'>
           <Title style={{ marginRight: '20px' }}>
             {business?.businessName || "Cargando..."}
@@ -264,21 +266,27 @@ function BusinessViewDetails(): JSX.Element {
           <Flex gap={'middle'}>
             <Button
               data-test="business-edit-button"
-              onClick={() => navigate(`/business/edit/${businessId}`)}>Editar
+              onClick={() => navigate(`/business/edit/${businessId}`)}>
+                <EditOutlined />
+                Editar
             </Button>
             <Button
+              danger
               data-test="business-delete-button"
-              onClick={() => business.id && showModal()}>Eliminar
+              onClick={() => business.id && showModal()}>
+                <DeleteOutlined/>
+                Eliminar
             </Button>
           </Flex>
         </Flex>
+      }
+    >
+      <div>
 
         <GeneralInformationDescription
           business={business}
         />
         <br />
-
-
 
         <EconomicActivityDescription
           economicActivity={economicActivity}
@@ -376,7 +384,7 @@ function BusinessViewDetails(): JSX.Element {
         onCancel={handleCancel}>
         <p>¿Seguro que deseas eliminar este contribuyente?</p>
       </Modal>
-    </div>
+    </Card>
   )
 }
 
@@ -426,6 +434,7 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
           Sucursales
         </Title>
         <Button onClick={() => onNew()}>
+          <PlusOutlined />
           Nueva
         </Button>
       </Flex>
@@ -457,8 +466,8 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
                 <Flex gap={"small"} align='center' justify='space-between'>
                   <Title level={4}>{office.nickname}</Title>
                   <Flex gap={'small'}>
-                    <Button onClick={() => onEdit(office.id)}>Editar</Button>
-                    <Button onClick={() => handleOpenDeleteModal(office.id)}>Eliminar</Button>
+                    <Button onClick={() => onEdit(office.id)}><EditOutlined />Editar</Button>
+                    <Button danger onClick={() => handleOpenDeleteModal(office.id)}><DeleteOutlined /> Eliminar</Button>
                   </Flex>
                 </Flex>
 
@@ -516,13 +525,54 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
                   ]}
                 />
 
-                <Paragraph>
+                <Flex gap={32} wrap>
 
+                  <Flex vertical>
                   {office.isRented
                     ? (
-                      <>
+                      <LeaseDoc leaseDoc={lastLeaseDoc}/>
+                    )
+                    : (
+                      <BuildingDoc buildingDoc={lastBuildingDoc}/>
+                    )
+
+                  }
+
+                    <ZonationDoc zonations={office.zonations} lastZonationDoc={lastZonationDoc}/>
+                  </Flex>
+
+                  <Flex vertical>
+                    <Permits
+                      firefighterPermit={firefighterPermit}
+                      healthPermit={healthPermit}
+                    />
+                  </Flex>
+
+                </Flex>
+                <Divider/>
+              </Flex>
+            )
+          })
+        }
+
+      </Flex>
+      <Modal title="Eliminar Contribuyente"
+        data-test='business-delete-modal'
+        open={isDeleteOfficeModalOpen}
+        onOk={handleDeleteOffice}
+        onCancel={handleCancelDeletion}>
+        <p>¿Seguro que deseas eliminar esta sede?</p>
+      </Modal>
+    </>
+  )
+}
+
+function LeaseDoc({ leaseDoc }) {
+  let lastLeaseDoc = leaseDoc
+  return (
+    <>
                         <Title level={5}>
-                          Contrato de Arrendamiento
+                          Contrato de Arrendamiento 
                         </Title>
                         <Paragraph>
                           {
@@ -554,51 +604,54 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
                           }
                         </Paragraph>
                       </>
-                    )
-                    : (
-                      <>
-                        <Title level={5}>
-                          Contrato de propiedad
-                        </Title>
-                        <Paragraph>
-                          {
-                            lastBuildingDoc
-                              ? (
-                                <>
-                                  Expira: {new Date(lastBuildingDoc?.expirationDate).toLocaleDateString()}
-                                  {
-                                    lastBuildingDoc?.docImages.map(image => {
-                                      return (
-                                        <div key={image.id}>
-                                          <a
+  )
+}
 
-                                            target="_blank"
-                                            href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
-                                          </a>
-                                        </div>
-                                      )
-                                    })
-                                  }
-                                </>
-                              )
-                              : (
-                                <>No registrado</>
-                              )
-                          }
-                        </Paragraph>
-                      </>
-                    )
+function BuildingDoc({ buildingDoc }) {
+  let lastBuildingDoc = buildingDoc
+  return (<>
+    <Title level={5}>
+      Contrato de propiedad
+    </Title>
+    <Paragraph>
+      {
+        lastBuildingDoc
+          ? (
+            <>
+              Expira: {new Date(lastBuildingDoc?.expirationDate).toLocaleDateString()}
+              {
+                lastBuildingDoc?.docImages.map(image => {
+                  return (
+                    <div key={image.id}>
+                      <a
 
-                  }
-
-                  <Title level={5}>
+                        target="_blank"
+                        href={api.completeUrl(image.url)}> Pagina #{image.pageNumber}
+                      </a>
+                    </div>
+                  )
+                })
+              }
+            </>
+          )
+          : (
+            <>No registrado</>
+          )
+      }
+    </Paragraph>
+  </>)
+}
+function ZonationDoc({zonations, lastZonationDoc}) {
+  return (
+    <>
+      <Title level={5}>
                     Zonificación
                   </Title>
                   {
                     (lastZonationDoc)
                       ? (
                         <Paragraph>
-                          {office.zonations[office.zonations.length - 1].docImages.map(image => {
+                          {zonations[zonations.length - 1].docImages.map(image => {
                             return (
                               <div key={image.id}>
                                 <a
@@ -615,48 +668,7 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
                         </Paragraph>
                       )
                   }
-
-
-
-                  {/* <Title level={5}>
-                                    Licencia
-                                </Title>
-                                {
-                                    lastEconomicLicense?.issuedDate
-                                        ? (
-                                            <>
-                                                Fecha de Emisión: {String(lastEconomicLicense?.issuedDate)}<br />
-                                                Fecha de Vencimiento: {String(lastEconomicLicense?.expirationDate)}
-                                            </>
-                                        ) :
-                                        (
-                                            <>
-                                                Sin licencia
-                                            </>
-                                        )
-
-                                } */}
-
-
-                  <Permits
-                    firefighterPermit={firefighterPermit}
-                    healthPermit={healthPermit}
-                  />
-                </Paragraph>
-              </Flex>
-            )
-          })
-        }
-
-      </Flex>
-      <Modal title="Eliminar Contribuyente"
-        data-test='business-delete-modal'
-        open={isDeleteOfficeModalOpen}
-        onOk={handleDeleteOffice}
-        onCancel={handleCancelDeletion}>
-        <p>¿Seguro que deseas eliminar esta sede?</p>
-      </Modal>
-    </>
+      </>
   )
 }
 
@@ -751,7 +763,7 @@ function Permits({ firefighterPermit, healthPermit }): JSX.Element {
 
   return (
     <>
-      <Title level={4}>Permisos</Title>
+      {/* <Title level={4}>Permisos</Title> */}
       {firefighterPermit
         ? (<PermitRender data={firefighterPermit} title={"Permiso de Bomberos"} />)
         : <Paragraph>No hay permiso de bomberos registrado</Paragraph>
