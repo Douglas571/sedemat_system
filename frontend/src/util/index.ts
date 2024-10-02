@@ -11,8 +11,8 @@ export function completeUrl(url: string): string {
     return HOST + url
 }
 
-export function getMMVExchangeRate(currencyExchangeRates: CurrencyExchangeRate): number {
-	return Math.max(currencyExchangeRates.dolarBCVToBs, currencyExchangeRates.eurosBCVToBs)
+export function getMMVExchangeRate(currencyExchangeRate: CurrencyExchangeRate): number {
+	return Math.max(currencyExchangeRate.dolarBCVToBs, currencyExchangeRate.eurosBCVToBs)
 }
 
 
