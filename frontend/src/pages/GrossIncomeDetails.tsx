@@ -45,6 +45,8 @@ const GrossIncomeDetails: React.FC = () => {
         }
     }
 
+    if (!grossIncome) return "cargando...";
+
     return (
         <Card title={(
             <Flex justify='space-between' align='center'>
@@ -63,7 +65,12 @@ const GrossIncomeDetails: React.FC = () => {
             </Flex>
         )}>
 
-            <BusinessInfo business={business} />
+            <BusinessInfo 
+                business={business} 
+                alicuotaTaxPercent={`${grossIncome.alicuota.taxPercent * 100}%`}
+                minTaxMMV={`${grossIncome.alicuota.minTaxMMV} MMV-BCV`}
+
+            />
 
             <GrossIncomeInfo grossIncome={grossIncome} />
             <DeclarationImage imageUrl={completeUrl(grossIncome?.declarationImage)} />
@@ -71,7 +78,11 @@ const GrossIncomeDetails: React.FC = () => {
     );
 };
 
-const BusinessInfo: React.FC<{ business: Business | undefined }> = ({ business }) => {
+const BusinessInfo: React.FC<{ 
+    business: Business | undefined 
+    alicuotaTaxPercent: string | undefined 
+    minTaxMMV: string | undefined
+}> = ({ business, alicuotaTaxPercent, minTaxMMV }) => {
     if (!business) return null;
 
     return (
@@ -79,6 +90,8 @@ const BusinessInfo: React.FC<{ business: Business | undefined }> = ({ business }
             <Descriptions.Item label="Nombre del Negocio">{business.businessName}</Descriptions.Item>
             <Descriptions.Item label="RIF">{business.dni}</Descriptions.Item>
             <Descriptions.Item label="Actividad Económica">{business.economicActivity?.title}</Descriptions.Item>
+            <Descriptions.Item label="Alicuota">{alicuotaTaxPercent}</Descriptions.Item>
+            <Descriptions.Item label="Mínimo Tributario">{minTaxMMV}</Descriptions.Item>
         </Descriptions>
     );
 };
