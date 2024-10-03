@@ -25,18 +25,6 @@ const currencyHandler = (value) => currency(value,
     }
 )
 
-// class GrossIncome {
-//     contructor(data) {
-//         this.amountBs = data.amountBs,
-//         this.taxPercent = data.alicuota.taxPercent
-//         this.minTaxMMV = data.alicuota.minTaxMMV
-//         this.MMVtoBs = data.MMVtoBs
-//         this.chargeWasteCollection = data.chargeWasteCollection
-//         this.
-//     }
-// }
-
-
 function getMMVExchangeRate(currencyExchangeRate) {
 	return Math.max(currencyExchangeRate.dolarBCVToBs, currencyExchangeRate.eurosBCVToBs)
 }
@@ -227,7 +215,7 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data, user = {}) {
-        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
+        const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id);
 
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
@@ -272,7 +260,7 @@ class GrossIncomeInvoiceService {
     // Delete a GrossIncomeInvoice record by ID
     async deleteGrossIncomeInvoice(id) {
 
-        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
+        const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id);
 
         if (grossIncomeInvoice.paidAt !== null) {
             throw new Error('This invoice is already paid')
