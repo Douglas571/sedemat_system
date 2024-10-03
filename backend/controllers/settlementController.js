@@ -7,6 +7,7 @@ class SettlementController {
       const settlement = await settlementService.createSettlement(req.body);
       res.status(201).json(settlement);
     } catch (error) {
+      console.log({error});
       res.status(400).json({ error: error.message });
     }
   }
@@ -36,9 +37,10 @@ class SettlementController {
 
   async delete(req, res) {
     try {
-      await settlementService.deleteSettlement(req.params.id);
-      res.status(204).json();
+      let result = await settlementService.deleteSettlement(req.params.id);
+      res.status(200).json(result);
     } catch (error) {
+      console.log({error});
       res.status(500).json({ error: error.message });
     }
   }

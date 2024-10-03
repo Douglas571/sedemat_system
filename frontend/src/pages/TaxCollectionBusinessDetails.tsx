@@ -270,7 +270,10 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             key: 'status',
             render: (invoiceId: any, record: any) => {
                 const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
-                console.log('invoice', invoice)
+
+                
+
+                console.log({invoice, invoiceId, record})
 
                 if (!invoice) {
                     return <Badge status='warning' text='Pendiente' />
@@ -279,11 +282,11 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                 return (
 
                     <Badge
-                        status={invoice?.paidAt !== null ? 'success' : 'warning'}
+                        status={invoice?.settlement ? 'success' : 'warning'}
                         // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
                         // if grossIncomeInvoice.isPaid == "Pago"
                         // else "Pendiente"
-                        text={invoice?.paidAt !== null
+                        text={invoice?.settlement
                             ? 'Pagado'
                             : "Pendiente"}
                     />
@@ -514,12 +517,18 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             title: 'Estado',
             dataIndex: 'paidAt',
             key: 'paidAt',
-            render: (paidAt: string) => (
-                <Badge
-                    status={paidAt !== null ? 'success' : 'warning'}
-                    text={paidAt !== null ? 'Pagado' : 'Pendiente'}
-                />
-            ),
+
+            render: (paidAt: string, invoice: IGrossIncomeInvoice) => {
+                console.log({invoice})
+                return (
+
+                
+                    <Badge
+                        status={invoice?.settlement ? 'success' : 'warning'}
+                        text={invoice?.settlement ? 'Pagado' : 'Pendiente'}
+                    />
+                )
+            },
         },
         {
             title: 'Acciones',

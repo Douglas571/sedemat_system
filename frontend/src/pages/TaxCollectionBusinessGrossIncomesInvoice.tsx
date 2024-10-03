@@ -23,7 +23,7 @@ import {
 const { Title, Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'
-import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as paymentsApi from '../util/paymentsApi'
 import * as api from '../util/api'
@@ -31,11 +31,14 @@ import * as util from '../util'
 
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
+import settlementService from 'services/SettlementService';
+
 import { CurrencyHandler, formatBolivares, percentHandler } from 'util/currency';
 import useAuthentication from 'hooks/useAuthentication';
 
 import { ROLES } from 'util/constants'
 import GrossIncomeInvoice from './GrossIncomeInvoiceEdit';
+import create from '@ant-design/icons/lib/components/IconFont';
 
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
@@ -49,6 +52,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>()
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
     const [payments, setPayments] = useState<Payment[]>()
+
+    const [showSettlementModal, setShowSettlementModal] = useState(false)
+
     const paymentsAllocated = payments?.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
 
     const createdByUser = grossIncomeInvoice?.createdByUser
@@ -86,9 +92,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const totalLessPaymentsAllocatedBs = CurrencyHandler(TOTAL).subtract(totalPaymentsAllocated).value
     const totalLessPaymentsAllocatedMMV = CurrencyHandler(totalLessPaymentsAllocatedBs).divide(MMVExchangeRate).value
 
-    const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
+    const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.settlement !== null; 
     const canBeMarkedAsPaid = grossIncomeInvoice?.canBeSettled
     const isSettled = grossIncomeInvoiceIsPaid
+
 
     const loadPayments = async (): Promise<Payment[]> => {
         return paymentsApi.findAll()
@@ -152,30 +159,63 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const toggleIsSettled = async () => {
         // console.log('mark as settled')
 
-        try {
-            let response
-            if (grossIncomeInvoice?.paidAt) {
-                response = await GrossIncomesInvoiceService.unmarkAsPaid(Number(grossIncomeInvoiceId), token)
-            } else {
-                response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId), token)
-            }
+        // try {
+        //     let response
+        //     if (grossIncomeInvoice?.paidAt) {
+        //         response = await settlementService.create({
+                    
+        //         }, token)
+        //     } else {
+        //         response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId), token)
+        //     }
             
-            // console.log({response})
+        //     // console.log({response})
 
-            loadData()
+        //     loadData()
 
-            if (response.paidAt) {
-                message.success('Factura marcados como pagados')
-            } else {
-                message.success('Factura desmarcados como pagados')
-            }
+        //     if (response.paidAt) {
+        //         message.success('Factura marcados como pagados')
+        //     } else {
+        //         message.success('Factura desmarcados como pagados')
+        //     }
 
-        } catch (error) {
-            message.error('Error al marcar como pagado')
-            console.log({error})
-        }
+        // } catch (error) {
+        //     message.error('Error al marcar como pagado')
+        //     console.log({error})
+        // }
 
         
+    }
+
+
+    const handleNewSettlement = async (data) => {
+        let createdSettlement = {
+            ...data,
+            settledByUserId: user?.id,
+            grossIncomeInvoiceId: Number(grossIncomeInvoiceId)
+        }
+
+        let resultCreatedSettlement = await settlementService.create(createdSettlement, token)
+
+        setShowSettlementModal(false)
+        console.log({createdSettlement})	
+        loadData()
+    }
+
+    const handleEditSettlement = async (data) => {
+        console.log({editSettlement: data})
+
+        setShowSettlementModal(false)
+        loadData()
+    }
+
+    const handleDeleteSettlement = async (data) => {
+        console.log({deleteSettlement: data})
+
+        let result = await settlementService.delete(data, token)
+
+        setShowSettlementModal(false)
+        loadData()
     }
 
     if (!business) {
@@ -183,13 +223,16 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
 
-    const markAsSettledButton = <Button onClick={() => toggleIsSettled()} 
+    const markAsSettledButton = <Button 
+        onClick={() => setShowSettlementModal(true)} 
         disabled={ !canBeMarkedAsPaid }
-    >Marcar como liquidado</Button>
+        >
+            Marcar como liquidado
+        </Button>
 
     const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
 
-    const unmarkAsSettledButton = <Button onClick={() => toggleIsSettled()} >Desmarcar como liquidado</Button>
+    const unmarkAsSettledButton = <Button onClick={() => handleDeleteSettlement(grossIncomeInvoice?.settlement?.id)} >Desmarcar como liquidado</Button>
     
     return (
         <Card title={
@@ -216,7 +259,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 
             {
                 grossIncomeInvoiceIsPaid ? (
-                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice.paidAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
+                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice?.settlement?.createdAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
                 )
                 : (
                     <Alert message="Esta factura no ha sido liquidada" type="warning" showIcon />
@@ -413,16 +456,37 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <br/>
 
-            <UsersInvolved grossIncomeInvoice={grossIncomeInvoice} />
-
             <PaymentsAllocatedTable 
                 paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
                 payments={payments}
                 onDelete={handleDeletePayment}
                 onAdd={handleAddPayment}
 
-                disabled={grossIncomeInvoice?.paidAt !== null}
+                disabled={isSettled}
             />
+
+            <br/>
+
+            <UsersInvolved grossIncomeInvoice={grossIncomeInvoice} />
+
+            <br/>
+
+            
+
+            {
+                isSettled && (
+                    <Settlement
+                        settlement={grossIncomeInvoice?.settlement}
+                    />
+                )
+            }
+            
+            <SettlementEditModal 
+                open={showSettlementModal}
+                onCancel={() => setShowSettlementModal(false)}
+                onEdit={handleEditSettlement}
+                onNew={handleNewSettlement}/>
+                
         </Card>
     );
 };
@@ -471,6 +535,35 @@ function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeIn
     return (
         <Descriptions title="Usuarios involucrados" bordered size="small" items={items} />
     );
+}
+
+function Settlement({settlement}) {
+
+    const settledByUser = settlement?.settledByUser
+
+    const items = [
+        {
+            key: 1,
+            label: 'Código',
+            children: settlement.code,
+        },
+        {
+            key: 2,
+            label: 'Fecha',
+            children: dayjs(settlement.settledAt).format('DD/MM/YYYY'),
+        },
+        {
+            key: 3,
+            label: 'Liquidado por: ',
+            children: settledByUser?.person 
+                ? `${settledByUser.person?.firstName} ${settledByUser.person?.lastName}`
+                : settledByUser.username,
+        }
+    ]
+
+    return (
+        <Descriptions title="Liquidación" bordered size="small" items={items}/>
+    )
 }
 
 export default GrossIncomeInvoiceDetails;
@@ -620,6 +713,78 @@ function PaymentAssociationModal(
                         <InputNumber disabled suffix="Bs." style={{ minWidth: '200px' }} />
                     </Form.Item>
                 </Flex>
+            </Form>
+        </Modal>
+    );
+}
+
+function SettlementEditModal(
+    { 
+        settlement,
+        onNew, 
+        onEdit,
+        open,
+        onCancel
+    }
+    : { 
+        settlement?: ISettlement,
+        onNew: (settlement: ISettlement) => void, 
+        onEdit: (settlement: ISettlement) => void,
+        open: boolean,
+        onCancel: () => void
+
+    }
+) {
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
+    const isEditing = !!settlement;
+
+    const handleOk = () => {
+        form.validateFields()
+            .then(async (values) => {
+                setLoading(true);
+                try {
+                    if (isEditing) {
+                        await onEdit({
+                            ...settlement,
+                            ...values,
+                        });
+                    } else {
+                        await onNew({
+                            
+                            ...values,
+                            settledAt: dayjs()
+                        });
+                    }
+                } catch (error) {
+                    message.error('Error al introducir el código de conciliación');
+                    console.log({ error });
+                } finally {
+                    setLoading(false);
+                }
+            })
+            .catch((error) => {
+                console.log({ error });
+            });
+    }
+
+    return (
+        <Modal
+            title={isEditing ? 'Editar Liquidación' : 'Nueva Liquidación'}
+            open={open}
+            onOk={handleOk}
+            confirmLoading={loading}
+            onCancel={onCancel}
+        >
+            <Form layout="vertical" form={form}>
+                <Form.Item
+                    label="Código"
+                    name="code"
+                    rules={[{ required: true, message: 'Por favor, ingrese el código de conciliación' }]}
+                >
+                    <Input />
+                </Form.Item>
             </Form>
         </Modal>
     );

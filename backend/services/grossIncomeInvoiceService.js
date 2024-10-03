@@ -9,7 +9,7 @@ const {
     Settlement,
     Alicuota,
     BranchOffice,
-    WasteCollectionTax
+    WasteCollectionTax,
 } = require('../database/models');
 
 const currency = require('currency.js');
@@ -75,7 +75,7 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
 
     // get sub total for each grossIncome
     grossIncomes.forEach(grossIncome => {
-        console.log({grossIncome})
+        // console.log({grossIncome})
         let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
         let alicuota = grossIncome.alicuota
         let branchOfficeDimensions = grossIncome.branchOffice.dimensions
@@ -117,12 +117,18 @@ class GrossIncomeInvoiceService {
                 {
                     model: GrossIncome,
                     as: 'grossIncomes'
+                },
+                {
+                    model: Settlement,
+                    as: 'settlement',
+                    
                 }
             ]
         });
     }
 
     // Fetch a single GrossIncomeInvoice by ID
+    // this function will return a full version of gross income invoice
     async getGrossIncomeInvoiceById(id) {
         let grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id, {
             include: [
@@ -145,6 +151,22 @@ class GrossIncomeInvoiceService {
                         {
                             model: BranchOffice,
                             as: 'branchOffice',
+                        }
+                    ]
+                },
+                {
+                    model: Settlement,
+                    as: 'settlement',
+                    include: [
+                        {
+                            model: User,
+                            as: 'settledByUser',
+                            include: [
+                                {
+                                    model: Person,
+                                    as: 'person'
+                                }
+                            ]
                         }
                     ]
                 },
@@ -215,13 +237,15 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data, user = {}) {
-        const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id);
+        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
 
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
         }
 
         // if gross income is paid, don't allow any other property aside of paidAt
+
+        // check if it has a settlement 
         if (grossIncomeInvoice.paidAt !== null && Object.keys(data).length > 1) {
             throw new Error('This invoice is already paid, only paidAt can be updated for a paid invoice');
         }
@@ -254,7 +278,7 @@ class GrossIncomeInvoiceService {
                 // assign a code to the settlement
         }
         
-        return await grossIncomeInvoice.update(data);
+        return await GrossIncomeInvoice.update(data, { where: { id } });
     }
 
     // Delete a GrossIncomeInvoice record by ID
@@ -310,6 +334,24 @@ class GrossIncomeInvoiceService {
         await payment.save()
         return payment
     }
+
+    // TODO: for future use case
+    // async markAsSettled(id, { settlement }) {
+    //     if (!settlement) {
+    //         let error = new Error('Settlement data is required')
+    //         error.name = 'ValidationError'
+    //         throw error
+    //     }
+    //     // create a new settlement
+    //     let createdSettlement = await Settlement.create({
+    //         grossIncomeInvoiceId: id,
+    //         settledByUserId: settlement.settledByUserId,
+    //         code: settlement.code
+    //     })
+
+    //     // return the settlement id
+    //     return createdSettlement
+    // }
 }
 
 module.exports = new GrossIncomeInvoiceService();

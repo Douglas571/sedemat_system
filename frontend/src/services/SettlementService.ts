@@ -43,6 +43,30 @@ class SettlementService {
         return await response.json();
     }
 
+    async create(data: ISettlement, token: string = ''): Promise<ISettlement> {
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await fetch(`${this.baseUrl}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            throw new Error(`Failed to create settlement: ${responseData.error.message}`);
+        }
+
+        return responseData;
+    }
+
+
     // Update an existing settlement
     async update(data: ISettlement, token: string = ''): Promise<ISettlement> {
         if (!token) {
