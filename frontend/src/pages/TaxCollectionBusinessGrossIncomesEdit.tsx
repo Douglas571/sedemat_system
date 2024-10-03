@@ -311,7 +311,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             };
 
             newGrossIncome.alicuotaId = values.alicuotaId
-            newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRateId
+            newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRatesId
+
 
             console.log('newGrossIncome', newGrossIncome)
 
