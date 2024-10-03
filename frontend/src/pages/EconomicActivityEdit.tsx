@@ -25,6 +25,8 @@ import economicActivitiesService from '../services/EconomicActivitiesService';
 import alicuotaService from '../services/alicuotaService';
 import useAuthentication from '../hooks/useAuthentication';
 
+import { percentHandler, formatPercents } from '../util/currency';
+
 interface IEconomicActivityForm {
     code: string;
     title: string;
@@ -60,14 +62,22 @@ export default function EconomicActivityForm() {
                 // just update the code and title with economic activities service
                 // it require a token 
 
+                let economicActivityData = {
+                    code: values.code,
+                    title: values.title,
+                }
+
                 if (isEdit) {
-                    let updatedEconomicActivity = await economicActivitiesService.update(Number(economicActivityId), {...values}, userAuth.token);
+                    let updatedEconomicActivity = await economicActivitiesService.update(Number(economicActivityId), economicActivityData, userAuth.token);
 
                     console.log({updatedEconomicActivity})
                 } else {
-                    let createdEconomicActivity = await economicActivitiesService.create({...values}, userAuth.token);
+
+                    economicActivityData.firstAlicuota = percentHandler(values.firstAlicuota).divide(100).value;
+                    economicActivityData.firstMinTaxMMV = values.firstMinTaxMMV;
+
+                    let createdEconomicActivity = await economicActivitiesService.create(economicActivityData, userAuth.token);
                     console.log({createdEconomicActivity})
-                    
                 }
 
                 message.success(`Actividad Económica ${isEdit ? 'editada' : 'creada'} con éxito`);
@@ -86,6 +96,7 @@ export default function EconomicActivityForm() {
     const handleNewAlicuota = async (alicuota: IAlicuota) => {
         try {
             console.log({NewAlicuota: alicuota})
+
 
             setShowEditAlicuotaModal(false);
 
@@ -106,6 +117,8 @@ export default function EconomicActivityForm() {
     const handleEditAlicuota = async (id: number, alicuota: IAlicuota) => {
         try {
             console.log({EditedAlicuota: alicuota})
+
+            
 
             let updatedAlicuota = await alicuotaService.update(id, alicuota, userAuth.token);
 
@@ -319,10 +332,18 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
     const submit = () => {
         console.log("submiting")
         form.validateFields().then((values) => {
+
+            let taxPercent = percentHandler(values.taxPercent).divide(100).value
+            
+            let alicuotaData = {
+                ...values,
+                taxPercent
+            }
+
             if(isEditing && alicuota) {
-                onEdit(alicuota.id,values);
+                onEdit(alicuota.id,alicuotaData);
             } else {
-                onNew(values);
+                onNew(alicuotaData);
             }
     
             form.resetFields();
@@ -333,7 +354,7 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
     const loadData = () => {
         if (alicuota?.id) {
             form.setFieldsValue({
-                taxPercent: alicuota.taxPercent,
+                taxPercent: percentHandler(alicuota.taxPercent).multiply(100).value,
                 minTaxMMV: alicuota.minTaxMMV,
                 createdAt: dayjs(alicuota.createdAt),
             });
@@ -366,11 +387,13 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
                         name="taxPercent"
                         rules={[{ required: true, message: 'Introduzca una alicuota' }]}
                     >
-                        <InputNumber min={0} step={0.01} 
+                        <InputNumber 
+                            min={0} 
+                            step={0.01} 
                             style={{ minWidth: '150px' }}
                             addonAfter="%"
-                            decimalSeparator=','
-                        
+                            decimalSeparator=','       
+
                         />
                     </Form.Item>
                     <Form.Item<EditAlicuotaFormValues>
@@ -405,7 +428,7 @@ function EconomicActivityAlicuotaHistory({ alicuotas, onNewAlicuota, onEditAlicu
             dataIndex: 'taxPercent',
             sorter: (a, b) => a.taxPercent - b.taxPercent,
             showSorterTooltip: false,
-            render: (value: number) => `${value * 100}%`,
+            render: (value: number) => formatPercents(percentHandler(value).multiply(100).value),
         },
         {
             title: 'Mínimo Tributario TCMMV-BCV',

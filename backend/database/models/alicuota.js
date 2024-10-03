@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     taxPercent: {
-      type: DataTypes.DECIMAL(5, 2), // Adjust size and precision as needed
+      type: DataTypes.DECIMAL(5, 4), // Adjust size and precision as needed
       allowNull: false,
     },
     minTaxMMV: {
