@@ -87,7 +87,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const totalLessPaymentsAllocatedMMV = CurrencyHandler(totalLessPaymentsAllocatedBs).divide(MMVExchangeRate).value
 
     const grossIncomeInvoiceIsPaid = grossIncomeInvoice?.paidAt !== null; 
-    const canBeMarkedAsPaid = totalPaymentsAllocated === TOTAL
+    const canBeMarkedAsPaid = grossIncomeInvoice?.canBeSettled
     const isSettled = grossIncomeInvoiceIsPaid
 
     const loadPayments = async (): Promise<Payment[]> => {
@@ -531,7 +531,7 @@ function PaymentsAllocatedTable(
             key: "actions",
             render: (text: any, record: any) => (
                 <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
-                    <Button danger disabled={disabled}>Eliminar</Button>
+                    <Button danger disabled={disabled}>Remover</Button>
                 </Popconfirm>
             ),
         },
