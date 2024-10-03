@@ -61,81 +61,6 @@ function BusinessView(): JSX.Element {
         loadBusiness()
     }, [])
 
-
-
-
-
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef<InputRef>(null);
-
-
-    const handleSearch = (
-        selectedKeys: string[],
-        confirm: FilterDropdownProps['confirm'],
-        dataIndex: DataIndex,
-    ) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-
-    const handleReset = (clearFilters: () => void) => {
-        clearFilters();
-        setSearchText('');
-    };
-    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<DataType> => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Buscar
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            clearFilters && handleReset(clearFilters)
-                            confirm({ closeDropdown: false });
-                            close()
-                        }}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Limpiar
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex]
-                .toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text, record) =>
-            (<Link to={`/business/${record.id}`}>{text}</Link>)
-    });
-
     const columns = [
         {
             title: 'Razón Social',
@@ -143,8 +68,26 @@ function BusinessView(): JSX.Element {
             key: 'businessName',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.businessName.localeCompare(b.businessName),
-            ...getColumnSearchProps('businessName'),
+            sorter: (a: Business, b: Business) => a.businessName.localeCompare(b.businessName),
+            //...getColumnSearchProps('businessName'),
+            
+            filterIcon: (filtered: boolean) => (
+                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            ),
+            filters: business.map((b: Business) => ({
+                text: b.businessName,
+                value: b.businessName
+            })),
+            filterMode: 'menu',
+            filterSearch: true,
+            onFilter: (value: string, record: Business) => {
+                return record.businessName.includes(value)
+            },
+
+            render: (value: string, record: Business) => {
+                return <Typography.Text><Link to={`/tax-collection/${record.id}`}>{value}</Link></Typography.Text>
+            }
+
         },
         {
             title: 'Rif o Cédula',
@@ -152,8 +95,21 @@ function BusinessView(): JSX.Element {
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.dni.localeCompare(b.dni),
-            ...getColumnSearchProps('dni'),
+            sorter: (a: Business, b: Business) => a.dni.localeCompare(b.dni),
+            // ...getColumnSearchProps('dni'),
+
+            filterIcon: (filtered: boolean) => (
+                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            ),
+            filters: business.map((b: Business) => ({
+                text: b.dni,
+                value: b.dni
+            })),
+            filterMode: 'menu',
+            filterSearch: true,
+            onFilter: (value: string, record: Business) => {
+                return record.dni.includes(value)
+            },
         },
         // {
         //     title: 'Correo',
@@ -169,13 +125,13 @@ function BusinessView(): JSX.Element {
                 return (
                     <Flex gap="small">
                         <Button
-                            shape="circle"
+                            // shape="circle"
                             onClick={() => {
                                 console.log({ goingTo: business.id })
                                 navigate(`edit/${business.id}`)
                             }
                             }
-                        ><EditFilled /></Button>
+                        ><EditFilled />Editar</Button>
 
                         <Popconfirm
                             title="Eliminar Pago"
@@ -191,9 +147,10 @@ function BusinessView(): JSX.Element {
                         >
                             <Button
                                 danger
-                                shape="circle"
+                                // shape="circle"
                             >
                                 <DeleteFilled />
+                                Eliminar
                             </Button>
                         </Popconfirm>
                     </Flex>
@@ -216,8 +173,10 @@ function BusinessView(): JSX.Element {
                 
 
             <Table
+                style={{ overflow: 'scroll' }}
                 dataSource={business}
                 columns={columns}
+                rowKey={b => b.id}
             />
         </div>
     )
