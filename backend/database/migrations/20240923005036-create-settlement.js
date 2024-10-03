@@ -1,6 +1,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('settlements', {
+    await queryInterface.createTable('Settlements', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -29,6 +29,7 @@ module.exports = {
           model: 'GrossIncomeInvoices', // Assuming your GrossIncomeInvoice model's table name
           key: 'id'
         },
+        unique: true,
         // onUpdate: 'CASCADE',
         // onDelete: 'SET NULL'
       },
@@ -45,6 +46,6 @@ module.exports = {
     });
   },
   down: async (queryInterface) => {
-    await queryInterface.dropTable('settlements');
+    await queryInterface.dropTable('Settlements');
   }
 };

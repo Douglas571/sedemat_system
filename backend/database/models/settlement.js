@@ -38,7 +38,8 @@ module.exports = (sequelize, DataTypes) => {
 
     code: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true,
     },
 
     settledByUserId: {
@@ -56,7 +57,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'GrossIncomeInvoices', // Assuming your GrossIncomeInvoice model's table name
         key: 'id'
-      }
+      },
+      unique: true
     }
   }, {
     sequelize,
