@@ -59,55 +59,23 @@ export default function Contacts(): JSX.Element {
         setSearchText('');
     };
 
-    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<DataType> => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Buscar
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            clearFilters && handleReset(clearFilters)
-                            confirm({ closeDropdown: false });
-                            close()
-                        }}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Limpiar
-                    </Button>
-                </Space>
-            </div>
-        ),
+    const getColumnSearchProps = (dataIndex: string): TableColumnType<DataType> => ({
+
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        showSorterTooltip: false,
+        filterMode: 'menu',
+        filterSearch: true,
+        
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value, record) =>
+        onFilter: (value: string, record: Person) =>
             record[dataIndex]
                 .toString()
                 .toLowerCase()
                 .includes((value as string).toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text, record) =>
+        
+        render: (text: string, record: Person) =>
             (<Link to={`/contacts/${record.id}`}>{text}</Link>)
     });
 
@@ -117,20 +85,41 @@ export default function Contacts(): JSX.Element {
             title: 'Nombre y Apellido',
             dataIndex: 'fullName',
             key: 'fullName',
-            showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            
+            
             sorter: (a: Person, b: Person) => a.firstName?.localeCompare(b.firstName),
+
+            
+
+            filters: contacts.map((c: Person) => {
+
+                return {
+                    text: c.fullName,
+                    value: c.fullName
+                }
+            }),
+
             ...getColumnSearchProps('fullName'),
+
+            
         },
         {
             title: 'Cédula',
             dataIndex: 'dni',
             key: 'dni',
-            showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
+
+            filters: contacts.map((c: Person) => {
+
+                return {
+                    text: c.dni,
+                    value: c.dni
+                }
+            }),
+
             sorter: (a: Person, b: Person) => a.dni?.localeCompare(b.dni),
-            ...getColumnSearchProps('dni')
+
+            ...getColumnSearchProps('dni'),
         },
         {
             title: 'Teléfono',
