@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, Flex, Button, Table, Typography, Popconfirm, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { EconomicActivity } from '../util/types';
+import { EconomicActivity, IAlicuota } from '../util/types';
 
 import economicActivitiesService from '../services/EconomicActivitiesService';
 import useAuthentication from '../hooks/useAuthentication';
+import { percentHandler, formatPercents } from '../util/currency';
 
 const EconomicActivitiesTable = () => {
     const navigate = useNavigate();
@@ -52,13 +53,19 @@ const EconomicActivitiesTable = () => {
         },
         {
             title: 'Alicuota',
-            dataIndex: 'alicuota',
+            dataIndex: 'currentAlicuota',
             key: 'alicuota',
+            render(_: string, record: EconomicActivity) {
+                return formatPercents(percentHandler(record.currentAlicuota?.taxPercent).multiply(100).value);
+            }
         },
         {
             title: 'Mínimo Tributario',
-            dataIndex: 'minimumTax',
+            dataIndex: 'currentAlicuota.minTaxMMV',
             key: 'minimumTax',
+            render(_: string, record: EconomicActivity) {
+                return `${record.currentAlicuota?.minTaxMMV ?? 0} MMV-BCV`;
+            }
         },
         {
             title: 'Acciones',
