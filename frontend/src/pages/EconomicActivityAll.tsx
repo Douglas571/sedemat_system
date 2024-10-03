@@ -81,23 +81,6 @@ const EconomicActivitiesTable = () => {
         },
     ];
 
-    const data = [
-        {
-            id: 1,
-            code: '1234',
-            title: 'Actividad 1',
-            alicuota: 10.00,
-            minimumTax: 100.00,
-        },
-        {
-            id: 2,
-            code: '5678',
-            title: 'Actividad 2',
-            alicuota: 20.00,
-            minimumTax: 200.00,
-        },
-    ];
-
     return (
         <Card title={
             <Flex justify="space-between" align="center">
