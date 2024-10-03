@@ -7,7 +7,119 @@ const {
     Person,
     User,
     Settlement,
+    Alicuota,
+    BranchOffice,
+    WasteCollectionTax
 } = require('../database/models');
+
+const currency = require('currency.js');
+
+
+const currencyHandler = (value) => currency(value, 
+    { 
+        // symbol: 'Bs.', 
+        pattern: '#', 
+        precision: 4,
+        separator: '.',
+        decimal: ','
+    }
+)
+
+// class GrossIncome {
+//     contructor(data) {
+//         this.amountBs = data.amountBs,
+//         this.taxPercent = data.alicuota.taxPercent
+//         this.minTaxMMV = data.alicuota.minTaxMMV
+//         this.MMVtoBs = data.MMVtoBs
+//         this.chargeWasteCollection = data.chargeWasteCollection
+//         this.
+//     }
+// }
+
+
+function getMMVExchangeRate(currencyExchangeRate) {
+	return Math.max(currencyExchangeRate.dolarBCVToBs, currencyExchangeRate.eurosBCVToBs)
+}
+
+function getWasteCollectionTaxInMMV(mts2) {
+    // Return 20 if mts2 is greater than or equal to 300
+    if (mts2 >= 300) {
+        return 20;
+    }
+
+    // Return 10 if mts2 is greater than or equal to 50
+    if (mts2 >= 50) {
+        return 10;
+    }
+
+    // Return 5 if mts2 is greater than or equal to 0
+    if (mts2 >= 0) {
+        return 5;
+    }
+
+    // Return 0 if none of the conditions are met
+    return 0;
+}
+
+function getGrossIncomeTaxSubTotalInBs({
+    grossIncomeInBs,
+    alicuota,
+    minTaxMMV,
+    MMVToBs,
+    chargeWasteCollection,
+    branchOfficeDimensions
+}) {
+    let taxInBs = currencyHandler(grossIncomeInBs).multiply(alicuota).value
+    let minTaxInBs = currencyHandler(minTaxMMV).multiply(MMVToBs).value
+    let wasteCollectionTax = 0
+
+    if (chargeWasteCollection) {
+        let MMVTax = getWasteCollectionTaxInMMV(branchOfficeDimensions)
+        wasteCollectionTax = currencyHandler(MMVToBs).multiply(MMVTax).value
+    }
+
+    return Math.max(taxInBs, minTaxInBs) + wasteCollectionTax
+}
+
+function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
+    let total = 0
+    let totalPayments = 0
+
+    // get sub total for each grossIncome
+    grossIncomes.forEach(grossIncome => {
+        console.log({grossIncome})
+        let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
+        let alicuota = grossIncome.alicuota
+        let branchOfficeDimensions = grossIncome.branchOffice.dimensions
+        
+        let subTotal = getGrossIncomeTaxSubTotalInBs({
+            grossIncomeInBs: grossIncome.amountBs,
+            alicuota: alicuota.taxPercent,
+            minTaxMMV: alicuota.minTaxMMV,
+            MMVToBs: MMVtoBs,
+            chargeWasteCollection: grossIncome.chargeWasteCollection,
+            branchOfficeDimensions: branchOfficeDimensions
+        })
+
+        total = currencyHandler(total).add(subTotal).value
+    })
+
+    // add the form price 
+    total = currencyHandler(total).add(formPriceBs).value
+
+    // get total in payments 
+    totalPayments = payments
+        .reduce((total, payment) => currencyHandler(total).add(payment.amount).value, 0)
+
+    console.log({total, totalPayments})
+
+    // if total in payments === total in grossIncomes return true
+    if (total === totalPayments) {
+        return true
+    } 
+
+    return false
+}
 
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
@@ -24,11 +136,29 @@ class GrossIncomeInvoiceService {
 
     // Fetch a single GrossIncomeInvoice by ID
     async getGrossIncomeInvoiceById(id) {
-        return await GrossIncomeInvoice.findByPk(id, {
+        let grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id, {
             include: [
                 {
                     model: GrossIncome,
                     as: 'grossIncomes',
+                    include: [
+                        {
+                            model: CurrencyExchangeRates,
+                            as: 'currencyExchangeRate'
+                        },
+                        {
+                            model: Alicuota,
+                            as: 'alicuota'
+                        },
+                        {
+                            model: WasteCollectionTax,
+                            as: 'wasteCollectionTax'
+                        },
+                        {
+                            model: BranchOffice,
+                            as: 'branchOffice',
+                        }
+                    ]
                 },
                 {
                     model: User,
@@ -49,9 +179,30 @@ class GrossIncomeInvoiceService {
                             as: 'person'
                         }
                     ]
+                },
+                {
+                    model: Payment,
+                    as: 'payments'
                 }
+                
             ]
         });
+
+        if (!grossIncomeInvoice) {
+            throw new Error('GrossIncomeInvoice not found'); 
+        }
+
+        let returnedGrossIncomeInvoices = {
+            ...grossIncomeInvoice?.toJSON(),
+            canBeSettled: canBeSettled({
+                grossIncomes: grossIncomeInvoice.grossIncomes,
+                payments: grossIncomeInvoice.payments,
+                formPriceBs: grossIncomeInvoice.formPriceBs
+            })
+        }
+
+
+        return returnedGrossIncomeInvoices;
     }
 
     // Create a new GrossIncomeInvoice record
