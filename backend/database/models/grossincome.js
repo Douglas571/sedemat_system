@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'RESTRICT'
     },
 
-    MMVToBsRate: {
+    TCMMVBCV: {
       type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
     }

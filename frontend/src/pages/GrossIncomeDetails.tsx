@@ -8,6 +8,7 @@ import * as api from '../util/api';
 
 import { IGrossIncome, Business } from '../util/types';
 import { completeUrl } from '../util';
+import { formatBolivares } from '../util/currency';
 
 const { Title, Text } = Typography;
 
@@ -69,6 +70,7 @@ const GrossIncomeDetails: React.FC = () => {
                 business={business} 
                 alicuotaTaxPercent={`${grossIncome.alicuota.taxPercent * 100}%`}
                 minTaxMMV={`${grossIncome.alicuota.minTaxMMV} MMV-BCV`}
+                TCMMVBCV={formatBolivares(grossIncome.TCMMVBCV)}
 
             />
 
@@ -81,8 +83,9 @@ const GrossIncomeDetails: React.FC = () => {
 const BusinessInfo: React.FC<{ 
     business: Business | undefined 
     alicuotaTaxPercent: string | undefined 
-    minTaxMMV: string | undefined
-}> = ({ business, alicuotaTaxPercent, minTaxMMV }) => {
+    minTaxMMV: string | undefined,
+    TCMMVBCV: string | undefined,
+}> = ({ business, alicuotaTaxPercent, minTaxMMV, TCMMVBCV }) => {
     if (!business) return null;
 
     return (
@@ -92,6 +95,7 @@ const BusinessInfo: React.FC<{
             <Descriptions.Item label="Actividad Económica">{business.economicActivity?.title}</Descriptions.Item>
             <Descriptions.Item label="Alicuota">{alicuotaTaxPercent}</Descriptions.Item>
             <Descriptions.Item label="Mínimo Tributario">{minTaxMMV}</Descriptions.Item>
+            <Descriptions.Item label="TC-MMVBCV">{TCMMVBCV}</Descriptions.Item>
         </Descriptions>
     );
 };

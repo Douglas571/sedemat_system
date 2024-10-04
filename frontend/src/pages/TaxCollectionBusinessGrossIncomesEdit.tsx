@@ -95,7 +95,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     useEffect(() => {
         if (lastCurrencyExchangeRate) {
             form.setFieldsValue({
-                currencyExchangeRatesId: lastCurrencyExchangeRate.id
+                currencyExchangeRatesId: lastCurrencyExchangeRate.id,
+                TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate)
             })
         }
     }, [lastCurrencyExchangeRate])
@@ -151,13 +152,13 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         if(grossIncome) {
             // console.log('grossIncome', grossIncome)
             form.setFieldsValue({
+                ...grossIncome,
                 period: dayjs(grossIncome.period),
-                amountBs: grossIncome.amountBs,
-                chargeWasteCollection: grossIncome.chargeWasteCollection,
                 // TODO: Modify the branch office name 
                 branchOffice: grossIncome.branchOfficeId,
                 alicuotaId: grossIncome.alicuotaId,
                 currencyExchangeRatesId: grossIncome.currencyExchangeRatesId,
+                
             });
 
             const imageUrl = completeUrl(grossIncome.declarationImage)
@@ -316,12 +317,10 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
             let selectedCurrencyExchangeRate = currencyExchangeRateHistory.find( c => c.id === values.currencyExchangeRatesId)
 
-            if (selectedCurrencyExchangeRate) {
-                newGrossIncome.MMVToBsRate = util.getMMVExchangeRate(selectedCurrencyExchangeRate)
-            }
+            // if (selectedCurrencyExchangeRate) {
+            //     newGrossIncome.TCMMVBCV = util.getMMVExchangeRate(selectedCurrencyExchangeRate)
+            // }
 
-            
-            
 
 
             console.log('newGrossIncome', newGrossIncome)
@@ -435,21 +434,39 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             </Form.Item>
                     </Flex>
                     
-                    <Form.Item
-                        name="alicuotaId"
-                        label="Alicuota"
-                        rules={[{ required: true, message: 'Por favor seleccione una alicuota' }]}
-                    >
-                        <Select placeholder="Seleccione una alicuota" options={alicuotaHistoryOptions}/>
-                    </Form.Item>
+                    
 
-                    <Form.Item
-                        name="currencyExchangeRatesId"
-                        label="Tasa de Cambio"
-                        rules={[{ required: true, message: 'Por favor seleccione una tasa de cambio' }]}
-                    >
-                        <Select placeholder="Seleccione una tasa de cambio" options={currencyExchangeRateOptions}/>
-                    </Form.Item>
+                    <Flex gap={16} wrap>
+                        <Form.Item
+                            name="alicuotaId"
+                            label="Alicuota"
+                            rules={[{ required: true, message: 'Por favor seleccione una alicuota' }]}
+                        >
+                            <Select placeholder="Seleccione una alicuota" options={alicuotaHistoryOptions}/>
+                        </Form.Item>
+
+                        <Form.Item
+                            name="TCMMVBCV"
+                            label="TC-MMVBCV"
+                            rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
+                        >
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                addonAfter='Bs'
+                                min={0}
+                                step={0.01}
+                                decimalSeparator=','
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="currencyExchangeRatesId"
+                            label="Tasa de Cambio"
+                            rules={[{ required: true, message: 'Por favor seleccione una tasa de cambio' }]}
+                        >
+                            <Select placeholder="Seleccione una tasa de cambio" options={currencyExchangeRateOptions}/>
+                        </Form.Item>
+                    </Flex>
 
                     <Form.Item
                         name="declarationImage"
