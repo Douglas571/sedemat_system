@@ -17,7 +17,8 @@ import {
     Form, 
     InputNumber,
     Divider,
-    Alert
+    Alert,
+    DatePicker
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -754,7 +755,6 @@ function SettlementEditModal(
                         await onNew({
                             
                             ...values,
-                            settledAt: dayjs()
                         });
                     }
                 } catch (error) {
@@ -784,6 +784,13 @@ function SettlementEditModal(
                     rules={[{ required: true, message: 'Por favor, ingrese el código de conciliación' }]}
                 >
                     <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Fecha"
+                    name="settledAt"
+                    rules={[{ required: true, message: 'Por favor, ingrese la fecha' }]}
+                >
+                    <DatePicker />
                 </Form.Item>
             </Form>
         </Modal>

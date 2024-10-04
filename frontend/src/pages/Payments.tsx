@@ -7,10 +7,13 @@ import axios from 'axios';
 
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
 
+import { SearchOutlined } from '@ant-design/icons';
+
 import { render } from '@testing-library/react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Payment } from '../util/types';
+import { formatBolivares } from '../util/currency';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -40,7 +43,7 @@ async function getPayments(): Promise<Array<Payment>> {
 
 function Payments(): JSX.Element {
     const [messageApi, contextHolder] = message.useMessage()
-    const [dataSource, setDataSource] = useState<Array<any>>([]);
+    const [dataSource, setDataSource] = useState<Payment[]>([]);
 
     const navigate = useNavigate()
 
@@ -58,7 +61,7 @@ function Payments(): JSX.Element {
                 if (payment.isVerified) {
                     newPayment.status = "Verificado"
                 } else {
-                    newPayment.status = "Recibido"
+                    newPayment.status = "No verificado"
                 }
 
                 if (payment.liquidationDate) {
@@ -158,18 +161,76 @@ function Payments(): JSX.Element {
         }
     }
 
+    const getColumnSearchProps = (dataIndex: string): TableColumnType<DataType> => ({
+
+        sortDirections: ['ascend', 'descend', 'ascend'],
+        showSorterTooltip: false,
+        filterMode: 'menu',
+        filterSearch: true,
+        
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+        onFilter: (value: string, record: Person) =>
+            record[dataIndex]
+                .toString()
+                .toLowerCase()
+                .includes((value as string).toLowerCase()),
+        
+        // render: (text: string, record: Person) =>
+        //     (<Link to={`/contacts/${record.id}`}>{text}</Link>)
+    });
+
+    const filterIconProp = {
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+    }
+
     const columns = [
         {
             title: 'Nombre o Razón Social',
-            dataIndex: 'businessName',
+            dataIndex: '',
             key: 'businessName',
+
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            showSorterTooltip: false,
+            filterMode: 'menu',
+            filterSearch: true,
+
             render: (text: string, record: Payment) => {
+                console.log({record, text})
                 if (record.businessId) {
                     return record.business.businessName
                 } else {
                     return `${record?.person?.firstName} ${record?.person?.lastName}`
                 }
-            }
+            },
+
+            sorter: (a: Payment, b: Payment) => {
+                console.log("here")
+                if (a.businessId) {
+                    return a.business.businessName.localeCompare(b.business.businessName)
+                } else {
+                    return a.person.firstName.localeCompare(b.person.firstName)
+                }
+            },
+
+            filters: [...new Set(dataSource.map((payment) => {
+                if(payment.businessId) return payment.business.businessName
+                else return `${payment?.person?.firstName} ${payment?.person?.lastName}`
+            }))].map(t => {
+                console.log(t)
+                return { text: t, value: t }
+            }),
+
+            onFilter: (value: string, record: Payment) =>
+                record?.business['businessName']
+                    .toString()
+                    .toLowerCase()
+                    .includes((value as string).toLowerCase()),
+            
+            ...filterIconProp,
         },
         {
             title: 'Rif o Cédula',
@@ -184,13 +245,25 @@ function Payments(): JSX.Element {
                     return a.person?.dni.localeCompare(b.person?.dni)
                 }
             },
+
+            filters: [...new Set(dataSource.map((payment) => {
+                if(payment.businessId) return payment.business.dni
+                else return payment?.person?.dni
+            }))].map(t => {
+                return { text: t, value: t }
+            }),
+
             render: (text: string, record: Payment) => {
                 if (record.businessId) {
                     return record?.business?.dni
                 } else {
                     return record?.person?.dni
                 }
-            }
+            },
+
+            ...filterIconProp,
+
+
         },
         {
             title: 'Referencia',
@@ -199,9 +272,15 @@ function Payments(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.reference.localeCompare(b.reference),
-            render: (text: string, record) => {
-                return <Link to={`/payments/${record.key}`}>{text}</Link>
-            }
+            render: (text: string, record: Payment) => {
+                return <Link to={`/payments/${record.id}`}>{text}</Link>
+            },
+
+            filters: dataSource.map((payment) => {
+                return { text: payment.reference, value: payment.reference }
+            }),
+            
+            ...filterIconProp
         },
         {
             title: 'Monto',
@@ -210,11 +289,30 @@ function Payments(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.amount - b.amount,
+            render(text: string, record: Payment) {
+                return formatBolivares(text)
+            }
         },
         {
             title: 'Cuenta Destino',
             dataIndex: 'account',
             key: 'account',
+            render: (text: string, record: Payment) => {
+                return record.bank?.accountNumber.slice(-4)
+            },
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => a.account.localeCompare(b.account),
+
+            filters: [...new Set(dataSource.map((payment) => {
+                return payment.bank.accountNumber.slice(-4)
+            }))].map(t => {
+                return { text: t, value: t }
+            }),
+
+            onFilter: (value: string, record: Payment) => record.bank.accountNumber.slice(-4) === (value as string),
+
+            ...filterIconProp
         },
         {
             title: 'Fecha de Pago',
@@ -227,12 +325,30 @@ function Payments(): JSX.Element {
         {
             title: 'Estado',
             dataIndex: 'status',
-            key: 'status'
+            key: 'status',
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => a.status.localeCompare(b.status),
+
+            filters: [...new Set(dataSource.map((payment) => {
+                return payment.status
+            }))].map(t => {
+                return { text: t, value: t }
+            }),
+
+            onFilter: (value: string, record: Payment) =>
+                record.status
+                    .toString()
+                    .toLowerCase() === ((value as string).toLowerCase()),
+
+            ...filterIconProp
         },
         {
             title: 'Acciones',
             key: 'action',
-            render: (_: any, record: Payment) => (
+            render: (_: any, record: Payment) => {
+                // console.log({record})
+                return (
                 <Space size="middle">
 
                     <Button
@@ -257,7 +373,7 @@ function Payments(): JSX.Element {
                     <Button onClick={() => navigate(`/payments/${record.id}`)}>Editar</Button>
                     <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
                 </Space>
-            ),
+            )},
         },
     ];
 
