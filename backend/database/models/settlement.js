@@ -32,8 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
 
-    createdAt: {
-      type: DataTypes.DATE
+    settledAt: {
+      type: DataTypes.DATE,
+      allowNull: false
     },
 
     code: {
@@ -59,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       },
       unique: true
-    }
+    },
   }, {
     sequelize,
     modelName: 'Settlement',

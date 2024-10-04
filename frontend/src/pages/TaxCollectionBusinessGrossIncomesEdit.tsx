@@ -300,18 +300,28 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 }
             }
 
-            console.log('lastCurrencyExchangeRate', lastCurrencyExchangeRate)
+            
             const newGrossIncome: IGrossIncome = {
                 ...grossIncome, // Why do i set it again? 
                 ...values,
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
                 branchOfficeId: branchOfficeId,
-                declarationImage: declarationImageUrl
+                declarationImage: declarationImageUrl,
             };
 
             newGrossIncome.alicuotaId = values.alicuotaId
             newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRatesId
+
+
+            let selectedCurrencyExchangeRate = currencyExchangeRateHistory.find( c => c.id === values.currencyExchangeRatesId)
+
+            if (selectedCurrencyExchangeRate) {
+                newGrossIncome.MMVToBsRate = util.getMMVExchangeRate(selectedCurrencyExchangeRate)
+            }
+
+            
+            
 
 
             console.log('newGrossIncome', newGrossIncome)

@@ -85,8 +85,11 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'RESTRICT'
     },
-    
 
+    MMVToBsRate: {
+      type: DataTypes.DECIMAL(10, 4),
+      allowNull: false,
+    }
   }, {
     sequelize,
     modelName: 'GrossIncome',

@@ -136,7 +136,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         // load gross incomes 
         const fetchedGrossIncomes = await loadGrossIncomes(Number(grossIncomeInvoiceId))
 
-        // console.log(JSON.stringify({fetchedBusiness, fetchedGrossIncomes, fetchedInvoice}, null, 2))
+        console.log(JSON.stringify({fetchedInvoice}, null, 2))
 
         setPayments(fetchedPayments)
         setLastCurrencyExchangeRate(lastCER)
@@ -260,7 +260,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 
             {
                 grossIncomeInvoiceIsPaid ? (
-                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice?.settlement?.createdAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
+                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice?.settlement?.settledAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
                 )
                 : (
                     <Alert message="Esta factura no ha sido liquidada" type="warning" showIcon />
@@ -753,7 +753,6 @@ function SettlementEditModal(
                         });
                     } else {
                         await onNew({
-                            
                             ...values,
                         });
                     }
