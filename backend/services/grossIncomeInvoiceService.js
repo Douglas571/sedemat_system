@@ -76,7 +76,7 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
     // get sub total for each grossIncome
     grossIncomes.forEach(grossIncome => {
         // console.log({grossIncome})
-        let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
+        let MMVtoBs = grossIncome.TCMMVBCV
         let alicuota = grossIncome.alicuota
         let branchOfficeDimensions = grossIncome.branchOffice.dimensions
         

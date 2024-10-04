@@ -65,6 +65,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
 
+    // Deprecated
     paidAt: {
       type: DataTypes.DATE,
       allowNull: true 
@@ -88,6 +89,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    // Deprecated
     settledByUserId: {
       type: DataTypes.INTEGER,
       allowNull: true,
