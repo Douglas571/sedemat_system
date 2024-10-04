@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import type { DatePickerProps, FormProps } from 'antd'
-import { Upload, Switch, message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete, Flex, Typography } from 'antd'
+import { Upload, Switch, message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete, Flex, Typography, Card } from 'antd'
 import FormItemLabel from 'antd/es/form/FormItemLabel'
 
 import type { GetProp, UploadFile, UploadProps } from 'antd';
@@ -66,6 +66,8 @@ function PaymentsEdit(): JSX.Element {
 	const [businessOptions, setBusinessOptions] = React.useState<Array<{ label: string, value: string }>>()
 	const [personOptions, setPersonOptions] = React.useState<Array<{ label: string, value: string }>>()
 	const [bankAccounts, setBankAccounts] = useState<IBankAccount[]>()
+
+	
 	const navigate = useNavigate()
 
 	const [payment, setPayment] = React.useState<Payment>()
@@ -86,11 +88,16 @@ function PaymentsEdit(): JSX.Element {
 	}));
 
 	useEffect(() => {
-		form.setFieldsValue({
-			account: accounts && accounts[0].label
-		})
-	}, [bankAccounts])
-
+		if (payment) {
+			form.setFieldsValue({
+				accountId: payment?.bankId,
+			})
+		} else {
+			form.setFieldsValue({
+				accountId: accounts && accounts[0].key,
+			})
+		}
+	}, [bankAccounts, payment])
 
 	const loadBancAccounts = async () => {
 		// fetch with bankAccountService.findAll()
@@ -201,6 +208,10 @@ function PaymentsEdit(): JSX.Element {
 			// send the image to the server
 			// get the id of the image
 
+			//console.log({bankAccounts, accounts, values})
+			//return 
+
+
 			let boucherImageUrl = ''
 
 			if (!values.person && !values.business) { 
@@ -214,7 +225,7 @@ function PaymentsEdit(): JSX.Element {
 			}
 
 			// if there is not image, upload the image
-			console.log({fileList})
+			// console.log({fileList})
 			if (fileList[0]?.url?.includes(payment?.image)) {
 				console.log("using existing image")
 				boucherImageUrl = payment?.image
@@ -225,21 +236,24 @@ function PaymentsEdit(): JSX.Element {
 			console.log({boucherImageUrl})
 
 			// map all values to a ready to ship payment object
-			const bank = bankAccounts?.find(({accountNumber}) => accountNumber.includes(values.account))
+			const bank = bankAccounts.find(b => b.id === values.accountId)
 
-			if (!bank?.id) {
-				throw Error('Banco inválido')
-			}
+			// if (!bank?.id) {
+			// 	throw Error('Banco inválido')
+			// }
+
+			
 			
 			let newPaymentData: Payment = {
 				id: Number(id),
+				...payment,
 				reference: values.reference,
 				amount: values.amount,
-				account: bank.accountNumber,
+				account: bank?.accountNumber,
 				paymentDate: values.paymentDate,
 				image: boucherImageUrl,
-				state: 'received',
-				bankId: bank.id
+				
+				bankId: values.accountId
 			}
 
 			if (isABusiness) {
@@ -361,10 +375,13 @@ function PaymentsEdit(): JSX.Element {
 
 	return (
 		<div>
-			<div>
+			<Card
+				title={<Typography.Title level={2}>{isEditing ? "Editando Pago" : "Nuevo Pago"}</Typography.Title>}
+			
+			>
 				{contextHolder}
 
-				<Typography.Title level={2}>{isEditing ? "Editando Pago" : "Nuevo Pago"}</Typography.Title>
+				
 
 				<Form form={form}
 					onFinish={onFinish}
@@ -444,7 +461,7 @@ function PaymentsEdit(): JSX.Element {
 
 						<Form.Item<FieldType>
 							label='Cuentas'
-							name='account'
+							name='accountId'
 							style={{ marginRight: '20px', minWidth: '150px' }}
 						>
 							<Select
@@ -492,7 +509,7 @@ function PaymentsEdit(): JSX.Element {
 					</Form.Item>
 
 				</Form>
-			</div>
+			</Card>
 		</div>
 	)
 }
