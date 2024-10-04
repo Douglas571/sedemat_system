@@ -97,10 +97,16 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    // Deprecated 
     totalBs: {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0
+    },
+
+    TCMMVBCV: {
+      type: DataTypes.DECIMAL(10, 4),
+      allowNull: false,
     }
   }, {
     sequelize,

@@ -64,6 +64,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
 
+    // Deprecated 
     currencyExchangeRatesId: {
       type: DataTypes.INTEGER,
       allowNull: true

@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id'
       },
 
+      // Deprecated
       isPaid: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
