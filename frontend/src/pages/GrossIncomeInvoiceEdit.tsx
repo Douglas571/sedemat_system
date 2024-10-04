@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { CurrencyHandler, formatBolivares, percentHandler } from '../util/currency'
 
 
-const monthsInSpanish = [
+const monthMapper = [
     "Enero",
     "Febrero",
     "Marzo",
@@ -104,16 +104,16 @@ const GrossIncomeInvoice: React.FC = () => {
 
     const columns: ColumnsType<IGrossIncome> = [
         {
-            title: 'Año',
+            title: 'Periodo',
             dataIndex: 'period',
             key: 'year',
-            render: (value: dayjs.Dayjs) => value.year()
-        },
-        {
-            title: 'Mes',
-            dataIndex: 'period',
-            key: 'month',
-            render: (value: dayjs.Dayjs) => monthsInSpanish[value.month()]
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            render: (period: any) => {
+                return period.year() + ' - ' + monthMapper[period.month()];
+            },
+            sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1,
+            defaultSortOrder: 'descend',
         },
         {
             title: 'Ingresos',
