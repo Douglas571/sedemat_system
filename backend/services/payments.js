@@ -48,6 +48,10 @@ exports.findById = async (id) => {
                     model: Business,
                     as: 'business',
                 },
+                {
+                    model: Bank,
+                    as: 'bank'
+                }
             ],
         });
         if (!payment) {
