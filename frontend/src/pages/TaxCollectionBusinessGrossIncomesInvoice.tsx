@@ -78,15 +78,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // console.log({paymentsAllocated})
 
-    let MMVExchangeRate = 0 
-
-    if (lastCurrencyExchangeRate) {
-        
-        MMVExchangeRate = Math.max(
-            lastCurrencyExchangeRate.dolarBCVToBs, 
-            lastCurrencyExchangeRate.eurosBCVToBs
-        );
-    }
+    let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 0
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
     const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)

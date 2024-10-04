@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip } from 'antd'
+import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate } from '../util/types' // Importing IGrossIncome from types
@@ -44,6 +44,10 @@ const GrossIncomeInvoice: React.FC = () => {
     const [currencyExchangeRates, setCurrencyExchangeRates] = useState<CurrencyExchangeRate | undefined>(undefined)
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice | undefined>(undefined)
 
+    const [grossIncomesToDisplay, setGrossIncomesToDisplay] = useState<IGrossIncome[]>([])
+
+    const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
+
     const selectedOfficeId = Form.useWatch('branchOfficeId', form);
     const formPrice = Form.useWatch('form', form);
 
@@ -64,6 +68,7 @@ const GrossIncomeInvoice: React.FC = () => {
     }
 
     const loadData = async () => {
+        await loadLastCurrencyExchangeRate()
         await loadBusiness()
         await loadBranchOffices()
 
@@ -87,6 +92,9 @@ const GrossIncomeInvoice: React.FC = () => {
             }
 
             form.setFieldValue('form', CurrencyHandler(grossIncomeInvoice.formPriceBs).value)
+            form.setFieldsValue({
+                TCMMVBCV: grossIncomeInvoice.TCMMVBCV
+            })
         } else {
             if (branchOffices) {
                 const branchOfficeId = branchOffices[0].id;
@@ -99,9 +107,12 @@ const GrossIncomeInvoice: React.FC = () => {
 
     }, [grossIncomeInvoice, branchOffices])
 
+    useEffect(() => {
+        handleUpdateTCMMVBCV()
+    }, [lastCurrencyExchangeRate])
+
     // TODO: Refactor this as a map, that calculate every data needed to display
     // in the table. Then pass the array of objects to the table.
-
     const columns: ColumnsType<IGrossIncome> = [
         {
             title: 'Periodo',
@@ -148,7 +159,10 @@ const GrossIncomeInvoice: React.FC = () => {
             {
                 console.log({record})
                 return (<Tooltip title={
-                    `${CurrencyHandler(record.alicuota?.minTaxMMV).format()} TCMMV-BCV x ${CurrencyHandler(util.getMMVExchangeRate(record.currencyExchangeRate)).format()} Bs.`
+                    util.getMinTaxMMVStringOperationToolTipText({
+                        minTaxMMV: record.alicuota.minTaxMMV,
+                        TCMMVBCV: record.TCMMVBCV
+                    })
                 }>
                     <Typography.Text>
                         {
@@ -165,10 +179,16 @@ const GrossIncomeInvoice: React.FC = () => {
             dataIndex: 'wasteCollectionTax',
             key: 'wasteCollectionTax',
             render: (text: string, record: IGrossIncome) => {
-                return (<Typography>{
+                return (
+                <Tooltip title={util.getMinTaxMMVStringOperationToolTipText({
+                    minTaxMMV: util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions),
+                    TCMMVBCV: record.TCMMVBCV
+                })}>
+                    <Typography>{
                     CurrencyHandler(util.getWasteCollectionTaxInBs(record))
                         .format()
-                }</Typography>)
+                    }</Typography>
+                </Tooltip>)
             }
         },
         {
@@ -220,7 +240,12 @@ const GrossIncomeInvoice: React.FC = () => {
         // }
     }
 
-    const [grossIncomesToDisplay, setGrossIncomesToDisplay] = useState<IGrossIncome[]>([])
+    async function loadLastCurrencyExchangeRate() {
+        const lastCurrencyExchangeRate = await currencyExchangeRatesService.getLastOne()
+        console.log({lastCurrencyExchangeRate})
+        setLastCurrencyExchangeRate(lastCurrencyExchangeRate)
+    }
+
     useEffect(() => {
 
         // filter by office 
@@ -243,6 +268,14 @@ const GrossIncomeInvoice: React.FC = () => {
 
     }, [grossIncomes, selectedOfficeId])
 
+    async function handleUpdateTCMMVBCV() {
+        if (lastCurrencyExchangeRate) {
+            form.setFieldsValue({
+                TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate)
+            })
+        }
+    }
+
     async function loadCurrencyExchangeRates() {
         const fetchedCurrencyExchangeRates = await currencyExchangeRatesService.getAll();
         console.log('fetchedCurrencyExchangeRates', fetchedCurrencyExchangeRates)
@@ -262,7 +295,10 @@ const GrossIncomeInvoice: React.FC = () => {
         selectedRowKeys,
         onChange: onSelectChange
     }
-    const handleCreateInvoice = async () => {
+
+    const onFinish = async (values: any) => {
+        console.log('Form values:', values);
+
         try {
             if (selectedRowKeys.length === 0) {
                 message.warning('Seleccione al menos un calculo de ingresos brutos')
@@ -274,7 +310,8 @@ const GrossIncomeInvoice: React.FC = () => {
                 businessId: businessId,
                 formPriceBs: formPrice,
                 grossIncomesIds: selectedRowKeys.map(key => Number(key)),
-                totalBs: TOTAL
+                totalBs: TOTAL,
+                TCMMVBCV: values.TCMMVBCV
             }
 
             let registeredInvoice
@@ -311,34 +348,38 @@ const GrossIncomeInvoice: React.FC = () => {
         }
     }
 
-    const onFinish = (values: any) => {
-        console.log('Form values:', values);
-
-        handleCreateInvoice();
-    }
-
     return (
-        <Form form={form} onFinish={handleCreateInvoice}>
+        <Form form={form} onFinish={onFinish}>
             <Typography.Title level={2}>{isEditing ? 'Editar Calculo de Ingresos Brutos' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
             <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
 
-            <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
-                <Select 
-                    onChange={(value) => console.log('selectedOfficeId', value)} 
-                    options={branchOffices?.map(branchOffice => ({
-                        key: branchOffice.id,
-                        value: branchOffice.id,
-                        label: branchOffice.nickname
-                    }))} 
+            <Flex wrap gap={16}>
+                <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
+                    <Select 
+                        onChange={(value) => console.log('selectedOfficeId', value)} 
+                        options={branchOffices?.map(branchOffice => ({
+                            key: branchOffice.id,
+                            value: branchOffice.id,
+                            label: branchOffice.nickname
+                        }))} 
 
-                    disabled={isEditing}
-                />
-            </Form.Item>
+                        disabled={isEditing}
+                    />
+                </Form.Item>
 
-            <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
-                <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
-            
-            </Form.Item>
+                <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
+                    <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                
+                </Form.Item>
+
+                <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
+                    <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                
+                </Form.Item>
+                <Button onClick={() => handleUpdateTCMMVBCV()}>
+                    Actualizar
+                </Button>
+            </Flex>
 
             <Form.Item name="selectedItems" initialValue={[]}>
                 <Table

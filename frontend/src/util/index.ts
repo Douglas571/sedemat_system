@@ -15,9 +15,6 @@ export function getMMVExchangeRate(currencyExchangeRate: CurrencyExchangeRate): 
 	return Math.max(currencyExchangeRate.dolarBCVToBs, currencyExchangeRate.eurosBCVToBs)
 }
 
-
-
-
 /**
  * Return the waste collection tax based on the area in square meters (mts2) of the branch office.
  * 
@@ -69,8 +66,9 @@ export function getGrossIncomeTaxInBs({
  */
 export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
     if (grossIncome.chargeWasteCollection && grossIncome.branchOffice) {
-        return CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
-            .multiply(getMMVExchangeRate(grossIncome.currencyExchangeRate)).value
+        return CurrencyHandler(getWasteCollectionTaxInMMV(
+          grossIncome.branchOffice.dimensions
+        )).multiply(grossIncome.TCMMVBCV).value
     }
 
     return 0
@@ -93,19 +91,20 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
     }
 
     let {taxPercent, minTaxMMV} = grossIncome.alicuota
-    let {currencyExchangeRate} = grossIncome
+    let {currencyExchangeRate, TCMMVBCV} = grossIncome
     let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
+
 
     
 
     let tax = CurrencyHandler(grossIncome.amountBs).multiply(taxPercent).value
-    let minTax = CurrencyHandler(minTaxMMV).multiply(MMVtoBs).value
+    let minTax = CurrencyHandler(minTaxMMV).multiply(TCMMVBCV).value
 
     let wasteCollectionTax = 0
 
     if (grossIncome.chargeWasteCollection) {
         wasteCollectionTax = CurrencyHandler(getWasteCollectionTaxInMMV(grossIncome.branchOffice.dimensions))
-            .multiply(MMVtoBs).value
+            .multiply(TCMMVBCV).value
     }
 
     let finalTax = Math.max(tax, minTax)
@@ -113,6 +112,12 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
     let subtotal = CurrencyHandler(finalTax).add(wasteCollectionTax).value
 
     return subtotal
+}
+
+export function getMinTaxMMVStringOperationToolTipText({minTaxMMV, TCMMVBCV}: {
+  minTaxMMV: number, TCMMVBCV: number
+}) {
+  return `${CurrencyHandler(minTaxMMV).format()} MMV-BCV x ${formatBolivares(TCMMVBCV)}`
 }
 
 /**
@@ -134,10 +139,6 @@ export function calculateTotalGrossIncomeInvoice(grossIncomes: IGrossIncome[], b
     TOTAL = TOTAL.add(formPrice);
     return TOTAL.value;
 }
-
-
-
-/////
 
 /**
  * Converts a number to a string representation in a specific currency format.
