@@ -22,7 +22,8 @@ import PaymentsEdit from 'pages/PaymentsEdit'
 
 import TaxCollection from 'pages/TaxCollection'
 import TaxCollectionBusinessDetails from 'pages/TaxCollectionBusinessDetails'
-import TaxCollectionBusinessGrossIncomes from 'pages/TaxCollectionBusinessGrossIncomesEdit'
+import TaxCollectionBusinessGrossIncomes from 'pages/GrossIncomesNew'
+import GrossIncomesEdit from 'pages/GrossIncomesEdit'
 import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusinessGrossIncomesInvoice'
 
 import EconomicActivityEdit from 'pages/EconomicActivityEdit';
@@ -87,9 +88,9 @@ function App(): JSX.Element {
 								<Route path='tax-collection' element={<TaxCollection />} />
 								<Route path='tax-collection/:businessId' element={<TaxCollectionBusinessDetails />} />
 
-								<Route path='tax-collection/:businessId/gross-incomes/new' element={<TaxCollectionBusinessGrossIncomes />} />
+								<Route path='tax-collection/:businessId/gross-incomes/new' element={<GrossIncomesEdit />} />
 								<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId' element={<GrossIncomeDetails />} />
-								<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<TaxCollectionBusinessGrossIncomes />} />
+								<Route path='tax-collection/:businessId/gross-incomes/:grossIncomeId/edit' element={<GrossIncomesEdit />} />
 
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />

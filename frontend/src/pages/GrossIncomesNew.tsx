@@ -362,7 +362,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     return (
         <>
             {contextHolder}
-            <Card title={<Title level={2}>Registrando Ingresos Brutos</Title>}>
+            <Card title={<Title level={2}>{isEditing ? 'Editando' : 'Registrando'} Ingresos Brutos</Title>}>
                 <Form
                     form={form}
                     layout="vertical"
