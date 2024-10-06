@@ -111,6 +111,19 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
 
+    businessName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    branchOfficeName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    branchOfficeAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     createdByUserPersonFullName: {
       type: DataTypes.STRING,
       allowNull: false,

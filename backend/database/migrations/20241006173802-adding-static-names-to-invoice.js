@@ -17,6 +17,18 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false,
     });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'businessName', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeName', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeAddress', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
   },
 
   async down (queryInterface, Sequelize) {
@@ -29,5 +41,8 @@ module.exports = {
 
     await queryInterface.removeColumn('GrossIncomeInvoices', 'createdByUserPersonFullName');
     await queryInterface.removeColumn('GrossIncomeInvoices', 'checkedByUserPersonFullName');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'businessName');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeName');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeAddress');
   }
 };
