@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex } from 'antd'
+import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate } from '../util/types' // Importing IGrossIncome from types
@@ -159,7 +159,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
             render: (text: any, record: IGrossIncome) => 
             {
-                console.log({record})
+                
                 return (<Tooltip title={
                         util.getMinTaxMMVStringOperationToolTipText({
                             minTaxMMV: record.alicuotaMinTaxMMVBCV,
@@ -244,7 +244,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
     async function loadLastCurrencyExchangeRate() {
         const lastCurrencyExchangeRate = await currencyExchangeRatesService.getLastOne()
-        console.log({lastCurrencyExchangeRate})
+        
         setLastCurrencyExchangeRate(lastCurrencyExchangeRate)
     }
 
@@ -280,7 +280,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
     async function loadCurrencyExchangeRates() {
         const fetchedCurrencyExchangeRates = await currencyExchangeRatesService.getAll();
-        console.log('fetchedCurrencyExchangeRates', fetchedCurrencyExchangeRates)
+        
 
         const lastCurrencyExchangeRate = fetchedCurrencyExchangeRates
             ?.sort((a, b) => dayjs(a.updatedAt).isBefore(dayjs(b.updatedAt)) ? 1 : -1)
@@ -308,12 +308,19 @@ const GrossIncomeInvoice: React.FC = () => {
             }
 
             const newInvoice: IGrossIncomeInvoiceCreate = {
-                id: Number(grossIncomeInvoiceId),
+                ...grossIncomeInvoice,
+                ...values,
+                
                 businessId: businessId,
                 formPriceBs: formPrice,
                 grossIncomesIds: selectedRowKeys.map(key => Number(key)),
+
                 totalBs: TOTAL,
-                TCMMVBCV: values.TCMMVBCV
+                TCMMVBCV: values.TCMMVBCV,
+            }
+
+            if (!isEditing) {
+                newInvoice.checkedByUserPersonFullName = `${userAuth?.user?.person?.firstName} ${userAuth?.user?.person?.lastName}`
             }
 
             let registeredInvoice
@@ -358,7 +365,7 @@ const GrossIncomeInvoice: React.FC = () => {
             <Flex wrap gap={16}>
                 <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
                     <Select 
-                        onChange={(value) => console.log('selectedOfficeId', value)} 
+                        // onChange={(value) => console.log('selectedOfficeId', value)} 
                         options={branchOffices?.map(branchOffice => ({
                             key: branchOffice.id,
                             value: branchOffice.id,
@@ -380,6 +387,19 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Form.Item>
                 <Button onClick={() => handleUpdateTCMMVBCV()}>
                     <ReloadOutlined />
+                    Actualizar
+                </Button>
+            </Flex>
+
+            <Flex wrap gap={16} >
+                <Form.Item name="checkedByUserPersonFullName" label="Revisado por" rules={[{ required: true }]}>
+                    <Input />
+                </Form.Item>
+                <Form.Item name="checkedByUserId" label="Usuario" rules={[{ required: true }]}>
+                    <Select/>
+                </Form.Item>
+                <Button onClick={() => handleUpdate()}>
+                    <ReloadOutlined /> 
                     Actualizar
                 </Button>
             </Flex>
