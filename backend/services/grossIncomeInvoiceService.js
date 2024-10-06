@@ -29,6 +29,7 @@ function getMMVExchangeRate(currencyExchangeRate) {
 	return Math.max(currencyExchangeRate.dolarBCVToBs, currencyExchangeRate.eurosBCVToBs)
 }
 
+// TODO: Create a global variable for the waste collection tax
 function getWasteCollectionTaxInMMV(mts2) {
     // Return 20 if mts2 is greater than or equal to 300
     if (mts2 >= 300) {
@@ -49,6 +50,7 @@ function getWasteCollectionTaxInMMV(mts2) {
     return 0;
 }
 
+// TODO: update the variable names to be more descriptive
 function getGrossIncomeTaxSubTotalInBs({
     grossIncomeInBs,
     alicuota,
@@ -76,17 +78,16 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
     // get sub total for each grossIncome
     grossIncomes.forEach(grossIncome => {
         // console.log({grossIncome})
-        let MMVtoBs = grossIncome.TCMMVBCV
-        let alicuota = grossIncome.alicuota
-        let branchOfficeDimensions = grossIncome.branchOffice.dimensions
+        
+        let { TCMMVBCV, alicuotaTaxPercent, alicuotaMinTaxMMVBCV, branchOfficeDimensionsMts2 } = grossIncome
         
         let subTotal = getGrossIncomeTaxSubTotalInBs({
             grossIncomeInBs: grossIncome.amountBs,
-            alicuota: alicuota.taxPercent,
-            minTaxMMV: alicuota.minTaxMMV,
-            MMVToBs: MMVtoBs,
+            alicuota: alicuotaTaxPercent,
+            minTaxMMV: alicuotaMinTaxMMVBCV,
+            MMVToBs: TCMMVBCV,
             chargeWasteCollection: grossIncome.chargeWasteCollection,
-            branchOfficeDimensions: branchOfficeDimensions
+            branchOfficeDimensions: branchOfficeDimensionsMts2
         })
 
         total = currencyHandler(total).add(subTotal).value
