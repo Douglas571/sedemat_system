@@ -16,6 +16,7 @@ import * as util from '../util'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import useAuthentication from 'hooks/useAuthentication';
+import { formatBolivares, formatPercents } from 'util/currency';
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
@@ -182,12 +183,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Ingreso" 
                     dataIndex="amountBs" 
                     key="amountBs" 
-                    render={(amountBs: number) => `${amountBs} Bs.`}
+                    render={(amountBs: number) => formatBolivares(amountBs)}
                 />
                 <Table.Column 
                     title="Alicuota"
                     key="amountBs" 
-                    render={(_: any) => `${business.economicActivity.alicuota * 100}%`}
+                    render={(_: any, grossIncome: IGrossIncome) => formatPercents(grossIncome.alicuota.taxPercent)}
                     width="8%"
                     align="center"
                 />
@@ -304,7 +305,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             
             <Descriptions bordered layout='vertical' size='small'>
                 <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{createdByPerson?.firstName} {createdByPerson?.lastName}</Descriptions.Item>
-                <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{invoiceDetails.checkedByUser.person.firstName} {invoiceDetails.checkedByUser.person.lastName}</Descriptions.Item>
+                <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{grossIncomeInvoice?.checkedByUser?.person?.firstName} {grossIncomeInvoice?.checkedByUser?.person?.lastName}</Descriptions.Item>
             </Descriptions>
 
             <Title level={5} style={{ textAlign: 'center' }}>Datos para Depósitos y/o Transferencias a Nombre de SEDEMAT</Title>
@@ -320,36 +321,3 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 };
 
 export default GrossIncomeInvoiceDetails;
-
-
-function calculateTax(grossIncome: any, MMVExchangeRate: number) {
-    if (!business) {
-        return 0 
-    }
-
-    // Calculate the tax based on the gross income amount and alicuota
-    const calculatedTax = grossIncome.amountBs * business.economicActivity.alicuota;
-
-    // Get the minimum tax value
-    const minTax = grossIncome.business.economicActivity.minTax;
-
-    // Calculate the minimum tax threshold
-    const minTaxThreshold = minTax * MMVExchangeRate;
-
-    // Return the higher of the calculated tax and the minimum tax threshold
-    return Math.max(calculatedTax, minTaxThreshold);
-}
-    
-
-// a function to given the whole invoice details, calculate the total in bolivarse and mmv
-function calculateTotal(invoiceDetails: any) {
-    // calculate the total in bolivarse
-    const totalBs = invoiceDetails.grossIncomes.reduce((acc: any, curr: any) => acc + curr.amountBs, 0);
-
-    // calculate the total in mmv
-    const totalMMV = totalBs / MMVExchangeRate;
-
-    return { totalBs, totalMMV };
-    
-}
-

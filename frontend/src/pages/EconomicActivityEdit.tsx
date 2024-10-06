@@ -419,7 +419,6 @@ function EditAlicuotaModal({alicuota, open, onNew, onEdit, onCancel}: EditAlicuo
         </Modal>
     );
 }
-
 function EconomicActivityAlicuotaHistory({ alicuotas, onNewAlicuota, onEditAlicuota, onDeleteAlicuota }) {
 
     const columns = [
@@ -428,7 +427,7 @@ function EconomicActivityAlicuotaHistory({ alicuotas, onNewAlicuota, onEditAlicu
             dataIndex: 'taxPercent',
             sorter: (a, b) => a.taxPercent - b.taxPercent,
             showSorterTooltip: false,
-            render: (value: number) => formatPercents(percentHandler(value).multiply(100).value),
+            render: (value: number) => formatPercents(percentHandler(value).value),
         },
         {
             title: 'Mínimo Tributario TCMMV-BCV',

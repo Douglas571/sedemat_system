@@ -56,7 +56,7 @@ const EconomicActivitiesTable = () => {
             dataIndex: 'currentAlicuota',
             key: 'alicuota',
             render(_: string, record: EconomicActivity) {
-                return formatPercents(percentHandler(record.currentAlicuota?.taxPercent).multiply(100).value);
+                return formatPercents(percentHandler(record.currentAlicuota?.taxPercent).value);
             }
         },
         {

@@ -35,4 +35,4 @@ export const formatPercents = (value: number | string) => currency(value,
         separator: '.',
         decimal: ','
     }
-).format()
+).multiply(100).format()
