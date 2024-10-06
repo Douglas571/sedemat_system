@@ -223,7 +223,7 @@ export interface IGrossIncome {
     branchOffice: BranchOffice
     period: string;
     amountBs: number;
-    chargeWasteCollection: boolean;
+    
     declarationImage: string;
 
     currencyExchangeRate: CurrencyExchangeRate
@@ -235,7 +235,16 @@ export interface IGrossIncome {
 
     alicuotaId: number;
     alicuota: IAlicuota;
+
+    // this fields are to calculate the gross income tax 
+    chargeWasteCollection: boolean;
     
+    TCMMVBCV: number
+    branchOfficeDimensionsMts2: number
+    branchOfficeType: string
+
+    alicuotaTaxPercent: number,
+    alicuotaMinTaxMMVBCV: number,
 }
 
 // Gross Income Invoice 
