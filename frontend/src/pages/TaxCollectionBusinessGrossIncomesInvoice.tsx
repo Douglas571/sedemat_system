@@ -78,7 +78,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // console.log({paymentsAllocated})
 
-    let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 0
+    let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 1
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
     const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
