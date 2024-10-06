@@ -109,7 +109,16 @@ module.exports = (sequelize, DataTypes) => {
     TCMMVBCV: {
       type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
-    }
+    },
+
+    createdByUserPersonFullName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    checkedByUserPersonFullName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'GrossIncomeInvoice',
