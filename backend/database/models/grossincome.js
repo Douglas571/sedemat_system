@@ -90,7 +90,30 @@ module.exports = (sequelize, DataTypes) => {
     TCMMVBCV: {
       type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
-    }
+    },
+
+    alicuotaMinTaxMMVBCV: {
+      type: DataTypes.DECIMAL(10, 4),
+      allowNull: false
+    },
+    alicuotaTaxPercent: {
+      type: DataTypes.DECIMAL(10, 4),
+      allowNull: false
+    },
+    branchOfficeDimensionsMts2: {
+      type: DataTypes.DECIMAL(10, 4),
+      defaultValue: 0,
+      allowNull: true
+    },
+    branchOfficeType: {
+      type: DataTypes.STRING(5),
+      defaultValue: '',
+      allowNull: true
+    },
+    wasteCollectionTaxMMVBCV: {
+      type: DataTypes.DECIMAL(10, 4),
+      allowNull: true
+    },
   }, {
     sequelize,
     modelName: 'GrossIncome',
