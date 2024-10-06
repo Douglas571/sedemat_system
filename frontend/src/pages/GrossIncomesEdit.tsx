@@ -76,6 +76,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const branchOfficeId = Form.useWatch('branchOffice', form)
     const selectedBranchOffice = branchOffices?.find(office => office.id === branchOfficeId)
 
+    const selectedAlicuotaId = Form.useWatch('alicuotaId', form)
+    const selectedAlicuota = alicuotaHistory?.find(alicuota => alicuota.id === selectedAlicuotaId)
+
     const chargeWasteCollectionTax = Form.useWatch('chargeWasteCollection', form)
 
     // TODO
@@ -162,6 +165,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 branchOffice: grossIncome.branchOfficeId,
                 alicuotaId: grossIncome.alicuotaId,
                 currencyExchangeRatesId: grossIncome.currencyExchangeRatesId,
+
+                alicuotaTaxPercent: percentHandler(grossIncome.alicuotaTaxPercent).multiply(100).value,
                 
             });
 
@@ -213,26 +218,35 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     }
 
     function updateAlicuota() {
-        form.setFieldsValue({
-            alicuotaTaxPercent: percentHandler(economicActivity?.currentAlicuota?.taxPercent).multiply(100).value,
-            alicuotaMinTaxMMV: economicActivity?.currentAlicuota?.minTaxMMV
-        })
+        if (economicActivity?.currentAlicuota?.id !== selectedAlicuotaId) {
+            form.setFieldsValue({
+                alicuotaTaxPercent: percentHandler(selectedAlicuota?.taxPercent).multiply(100).value,
+                alicuotaMinTaxMMVBCV: selectedAlicuota?.minTaxMMV
+            })
+        } else {
+            
+            form.setFieldsValue({
+                alicuotaTaxPercent: percentHandler(economicActivity?.currentAlicuota?.taxPercent).multiply(100).value,
+                alicuotaMinTaxMMVBCV: economicActivity?.currentAlicuota?.minTaxMMV
+            })
+        }
     }
+
 
     function updateWasteCollection() {
 
         
         if (grossIncome?.branchOffice?.dimensions) {
             form.setFieldsValue({
-                branchOfficeDimensions: grossIncome?.branchOffice?.dimensions,
+                branchOfficeDimensionsMts2: grossIncome?.branchOffice?.dimensions,
                 branchOfficeType: grossIncome?.branchOffice?.type,
-                wasteCollectionTaxMMV: util.getWasteCollectionTaxInMMV(grossIncome?.branchOffice?.dimensions)
+                wasteCollectionTaxMMVBCV: util.getWasteCollectionTaxInMMV(grossIncome?.branchOffice?.dimensions)
             })
         } else {
             form.setFieldsValue({
-                branchOfficeDimensions: selectedBranchOffice?.dimensions,
+                branchOfficeDimensionsMts2: selectedBranchOffice?.dimensions,
                 branchOfficeType: selectedBranchOffice?.type,
-                wasteCollectionTaxMMV: util.getWasteCollectionTaxInMMV(selectedBranchOffice?.dimensions)
+                wasteCollectionTaxMMVBCV: util.getWasteCollectionTaxInMMV(selectedBranchOffice?.dimensions)
             })
             // return message.warning('No se ha cargado la dimension de la sucursal')
         }
@@ -430,6 +444,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                     });
                                 }
                             }}
+                            disabled={isEditing}
                         />
                     </Form.Item>
 
@@ -529,7 +544,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         </Form.Item>
 
                         <Form.Item
-                            name="alicuotaMinTaxMMV"
+                            name="alicuotaMinTaxMMVBCV"
                             label="Min. Tributario"
                             rules={[{ required: true, message: 'Por favor, ingrese el minimo tributario' }]}
                         >
@@ -572,7 +587,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         <Flex gap={16}>
 
                             <Form.Item
-                                name="branchOfficeDimensions"
+                                name="branchOfficeDimensionsMts2"
                                 label="Dimensiones"
                                 rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
                                 
@@ -590,8 +605,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             <Form.Item
                                 name="branchOfficeType"
                                 label="Tipo de Terreno"
-                                rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
-                                
+                                rules={[{ required: true, message: 'Por favor introduzca el tipo de terreno para esta sucursal (I, II o III)' }]}
                             >
                                 <Input
                                     
@@ -600,9 +614,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             </Form.Item>
 
                             <Form.Item
-                                name="wasteCollectionTaxMMV"
+                                name="wasteCollectionTaxMMVBCV"
                                 label="Impuesto (MMVBCV)"
-                                rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
+                                rules={[{ required: true, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
                                 
                             >
                                 <InputNumber

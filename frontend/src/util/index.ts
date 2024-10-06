@@ -65,15 +65,19 @@ export function getGrossIncomeTaxInBs({
  * @returns {number} The waste collection tax in Bolivares.
  */
 export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
-    if (grossIncome.chargeWasteCollection && grossIncome.branchOffice) {
-        return CurrencyHandler(getWasteCollectionTaxInMMV(
-          grossIncome.branchOffice.dimensions
-        )).multiply(grossIncome.TCMMVBCV).value
+    if (grossIncome.chargeWasteCollection) {
+      return CurrencyHandler(getWasteCollectionTaxInMMV(
+        grossIncome.branchOfficeDimensionsMts2
+      )).multiply(grossIncome.TCMMVBCV).value
     }
 
     return 0
 }
 
+export function getMinTaxInBs({grossIncome}: {grossIncome: IGrossIncome}) {
+  console.log("getMinTaxInBs: ", CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value)
+  return CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+}
 /**
  * Calculates the subtotal in bolivares from the gross income object.
  * 
@@ -90,15 +94,11 @@ export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: 
       return 0 // throw new Error('Alicuota not found')
     }
 
-    let {taxPercent, minTaxMMV} = grossIncome.alicuota
-    let {currencyExchangeRate, TCMMVBCV} = grossIncome
-    let MMVtoBs = getMMVExchangeRate(grossIncome.currencyExchangeRate)
+    let { alicuotaTaxPercent, alicuotaMinTaxMMVBCV } = grossIncome
+    let { TCMMVBCV} = grossIncome
 
-
-    
-
-    let tax = CurrencyHandler(grossIncome.amountBs).multiply(taxPercent).value
-    let minTax = CurrencyHandler(minTaxMMV).multiply(TCMMVBCV).value
+    let tax = CurrencyHandler(grossIncome.amountBs).multiply(alicuotaTaxPercent).value
+    let minTax = CurrencyHandler(alicuotaMinTaxMMVBCV).multiply(TCMMVBCV).value
 
     let wasteCollectionTax = 0
 

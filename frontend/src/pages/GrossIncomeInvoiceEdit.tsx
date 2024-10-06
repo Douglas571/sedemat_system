@@ -31,6 +31,7 @@ const monthMapper = [
 
 import * as util from '../util'
 import useAuthentication from 'hooks/useAuthentication'
+import { ReloadOutlined } from '@ant-design/icons'
 
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
@@ -140,9 +141,9 @@ const GrossIncomeInvoice: React.FC = () => {
                 const {amountBs} = record
                 const alicuotaTaxPercent = record.alicuota?.taxPercent
 
-                if (!alicuotaTaxPercent || amountBs === 0) {
-                    return <Typography.Text>{CurrencyHandler(0).format()}</Typography.Text>
-                } 
+                // if (!alicuotaTaxPercent || amountBs === 0) {
+                //     return <Typography.Text>{CurrencyHandler(0).format()}</Typography.Text>
+                // } 
 
                 return (<Tooltip title={
                     `${formatBolivares(amountBs)} x ${percentHandler(alicuotaTaxPercent).multiply(100).format()}`
@@ -155,23 +156,24 @@ const GrossIncomeInvoice: React.FC = () => {
             title: 'Min. Trib.',
             dataIndex: 'business',
             key: 'minimumAmount',
+
             render: (text: any, record: IGrossIncome) => 
             {
                 console.log({record})
                 return (<Tooltip title={
-                    util.getMinTaxMMVStringOperationToolTipText({
-                        minTaxMMV: record.alicuota.minTaxMMV,
-                        TCMMVBCV: record.TCMMVBCV
-                    })
-                }>
-                    <Typography.Text>
-                        {
-                            CurrencyHandler(record.alicuota?.minTaxMMV)
-                                .multiply(util.getMMVExchangeRate(record.currencyExchangeRate))
-                                .format()
-                        }
-                    </Typography.Text>
-                </Tooltip>)
+                        util.getMinTaxMMVStringOperationToolTipText({
+                            minTaxMMV: record.alicuotaMinTaxMMVBCV,
+                            TCMMVBCV: record.TCMMVBCV
+                        })
+                    }>
+                        <Typography.Text>
+                            {
+                                CurrencyHandler(record.alicuotaMinTaxMMVBCV)
+                                    .multiply(record.TCMMVBCV)
+                                    .format()
+                            }
+                        </Typography.Text>
+                    </Tooltip>)
             }
         },
         {
@@ -217,13 +219,13 @@ const GrossIncomeInvoice: React.FC = () => {
         const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
 
 
-        const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes
-            .filter(grossIncome => !grossIncome.currencyExchangeRate)
+        // const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes
+        //     .filter(grossIncome => !grossIncome.currencyExchangeRate)
 
-        if (grossIncomesWithoutCurrencyExchangeRate.length > 0) {
-            message.error("Algunas declaraciones de ingresos no tienen tasas de cambio registradas")
-            return false
-        }
+        // if (grossIncomesWithoutCurrencyExchangeRate.length > 0) {
+        //     message.error("Algunas declaraciones de ingresos no tienen tasas de cambio registradas")
+        //     return false
+        // }
 
         setGrossIncomes(fetchedGrossIncomes)
 
@@ -350,7 +352,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
     return (
         <Form form={form} onFinish={onFinish}>
-            <Typography.Title level={2}>{isEditing ? 'Editar Calculo de Ingresos Brutos' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
+            <Typography.Title level={2}>{isEditing ? 'Editar Factura' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
             <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
 
             <Flex wrap gap={16}>
@@ -377,6 +379,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 
                 </Form.Item>
                 <Button onClick={() => handleUpdateTCMMVBCV()}>
+                    <ReloadOutlined />
                     Actualizar
                 </Button>
             </Flex>

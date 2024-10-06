@@ -128,7 +128,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         // load gross incomes 
         const fetchedGrossIncomes = await loadGrossIncomes(Number(grossIncomeInvoiceId))
 
-        console.log(JSON.stringify({fetchedInvoice}, null, 2))
+        // console.log(JSON.stringify({fetchedInvoice}, null, 2))
 
         setPayments(fetchedPayments)
         setLastCurrencyExchangeRate(lastCER)
@@ -329,14 +329,18 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Min. Trib." 
                     dataIndex={['business', 'economicActivity', 'minTax']} 
                     key="minTax" 
-                    render={(minTax: number, record: IGrossIncome) => {
-                        const cer = record.currencyExchangeRate
-                        const {minTaxMMV} = record.alicuota
-                        const {economicActivity} = business
-                        const MMVExchangeRate = util.getMMVExchangeRate(cer)
-                        const minTaxThreshold = minTaxMMV * MMVExchangeRate;
-                        // console.log({cer, economicActivity, MMVExchangeRate, minTax})
-                        return formatBolivares(minTaxThreshold);
+                    render={(minTax: number, grossIncome: IGrossIncome) => {
+                        // const cer = record.currencyExchangeRate
+                        // const {minTaxMMV} = record.alicuota
+                        // const {economicActivity} = business
+                        // const MMVExchangeRate = util.getMMVExchangeRate(cer)
+                        // const minTaxThreshold = minTaxMMV * MMVExchangeRate;
+                        // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
+                        // return formatBolivares(minTaxThreshold);
+                        console.log({grossIncome})
+                        let minTaxInBs = util.getMinTaxInBs({grossIncome})
+
+                        return formatBolivares(minTaxInBs)
                     }}
                     width="15%"
                 />
