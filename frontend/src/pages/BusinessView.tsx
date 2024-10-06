@@ -85,7 +85,7 @@ function BusinessView(): JSX.Element {
             },
 
             render: (value: string, record: Business) => {
-                return <Typography.Text><Link to={`/tax-collection/${record.id}`}>{value}</Link></Typography.Text>
+                return <Typography.Text><Link to={`/business/${record.id}`}>{value}</Link></Typography.Text>
             }
 
         },
