@@ -34,7 +34,7 @@ import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import settlementService from 'services/SettlementService';
 
-import { CurrencyHandler, formatBolivares, percentHandler } from 'util/currency';
+import { CurrencyHandler, formatBolivares, formatPercents, percentHandler } from 'util/currency';
 import useAuthentication from 'hooks/useAuthentication';
 
 import { ROLES } from 'util/constants'
@@ -308,8 +308,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="amountBs" 
                     render={(_: any, grossIncome: IGrossIncome) => {
                         console.log({grossIncome})
-                        let {taxPercent} = grossIncome?.alicuota
-                        return `${percentHandler(taxPercent).multiply(100).format()}`;
+                        let {alicuotaTaxPercent} = grossIncome
+                        return `${formatPercents(alicuotaTaxPercent)}`;
                     }}
                     width="8%"
                     align="center"
@@ -319,8 +319,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex="amountBs" 
                     key="tax" 
                     render={(amountBs: number, record: IGrossIncome) => {
-                        const {taxPercent} = record.alicuota
-                        const tax = CurrencyHandler(amountBs).multiply(taxPercent).value
+                        const {alicuotaTaxPercent} = record
+                        const tax = CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).value
                         return formatBolivares(tax);
                     }}
                     width="15%"
@@ -337,7 +337,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         // const minTaxThreshold = minTaxMMV * MMVExchangeRate;
                         // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
                         // return formatBolivares(minTaxThreshold);
-                        console.log({grossIncome})
+                        
                         let minTaxInBs = util.getMinTaxInBs({grossIncome})
 
                         return formatBolivares(minTaxInBs)
@@ -350,7 +350,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex='wasteCollectionTax'
                     width="15%"
                     render={(_: any, record: IGrossIncome) => {
-                        if (!branchOffice) {
+                        if (!record.chargeWasteCollection) {
                             return 0
                         }
                         const tax = util.getWasteCollectionTaxInBs(record)
