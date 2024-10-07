@@ -16,7 +16,7 @@ import * as util from '../util'
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import useAuthentication from 'hooks/useAuthentication';
-import { formatBolivares, formatPercents } from 'util/currency';
+import { CurrencyHandler,formatBolivares, formatPercents } from 'util/currency';
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
@@ -38,6 +38,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const createdByUser = grossIncomeInvoice?.createdByUser
     const createdByPerson = createdByUser?.person
     console.log({grossIncomeInvoice})
+
+    const getWeekRange = (date: Date) => {
+        // being aware that Monday is the start of the week 
+        const start = dayjs(date).startOf('week').add(1, 'day');
+        const end = dayjs(date).endOf('week').subtract(1, 'day');
+
+        console.log({start: String(start), end: String(end)})
+        return {start, end};
+    }
 
     // const branchOfficeDimensions = grossIncomes ? grossIncomes.branchOffices[0].dimensions : 0;
     // console.log({branchOfficeDimensions})
@@ -86,43 +95,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }, [])
 
-	// Dummy data
-	const invoiceDetails = {
-        currencyExchangeRates: {
-            id: 1,
-            dolarBCV: 38,
-            euroBCV: 43,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
+    let TCMMVBCV = grossIncomeInvoice?.TCMMVBCV ?? 1
+    
 
-        createdByUser: {
-            person: {
-                firstName: 'Jose',
-                lastName: 'Herrera',
-            },
-        },
-
-        checkedByUser: {
-            person: {
-                firstName: 'Hipólita',
-                lastName: 'Gonzales',
-            },
-        },
-	};
-
-
-    let MMVExchangeRate = 0 
-
-    if (lastCurrencyExchangeRate) {
-        
-        MMVExchangeRate = Math.max(
-            lastCurrencyExchangeRate.dolarBCVToBs, 
-            lastCurrencyExchangeRate.eurosBCVToBs
-        );
-    }
-
-    console.log({lastCurrencyExchangeRate, MMVExchangeRate})
+    console.log({lastCurrencyExchangeRate, TCMMVBCV})
 
     if (!business) {
         return <Flex align="center" justify="center">Cargando...</Flex>
@@ -188,7 +164,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Table.Column 
                     title="Alicuota"
                     key="amountBs" 
-                    render={(_: any, grossIncome: IGrossIncome) => formatPercents(grossIncome.alicuota.taxPercent)}
+                    render={(_: any, grossIncome: IGrossIncome) => formatPercents(grossIncome.alicuotaTaxPercent)}
                     width="8%"
                     align="center"
                 />
@@ -196,9 +172,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Impuesto" 
                     dataIndex="amountBs" 
                     key="tax" 
-                    render={(amountBs: number, record: any) => {
-                        const tax = amountBs * business.economicActivity.alicuota;
-                        return `${tax.toFixed(2)} Bs.`;
+                    render={(_: number, record: any) => {
+                        const {amountBs} = record
+                        const alicuotaTaxPercent = record.alicuotaTaxPercent
+
+                        let tax = CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).format()
+
+                        return tax
                     }}
                     width="15%"
                 />
@@ -206,13 +186,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Min. Trib." 
                     dataIndex={['business', 'economicActivity', 'minTax']} 
                     key="minTax" 
-                    render={(minTax: number, record: IGrossIncome) => {
-                        const cer = record.currencyExchangeRate
-                        const {economicActivity} = business
-                        const MMVExchangeRate = util.getMMVExchangeRate(cer)
-                        const minTaxThreshold = economicActivity.minimumTax * MMVExchangeRate;
-                        console.log({cer, economicActivity, MMVExchangeRate, minTax})
-                        return `${minTaxThreshold.toFixed(2)} Bs.`;
+                    render={(_: number, record: IGrossIncome) => {
+                        let minTax = CurrencyHandler(record.alicuotaMinTaxMMVBCV)
+                                    .multiply(record.TCMMVBCV)
+                                    .format()
+
+                        return minTax
                     }}
                     width="15%"
                 />
@@ -222,19 +201,19 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex='wasteCollectionTax'
                     width="15%"
                     render={(_: any, record: IGrossIncome) => {
-                        if (!branchOffice) {
-                            return 0
-                        }
-                        const tax = util.getWasteCollectionTaxInBs(record)
-                        return `${tax} Bs.`
+                        let wasteCollectionTax = CurrencyHandler(util.getWasteCollectionTaxInBs(record))
+                        .format()
+
+                        return wasteCollectionTax
                     }}
                 />
                 <Table.Column 
                     title="Subtotal" 
                     key="subtotal" 
                     render={(text: any, record: any) => {
-                        const tax = util.getSubTotalFromGrossIncome(record, business)
-                        return `${tax.toFixed(2)} Bs.`;
+                        let subtotal = util.getSubTotalFromGrossIncome(record, business)
+
+                        return formatBolivares(subtotal)
                     }}
                     width="15%"
                     align="right"
@@ -253,7 +232,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     render={() => (
                         <>
                             <Text>Formulario</Text>
-                            <Text style={{ float: 'right' }}>{grossIncomeInvoice.formPriceBs} Bs.</Text>
+                            <Text style={{ float: 'right' }}>{formatBolivares(grossIncomeInvoice?.formPriceBs ?? 0)}</Text>
                         </>
                     )}
                 />
@@ -276,7 +255,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{TOTAL} Bs.</Text>}
+                    render={(text: any) => <Text strong>{formatBolivares(TOTAL)}</Text>}
                 />
             </Table>
 
@@ -297,15 +276,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{Number(TOTAL / MMVExchangeRate).toFixed(2)} MMV</Text>}
+                    render={(text: any) => <Text strong>{`${CurrencyHandler(TOTAL).divide(TCMMVBCV).format()} MMVBCV` }</Text>}
                 />
             </Table>
-            <Typography.Paragraph style={{ textAlign: 'center', paddingTop: '10px', paddingBottom: '10px' }} strong>Tasa de cambio de la Moneda de Mayor Valor dle Banco Central de Venezuela (TCMMV)={MMVExchangeRate}Bs. desde el día 19/08/224 hasta el 23/08/2024.</Typography.Paragraph>
+            <Typography.Paragraph style={{ textAlign: 'center', paddingTop: '10px', paddingBottom: '10px' }} strong>Tasa de cambio de la Moneda de Mayor Valor dle Banco Central de Venezuela (TCMMVBCV)={formatBolivares(TCMMVBCV)} desde el día {getWeekRange(grossIncomeInvoice?.updatedAt).start.format('DD/MM/YYYY')} hasta el {getWeekRange(grossIncomeInvoice?.updatedAt).end.format('DD/MM/YYYY')}.</Typography.Paragraph>
 
             
             <Descriptions bordered layout='vertical' size='small'>
-                <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{createdByPerson?.firstName} {createdByPerson?.lastName}</Descriptions.Item>
-                <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{grossIncomeInvoice?.checkedByUser?.person?.firstName} {grossIncomeInvoice?.checkedByUser?.person?.lastName}</Descriptions.Item>
+                <Descriptions.Item label="Creado por" style={{ width: '20%' }} >{grossIncomeInvoice?.createdByUserPersonFullName}</Descriptions.Item>
+                <Descriptions.Item label="Revisado por" style={{ width: '20%' }} >{grossIncomeInvoice?.checkedByUserPersonFullName}</Descriptions.Item>
             </Descriptions>
 
             <Title level={5} style={{ textAlign: 'center' }}>Datos para Depósitos y/o Transferencias a Nombre de SEDEMAT</Title>
