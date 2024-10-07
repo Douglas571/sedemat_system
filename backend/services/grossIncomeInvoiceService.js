@@ -231,6 +231,8 @@ class GrossIncomeInvoiceService {
         }
 
         const newRegisteredInvoice = await GrossIncomeInvoice.create(newGrossIncomeInvoice);
+
+        // validate that this gross income is not already asigned to another invoice 
         await GrossIncome.update({ grossIncomeInvoiceId: newRegisteredInvoice.id }, { where: { id: newGrossIncomeInvoice.grossIncomesIds } });
 
         return {newGrossIncomeInvoice}
@@ -278,6 +280,9 @@ class GrossIncomeInvoiceService {
                 // the gross income invoice id
                 // assign a code to the settlement
         }
+
+        // ensure that updateAt is handled by the orm 
+        data.updateAt = undefined;
         
         return await GrossIncomeInvoice.update(data, { where: { id } });
     }
