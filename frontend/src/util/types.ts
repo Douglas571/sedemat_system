@@ -268,6 +268,11 @@ export interface IGrossIncomeInvoice {
     settledByUser?: IUser;
 
     paidAt: Date
+
+    TCMMVBCV: number;
+
+    createdByUserPersonFullName: string;
+    checkedByUserPersonFullName: string;
 }
 
 export interface ISettlement {
