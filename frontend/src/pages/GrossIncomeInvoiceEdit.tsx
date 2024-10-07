@@ -4,12 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
-import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate } from '../util/types' // Importing IGrossIncome from types
+import dayjs from 'dayjs'
+
+import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate, IUser } from '../util/types' // Importing IGrossIncome from types
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
-import dayjs from 'dayjs'
+import userService from '../services/UserService'
 
 import { CurrencyHandler, formatBolivares, percentHandler } from '../util/currency'
 
@@ -44,6 +46,23 @@ const GrossIncomeInvoice: React.FC = () => {
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>([])
     const [currencyExchangeRates, setCurrencyExchangeRates] = useState<CurrencyExchangeRate | undefined>(undefined)
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice | undefined>(undefined)
+    const [users, setUsers] = useState<IUser[]>()
+
+    // create the select options 
+    const checkByUserOptions = users?.map(user => ({
+        label: user.username, 
+        value: user.id
+    }))
+
+    const selectedCheckedByUserId = Form.useWatch('checkedByUserId', form);
+    const selectedCheckedByUser = users?.find(user => user.id === selectedCheckedByUserId)
+        // label will be user.person full name or user.username 
+        // value will be user id 
+    // asigne the options 
+
+    // when user select some user, update the checkedByUsername
+    // when user click update checkByPersonFullName, update it 
+    
 
     const [grossIncomesToDisplay, setGrossIncomesToDisplay] = useState<IGrossIncome[]>([])
 
@@ -66,6 +85,8 @@ const GrossIncomeInvoice: React.FC = () => {
     const loadGrossIncomeInvoice = async () => {
         const fetchedGrossIncomeInvoice = await grossIncomesInvoiceService.getById(Number(grossIncomeInvoiceId))
         setGrossIncomeInvoice(fetchedGrossIncomeInvoice)
+
+        console.log({fetchedGrossIncomeInvoice})
     }
 
     const loadData = async () => {
@@ -78,39 +99,9 @@ const GrossIncomeInvoice: React.FC = () => {
         }
 
         await loadGrossIncomes()
+
+        await loadUsers()
     }
-
-    useEffect(() => {
-        loadData()
-    }, [])
-
-    useEffect(() => {        
-        if (grossIncomeInvoice) {
-            const firstGrossIncome = grossIncomeInvoice.grossIncomes[0];
-            if (firstGrossIncome) {
-                const branchOfficeId = firstGrossIncome.branchOfficeId;
-                form.setFieldValue('branchOfficeId', branchOfficeId);
-            }
-
-            form.setFieldValue('form', CurrencyHandler(grossIncomeInvoice.formPriceBs).value)
-            form.setFieldsValue({
-                TCMMVBCV: grossIncomeInvoice.TCMMVBCV
-            })
-        } else {
-            if (branchOffices) {
-                const branchOfficeId = branchOffices[0].id;
-                form.setFieldValue('branchOfficeId', branchOfficeId);
-            }
-
-            form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
-        }
-
-
-    }, [grossIncomeInvoice, branchOffices])
-
-    useEffect(() => {
-        handleUpdateTCMMVBCV()
-    }, [lastCurrencyExchangeRate])
 
     // TODO: Refactor this as a map, that calculate every data needed to display
     // in the table. Then pass the array of objects to the table.
@@ -139,7 +130,7 @@ const GrossIncomeInvoice: React.FC = () => {
             key: 'amountToPay',
             render: (text: any, record: IGrossIncome) => {
                 const {amountBs} = record
-                const alicuotaTaxPercent = record.alicuota?.taxPercent
+                const alicuotaTaxPercent = record.alicuotaTaxPercent
 
                 // if (!alicuotaTaxPercent || amountBs === 0) {
                 //     return <Typography.Text>{CurrencyHandler(0).format()}</Typography.Text>
@@ -215,6 +206,11 @@ const GrossIncomeInvoice: React.FC = () => {
         setBranchOffices(fetchedBranchOffices)
     }
 
+    async function loadUsers() {
+        let fetchedUsers = await userService.findAll();
+        setUsers(fetchedUsers)
+    }
+    
     async function loadGrossIncomes() {
         const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
 
@@ -248,27 +244,37 @@ const GrossIncomeInvoice: React.FC = () => {
         setLastCurrencyExchangeRate(lastCurrencyExchangeRate)
     }
 
-    useEffect(() => {
-
-        // filter by office 
-        let toDisplay = grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)
     
-        // if is not editing, hide those who have grossIncomeInvoiceId
-        if (!isEditing) {
-            toDisplay = toDisplay.filter( g => g.grossIncomeInvoiceId === null)
-        } else {
-            if (grossIncomeInvoice) {
-                // gross incomes where the grossIncomeInvoiceId is null or equal to grossIncomeInvoiceId
-                toDisplay = toDisplay.filter(g => g.grossIncomeInvoiceId === null || g.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
-                const selectedIds = grossIncomeInvoice.grossIncomes.map( g => g.id )
-                setSelectedRowKeys([...selectedIds])
-            }
+
+    async function handleUpdateCheckedByUserPersonFullName() {
+        let fullName = ''
+        let person = selectedCheckedByUser?.person
+
+        if (person) {
+            fullName = `${person.firstName} ${person.lastName}`
+        } 
+
+        form.setFieldsValue({
+            checkedByUserPersonFullName: fullName
+        })
+        // get the selectedUser 
+        // get the full name
+        // asign the full name to the form field 
+        // if it doesn't as a person, 
+    }
+
+    async function handleUpdateCreatedByUserPersonFullName() {
+        let fullName = ''
+        let person = userAuth.user?.person
+
+        if (person) {
+            fullName = `${person.firstName} ${person.lastName}`
         }
 
-        setGrossIncomesToDisplay([...toDisplay])
-
-
-    }, [grossIncomes, selectedOfficeId])
+        form.setFieldsValue({
+            createdByUserPersonFullName: fullName
+        })
+    }
 
     async function handleUpdateTCMMVBCV() {
         if (lastCurrencyExchangeRate) {
@@ -357,6 +363,63 @@ const GrossIncomeInvoice: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+
+        // filter by office 
+        let toDisplay = grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)
+    
+        // if is not editing, hide those who have grossIncomeInvoiceId
+        if (!isEditing) {
+            toDisplay = toDisplay.filter( g => g.grossIncomeInvoiceId === null)
+        } else {
+            if (grossIncomeInvoice) {
+                // gross incomes where the grossIncomeInvoiceId is null or equal to grossIncomeInvoiceId
+                toDisplay = toDisplay.filter(g => g.grossIncomeInvoiceId === null || g.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
+                const selectedIds = grossIncomeInvoice.grossIncomes.map( g => g.id )
+                setSelectedRowKeys([...selectedIds])
+            }
+        }
+
+        setGrossIncomesToDisplay([...toDisplay])
+
+
+    }, [grossIncomes, selectedOfficeId])
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    useEffect(() => {        
+        if (grossIncomeInvoice) {
+            const firstGrossIncome = grossIncomeInvoice.grossIncomes[0];
+            if (firstGrossIncome) {
+                const branchOfficeId = firstGrossIncome.branchOfficeId;
+                form.setFieldValue('branchOfficeId', branchOfficeId);
+            }
+
+            form.setFieldValue('form', CurrencyHandler(grossIncomeInvoice.formPriceBs).value)
+            form.setFieldsValue({
+                ...grossIncomeInvoice,
+                TCMMVBCV: grossIncomeInvoice.TCMMVBCV,
+                
+            })
+        } else {
+            if (branchOffices) {
+                const branchOfficeId = branchOffices[0].id;
+                form.setFieldValue('branchOfficeId', branchOfficeId);
+            }
+
+            form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
+        }
+
+
+    }, [grossIncomeInvoice, branchOffices])
+
+    useEffect(() => {
+        handleUpdateTCMMVBCV()
+    }, [lastCurrencyExchangeRate])
+    
+
     return (
         <Form form={form} onFinish={onFinish}>
             <Typography.Title level={2}>{isEditing ? 'Editar Factura' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
@@ -391,17 +454,37 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Button>
             </Flex>
 
-            <Flex wrap gap={16} >
-                <Form.Item name="checkedByUserPersonFullName" label="Revisado por" rules={[{ required: true }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="checkedByUserId" label="Usuario" rules={[{ required: true }]}>
-                    <Select/>
-                </Form.Item>
-                <Button onClick={() => handleUpdate()}>
-                    <ReloadOutlined /> 
-                    Actualizar
-                </Button>
+            <Flex wrap gap={16} vertical>
+                <Flex gap={16}>
+                    <Form.Item name="createdByUserPersonFullName" label="Creado por" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Button onClick={() => handleUpdateCreatedByUserPersonFullName()}>
+                        <ReloadOutlined /> 
+                        Actualizar
+                    </Button>
+                </Flex>
+
+                <Flex gap={16} wrap>
+                    <Form.Item name="checkedByUserPersonFullName" label="Revisado por" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="checkedByUserId" 
+                        label="Usuario" 
+                        rules={[{ required: true }]}
+
+                        style={{ width: 350}}
+                    >
+                        <Select
+                            options={checkByUserOptions}
+                        />
+                    </Form.Item>
+                    <Button onClick={() => handleUpdateCheckedByUserPersonFullName()}>
+                        <ReloadOutlined /> 
+                        Actualizar
+                    </Button>
+                </Flex>
             </Flex>
 
             <Form.Item name="selectedItems" initialValue={[]}>
