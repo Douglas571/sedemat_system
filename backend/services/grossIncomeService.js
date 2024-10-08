@@ -1,5 +1,5 @@
 // services/grossIncomeService.js
-const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota } = require('../database/models');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement } = require('../database/models');
 const dayjs = require('dayjs');
 
 class GrossIncomeService {
@@ -90,13 +90,19 @@ class GrossIncomeService {
             throw new Error('Gross Income not found');
         }
 
-        console.log({grossIncomeOriginal: grossIncome})
+        let invoice = grossIncome?.grossIncomeInvoiceId && await GrossIncomeInvoice.findByPk(grossIncome.grossIncomeInvoiceId, {
+            include: [
+                {
+                    model: Settlement,
+                    as: 'settlement'
+                }
+        ]})
 
-        const invoice = grossIncome?.grossIncomeInvoiceId && await GrossIncomeInvoice.findByPk(grossIncome.grossIncomeInvoiceId)
-
-        if (invoice?.paidAt) {
+        if (invoice?.settlement) {
             throw new Error('Gross Income has an paid invoice associated')
         }
+
+        // console.log({grossIncomeOriginal: grossIncome})
 
         if (data.period) {
             data.period = dayjs(data.period).set('date', 3).toDate()
