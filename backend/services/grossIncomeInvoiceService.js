@@ -113,7 +113,7 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
     async getAllGrossIncomeInvoices() {
-        return await GrossIncomeInvoice.findAll({
+        let invoices = await GrossIncomeInvoice.findAll({
             include: [
                 {
                     model: GrossIncome,
@@ -126,6 +126,8 @@ class GrossIncomeInvoiceService {
                 }
             ]
         });
+
+        return invoices.map(invoice => invoice.toJSON());
     }
 
     // Fetch a single GrossIncomeInvoice by ID
@@ -240,7 +242,14 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data, user = {}) {
-        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id);
+        const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id, {
+            include: [
+                {
+                    model: Settlement,
+                    as: 'settlement'
+                }
+            ]
+        });
 
         if (!grossIncomeInvoice) {
             throw new Error('GrossIncomeInvoice not found');
@@ -249,8 +258,8 @@ class GrossIncomeInvoiceService {
         // if gross income is paid, don't allow any other property aside of paidAt
 
         // check if it has a settlement 
-        if (grossIncomeInvoice.paidAt !== null && Object.keys(data).length > 1) {
-            throw new Error('This invoice is already paid, only paidAt can be updated for a paid invoice');
+        if (grossIncomeInvoice.settlement) {
+            throw new Error('This invoice is already paid and settled');
         }
 
         // check if should add new gross incomes 
@@ -292,6 +301,8 @@ class GrossIncomeInvoiceService {
 
         const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id);
 
+        // TODO: Delete this, as it is unnecessary
+        // being associated with a settlement avoid it to be deleted by default
         if (grossIncomeInvoice.paidAt !== null) {
             throw new Error('This invoice is already paid')
         }
