@@ -295,16 +295,27 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             key: 'actions',
             render: (_, record: any) => (
                 <Flex gap="small">
-                    <Button onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}>Editar</Button>
-                    <Button onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}`)}>Detalles</Button>
+                    <Button 
+                        onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
+                        disabled={record.settlement !== null}    
+                    >Editar</Button>
+                    
                     <Popconfirm
                         title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
                         onConfirm={() => handleGrossIncomeDelete(record.id)}
                         okText="Sí"
                         cancelText="No"
                     >
-                        <Button danger>Eliminar</Button>
+                        <Button 
+                            danger
+                            disabled={record.settlement !== null}
+                        >Eliminar</Button>
                     </Popconfirm>
+
+                    <Button 
+                        onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}`)}
+                        
+                    >Detalles</Button>
                     {/* <Button onClick={() => null}>Ver Factura</Button> */}
                 </Flex>
             ),
@@ -534,9 +545,10 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                 <Flex gap="small">
 
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
-                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}>Editar</Button>
-                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Detalles</Button>
-
+                    <Button 
+                        onClick={() => navigate(`/tax-collection/$  {businessId}/gross-incomes-invoice/${record.id}/edit`)}
+                        disabled={record.settlement !== null}
+                    >Editar</Button>
 
                     <Popconfirm
                         title="¿Está seguro de eliminar esta factura?"
@@ -544,8 +556,12 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                         okText="Sí"
                         cancelText="No"
                     >
-                        <Button danger>Eliminar</Button>
+                        <Button danger
+                        disabled={record.settlement !== null}
+                        >Eliminar</Button>
                     </Popconfirm>
+
+                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Detalles</Button>
 
                 </Flex>
             ),
