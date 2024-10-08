@@ -21,11 +21,23 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false,
     });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'businessDNI', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
     await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeName', {
       type: Sequelize.STRING,
       allowNull: false,
     });
     await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeAddress', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeDimensions', {
+      type: Sequelize.DOUBLE,
+      allowNull: false,
+    });
+    await queryInterface.addColumn('GrossIncomeInvoices', 'branchOfficeType', {
       type: Sequelize.STRING,
       allowNull: false,
     });
@@ -42,7 +54,11 @@ module.exports = {
     await queryInterface.removeColumn('GrossIncomeInvoices', 'createdByUserPersonFullName');
     await queryInterface.removeColumn('GrossIncomeInvoices', 'checkedByUserPersonFullName');
     await queryInterface.removeColumn('GrossIncomeInvoices', 'businessName');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'businessDNI');
+    
     await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeName');
     await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeAddress');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeDimensions');
+    await queryInterface.removeColumn('GrossIncomeInvoices', 'branchOfficeType');
   }
 };
