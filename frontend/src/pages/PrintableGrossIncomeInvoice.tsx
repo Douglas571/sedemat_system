@@ -39,6 +39,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const createdByPerson = createdByUser?.person
     console.log({grossIncomeInvoice})
 
+    const updatedAt = dayjs(grossIncomeInvoice?.updatedAt)
+
     const getWeekRange = (date: Date) => {
         // being aware that Monday is the start of the week 
         const start = dayjs(date).startOf('week').add(1, 'day');
@@ -120,7 +122,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
             </Flex>
             <Flex justify='right'>
-                <Text>Fecha: {dayjs().format('YYYY-MM-DD')}</Text>
+                <Text>{`${updatedAt.format('DD')} de ${updatedAt.format('MMMM')} de ${updatedAt.format('YYYY')}`}</Text>
             </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
