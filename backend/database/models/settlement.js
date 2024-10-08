@@ -52,6 +52,12 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    
+    settledByUserPersonFullName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+
     grossIncomeInvoiceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
