@@ -103,21 +103,6 @@ const getWasteCollectionTax = (props: { grossIncomes: IGrossIncome[] }): number 
   return tax 
 }
 
-  // sort gross incomes from from older to new
-  // crete an Map 
-    // each key is a year
-    // each key contains an array of months for each year 
-  // for each year, 
-    // join the months 
-    // the last one will have "y `${month}"
-    // using this "const month = date.toLocaleString('default', { month: 'long' });"
-  //
-  
-// nov-23, dic-23, jan-24, feb-24
-// { 2023: ['noviembre', 'diciembre'], 2024: ['enero', 'febrero']}
-
-// result: "Noviembre y Diciembre del 2023, así como Enero y Febrero del 2024"
-// Function to format the description of gross incomes by year and month
 const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
   const monthMap: { [key: number]: string[] } = {};
 
@@ -160,10 +145,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const [currencyExchangeRate, setCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
   const [payments, setPayments] = useState<Payment[]>([])
 
-  const settledByUser = grossIncomeInvoice?.settledByUser
-  const settledByPerson = settledByUser?.person
-
-  let paidAt: Date = useMemo(() => {
+  const paidAt = useMemo(() => {
     let minDate
     let maxDate
 
@@ -196,9 +178,9 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     return maxDate
   }, [payments])
 
-  let MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
+  const MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
-  let badDebtTax = getBadDebtTax({
+  const badDebtTax = getBadDebtTax({
     grossIncomes,
     paidAt: paidAt,
     MMVToBs: MMVToBs,
@@ -206,23 +188,23 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     alicuota: business?.economicActivity?.alicuota || 0
   })
 
-  let economicActivityTax = getEconomicActivityTax({
+  const economicActivityTax = getEconomicActivityTax({
     grossIncomes,
     paidAt: paidAt,
     MMVToBs: MMVToBs,
     minTaxMMV: business?.economicActivity?.minimumTax || 0,
     alicuota: business?.economicActivity?.alicuota || 0
   })
-  let wasteCollectionTax = getWasteCollectionTax({grossIncomes})
-  let formTax = grossIncomeInvoice?.formPriceBs || 0
+  const wasteCollectionTax = getWasteCollectionTax({grossIncomes})
+  const formTax = grossIncomeInvoice?.formPriceBs || 0
 
   let totalBs = CurrencyHandler(badDebtTax).add(economicActivityTax).add(wasteCollectionTax).add(formTax).value
 
   const REFERENCE_SEPARATOR = ' - '
   let references: string = useMemo(() => payments.reduce((acc: string, curr: Payment) => acc ? acc + REFERENCE_SEPARATOR + curr.reference : curr.reference, ''), [payments])
 
-  let DATE_SEPARATOR = ' - '
-  let paymentDate: string = useMemo(() => {
+  const DATE_SEPARATOR = ' - '
+  const paymentDate: string = useMemo(() => {
     let minDate = new Date()
     let maxDate = new Date()
 
@@ -259,32 +241,30 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     return dayjs(minDate).format('DD/MM') + DATE_SEPARATOR + dayjs(maxDate).format('DD/MM/YYYY')
   }, [payments])
 
-  let description = formatGrossIncomeDescription(grossIncomes)
+  const description = formatGrossIncomeDescription(grossIncomes)
 
-  let bankNames = new Set(payments.map( p => p?.bank?.name ).filter( name => name !== undefined))
+  const bankNames = new Set(payments.map( p => p?.bank?.name ).filter( name => name !== undefined))
   let bankAccountNumbers = new Set(payments.map( p => p.bank?.accountNumber ).filter( num => num !== undefined))
 
   let displayBankName = ''
   let displayBankAccountNumber = ''
 
-  let settledAt = dayjs(grossIncomeInvoice?.settlement?.settledAt)
+  const settledAt = dayjs(grossIncomeInvoice?.settlement?.settledAt)
   let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMMM')} de ${settledAt.format('YYYY')}`
 
   // create a set of names
   if (bankNames.size === 1) {
-    displayBankName = bankNames.values().next().value;
+    displayBankName = bankNames.values().next().value ?? '';
   } else {
-    displayBankName = 'Multiple Banks';
+    displayBankName = 'Varios Bancos';
   }
 
   // create a set of numbers 
   if (bankAccountNumbers.size === 1) {
-    displayBankAccountNumber = bankAccountNumbers.values().next().value;
+    displayBankAccountNumber = bankAccountNumbers.values().next().value ?? '';
   } else {
-    displayBankAccountNumber = 'Multiple Accounts';
+    displayBankAccountNumber = 'Varios Bancos';
   }
-
-
 
   const loadData = async () => {
     const invoice = await grossIncomeInvoiceService.getById(Number(grossIncomeInvoiceId))
@@ -306,7 +286,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     let currencyExchangeRate = await CurrencyExchangeRatesService.getById(cerId)
     setCurrencyExchangeRate(currencyExchangeRate)
 
-    console.log({invoice, grossIncomes, business})
   }
 
   useEffect(() => {
