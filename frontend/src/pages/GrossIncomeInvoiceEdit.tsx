@@ -69,6 +69,7 @@ const GrossIncomeInvoice: React.FC = () => {
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
 
     const selectedOfficeId = Form.useWatch('branchOfficeId', form);
+    const selectedOffice = branchOffices?.find(branchOffice => branchOffice.id === selectedOfficeId)
     const formPrice = Form.useWatch('form', form);
 
     const isEditing = grossIncomeInvoiceId !== undefined
@@ -304,8 +305,14 @@ const GrossIncomeInvoice: React.FC = () => {
         onChange: onSelectChange
     }
 
+
     const onFinish = async (values: any) => {
         console.log('Form values:', values);
+
+        if (!business || !selectedOffice) {
+            message.warning('Por favor, seleccione una sucursal y una declaración de ingresos brutos')
+            return 
+        }
 
         try {
             if (selectedRowKeys.length === 0) {
@@ -313,7 +320,16 @@ const GrossIncomeInvoice: React.FC = () => {
                 return false 
             }
 
-            const newInvoice: IGrossIncomeInvoiceCreate = {
+            const staticInformationRelatedToBusiness = {
+                businessName: business.businessName,
+                businessDNI: business.dni,
+                branchOfficeName: selectedOffice.nickname,
+                branchOfficeAddress: selectedOffice.address,
+                branchOfficeDimensions: selectedOffice.dimensions,
+                branchOfficeType: selectedOffice.type
+            }
+
+            let newInvoice: IGrossIncomeInvoiceCreate = {
                 ...grossIncomeInvoice,
                 ...values,
                 
@@ -326,6 +342,9 @@ const GrossIncomeInvoice: React.FC = () => {
             }
 
             if (!isEditing) {
+
+                newInvoice = Object.assign(newInvoice, staticInformationRelatedToBusiness)
+
                 newInvoice.checkedByUserPersonFullName = `${userAuth?.user?.person?.firstName} ${userAuth?.user?.person?.lastName}`
             }
 
@@ -423,12 +442,10 @@ const GrossIncomeInvoice: React.FC = () => {
     return (
         <Form form={form} onFinish={onFinish}>
             <Typography.Title level={2}>{isEditing ? 'Editar Factura' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
-            <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
 
             <Flex wrap gap={16}>
                 <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
-                    <Select 
-                        // onChange={(value) => console.log('selectedOfficeId', value)} 
+                    <Select
                         options={branchOffices?.map(branchOffice => ({
                             key: branchOffice.id,
                             value: branchOffice.id,
@@ -487,6 +504,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Flex>
             </Flex>
 
+            <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
             <Form.Item name="selectedItems" initialValue={[]}>
                 <Table
                     rowSelection={rowSelection}

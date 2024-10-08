@@ -261,8 +261,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
             <Descriptions bordered  size='small'>
-                <Descriptions.Item label="Contribuyente" style={{ maxWidth: '20%' }} >{business.businessName}</Descriptions.Item>
-                <Descriptions.Item label="Rif" style={{ maxWidth: '15%' }}>{business.dni}</Descriptions.Item>
+                <Descriptions.Item label="Contribuyente" style={{ maxWidth: '20%' }} >{grossIncomeInvoice.businessName}</Descriptions.Item>
+                <Descriptions.Item label="Rif" style={{ maxWidth: '15%' }}>{grossIncomeInvoice.businessDNI}</Descriptions.Item>
                 <Descriptions.Item label="N°" style={{ maxWidth: '12%' }}>{business.economicActivity.code}</Descriptions.Item>
 
                 {
@@ -270,8 +270,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     ? (
                         <>
                             <Descriptions.Item label="Ramo" style={{ maxWidth: '20%' }}>{business.economicActivity.title}</Descriptions.Item>
-                            <Descriptions.Item label="Mts2" style={{ maxWidth: '5%' }}>{branchOffice.dimensions}</Descriptions.Item>
-                            <Descriptions.Item label="Tipo"  style={{ maxWidth: '5%' }}>{branchOffice.type}</Descriptions.Item>
+                            <Descriptions.Item label="Mts2" style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeDimensions}</Descriptions.Item>
+                            <Descriptions.Item label="Tipo"  style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeType}</Descriptions.Item>
                         </>
                     )
                     : (null)

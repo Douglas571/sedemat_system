@@ -323,13 +323,13 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     {
       key: '1',
       label: 'RAZÓN SOCIAL',
-      children: business.businessName.toUpperCase(),
+      children: grossIncomeInvoice.businessName.toUpperCase(),
       span: 3,
     },
     {
       key: '2',
       label: 'RIF',
-      children: business.dni.toUpperCase(),
+      children: grossIncomeInvoice.businessDNI.toUpperCase(),
       span: 3,
     },
     {
