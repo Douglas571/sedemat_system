@@ -69,15 +69,9 @@ const getBadDebtTax = ({
 const getEconomicActivityTax = ({
   grossIncomes,
   paidAt,
-  alicuota,
-  minTaxMMV,
-  MMVToBs
 }: {
   grossIncomes: IGrossIncome[],
   paidAt: Date | undefined,
-  alicuota: number,
-  minTaxMMV: number,
-  MMVToBs: number
 }): number => {
 
   if (!grossIncomes || !paidAt) return 0;
@@ -88,7 +82,6 @@ const getEconomicActivityTax = ({
       grossIncome: b
     }))
 
-    console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
 
   return totalTaxes.reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0);
 }
