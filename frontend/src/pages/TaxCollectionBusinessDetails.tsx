@@ -293,11 +293,14 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         {
             title: 'Acciones',
             key: 'actions',
-            render: (_, record: any) => (
+            render: (_, record: any) => {
+                let invoice = grossIncomeInvoices?.find(i => i.id === record.grossIncomeInvoiceId)
+
+                return (
                 <Flex gap="small">
                     <Button 
                         onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
-                        disabled={record.settlement !== null}    
+                        disabled={invoice?.settlement}    
                     >Editar</Button>
                     
                     <Popconfirm
@@ -308,7 +311,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                     >
                         <Button 
                             danger
-                            disabled={record.settlement !== null}
+                            disabled={invoice?.settlement}
                         >Eliminar</Button>
                     </Popconfirm>
 
@@ -318,7 +321,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                     >Detalles</Button>
                     {/* <Button onClick={() => null}>Ver Factura</Button> */}
                 </Flex>
-            ),
+            )},
         }
     ];
 
@@ -546,8 +549,9 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
 
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
                     <Button 
-                        onClick={() => navigate(`/tax-collection/$  {businessId}/gross-incomes-invoice/${record.id}/edit`)}
-                        disabled={record.settlement !== null}
+                        onClick={() => 
+                            navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}
+                        disabled={record.settlement}
                     >Editar</Button>
 
                     <Popconfirm
@@ -557,7 +561,7 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                         cancelText="No"
                     >
                         <Button danger
-                        disabled={record.settlement !== null}
+                        disabled={record.settlement}
                         >Eliminar</Button>
                     </Popconfirm>
 
