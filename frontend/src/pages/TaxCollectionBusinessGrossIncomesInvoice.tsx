@@ -499,42 +499,25 @@ function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeIn
 
     let items: DescriptionsProps['items'] = [];
     
-    if (createdByUser?.id) {
-        let person = createdByUser.person
-        let text = person?.id ? `${person.firstName} ${person.lastName}` : createdByUser.username 
-        items.push({
-            key: '1',
-            label: 'Creado por',
-            children: text,
-        });
-    }
+    items.push({
+        key: '1',
+        label: 'Creado por',
+        children: grossIncomeInvoice?.createdByUserPersonFullName,
+    });
 
-    if (checkedByUser?.id) {
-        let person = checkedByUser.person
-        let text = person?.id ? `${person.firstName} ${person.lastName}` : checkedByUser.username 
-        items.push({
-            key: '2',
-            label: 'Revisado por',
-            children: text,
-        });
-    }
+    items.push({
+        key: '2',
+        label: 'Revisado por',
+        children: grossIncomeInvoice?.checkedByUserPersonFullName,
+    });
 
-    if (settledByUser?.id) {
-        let person = settledByUser.person
-        let text = person?.id ? `${person.firstName} ${person.lastName}` : settledByUser.username 
-        items.push({
-            key: '3',
-            label: 'Liquidado por',
-            children: text,
-        });
-    }
 
     return (
         <Descriptions title="Usuarios involucrados" bordered size="small" items={items} />
     );
 }
 
-function Settlement({settlement}) {
+function Settlement({settlement}: {settlement: ISettlement}) {
 
     const settledByUser = settlement?.settledByUser
 
@@ -552,9 +535,7 @@ function Settlement({settlement}) {
         {
             key: 3,
             label: 'Liquidado por: ',
-            children: settledByUser?.person 
-                ? `${settledByUser.person?.firstName} ${settledByUser.person?.lastName}`
-                : settledByUser.username,
+            children: settlement?.settledByUserPersonFullName,
         }
     ]
 
@@ -735,7 +716,18 @@ function SettlementEditModal(
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
+    const {userAuth} = useAuthentication()
+    console.log({userAuth})
+    const userPerson = userAuth?.user?.person
+    const fullName = userPerson?.firstName + ' ' + userPerson?.lastName
+
     const isEditing = !!settlement;
+
+    if (!userPerson) {
+        console.error("User don't have a contact data asigned");
+        message.error('El usuario no tiene datos de contacto asignados');
+        onCancel();
+    }
 
     const handleOk = () => {
         form.validateFields()
@@ -746,10 +738,13 @@ function SettlementEditModal(
                         await onEdit({
                             ...settlement,
                             ...values,
+                            // i don't know if i should add this here
+                            // settledByUserPersonFullName: fullName
                         });
                     } else {
                         await onNew({
                             ...values,
+                            settledByUserPersonFullName: fullName
                         });
                     }
                 } catch (error) {

@@ -41,17 +41,30 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
     return 0;
 }
 
+// this will give you the total tax for a given gross income without waste collection tax
 export function getGrossIncomeTaxInBs({
     grossIncomeInBs,
     alicuota,
     minTaxMMV,
-    MMVToBs
+    MMVToBs, 
+    grossIncome
 }: {
     grossIncomeInBs: number,
     alicuota: number,
     minTaxMMV: number,
-    MMVToBs: number
+    MMVToBs: number,
+    grossIncome: IGrossIncome
 }): number {
+
+    // I want to simplify the function interface
+    if (grossIncome) {
+      let taxInBs = CurrencyHandler(grossIncome.amountBs).multiply(grossIncome.alicuotaTaxPercent).value
+      let minTaxInBs = CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+
+      return Math.max(taxInBs, minTaxInBs)
+    }
+
+
     let taxInBs = CurrencyHandler(grossIncomeInBs).multiply(alicuota).value
     let minTaxInBs = CurrencyHandler(minTaxMMV).multiply(MMVToBs).value
 

@@ -10,6 +10,7 @@ import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
 import * as paymentsApi from '../util/paymentsApi'
 import * as grossIncomeService from '../util/grossIncomeApi'
 import * as api from '../util/api'
+import settlementService from 'services/SettlementService';
 import { useParams } from 'react-router-dom';
 
 import dayjs from 'dayjs';
@@ -17,7 +18,7 @@ import dayjs from 'dayjs';
 import * as util from '../util'
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 
-
+// is a bad debt is the current d
 const isBadDebt = ({
   grossIncome,
   paidAt
@@ -57,10 +58,7 @@ const getBadDebtTax = ({
     let badDebts = grossIncomes.filter(g => isBadDebt({grossIncome: g, paidAt}))
 
     let totalTaxes = badDebts.map( b => util.getGrossIncomeTaxInBs({
-      grossIncomeInBs: b.amountBs,
-      alicuota: alicuota,
-      minTaxMMV: minTaxMMV,
-      MMVToBs: MMVToBs
+      grossIncome: b
     }))
 
     console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
@@ -87,10 +85,7 @@ const getEconomicActivityTax = ({
     let badDebts = grossIncomes.filter(g => !isBadDebt({grossIncome: g, paidAt}))
 
     let totalTaxes = badDebts.map( b => util.getGrossIncomeTaxInBs({
-      grossIncomeInBs: b.amountBs,
-      alicuota: alicuota,
-      minTaxMMV: minTaxMMV,
-      MMVToBs: MMVToBs
+      grossIncome: b
     }))
 
     console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
@@ -168,18 +163,52 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const settledByUser = grossIncomeInvoice?.settledByUser
   const settledByPerson = settledByUser?.person
 
+  let paidAt: Date = useMemo(() => {
+    let minDate
+    let maxDate
+
+    if (payments.length === 0) return dayjs()
+
+    if (payments.length === 1) return dayjs(payments[0].paymentDate)
+
+    payments.forEach( p => {
+      console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
+  
+      let curr = dayjs(p.paymentDate)
+  
+      // if min and max empty, them them current 
+      if (!minDate && !maxDate) {
+        minDate = curr
+        maxDate = curr
+      }
+  
+      // if current is greater than max date, 
+      if (curr > maxDate) {
+        maxDate = curr 
+      }
+        // max date = current date
+      // if current is less than min date, set min date = current date 
+      if (minDate > curr) {
+        minDate = curr 
+      }
+    })
+
+    return maxDate
+  }, [payments])
+
   let MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
   let badDebtTax = getBadDebtTax({
     grossIncomes,
-    paidAt: grossIncomeInvoice?.paidAt,
+    paidAt: paidAt,
     MMVToBs: MMVToBs,
     minTaxMMV: business?.economicActivity?.minimumTax || 0,
     alicuota: business?.economicActivity?.alicuota || 0
   })
+
   let economicActivityTax = getEconomicActivityTax({
     grossIncomes,
-    paidAt: grossIncomeInvoice?.paidAt,
+    paidAt: paidAt,
     MMVToBs: MMVToBs,
     minTaxMMV: business?.economicActivity?.minimumTax || 0,
     alicuota: business?.economicActivity?.alicuota || 0
@@ -238,6 +267,9 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   let displayBankName = ''
   let displayBankAccountNumber = ''
 
+  let settledAt = dayjs(grossIncomeInvoice?.settlement?.settledAt)
+  let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMMM')} de ${settledAt.format('YYYY')}`
+
   // create a set of names
   if (bankNames.size === 1) {
     displayBankName = bankNames.values().next().value;
@@ -285,28 +317,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     return <Flex><Typography.Text>Cargando...</Typography.Text></Flex>
   }
 
-  interface Settlement {
-    number: number;
-    business: Business;
-
-    grossIncomeInvoice: IGrossIncomeInvoice;
-
-    description: string;
-    amountBs: number;
-  }
-
-  const settlement: Settlement = {
-    number: "0001",
-    grossIncomeInvoice: {
-      id: 1,
-      date: new Date(),
-      amountBs: 1000,
-      businessId: 1,
-      totalBs: 1000,
-    },
-    description: "PAGO POR :  IMPUESTO  SOBRE ACTIVIDAD ECONOMICA CORRESPONDIENTE A LOS MESES DE ABRIL Y MAYO AÑO 2024.",
-  }
-
   
 
   const headerItems: DescriptionsProps['items'] = [
@@ -342,7 +352,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
       span: 4,
     },
   ];
-
 
   const tableColumns: TableProps['columns'] = [
     {
@@ -430,12 +439,9 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   {
     key: '6',
     label: 'LIQUIDADOR',
-    children: `${settledByPerson?.firstName} ${settledByPerson?.lastName}`.toUpperCase(),
+    children: grossIncomeInvoice.settlement?.settledByUserPersonFullName.toUpperCase(),
   },    
 ];
-
-let settledAt = dayjs(grossIncomeInvoice.paidAt)
-let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMMM')} de ${settledAt.format('YYYY')}`
 
   return (
     <Flex vertical style={{ width: '100%' }}>
@@ -452,7 +458,7 @@ let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMM
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{settlement.number}</Typography.Text></Flex>
+      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code}</Typography.Text></Flex>
       <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</Typography.Text></Flex>
 
       <Descriptions 
@@ -515,7 +521,6 @@ let settledAtDisplayDate = `${settledAt.format('DD')} de ${settledAt.format('MMM
           <div style={{
             height: "100%",
           }}>
-            
           </div>
 
         </Flex> 
