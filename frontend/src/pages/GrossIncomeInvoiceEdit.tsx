@@ -81,7 +81,8 @@ const GrossIncomeInvoice: React.FC = () => {
     }
 
     const selectedGrossIncomes = grossIncomes.filter(({id}) => selectedRowKeys.includes(id))
-    let TOTAL = util.calculateTotalGrossIncomeInvoice(selectedGrossIncomes, business, formPrice)
+    let TOTAL = selectedGrossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0)
+    TOTAL = CurrencyHandler(TOTAL).add(formPrice).value
 
     const loadGrossIncomeInvoice = async () => {
         const fetchedGrossIncomeInvoice = await grossIncomesInvoiceService.getById(Number(grossIncomeInvoiceId))
@@ -140,7 +141,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 return (<Tooltip title={
                     `${formatBolivares(amountBs)} x ${percentHandler(alicuotaTaxPercent).multiply(100).format()}`
                 }>
-                    <Typography.Text>{CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).format()}</Typography.Text>
+                    <Typography.Text>{CurrencyHandler(record.taxInBs).format()}</Typography.Text>
                 </Tooltip>)
             }
         },
@@ -160,9 +161,7 @@ const GrossIncomeInvoice: React.FC = () => {
                     }>
                         <Typography.Text>
                             {
-                                CurrencyHandler(record.alicuotaMinTaxMMVBCV)
-                                    .multiply(record.TCMMVBCV)
-                                    .format()
+                                CurrencyHandler(record.minTaxInBs).format()
                             }
                         </Typography.Text>
                     </Tooltip>)
@@ -179,7 +178,7 @@ const GrossIncomeInvoice: React.FC = () => {
                     TCMMVBCV: record.TCMMVBCV
                 })}>
                     <Typography>{
-                    CurrencyHandler(util.getWasteCollectionTaxInBs(record))
+                    CurrencyHandler(record.wasteCollectionTaxInBs)
                         .format()
                     }</Typography>
                 </Tooltip>)
@@ -191,7 +190,7 @@ const GrossIncomeInvoice: React.FC = () => {
             key: 'total',
             align: 'right',
             render: (text: any, record: IGrossIncome) => {
-                let subtotal = util.getSubTotalFromGrossIncome(record, business)
+                let subtotal = record.totalTaxInBs
                 return (<Typography.Text>{formatBolivares(subtotal)}</Typography.Text>)
             }
         }

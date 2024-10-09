@@ -81,7 +81,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 1
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
-    const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
+    let TOTAL = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
+    TOTAL = CurrencyHandler(TOTAL).add(grossIncomeInvoice?.formPriceBs).value
+
     const totalLessPaymentsAllocatedBs = CurrencyHandler(TOTAL).subtract(totalPaymentsAllocated).value
     const totalLessPaymentsAllocatedMMV = CurrencyHandler(totalLessPaymentsAllocatedBs).divide(MMVExchangeRate).value
 
@@ -319,9 +321,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex="amountBs" 
                     key="tax" 
                     render={(amountBs: number, record: IGrossIncome) => {
-                        const {alicuotaTaxPercent} = record
-                        const tax = CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).value
-                        return formatBolivares(tax);
+                        const {taxInBs} = record
+                        return formatBolivares(taxInBs);
                     }}
                     width="15%"
                 />
@@ -338,7 +339,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
                         // return formatBolivares(minTaxThreshold);
                         
-                        let minTaxInBs = util.getMinTaxInBs({grossIncome})
+                        let minTaxInBs = grossIncome.minTaxInBs
 
                         return formatBolivares(minTaxInBs)
                     }}
@@ -353,7 +354,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         if (!record.chargeWasteCollection) {
                             return 0
                         }
-                        const tax = util.getWasteCollectionTaxInBs(record)
+                        const tax = record.wasteCollectionTaxInBs
                         return formatBolivares(tax)
                     }}
                 />
@@ -361,7 +362,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Subtotal" 
                     key="subtotal" 
                     render={(text: any, record: any) => {
-                        const tax = util.getSubTotalFromGrossIncome(record, business)
+                        const tax = record.totalTaxInBs
                         return formatBolivares(tax);
                     }}
                     width="15%"

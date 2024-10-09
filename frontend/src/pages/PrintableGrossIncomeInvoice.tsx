@@ -106,8 +106,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
 
-    const {formPriceBs} = grossIncomeInvoice
-    const TOTAL = util.calculateTotalGrossIncomeInvoice(grossIncomes, business, formPriceBs)
+    const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
+    let TOTAL = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
+    TOTAL = CurrencyHandler(TOTAL).add(grossIncomeInvoice?.formPriceBs).value
 
     return (
         <Flex vertical>
@@ -178,7 +179,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         const {amountBs} = record
                         const alicuotaTaxPercent = record.alicuotaTaxPercent
 
-                        let tax = CurrencyHandler(amountBs).multiply(alicuotaTaxPercent).format()
+                        let tax = CurrencyHandler(record.taxInBs).format()
 
                         return tax
                     }}
@@ -189,8 +190,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex={['business', 'economicActivity', 'minTax']} 
                     key="minTax" 
                     render={(_: number, record: IGrossIncome) => {
-                        let minTax = CurrencyHandler(record.alicuotaMinTaxMMVBCV)
-                                    .multiply(record.TCMMVBCV)
+                        let minTax = CurrencyHandler(record.minTaxInBs)
                                     .format()
 
                         return minTax
@@ -203,7 +203,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     dataIndex='wasteCollectionTax'
                     width="15%"
                     render={(_: any, record: IGrossIncome) => {
-                        let wasteCollectionTax = CurrencyHandler(util.getWasteCollectionTaxInBs(record))
+                        let wasteCollectionTax = CurrencyHandler(record.wasteCollectionTaxInBs)
                         .format()
 
                         return wasteCollectionTax
@@ -213,7 +213,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Subtotal" 
                     key="subtotal" 
                     render={(text: any, record: any) => {
-                        let subtotal = util.getSubTotalFromGrossIncome(record, business)
+                        let subtotal = record.totalTaxInBs
 
                         return formatBolivares(subtotal)
                     }}
