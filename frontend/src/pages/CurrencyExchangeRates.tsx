@@ -7,6 +7,7 @@ import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService'
 
 import { useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
+import { formatBolivares } from '../util/currency';
 
 interface CurrencyExchangeRate {
   id: number;
@@ -86,28 +87,28 @@ const CurrencyExchangeRatesPage: React.FC = () => {
       title: 'Dólar (BCV)',
       dataIndex: 'dolarBCVToBs',
       key: 'dolarBCVToBs',
-      render: (text: string) => `${text} Bs.`,
+      render: (text: string) => formatBolivares(text),
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBCVToBs - b.dolarBCVToBs,
     },
     {
       title: 'Euro (BCV)',
       dataIndex: 'eurosBCVToBs',
       key: 'eurosBCVToBs',
-      render: (text: string) => `${text} Bs.`,
+      render: (text: string) => formatBolivares(text),
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.eurosBCVToBs - b.eurosBCVToBs,
     },
     {
       title: 'Dólar (Negro)',
       dataIndex: 'dolarBlackToBs',
       key: 'dolarBlackToBs',
-      render: (text: string) => text ? `${text} Bs.` : '',
+      render: (text: string) => text ? formatBolivares(text) : '',
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.dolarBlackToBs - b.dolarBlackToBs,
     },
     {
       title: 'Euro (Negro)',
       dataIndex: 'euroBlackToBs',
       key: 'euroBlackToBs',
-      render: (text: string) => text ? `${text} Bs.` : '',
+      render: (text: string) => text ? formatBolivares(text) : '',
       sorter: (a: CurrencyExchangeRate, b: CurrencyExchangeRate) => a.euroBlackToBs - b.euroBlackToBs,
     },
     {

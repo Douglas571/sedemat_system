@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, message, Typography, InputNumber, Flex } from "antd";
+import { Form, Input, Button, message, Typography, InputNumber, Flex, Card} from "antd";
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -50,11 +50,13 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
   };
 
   return (
-    <>
-        <Typography.Title level={1}>
-            { isEditing ? "Editando Tasas de Cambio" : "Registrando Nuevas Tasas de Cambio"}
-
-        </Typography.Title>
+    <Card
+      title={
+        (<Typography.Title level={1}>
+          { isEditing ? "Editando Tasas de Cambio" : "Registrando Nuevas Tasas de Cambio"}
+      </Typography.Title>)
+      }
+    >
         <Form
         form={form}
         layout="vertical"
@@ -76,15 +78,8 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               <InputNumber 
                   min={0}  
                   step={0.01}
-
-                  formatter={(value) => `${value}`.replace('.', ',')}
-                  
-                  parser={(value) => {
-                      console.log({value,
-                          v: value?.replace(',', '.')
-                      })
-                      return value
-                  }}
+                  addonAfter='Bs'
+                  decimalSeparator=','
                   />
           </Form.Item>
 
@@ -93,15 +88,11 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               name="eurosBCVToBs"
               rules={[{ required: true, message: 'Introduce el cambio de euros a bolívares (BCV)' }]}
           >
-              <InputNumber min={0} step={0.01} 
-                  formatter={(value) => `${value}`.replace('.', ',')}
-                      
-                  parser={(value) => {
-                      console.log({value,
-                          v: value?.replace(',', '.')
-                      })
-                      return value
-                  }}
+              <InputNumber 
+                  min={0} 
+                  step={0.01} 
+                  addonAfter='Bs'
+                  decimalSeparator=','
               />
           </Form.Item>
         </Flex>
@@ -117,15 +108,11 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               //     message: 'Please input the USD/BS (Black) rate!'
               // }]}
           >
-              <InputNumber min={0} step={0.01}
-                  formatter={(value) => `${value}`.replace('.', ',')}
-                  
-                  parser={(value) => {
-                      console.log({value,
-                          v: value?.replace(',', '.')
-                      })
-                      return value
-                  }}
+              <InputNumber 
+                addonAfter='Bs'
+                min={0}
+                step={0.01}
+                decimalSeparator=','
               />
           </Form.Item>
 
@@ -138,15 +125,11 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               //     message: 'Please input the EUR/BS (Black) rate!',
               // }]}
           >
-              <InputNumber min={0} step={0.01} 
-                  formatter={(value) => `${value}`.replace('.', ',')}
-                  
-                  parser={(value) => {
-                      console.log({value,
-                          v: value?.replace(',', '.')
-                      })
-                      return value
-                  }}
+              <InputNumber 
+                addonAfter='Bs'
+                min={0}
+                step={0.01}
+                decimalSeparator=','
               />
           </Form.Item>  
         </Flex>
@@ -157,7 +140,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
             </Button>
         </Form.Item>
         </Form>
-    </>
+    </Card>
     
   );
 };
