@@ -84,8 +84,8 @@ class CurrencyExchangeRatesService {
 
       // Save the fetched data to the database
       const newRates = await CurrencyExchangeRates.create({
-        dolarBCVToBs: exchangeRates.dolarBCVToBs.toFixed(2),
-        eurosBCVToBs: exchangeRates.euroBCVToBs.toFixed(2),
+        dolarBCVToBs: Number(exchangeRates.dolarBCVToBs.toFixed(2)),
+        eurosBCVToBs: Number(exchangeRates.euroBCVToBs.toFixed(2)),
         dolarBlackToBs: null, // Set as null since we're not fetching this data from BCV
         euroBlackToBs: null,  // Set as null since we're not fetching this data from BCV
       });

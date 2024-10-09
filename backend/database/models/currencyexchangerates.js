@@ -19,21 +19,22 @@ module.exports = (sequelize, DataTypes) => {
   }
   CurrencyExchangeRates.init({
     dolarBCVToBs: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     eurosBCVToBs: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     dolarBlackToBs: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       // allowNull: false,
     },
     euroBlackToBs: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL,
       // allowNull: false,
     },
+    
   }, {
     sequelize,
     modelName: 'CurrencyExchangeRates',

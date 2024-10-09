@@ -12,19 +12,19 @@ module.exports = {
 
       
       dolarBCVToBs: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       eurosBCVToBs: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       dolarBlackToBs: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.DECIMAL,
         // allowNull: false,
       },
       euroBlackToBs: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.DECIMAL,
         // allowNull: false,
       },
 
