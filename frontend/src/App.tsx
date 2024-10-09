@@ -35,6 +35,9 @@ import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
 import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInvoiceSettlement'
 
+import BankAccounts from 'pages/BankAccounts'
+import BankAccountsEdit from 'pages/BankAccountsEdit'
+
 import LoginForm from 'pages/Login'
 import SingUpForm from 'pages/SingUp'
 
@@ -106,6 +109,11 @@ function App(): JSX.Element {
 								<Route path='economic-activities/:economicActivityId' element={(<h1>Economic Activity Details</h1>)}/>
 								<Route path='economic-activities/new' element={<EconomicActivityEdit />} />
 								<Route path='economic-activities/:economicActivityId/edit' element={<EconomicActivityEdit />} />
+
+								<Route path='bank-accounts' element={<BankAccounts/>}/>
+								<Route path='bank-accounts/new' element={<BankAccountsEdit/>}/>
+								<Route path='bank-accounts/:bankAccountId/edit' element={<BankAccountsEdit/>}/>
+								
 								
 							</Route>
 							

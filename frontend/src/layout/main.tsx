@@ -119,6 +119,12 @@ const App: React.FC = () => {
 				icon: '',
 				label: 'Usuarios'
 			})
+
+			configItem.children?.push({
+				key: '/bank-accounts',
+				icon: '',
+				label: 'Cuentas de Banco'
+			})
 		}
 	}
 	if (userAuth.token) {
