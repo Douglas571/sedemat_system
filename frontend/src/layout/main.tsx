@@ -114,17 +114,20 @@ const App: React.FC = () => {
 	if (userAuth.user?.role.name === 'Administrador') {
 		const configItem = items.find(i => i?.key === '/config')
 		if (configItem) {
-			configItem.children?.push({
-				key: '/users',
-				icon: '',
-				label: 'Usuarios'
-			})
 
 			configItem.children?.push({
 				key: '/bank-accounts',
 				icon: '',
 				label: 'Cuentas de Banco'
 			})
+			
+			configItem.children?.push({
+				key: '/users',
+				icon: '',
+				label: 'Usuarios'
+			})
+
+			
 		}
 	}
 	if (userAuth.token) {
