@@ -1,6 +1,57 @@
 // services/grossIncomeService.js
 const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement } = require('../database/models');
 const dayjs = require('dayjs');
+const currency = require('currency.js');
+
+const currencyHandler = (value) => currency(value, 
+    { 
+        // symbol: 'Bs.', 
+        pattern: '#', 
+        precision: 4,
+        separator: '.',
+        decimal: ','
+    }
+)
+
+function getWasteCollectionTaxInMMV(mts2) {
+    // Return 20 if mts2 is greater than or equal to 300
+    if (mts2 >= 300) {
+        return 20;
+    }
+
+    // Return 10 if mts2 is greater than or equal to 50
+    if (mts2 >= 50) {
+        return 10;
+    }
+
+    // Return 5 if mts2 is greater than or equal to 0
+    if (mts2 >= 0) {
+        return 5;
+    }
+
+    // Return 0 if none of the conditions are met
+    return 0;
+}
+
+function calculateTaxFields({grossIncome}) {
+    let calcs = {
+        taxInBs: 0,
+        minTaxInBs: 0,
+        wasteCollectionTaxInBs: 0,
+        totalTaxInBs: 0
+    }
+
+    calcs.taxInBs = currencyHandler(grossIncome.amountBs).multiply(grossIncome.alicuotaTaxPercent).value
+
+    calcs.minTaxInBs = currencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+
+    calcs.wasteCollectionTaxInBs = currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+
+    calcs.totalTaxInBs = currencyHandler(Math.max(calcs.taxInBs, calcs.minTaxInBs)).add(calcs.wasteCollectionTaxInBs).value
+
+    return calcs
+
+}
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
@@ -52,6 +103,15 @@ class GrossIncomeService {
                 branchOfficeId: newGrossIncome.branchOfficeId
             }
         });
+
+        // Calculate taxes fields
+        const calcs = calculateTaxFields({grossIncome: newGrossIncome})
+        console.log({calcs})
+
+        newGrossIncome = {
+            ...newGrossIncome,
+            ...calcs
+        }
         
         if (existingGrossIncome) {  
             throw new Error('Gross income already exists for the same period and branch office');
@@ -119,7 +179,10 @@ class GrossIncomeService {
             }
         }
 
+        
+
         // if chargeWasteCollectionTax is null, then we need to disassociate the waste collection tax
+        // TODO: DELETE THIS AT SOME POINT WHEN YOU HAVE TESTS
         let wasteCollectionTax
 
         if (grossIncome.wasteCollectionTaxId) {
@@ -146,6 +209,16 @@ class GrossIncomeService {
 
         if (wasteCollectionTax && (data.period !== wasteCollectionTax.period)){
             wasteCollectionTax.update({period: data.period})
+        }
+        // DELETE EVERYTHING ABOVE WHEN YOU HAVE TESTS
+
+        // Recalculate tax fields
+        const calcs = calculateTaxFields({grossIncome: data})
+        console.log({calcs})
+
+        data = {
+            ...data,
+            ...calcs
         }
         
         return await grossIncome.update(data);

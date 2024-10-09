@@ -114,6 +114,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(10, 4),
       allowNull: true
     },
+
+    taxInBs: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    },
+    minTaxInBs: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    },
+    wasteCollectionTaxInBs: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    },
+    totalTaxInBs: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    },
   }, {
     sequelize,
     modelName: 'GrossIncome',
