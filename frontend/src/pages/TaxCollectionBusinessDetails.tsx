@@ -91,6 +91,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             const updatedGrossIncomes = grossIncomes.filter(income => income.id !== grossIncomeId);
             setGrossIncomes(updatedGrossIncomes);
         } catch (error) {
+            console.log({error})
             message.error('Error al eliminar el ingreso bruto');
         }
     };

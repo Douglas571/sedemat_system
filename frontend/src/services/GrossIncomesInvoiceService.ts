@@ -72,7 +72,14 @@ class GrossIncomesInvoiceService {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        const error = await response.json();
+        const data = await response.json();
+        console.error({ data })
+        let {message, name} = data.error
+
+        if (name === "InvoiceAlreadyPaid") {
+          throw new Error(`Esta factura ya ha sido pagada`);
+        }
+        
         throw new Error(`Failed to update gross income invoice: ${error.message}`);
       }
       return await response.json();
