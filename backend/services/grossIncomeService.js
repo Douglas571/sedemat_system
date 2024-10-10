@@ -158,8 +158,16 @@ class GrossIncomeService {
                 }
         ]})
 
+        if (invoice?.paidAt) {
+            let err = new Error('Gross Income has a settled invoice associated')
+            err.name = "InvoiceAlreadyPaid"
+            throw err
+        }
+
         if (invoice?.settlement) {
-            throw new Error('Gross Income has an paid invoice associated')
+            let err = new Error('Gross Income has a settled invoice associated')
+            err.name = "InvoiceAlreadySettled"
+            throw err
         }
 
         // console.log({grossIncomeOriginal: grossIncome})
@@ -175,10 +183,11 @@ class GrossIncomeService {
             })
             
             if (existingIncome && existingIncome.id !== Number(id)) {
-                throw new Error('Gross income already exists for the same period and branch office');
+                let err = new Error('Gross income already exists for the same period and branch office');
+                erro.name = 'GrossIncomePeriodDuplicated';
+                throw err;
             }
         }
-
         
 
         // if chargeWasteCollectionTax is null, then we need to disassociate the waste collection tax

@@ -95,8 +95,7 @@ class GrossIncomeInvoiceController {
     async addPaymentToGrossIncomeInvoice(req, res) {
         try {
             const { id, paymentId } = req.params;
-            console.log({ paymentId })
-            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.addPaymentToGrossIncomeInvoice(id, paymentId);
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.addPayment(id, paymentId);
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error });
@@ -108,7 +107,7 @@ class GrossIncomeInvoiceController {
     async removePaymentFromGrossIncomeInvoice(req, res) {
         try {
             const { id, paymentId } = req.params;
-            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.removePaymentFromGrossIncomeInvoice(paymentId);
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.removePayment(id, paymentId);
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error });

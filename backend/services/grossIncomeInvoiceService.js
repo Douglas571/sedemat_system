@@ -258,8 +258,8 @@ class GrossIncomeInvoiceService {
         // if gross income is paid, don't allow any other property aside of paidAt
 
         // check if it has a settlement 
-        if (grossIncomeInvoice.settlement) {
-            throw new Error('This invoice is already paid and settled');
+        if (grossIncomeInvoice.paidAt) {
+            throw new Error('This invoice is already paid');
         }
 
         // check if should add new gross incomes 
@@ -334,41 +334,112 @@ class GrossIncomeInvoiceService {
         console.log({grossIncomeInvoiceId, paymentId})
         const payment = await Payment.findByPk(paymentId)
 
+        console.log({payment})
+
         if (payment.grossIncomeInvoiceId) {
             throw new Error('This payment is already associated with an invoice.');
         }
 
         payment.grossIncomeInvoiceId = grossIncomeInvoiceId
+
         await payment.save()
+
+        
+        await this.updatePaidAtProperty(grossIncomeInvoiceId)
 
         return payment
     }
 
-    async removePayment(paymentId) {
+    async removePayment(grossIncomeInvoiceId, paymentId) {
         console.log({paymentId})
+
+
         const payment = await Payment.findByPk(paymentId)
+
+        const previousGrossIncomeInvoiceId = payment.grossIncomeInvoiceId
+
+        if (!previousGrossIncomeInvoiceId) {
+            throw new Error('This payment is not associated with an invoice.');
+        }
         payment.grossIncomeInvoiceId = null
+
         await payment.save()
+        
+        await this.updatePaidAtProperty(grossIncomeInvoiceId)
+
         return payment
     }
 
-    // TODO: for future use case
-    // async markAsSettled(id, { settlement }) {
-    //     if (!settlement) {
-    //         let error = new Error('Settlement data is required')
-    //         error.name = 'ValidationError'
-    //         throw error
-    //     }
-    //     // create a new settlement
-    //     let createdSettlement = await Settlement.create({
-    //         grossIncomeInvoiceId: id,
-    //         settledByUserId: settlement.settledByUserId,
-    //         code: settlement.code
-    //     })
+    async updatePaidAtProperty(grossIncomeInvoiceId) {
+        console.log({grossIncomeInvoiceId})
+        console.log("updating paid at property")
 
-    //     // return the settlement id
-    //     return createdSettlement
-    // }
+        const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(grossIncomeInvoiceId, {
+            include: [
+                {
+                    model: GrossIncome,
+                    as: 'grossIncomes'
+                },
+                {
+                    model: Payment,
+                    as: 'payments'
+                }
+            ]
+        })
+
+        let totalGrossIncomes = grossIncomeInvoice.grossIncomes.reduce((total, grossIncome) => currencyHandler(total).add(grossIncome.totalTaxInBs).value, 0)
+        totalGrossIncomes = currencyHandler(totalGrossIncomes).add(grossIncomeInvoice.formPriceBs).value
+
+        const totalPayments = grossIncomeInvoice.payments.reduce((total, payment) => currencyHandler(total).add(payment.amount).value, 0)
+
+        // get the last payment by paymentDate property in payment 
+        const lastPayment = grossIncomeInvoice.payments.sort((a, b) => {
+            if (a.paymentDate < b.paymentDate) {
+                return 1
+            }
+            if (a.paymentDate > b.paymentDate) {
+                return -1
+            }
+            return 0
+        })[0]
+
+        if (lastPayment) {
+            console.log({lastInvoicePaidAt: lastPayment.paymentDate, totalGrossIncomes, totalPayments})
+        }
+
+        let invoice 
+        if (totalGrossIncomes === totalPayments) {
+            invoice = await grossIncomeInvoice.update({ paidAt: lastPayment.paymentDate })
+        } else {
+            invoice = await grossIncomeInvoice.update({ paidAt: null })
+        }        
+
+        console.log({invoice})
+    }
+
+    async markAsPaid(grossIncomeInvoiceId) {
+        // check if the total of gross incomes is equal to the total of payments
+        await this.updatePaidAtProperty(grossIncomeInvoiceId)
+    }
+
+    async unmarkAsPaid(grossIncomeInvoiceId) {
+        let invoice = await GrossIncomeInvoice.findByPk(grossIncomeInvoiceId, {
+            include: [{
+                model: Settlement,
+                as: 'settlement'
+            }]
+        })
+
+        if (invoice?.settlement) {
+            let err = new Error('Gross Income has a settled invoice associated')
+            err.name = 'ValidationError'
+            throw err
+        }
+
+        invoice.paidAt = null
+
+        await invoice.save()
+    }
 }
 
 module.exports = new GrossIncomeInvoiceService();

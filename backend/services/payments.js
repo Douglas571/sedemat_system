@@ -101,12 +101,18 @@ exports.updatePayment = async (id, paymentData) => {
         const prevPayment = await PaymentModel.findByPk(id)
         console.log({paymentData, prevPayment: prevPayment.toJSON()})
 
-        if (paymentData.grossIncomeInvoiceId === null) {
-            await grossIncomeInvoiceService.removePayment(id);
-        } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
-            await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, id);
-        }
         paymentData.grossIncomeInvoiceId = undefined;
+
+        if (prevPayment.grossIncomeInvoiceId !== null) {
+            let err = new Error('Payment is already associated with an invoice');
+            err.name = "AssociatedWithInvoiceError"
+            throw err
+        }
+        //     await grossIncomeInvoiceService.removePayment(id);
+        // } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
+        //     await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, id);
+        // }
+        
 
         const newPaymentData = {
             ...paymentData,
