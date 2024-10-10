@@ -282,3 +282,36 @@ export function numbersToWords(
   
     return texto;
   }
+
+
+  export function getGrossIncomeState({grossIncome}: {grossIncome: IGrossIncome}): 
+  {
+    status: string
+    badgeStatus: string
+  } {
+    let invoice = grossIncome?.grossIncomeInvoice
+
+    console.log({grossIncome, invoice})
+
+    if (grossIncome.grossIncomeInvoiceId && !invoice) {
+      return {
+        status: 'Cargando...',
+        badgeStatus: 'default',
+      }
+    }
+
+    let status = 'Pendiente'
+    let badgeStatus = 'error'
+
+    if (invoice?.paidAt) {
+        status = 'Pagado'
+        badgeStatus = 'warning'
+    }
+
+    if (invoice?.settlement) {
+        status = 'Liquidado'
+        badgeStatus = 'success'
+    }
+
+    return { status, badgeStatus }
+  }

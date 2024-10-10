@@ -29,6 +29,7 @@ import TaxCollectionBusinessGrossIncomesInvoice from 'pages/TaxCollectionBusines
 import EconomicActivityEdit from 'pages/EconomicActivityEdit';
 import EconomicActivityAll from 'pages/EconomicActivityAll';
 
+import GrossIncomes from 'pages/GrossIncomes'
 import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
@@ -98,6 +99,8 @@ function App(): JSX.Element {
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/new' element={<GrossIncomeInvoiceEdit />} />
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
+
+								<Route path='tax-collection/gross-incomes' element={<GrossIncomes/>} />
 
 
 								<Route path='users' element={<Users />} />
