@@ -232,7 +232,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     return (
         <Card title={
             <Flex align='center' justify='space-between' wrap>
-                <Typography.Title level={4}>Detalles del Calculo</Typography.Title>
+                <Typography.Title level={4}>Detalles de la Factura</Typography.Title>
                 <Flex gap={10} align='center' justify='end' wrap>                    
                     { canEdit && <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
                         disabled={isSettled}
@@ -460,6 +460,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 onDelete={handleDeletePayment}
                 onAdd={handleAddPayment}
 
+                paidAt={grossIncomeInvoice?.paidAt}
+
                 disabled={isSettled}
             />
 
@@ -548,8 +550,8 @@ function Settlement({settlement}: {settlement: ISettlement}) {
 export default GrossIncomeInvoiceDetails;
 
 function PaymentsAllocatedTable(
-    {paymentsAllocated, payments, onDelete, onAdd, disabled} : 
-    {paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean}
+    {paidAt, paymentsAllocated, payments, onDelete, onAdd, disabled} : 
+    {paidAt: Date, paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean}
 ) {
 
     // console.log({paymentsAllocated})
@@ -587,7 +589,7 @@ function PaymentsAllocatedTable(
 
     const columns = [
         { 
-            title: "Pago", 
+            title: "Referencia", 
             dataIndex: "reference", 
             key: "payment", 
             render: (text: any) => <Text strong>{text}</Text> 
@@ -597,6 +599,12 @@ function PaymentsAllocatedTable(
             dataIndex: "amount", 
             key: "amount", 
             render: (amount: number) => <Text strong>{formatBolivares(amount)}</Text> 
+        },
+        {
+            title: "Fecha",
+            dataIndex: "paymentDate",
+            key: "paymentDate",
+            render: (date: Date) => dayjs(date).format('DD/MM/YYYY')
         },
         {
             title: "Acciones",
@@ -621,6 +629,10 @@ function PaymentsAllocatedTable(
                     disabled={disabled}
                 >Agregar</Button>
             </Flex>
+            
+            { paidAt
+            ? (<Alert message={`Esta factura fue pagada el día ${dayjs(paidAt).format('DD/MM/YYYY')}`} type="success" showIcon />)
+            : (<Alert message="Esta factura no ha sido pagada" type="warning" showIcon />)}
             <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} />
 
             <PaymentAssociationModal
