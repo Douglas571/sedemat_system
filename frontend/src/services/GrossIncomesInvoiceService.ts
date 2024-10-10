@@ -1,6 +1,6 @@
 import dayjs from "dayjs"  
-import { ISettlementCreate } from "util/types";
-import { ISettlement } from "util/types";
+import { ISettlementCreate, ISettlement, IGrossIncomeInvoice, IGrossIncomeInvoiceCreate } from "../util/types";
+
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -106,12 +106,12 @@ class GrossIncomesInvoiceService {
     }
 
     async addPayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
-      const response = await fetch(`${this.paymentsUrl}/${paymentId}`, {
-        method: 'PUT',
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ grossIncomeInvoiceId }),
+        
       });
       if (!response.ok) {
         const error = await response.json();
@@ -120,12 +120,12 @@ class GrossIncomesInvoiceService {
     }
 
     async removePayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
-      const response = await fetch(`${this.paymentsUrl}/${paymentId}`, {
-        method: 'PUT',
+      const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ grossIncomeInvoiceId: null }),
+        
       });
       if (!response.ok) {
         const error = await response.json();
