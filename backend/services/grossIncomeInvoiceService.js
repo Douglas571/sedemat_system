@@ -258,8 +258,10 @@ class GrossIncomeInvoiceService {
         // if gross income is paid, don't allow any other property aside of paidAt
 
         // check if it has a settlement 
-        if (grossIncomeInvoice.paidAt) {
-            throw new Error('This invoice is already paid');
+        if (grossIncomeInvoice.paidAt || grossIncomeInvoice.settlement) {
+            let err = new Error('This invoice is already paid');
+            err.name = 'InvoiceAlreadyPaid';
+            throw err
         }
 
         // check if should add new gross incomes 

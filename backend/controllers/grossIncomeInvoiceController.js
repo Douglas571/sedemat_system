@@ -54,7 +54,10 @@ class GrossIncomeInvoiceController {
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error })
-            res.status(400).json({ error: error.message });
+            res.status(400).json({ error: {
+                message: error.message,
+                name: error.name
+            } });
         }
     }
 
