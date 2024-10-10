@@ -30,7 +30,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
         const filtered = fetchedGrossIncomeInvoices.filter(g => g.businessId === Number(businessId))
 
-        console.log({ filtered })
+        // console.log({ filtered })
         setGrossIncomeInvoices([...filtered])
     }
 
@@ -55,7 +55,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             const {economicActivityId} = business
             const economicActivity = await economicActivitiesService.findById(economicActivityId)
 
-            console.log({economicActivityId, economicActivity})
+            // console.log({economicActivityId, economicActivity})
         
             setEconomicActivity(economicActivity)
         }
@@ -76,7 +76,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     async function loadGrossIncomes() {
         try {
             const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
-            console.log('fetchedGrossIncomes', fetchedGrossIncomes)
+            // console.log('fetchedGrossIncomes', fetchedGrossIncomes)
             setGrossIncomes(fetchedGrossIncomes);
         } catch (error) {
             console.error('Error loading gross incomes:', error);
@@ -218,7 +218,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         onDelete(grossIncomeId);
     };
 
-    console.log('grossIncomes', grossIncomes)
+    // console.log('grossIncomes', grossIncomes)
 
     const columns = [
         {
@@ -268,24 +268,26 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (invoiceId: any, record: any) => {
                 const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
 
-                
+                let text = 'Pendiente'
+                let badgeStatus = 'error'
 
-                console.log({invoice, invoiceId, record})
-
-                if (!invoice) {
-                    return <Badge status='warning' text='Pendiente' />
+                if (invoice?.paidAt) {
+                    text = 'Pagado'
+                    badgeStatus = 'warning'
                 }
+
+                if (invoice?.settlement) {
+                    text = 'Liquidado'
+                    badgeStatus = 'success'
+                }
+
+                // console.log({record, text, badgeStatus})
 
                 return (
 
                     <Badge
-                        status={invoice?.settlement ? 'success' : 'warning'}
-                        // if it don't have a grossIncomeInvoiceId == "Sin Calculo"
-                        // if grossIncomeInvoice.isPaid == "Pago"
-                        // else "Pendiente"
-                        text={invoice?.settlement
-                            ? 'Pagado'
-                            : "Pendiente"}
+                        status={badgeStatus}
+                        text={text}
                     />
                 )
             },
@@ -530,13 +532,28 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             key: 'paidAt',
 
             render: (paidAt: string, invoice: IGrossIncomeInvoice) => {
-                console.log({invoice})
+                // console.log({invoice})
+
+                let text = 'Pendiente'
+                let badgeStatus = 'error'
+
+                if (invoice?.paidAt) {
+                    text = 'Pagado'
+                    badgeStatus = 'warning'
+                }
+
+                if (invoice?.settlement) {
+                    text = 'Liquidado'
+                    badgeStatus = 'success'
+                }
+
+                // console.log({text, badgeStatus})
+
                 return (
 
-                
                     <Badge
-                        status={invoice?.settlement ? 'success' : 'warning'}
-                        text={invoice?.settlement ? 'Pagado' : 'Pendiente'}
+                        status={badgeStatus}
+                        text={text}
                     />
                 )
             },
