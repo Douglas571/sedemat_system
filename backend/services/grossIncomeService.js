@@ -61,6 +61,16 @@ class GrossIncomeService {
                 {
                     model: Alicuota,
                     as: 'alicuota'
+                },
+                {
+                    model: GrossIncomeInvoice,
+                    as: 'grossIncomeInvoice',
+                    include: [
+                        {
+                            model: Settlement,
+                            as: 'settlement'
+                        }
+                    ]
                 }
             ]
         });
