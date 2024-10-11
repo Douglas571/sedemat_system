@@ -50,8 +50,23 @@ const LoginForm = () => {
 
     };
 
+
+    const checkIfExistsAdmin = async () => {
+        try {
+            let existsAdmin = await authService.existsAdmin()
+            console.log({existsAdmin})
+            if (!existsAdmin) {
+                navigate('/singup')
+            }
+        } catch (error) {
+            console.log({error})
+            messageApi.error(error.message)
+        }
+    }
+
     useEffect(() => {
         // check if admin exists 
+        checkIfExistsAdmin()
     }, [])
 
     useEffect(() => {

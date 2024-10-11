@@ -52,7 +52,7 @@ const authService = {
 
     // POST /v1/auth/singup
     singup: async (userData: IUserCredentials): Promise<IAuthResponse | undefined> => {
-        return await fetch(`${HOST}/v1/auth/register`, {
+        return await fetch(`${HOST}/v1/auth/singup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,6 +60,36 @@ const authService = {
             body: JSON.stringify(userData),
         }).then(res => res.json());
     },
+
+    singupAdmin: async (userData: IUserCredentials): Promise<IAuthResponse | undefined> => {
+        try {
+            const res = await fetch(`${HOST}/v1/auth/singup/admin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            })
+
+            if (!res.ok) {
+                let {error} = await res.json()
+
+                console.log({error})
+
+                if (error.name === "UsernameAlreadyTaken") {
+                    throw new Error("Este nombre de usuario ya está registrado")
+                } else if (error.name === "EmailAlreadyTaken") {
+                    throw new Error("Este correo ya está registrado")
+                }
+                throw new Error(error.message)
+            }
+
+            return await res.json()
+        } catch (error) {
+            throw error
+        }
+    },
+
 
     // POST /v1/auth/logout
     logout: async (token: string): Promise<void> => {
@@ -92,6 +122,18 @@ const authService = {
         }
 
         return data 
+    },
+    
+    existsAdmin: async (): Promise<boolean> => {
+        let res = await fetch(`${HOST}/v1/auth/exists-admin`)
+
+        let data = await res.json()
+
+        if (!res.ok) {
+            throw new Error(data.error.message)
+        }
+
+        return data.existsAdmin
     }
 };
 

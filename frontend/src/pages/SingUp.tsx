@@ -1,9 +1,44 @@
 import React from 'react';
-import { Form, Input, Button, Flex, Card, Typography } from 'antd';
+import { Form, Input, Button, Flex, Card, Typography, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+import useAuthentication from '../hooks/useAuthentication';
+
+import authService from '../services/authService';
 
 const SignUpForm = () => {
-    const onFinish = (values) => {
+    const { userAuth, setUserAuth } = useAuthentication()
+    const navigate = useNavigate()
+
+    const onFinish = async (values) => {
         console.log('Received values:', values);
+
+        // call function to singup admin
+        try {
+            let response = await authService.singupAdmin(values)
+
+            if (!response) {
+                throw new Error('Problemas del servidor, intenta de nuevo')
+            }
+
+            let {user, token} = response
+            console.log({user, token})
+
+            // authService.singupAdmin(values)
+
+
+            // else, setup the auth token and user 
+                // navigate to dashboard 
+            setUserAuth({token, user})
+            navigate('/')
+
+
+        } catch (error) {
+            message.error(error.message)
+
+        }
+        
+        // if error, show error with message
     };
 
     return (
@@ -31,8 +66,8 @@ const SignUpForm = () => {
                 >
                     <Form.Item
                         label="Nombre de Usuario"
-                        name="nickname"
-                        rules={[{ required: true, message: 'Por favor ingresa tu nickname!' }]}
+                        name="username"
+                        rules={[{ required: true, message: 'Por favor ingresa tu nombre de usuario!' }]}
                     >
                         <Input />
                     </Form.Item>

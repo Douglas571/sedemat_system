@@ -56,7 +56,7 @@ const userService = {
     },
 
     create: async (newUser: IUser): Promise<IUser> => {
-        let res = await fetch(`${HOST}/v1/users`, {
+        let res = await fetch(`${HOST}/v1/auth/singup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -100,13 +100,11 @@ const userService = {
                 method: 'DELETE',
             });
     
-            const data = await res.json();
-    
-            if (res.status !== 200) {
+            if (!res.ok) {
+                let data = await res.json();
                 throw new Error(data.error.message || 'Failed to delete user');
             }
     
-            return data;
         } catch (error) {
             console.log(error);
             throw error;  // Rethrow the error so the caller can handle it
