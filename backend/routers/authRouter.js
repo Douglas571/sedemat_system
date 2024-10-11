@@ -8,6 +8,8 @@ const router = express.Router();
 // Registration route
 router.post('/singup', AuthController.register.bind(AuthController));
 
+router.post('/singup/admin', AuthController.registerAdmin.bind(AuthController));
+
 // Login route
 router.post('/login', AuthController.login.bind(AuthController));
 

@@ -1,12 +1,31 @@
 const authService = require('../services/authService');
 
+const parseError = require('../utils/userErrorParser')
+
 class AuthController {
     async register(req, res) {
         try {
+            console.log(req.body)
             const user = await authService.register(req.body);
             res.status(201).json(user);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            console.log({error})
+
+            let errorResponse = parseError(error)
+            res.status(400).json({ error: errorResponse});
+        }
+    }
+
+    async registerAdmin(req, res) {
+        try {
+            console.log(req.body)
+            const user = await authService.registerAdmin(req.body);
+            res.status(201).json(user);
+        } catch (error) {
+            console.log({error})
+
+            let errorResponse = parseError(error)
+            res.status(400).json({ error: errorResponse});
         }
     }
 
@@ -37,9 +56,9 @@ class AuthController {
     }
 
     async existsAdministrator(req, res) {
-        const existsAdministrator = await authService.existsAdministrator()
+        const existsAdmin = await authService.existsAdministrator()
         
-        res.status(200).json({ existsAdministrator })
+        res.status(200).json({ existsAdmin })
     }
 
     async getRoles(req, res) {

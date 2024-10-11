@@ -3,14 +3,31 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const {User, Role, Person} = require('../database/models'); // Assuming you have a User model
 const jwt = require('jsonwebtoken');
 
+const bcrypt = require('bcryptjs');
 
 // const ROLES = {
 //     administrator: "Administrador",
 // }
 
+const ROLES = {
+    administrator: 1,
+    director: 2,
+    asesorJuridico: 3,
+    recaudador: 4,
+    coordinador: 5,
+    fiscal: 6,
+    contribuyente: 7,
+    liquidador: 8
+}
+
 // config variables
 let expiresIn = '1d';
 
+let BCRYPT_SALT = process.env.BCRYPT_SALT
+
+if (!BCRYPT_SALT) {
+    throw new Error('Missing BCRYPT_SALT environment variable')
+}
 
 class AuthService {
     constructor() {
@@ -39,7 +56,9 @@ class AuthService {
                 ]
             })
 
-            let isThereAndAdmin = users.some( u => u.role.name !== ROLES.administrator)
+            console.log({users: users.map( u => u.toJSON())})
+
+            let isThereAndAdmin = users.some( u => u.role.id !== ROLES.administrator)
 
             return isThereAndAdmin
         } catch (error) {
@@ -71,12 +90,44 @@ class AuthService {
         }));
     }
 
-    register(newUserData) {
+    async register(newUserData) {
         // todo: validate user data
         // todo: encrypt passwords 
 
+        let hashedPassword = bcrypt.hashSync(newUserData.password, BCRYPT_SALT)
+
+        //console.log("hashed password: ", hashedPassword)
+
+        newUserData.password = hashedPassword
+
         const newUser = User.create(newUserData);
+
         return newUser
+    }
+
+    async registerAdmin(newUserData) {
+        // todo: validate user data
+        console.log({newUserData})
+        newUserData.roleId = 1 // administration role id
+
+        let hashedPassword = bcrypt.hashSync(newUserData.password, BCRYPT_SALT)
+        
+
+        //console.log("hashed password: ", hashedPassword)
+
+        newUserData.password = hashedPassword
+
+        const newAdmin = await User.create(newUserData);
+
+        const token = jwt.sign({ id: newAdmin.id }, this.secret, { expiresIn });
+        let role = await newAdmin.getRole()
+
+        return { user: {
+            ...newAdmin.toJSON(),
+            role: role.toJSON(),
+            }, 
+            token 
+        }
     }
 
     async login(userData) {
@@ -90,7 +141,7 @@ class AuthService {
                 error.name = 'UserNotRegistered'
                 throw error;
             }
-            if (user.password !== password) {
+            if (user.password !== bcrypt.hashSync(password, BCRYPT_SALT)) {
                 let error = new Error('Incorrect password');
                 error.name = 'IncorrectPassword'
                 throw error

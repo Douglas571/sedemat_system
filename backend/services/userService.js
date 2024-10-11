@@ -7,7 +7,7 @@ class UserService {
     }
 
     async createUser(data) {
-        let newUser = this.User.create(data);
+        let newUser = await User.create(data);
         return newUser
     }
 
