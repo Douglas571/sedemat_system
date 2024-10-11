@@ -7,7 +7,7 @@ import { formatBolivares } from '../util/currency';
 import dayjs from 'dayjs';
 
 import * as util from '../util';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface IGrossIncomeWithStatus extends IGrossIncome {
   status: string, 
@@ -82,6 +82,22 @@ const GrossIncomeTable = () => {
 
       onFilter: (value: string, record: IGrossIncome) => {
         return dayjs(record.period).format('MMMM') === value
+      }
+    },
+    {
+      title: "Empresa",
+      dataIndex: "business",
+      key: "business",
+      render: (text: any, grossIncome: IGrossIncome) => {
+        return <Link to={`/tax-collection/${grossIncome?.business.id}`}>{grossIncome?.business.businessName}</Link>;
+      }
+    },
+    {
+      title: 'Sucursal',
+      dataIndex: 'branchOffice',
+      key: 'branchOffice',
+      render: (text: any, grossIncome: IGrossIncome) => {
+        return grossIncome?.branchOffice?.nickname || '';
       }
     },
     {
