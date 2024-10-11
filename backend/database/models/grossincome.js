@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'alicuotaId',
         as: 'alicuota'
       })
+
+      GrossIncome.belongsTo(models.Business, {
+        foreignKey: 'businessId',
+        as: 'business'
+      })
     }
     
   }

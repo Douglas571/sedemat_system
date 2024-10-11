@@ -31,6 +31,7 @@ class GrossIncomeController {
       const grossIncomes = await grossIncomeService.getAllGrossIncomes();
       res.status(200).json(grossIncomes);
     } catch (error) {
+      console.log({ error });
       res.status(500).json({ error: error.message });
     }
   }
