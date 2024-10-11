@@ -34,7 +34,7 @@ const paymentsRouter = require("./controllers/payments")
 const businessesRouter = require("./controllers/businesses")
 const branchOfficesRouter = require("./controllers/branchOffices")
 
-const economicActivitiesRouter = require("./routers/economicActivitiesRouter")
+const economicActivitiesRouter = require("./routers/EconomicActivitiesRouter")
 const alicuotaHistoryRouter = require("./routers/alicuotaHistoryRouter")
 
 const economicLicenseRouter = require("./routers/economicLicenseRouter")
