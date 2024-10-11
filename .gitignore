@@ -4,3 +4,5 @@
 *.bat
 
 /TODO.md
+
+backend/.env
