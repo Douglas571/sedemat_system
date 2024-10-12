@@ -23,3 +23,12 @@
 [] when adding payments
   [] should show only the payments of the business and the people associated
   
+
+
+## User managment 
+
+[] when there is no admin, the program should allow to singup an admin 
+
+[] only admins can create, edit and delete users 
+
+[] 
