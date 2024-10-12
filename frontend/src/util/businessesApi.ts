@@ -4,6 +4,37 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
+export async function deleteBusiness(businessId: number, token: string) {
+    
+    if (!token) {
+        throw new Error('No token found');
+    }
+
+    try {
+        const response = await fetch(`${HOST}/v1/businesses/${businessId}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            const {error} = await response.json();
+            console.log({error})
+            if (error.name === 'UserNotAuthorized') {
+                throw new Error("Solo el director puede eliminar empresas")
+            }
+
+            throw new Error('Failed to delete business');
+        }
+
+        return response;
+    } catch (error) {
+        console.error('Error deleting business:', error);
+        throw error;
+    }
+}
+
 export async function uploadCertificateOfIncorporation(coi: CertificateOfIncorporation) {
     const formData = new FormData();
     formData.append('businessId', coi.businessId.toString()); // Add other form fields as needed

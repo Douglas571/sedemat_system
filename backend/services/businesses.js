@@ -1,6 +1,8 @@
 // const EconomicActivity = require('../models/economicActivity')
 const {Person, Business, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
 
+const ROLES = require('../utils/auth/roles')
+
 const logger = require('../utils/logger')
 
 const branchOfficeServices = require('./branchOffices');
@@ -42,12 +44,12 @@ exports.getBusinessById = async (id) => {
 };
 
 // Register a new business
-exports.createBusiness = async (businessData) => {
+exports.createBusiness = async (businessData, user) => {
     const newBusiness = await Business.create(businessData);
     return newBusiness;
 };
 // Update a business
-exports.updateBusiness = async (id, businessData) => {
+exports.updateBusiness = async (id, businessData, user) => {
     try {
         const business = await Business.findByPk(id);
         logger.info({message: "businessService.updateBusiness", businessId: id, businessData})
@@ -78,8 +80,15 @@ exports.updateBusiness = async (id, businessData) => {
 };
 
 // Delete a business
-exports.deleteBusiness = async (id) => {
+exports.deleteBusiness = async (id, user) => {
     const business = await Business.findByPk(id);
+
+    if (!user || user.roleId !== ROLES.COLLECTOR) {
+        let error = new Error('User not authorized');
+        error.name = 'UserNotAuthorized';
+        throw error;
+    }
+
     if (!business) {
         throw new Error('Business not found');
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography } from 'antd'
+import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message } from 'antd'
 import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
 
 
@@ -8,6 +8,8 @@ import _ from 'lodash'
 import { b } from 'vitest/dist/suite-ynYMzeLu';
 
 import * as api from '../util/api'
+import * as businessService from '../util/businessesApi';
+import useAuthentication from '../hooks/useAuthentication';
 
 
 
@@ -25,7 +27,11 @@ type Business = {
 function BusinessView(): JSX.Element {
 
     const [business, setBusiness] = React.useState([])
+
+    const { userAuth } = useAuthentication()
+
     const navigate = useNavigate();
+
 
     function onNewTaxPayer() {
         navigate('/business/new')
@@ -40,20 +46,12 @@ function BusinessView(): JSX.Element {
     }
 
     async function deleteBusiness(id: number): Promise<void> {
-        const url = `${HOST}/v1/businesses/${id}`;
+        
         try {
-            const response = await fetch(url, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to delete business: ${response.statusText}`);
-            }
-
-            console.log(`Business with ID ${id} deleted successfully.`);
+            await businessService.deleteBusiness(id, userAuth.token);
         } catch (error) {
             console.error('Error deleting business:', error);
-            throw error;
+            message.error(error.message);
         }
     }
 

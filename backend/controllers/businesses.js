@@ -8,6 +8,8 @@ const fse = require('fs-extra');
 const multer = require('multer');
 const crypto = require('crypto');
 
+const passport = require('passport');
+
 const { z } = require("zod")
 
 const bausinessScheme = z.object({
@@ -62,7 +64,7 @@ router.post('/', async (req, res) => {
 
         // create a dto so i can use camelCase for the api, and snake_case for the backend
         logger.info({message: "Creating new business", body: req.body})
-        const newBusiness = await businessService.createBusiness(req.body);
+        const newBusiness = await businessService.createBusiness(req.body, req.user);
         res.status(201).json(newBusiness);
     } catch (error) {
         let msg = "error random"
@@ -114,7 +116,7 @@ router.put('/:id', async (req, res) => {
         // verify the request body is well formed
         logger.info({message: "Updating business", body: req.body, businessId: req.params.id})
 
-        const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body);
+        const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body, user);
         res.json(updatedBusiness);
 
     } catch (error) {
@@ -132,14 +134,15 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a business
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
+        
         logger.info({message: "Deleting business", businessId: req.params.id})
-        await businessService.deleteBusiness(req.params.id);
+        await businessService.deleteBusiness(req.params.id, req.user);
         res.status(200).send();
     } catch (error) {
         console.log({error})
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error });
     }
 });
 
