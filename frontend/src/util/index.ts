@@ -304,7 +304,7 @@ export function numbersToWords(
     let badgeStatus = 'error'
 
     if (invoice?.paidAt) {
-        status = 'Pagado'
+        status = 'Por Liquidar'
         badgeStatus = 'warning'
     }
 

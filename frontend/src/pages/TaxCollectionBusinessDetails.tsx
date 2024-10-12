@@ -7,6 +7,8 @@ import { Business, EconomicActivity, IGrossIncome, IGrossIncomeInvoice } from '.
 import { formatBolivares, CurrencyHandler, percentHandler } from '../util/currency';
 import economicActivitiesService from '../services/EconomicActivitiesService';
 
+import * as util from '../util';
+
 
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message } from 'antd';
@@ -269,26 +271,15 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (invoiceId: any, record: any) => {
                 const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
 
-                let text = 'Pendiente'
-                let badgeStatus = 'error'
-
-                if (invoice?.paidAt) {
-                    text = 'Pagado'
-                    badgeStatus = 'warning'
-                }
-
-                if (invoice?.settlement) {
-                    text = 'Liquidado'
-                    badgeStatus = 'success'
-                }
-
-                // console.log({record, text, badgeStatus})
-
+                let { status, badgeStatus } = util.getGrossIncomeState({grossIncome: {
+                    ...record,
+                    grossIncomeInvoice: invoice
+                }})
                 return (
 
                     <Badge
                         status={badgeStatus}
-                        text={text}
+                        text={status}
                     />
                 )
             },
@@ -539,7 +530,7 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                 let badgeStatus = 'error'
 
                 if (invoice?.paidAt) {
-                    text = 'Pagado'
+                    text = 'Por Liquidar'
                     badgeStatus = 'warning'
                 }
 
