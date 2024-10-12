@@ -8,6 +8,7 @@ import { IRole, IUser, Person } from '../util/types';
 import userService from '../services/UserService';
 import peopleService from '../util/people'
 import authService from 'services/authService';
+import useAuthentication from 'hooks/useAuthentication';
 
 
 function UserEditForm() {
@@ -20,6 +21,7 @@ function UserEditForm() {
     const [contacts, setContacts] = useState<Person[]>()
     const [roles, setRoles] = useState<IRole[]>()
 
+    const { userAuth } = useAuthentication()
     const [changePassword, setChangePassword] = useState(false);
 
     const isEditing = userId !== undefined    
@@ -64,7 +66,7 @@ function UserEditForm() {
 
     const updateUser = async (user: IUser) => {
         try {
-            const newUser = await userService.update(Number(userId), user)
+            const newUser = await userService.update(Number(userId), user, userAuth?.token)
 
             console.log({newUser})
 
@@ -79,7 +81,7 @@ function UserEditForm() {
 
     const createUser = async (user: IUser) => {
         try {
-            const newUser = await userService.create(user)
+            const newUser = await userService.create(user, userAuth?.token)
             console.log({newUser})
 
             message.success("Usuario creado exitosamente")

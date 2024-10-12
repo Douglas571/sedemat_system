@@ -1,4 +1,4 @@
-import { Typography, Flex, Table, Card, Button, Popconfirm} from 'antd';
+import { Typography, Flex, Table, Card, Button, Popconfirm, message} from 'antd';
 import { PlusOutlined } from '@ant-design/icons'; // Updated import for PlusOutlined
 
 import React, { useEffect, useState } from 'react';
@@ -7,15 +7,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IUser, Person } from '../util/types';
 import userService from 'services/UserService';
 
+import useAuthentication from '../hooks/useAuthentication';
+
 
 const Users: React.FC = () => {
     const navigate = useNavigate()
 
     const [users, setUsers] = useState<IUser[]>()
+    const { userAuth } = useAuthentication()
 
     const handleDelete = async (id: number) => {
         // call api to delete user
-        let deleted = await userService.delete(id)
+        try {
+            await userService.delete(id, userAuth?.token)
+        } catch (error) {
+            console.error({error})
+            message.error(error.message)
+        }
 
         loadData()
     }

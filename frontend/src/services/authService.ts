@@ -51,10 +51,11 @@ const authService = {
     },
 
     // POST /v1/auth/singup
-    singup: async (userData: IUserCredentials): Promise<IAuthResponse | undefined> => {
+    singup: async (userData: IUserCredentials, token: string): Promise<IAuthResponse | undefined> => {
         return await fetch(`${HOST}/v1/auth/singup`, {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(userData),

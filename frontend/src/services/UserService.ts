@@ -55,10 +55,11 @@ const userService = {
         return await fetch(`${HOST}/v1/users/${id}`).then(res => res.json());
     },
 
-    create: async (newUser: IUser): Promise<IUser> => {
-        let res = await fetch(`${HOST}/v1/auth/singup`, {
+    create: async (newUser: IUser, token?: string): Promise<IUser> => {
+        let res = await fetch(`${HOST}/v1/users`, {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(newUser),
@@ -75,10 +76,11 @@ const userService = {
         return data
     },
 
-    update: async (id: number, newUser: IUser) => {
+    update: async (id: number, newUser: IUser, token?: string) => {
         let res = await fetch(`${HOST}/v1/users/${id}`, {
             method: 'PUT',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(newUser),
@@ -94,10 +96,13 @@ const userService = {
 
         return data
     },
-    delete: async (id: number): Promise<any> => {
+    delete: async (id: number, token?: string): Promise<any> => {
         try {
             const res = await fetch(`${HOST}/v1/users/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
             });
     
             if (!res.ok) {
