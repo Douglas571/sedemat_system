@@ -94,9 +94,22 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         currency exchange rate
     */
 
+    async function loadData() {
+        if (businessId) {
+            await loadBusiness();
+            await loadBranchOffices();
+        }
+
+        if (grossIncomeId) {
+            await loadGrossIncome();
+        }
+    }
+
     useEffect(() => {
         loadLastCurrencyExchangeRate()
         loadLastCurrencyExchangeRateHistory()
+
+        loadData()
     }, []);
 
     useEffect(() => {
@@ -108,18 +121,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         }
     }, [lastCurrencyExchangeRate])
 
-    useEffect(() => {
-            
-        if (businessId) {  
-            loadBusiness();
-            loadBranchOffices();
-        }
-
-        if (grossIncomeId) {
-            loadGrossIncome();
-        }
-
-    }, [businessId, grossIncomeId]);
+    
 
     // load economic activity with current alicuota
     useEffect(() => {
@@ -128,30 +130,31 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
     useEffect(() => {
         // update default values for branch office select 
-
-        if (!grossIncomeId && branchOffices?.length > 0) {
+        if (!isEditing && branchOffices?.length > 0) {
             const firstOffice = branchOffices[0];
     
             if (firstOffice) {
                 console.log('firstOffice', firstOffice)
                 form.setFieldsValue({
-                    branchOffice: branchOffices[0].id
+                    branchOffice: branchOffices[0].id,
+                    chargeWasteCollection: branchOffices[0]?.chargeWasteCollection
                 })
             }
         }
-
         
     }, [branchOffices]);
 
     // update the value from chargeWasteCollection
     useEffect(() => {
         // console.log('branchOfficeId in useEffect', branchOfficeId)
-        const selectedBranchOffice = branchOffices.find(office => office.id === branchOfficeId)
-        // console.log('selectedBranchOffice', selectedBranchOffice)
+        if (!isEditing && branchOfficeId) {
+            const selectedBranchOffice = branchOffices.find(office => office.id === branchOfficeId)
+            // console.log('selectedBranchOffice', selectedBranchOffice)
 
-        form.setFieldsValue({
-            chargeWasteCollection: selectedBranchOffice?.chargeWasteCollection
-        })
+            form.setFieldsValue({
+                chargeWasteCollection: selectedBranchOffice?.chargeWasteCollection
+            })
+        }
     }, [branchOfficeId])
 
     // Update form with fetched gross income data
@@ -167,8 +170,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 currencyExchangeRatesId: grossIncome.currencyExchangeRatesId,
 
                 alicuotaTaxPercent: percentHandler(grossIncome.alicuotaTaxPercent).multiply(100).value,
-                
-            });
+            })
 
             const imageUrl = completeUrl(grossIncome.declarationImage)
             
@@ -193,7 +195,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 })
                 .catch(error => {
                     console.error('Error fetching image:', error);
-                });
+                })
 
             console.log({grossIncome})
         }
