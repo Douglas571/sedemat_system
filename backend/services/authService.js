@@ -1,6 +1,7 @@
 const passport = require('passport');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const {User, Role, Person} = require('../database/models'); // Assuming you have a User model
+const userService = require('./userService');
 const jwt = require('jsonwebtoken');
 
 const bcrypt = require('bcryptjs');
@@ -9,20 +10,13 @@ const bcrypt = require('bcryptjs');
 //     administrator: "Administrador",
 // }
 
-const ROLES = {
-    administrator: 1,
-    director: 2,
-    asesorJuridico: 3,
-    recaudador: 4,
-    coordinador: 5,
-    fiscal: 6,
-    contribuyente: 7,
-    liquidador: 8
-}
+const ROLES = require('../utils/auth/roles')
 
 // config variables
 let expiresIn = '1d';
 
+
+let JWT_SECRET = process.env.JWT_SECRET || 'top_secret'
 let BCRYPT_SALT = process.env.BCRYPT_SALT
 
 if (!BCRYPT_SALT) {
@@ -31,18 +25,12 @@ if (!BCRYPT_SALT) {
 
 class AuthService {
     constructor() {
-        this.secret = 'your_jwt_secret'; // Use a secure secret
+        this.secret = JWT_SECRET; // Use a secure secret
         this.initPassport();
-
-        Role.findAll().then(roles => {
-            this.ROLES = roles
-        })
-
-        console.log({roles: this.ROLES})
     }
 
     async getRoles() {
-        return this.ROLES
+        return await Role.findAll()
     }
 
     async existsAdministrator() {
@@ -58,7 +46,9 @@ class AuthService {
 
             console.log({users: users.map( u => u.toJSON())})
 
-            let isThereAndAdmin = users.some( u => u.role.id !== ROLES.administrator)
+            let isThereAndAdmin = users.some( u => u.role.id === ROLES.ADMIN)
+        
+            console.log({isThereAndAdmin})
 
             return isThereAndAdmin
         } catch (error) {
@@ -90,7 +80,13 @@ class AuthService {
         }));
     }
 
-    async register(newUserData) {
+    // Deprecated function
+    async register(newUserData, user) {
+        if (!user || user.roleId !== ROLES.ADMIN) {
+            let error = new Error('User not authorized')
+            error.name = 'UserNotAuthorized'
+            throw error
+        }
         // todo: validate user data
         // todo: encrypt passwords 
 
@@ -110,22 +106,12 @@ class AuthService {
         console.log({newUserData})
         newUserData.roleId = 1 // administration role id
 
-        let hashedPassword = bcrypt.hashSync(newUserData.password, BCRYPT_SALT)
-        
-
-        //console.log("hashed password: ", hashedPassword)
-
-        newUserData.password = hashedPassword
-
-        const newAdmin = await User.create(newUserData);
+        const newAdmin = await userService.createUser(newUserData)
 
         const token = jwt.sign({ id: newAdmin.id }, this.secret, { expiresIn });
-        let role = await newAdmin.getRole()
 
-        return { user: {
-            ...newAdmin.toJSON(),
-            role: role.toJSON(),
-            }, 
+        return {
+            user: newAdmin,
             token 
         }
     }
@@ -164,6 +150,8 @@ class AuthService {
             throw error
         }
     }
+
+    // TODO: Implement a function to update password 
 }
 
 module.exports = new AuthService();

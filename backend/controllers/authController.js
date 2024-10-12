@@ -6,7 +6,7 @@ class AuthController {
     async register(req, res) {
         try {
             console.log(req.body)
-            const user = await authService.register(req.body);
+            const user = await authService.register(req.body, req.user);
             res.status(201).json(user);
         } catch (error) {
             console.log({error})

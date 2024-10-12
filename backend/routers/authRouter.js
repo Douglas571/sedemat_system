@@ -6,7 +6,7 @@ const AuthController = require('../controllers/authController'); // Adjust the p
 const router = express.Router();
 
 // Registration route
-router.post('/singup', AuthController.register.bind(AuthController));
+// router.post('/singup', passport.authenticate('jwt', { session: false }), AuthController.register.bind(AuthController));
 
 router.post('/singup/admin', AuthController.registerAdmin.bind(AuthController));
 

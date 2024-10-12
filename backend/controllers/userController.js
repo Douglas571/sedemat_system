@@ -10,7 +10,7 @@ class UserController {
 
     async createUser(req, res) {
         try {
-            const user = await this.userService.createUser(req.body);
+            const user = await this.userService.createUser(req.body, req.user);
             return res.status(201).json(user);
         } catch (error) {
             let errorResponse = parseError(error)
@@ -39,7 +39,7 @@ class UserController {
 
     async updateUser(req, res) {
         try {
-            const user = await this.userService.updateUser(req.params.id, req.body);
+            const user = await this.userService.updateUser(req.params.id, req.body, req.user);
             return res.status(200).json(user);
         } catch (error) {
             let errorResponse = parseError(error)
@@ -49,11 +49,12 @@ class UserController {
 
     async deleteUser(req, res) {
         try {
-            let deletedUser = await this.userService.deleteUser(req.params.id);
+            let deletedUser = await this.userService.deleteUser(req.params.id, req.user);
 
             console.log({deletedUser})
             return res.status(204).send(deletedUser.toJSON());
         } catch (error) {
+            console.log({error})
             return res.status(400).json({ error: error.message });
         }
     }
