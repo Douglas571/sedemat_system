@@ -39,9 +39,23 @@ const bankAccountService = {
                 },
                 body: JSON.stringify(data),
             });
+
+            if (!response.ok) {
+                const {error} = await response.json();
+
+                
+                if (error.name === "UserNotAuthorized") {
+                    throw new Error("Usuario no autorizado");
+
+                }
+
+                throw new Error(`Failed to update bank account: ${error.message}`);
+            }
+
             return await response.json();
+
+
         } catch (error) {
-            console.error('Error creating bank account:', error);
             throw error;
         }
     },
@@ -66,13 +80,18 @@ const bankAccountService = {
             });
 
             if (!response.ok) {
-                const error = await response.json();
+                const {error} = await response.json();
+                
+                if (error.name === "UserNotAuthorized") {
+                    throw new Error("Usuario no autorizado");
+
+                }
+
                 throw new Error(`Failed to update bank account: ${error.message}`);
             }
 
             return await response.json();
         } catch (error) {
-            console.error('Error updating bank account:', error);
             throw error;
         }
     },
@@ -95,13 +114,17 @@ const bankAccountService = {
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(`Failed to delete bank account: ${error.message}`);
+                const {error} = await response.json();
+                if (error.name === "UserNotAuthorized") {
+                    throw new Error("Usuario no autorizado");
+
+                }
+
+                throw new Error(`Failed to update bank account: ${error.message}`);
             }
 
             
         } catch (error) {
-            console.error('Error deleting bank account:', error);
             throw error;
         }
     }

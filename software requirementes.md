@@ -22,8 +22,6 @@
 
 [] when adding payments
   [] should show only the payments of the business and the people associated
-  
-
 
 ## User managment 
 
@@ -32,3 +30,7 @@
 [] only admins can create, edit and delete users 
 
 [] 
+
+
+## Bank Accounts 
+[] only directors should be able to create, update and delete bank accounts

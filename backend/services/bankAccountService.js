@@ -1,4 +1,5 @@
 const { Bank } = require('../database/models');
+const ROLES = require('../utils/auth/roles');
 
 const BankAccount = Bank
 
@@ -14,12 +15,26 @@ class BankAccountService {
     }
 
     // Create a new BankAccount
-    async createBankAccount(newBankAccount) {
+    async createBankAccount(newBankAccount, user) {
+
+        if (!user || user.roleId !== ROLES.DIRECTOR) {
+            let error = new Error('User not authorized');
+            error.name = 'UserNotAuthorized';
+            throw error;
+        }
+
         return await BankAccount.create(newBankAccount);
     }
 
     // Update an existing BankAccount by ID
-    async updateBankAccount(id, data) {
+    async updateBankAccount(id, data, user) {
+
+        if (!user || user.roleId !== ROLES.DIRECTOR) {
+            let error = new Error('User not authorized');
+            error.name = 'UserNotAuthorized';
+            throw error;
+        }
+
         const bankAccount = await BankAccount.findByPk(id);
         if (!bankAccount) {
             throw new Error('Bank Account not found');
@@ -28,7 +43,14 @@ class BankAccountService {
     }
 
     // Delete a BankAccount by ID
-    async deleteBankAccount(id) {
+    async deleteBankAccount(id, user) {
+
+        if (!user || user.roleId !== ROLES.DIRECTOR) {
+            let error = new Error('User not authorized');
+            error.name = 'UserNotAuthorized';
+            throw error;
+        }
+
         const bankAccount = await BankAccount.findByPk(id);
         if (!bankAccount) {
             throw new Error('Bank Account not found');

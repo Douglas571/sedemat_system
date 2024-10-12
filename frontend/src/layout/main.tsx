@@ -112,6 +112,11 @@ const App: React.FC = () => {
 					icon: '',
 					label: 'Tasas de Cambio'
 				},
+				{
+					key: '/bank-accounts',
+					icon: '',
+					label: 'Cuentas de Banco'
+				}
 			]
 		}
 	]
@@ -119,12 +124,6 @@ const App: React.FC = () => {
 	if (userAuth.user?.role.name === 'Administrador') {
 		const configItem = items.find(i => i?.key === '/config')
 		if (configItem) {
-
-			configItem.children?.push({
-				key: '/bank-accounts',
-				icon: '',
-				label: 'Cuentas de Banco'
-			})
 			
 			configItem.children?.push({
 				key: '/users',

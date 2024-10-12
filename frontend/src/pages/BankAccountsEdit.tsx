@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Input, Button, Card, Typography } from 'antd'
+import { Form, Input, Button, Card, Typography, message } from 'antd'
 import { useParams, useNavigate } from 'react-router-dom'
 import bankAccountService from '../services/bankAccountService'
 import useAuthentication from '../hooks/useAuthentication'
@@ -64,6 +64,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = () => {
             navigate('/bank-accounts')
         } catch (error) {
             console.error(error)
+            message.error(error.message)
         }
     }
 

@@ -7,7 +7,8 @@ class BankAccountController {
       const bankAccounts = await bankAccountService.getAllBankAccounts();
       res.status(200).json(bankAccounts);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.log({error})
+      res.status(500).json({ error: error });
     }
   }
 
@@ -20,38 +21,41 @@ class BankAccountController {
       }
       res.status(200).json(bankAccount);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.log({error})
+      res.status(500).json({ error: error });
     }
   }
 
   // POST /bank-accounts
   async create(req, res) {
     try {
-      const newBankAccount = await bankAccountService.createBankAccount(req.body);
+      const newBankAccount = await bankAccountService.createBankAccount(req.body, req.user);
       res.status(201).json(newBankAccount);
     } catch (error) {
       console.log({error})
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error });
     }
   }
 
   // PUT /bank-accounts/:id
   async update(req, res) {
     try {
-      const updatedBankAccount = await bankAccountService.updateBankAccount(req.params.id, req.body);
+      const updatedBankAccount = await bankAccountService.updateBankAccount(req.params.id, req.body, req.user);
       res.status(200).json(updatedBankAccount);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.log({error})
+      res.status(400).json({ error: error });
     }
   }
 
   // DELETE /bank-accounts/:id
   async delete(req, res) {
     try {
-      await bankAccountService.deleteBankAccount(req.params.id);
+      await bankAccountService.deleteBankAccount(req.params.id, req.user);
       res.status(204).send();
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.log({error})
+      res.status(400).json({ error: error });
     }
   }
 }
