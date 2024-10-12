@@ -342,9 +342,10 @@ const GrossIncomeInvoice: React.FC = () => {
 
             if (!isEditing) {
 
+                // asigne the business data only when creating the invoice 
+                // TODO: Add controls to change this information after creating the invoice 
                 newInvoice = Object.assign(newInvoice, staticInformationRelatedToBusiness)
 
-                newInvoice.checkedByUserPersonFullName = `${userAuth?.user?.person?.firstName} ${userAuth?.user?.person?.lastName}`
             }
 
             let registeredInvoice
