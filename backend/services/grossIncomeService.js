@@ -3,6 +3,8 @@ const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, Wa
 const dayjs = require('dayjs');
 const currency = require('currency.js');
 
+const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
+
 const currencyHandler = (value) => currency(value, 
     { 
         // symbol: 'Bs.', 
@@ -45,7 +47,9 @@ function calculateTaxFields({grossIncome}) {
 
     calcs.minTaxInBs = currencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
 
-    calcs.wasteCollectionTaxInBs = currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+    if (grossIncome.chargeWasteCollection) {
+        calcs.wasteCollectionTaxInBs = currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+    }
 
     calcs.totalTaxInBs = currencyHandler(Math.max(calcs.taxInBs, calcs.minTaxInBs)).add(calcs.wasteCollectionTaxInBs).value
 
@@ -176,11 +180,11 @@ class GrossIncomeService {
                 }
         ]})
 
-        if (invoice?.paidAt) {
-            let err = new Error('Gross Income has a settled invoice associated')
-            err.name = "InvoiceAlreadyPaid"
-            throw err
-        }
+        // if (invoice?.paidAt) {
+        //     let err = new Error('Gross Income is already paid')
+        //     err.name = "InvoiceAlreadyPaid"
+        //     throw err
+        // }
 
         if (invoice?.settlement) {
             let err = new Error('Gross Income has a settled invoice associated')
@@ -248,7 +252,18 @@ class GrossIncomeService {
             ...calcs
         }
         
-        return await grossIncome.update(data);
+        let updatedGrossIncome = await grossIncome.update(data);
+        let updatedGrossIncomeInvoice
+
+        // update the invoice paidAt property if it exists 
+        if (grossIncome.grossIncomeInvoiceId) {
+            updatedGrossIncomeInvoice = await grossIncomeInvoiceService.updatePaidAtProperty(grossIncome.grossIncomeInvoiceId)
+        }
+
+        return {
+            ...updatedGrossIncome.toJSON(),
+            grossIncomeInvoice: updatedGrossIncomeInvoice?.toJSON()
+        }
     }
 
     // Delete a GrossIncome record by ID

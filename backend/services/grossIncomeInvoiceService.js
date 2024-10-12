@@ -258,7 +258,8 @@ class GrossIncomeInvoiceService {
         // if gross income is paid, don't allow any other property aside of paidAt
 
         // check if it has a settlement 
-        if (grossIncomeInvoice.paidAt || grossIncomeInvoice.settlement) {
+        // if (grossIncomeInvoice.paidAt || grossIncomeInvoice.settlement) {
+            if (grossIncomeInvoice.settlement) {
             let err = new Error('This invoice is already paid');
             err.name = 'InvoiceAlreadyPaid';
             throw err
@@ -275,27 +276,32 @@ class GrossIncomeInvoiceService {
         }
 
         // check if it is being paid for the first time
-        if (data.paidAt && grossIncomeInvoice.paidAt === null) {
-            data.settledByUserId = user.id
+        // if (data.paidAt && grossIncomeInvoice.paidAt === null) {
+        //     data.settledByUserId = user.id
 
 
-            // // TODO: in this case, we have to create a new settlement, with:
-            // let newSettlement = await Settlement.create({
-            //     settledByUserId: user.id,
-            //     grossIncomeInvoiceId: id,
-            //     code: data.settlementCode
-            // })
+        //     // // TODO: in this case, we have to create a new settlement, with:
+        //     // let newSettlement = await Settlement.create({
+        //     //     settledByUserId: user.id,
+        //     //     grossIncomeInvoiceId: id,
+        //     //     code: data.settlementCode
+        //     // })
 
-            // console.log({newSettlement})
-                // the user data
-                // the gross income invoice id
-                // assign a code to the settlement
-        }
+        //     // console.log({newSettlement})
+        //         // the user data
+        //         // the gross income invoice id
+        //         // assign a code to the settlement
+        // }
 
         // ensure that updateAt is handled by the orm 
         data.updateAt = undefined;
         
-        return await GrossIncomeInvoice.update(data, { where: { id } });
+        await GrossIncomeInvoice.update(data, { where: { id } });
+
+        let updateInvoice = await this.updatePaidAtProperty(id)
+
+        return updateInvoice
+
     }
 
     // Delete a GrossIncomeInvoice record by ID
@@ -346,7 +352,6 @@ class GrossIncomeInvoiceService {
 
         await payment.save()
 
-        
         await this.updatePaidAtProperty(grossIncomeInvoiceId)
 
         return payment
@@ -406,7 +411,7 @@ class GrossIncomeInvoiceService {
         })[0]
 
         if (lastPayment) {
-            console.log({lastInvoicePaidAt: lastPayment.paymentDate, totalGrossIncomes, totalPayments})
+            // console.log({lastInvoicePaidAt: lastPayment.paymentDate, totalGrossIncomes, totalPayments})
         }
 
         let invoice 
@@ -417,6 +422,8 @@ class GrossIncomeInvoiceService {
         }        
 
         console.log({invoice})
+
+        return invoice
     }
 
     async markAsPaid(grossIncomeInvoiceId) {
