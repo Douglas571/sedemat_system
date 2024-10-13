@@ -20,6 +20,9 @@
 
 [] set a TCMMVBCV update date so you can keep track of when the tax was set 
 
+[] only Liquidator can settle invoices 
+[] invoice can be settled, only if the payments are checked 
+
   ### Technical requirements 
   [] when update, update paidAt property 
 

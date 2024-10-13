@@ -57,13 +57,16 @@ class SettlementService {
             body: JSON.stringify(data),
         });
 
-        const responseData = await response.json();
-
         if (!response.ok) {
-            throw new Error(`Failed to create settlement: ${responseData.error.message}`);
+            let { error } = await response.json();
+            if (error.name === "UserNotAuthorized") {
+                throw new Error("Solo el liquidador puede liquidar facturas");
+            }
+
+            throw error
         }
 
-        return responseData;
+        return response.json();
     }
 
 
@@ -83,9 +86,14 @@ class SettlementService {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`Failed to update settlement: ${error.message}`);
+            let { error } = await response.json();
+            if (error.name === "UserNotAuthorized") {
+                throw new Error("Solo el liquidador puede actualizar liquidaciones");
+            }
+
+            throw error
         }
+
         return await response.json();
     }
 
@@ -99,8 +107,12 @@ class SettlementService {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`Failed to delete settlement: ${error.message}`);
+            let { error } = await response.json();
+            if (error.name === "UserNotAuthorized") {
+                throw new Error("Solo el liquidador puede eliminar liquidaciones");
+            }
+
+            throw error
         }
     }
 }

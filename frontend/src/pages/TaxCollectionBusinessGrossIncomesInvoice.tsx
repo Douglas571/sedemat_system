@@ -207,7 +207,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const handleDeleteSettlement = async (data) => {
         console.log({deleteSettlement: data})
 
-        let result = await settlementService.delete(data, token)
+        try {
+            let result = await settlementService.delete(data, token)
+        } catch (error) {
+            console.log({error})
+            message.error(error.message)
+        }
 
         setShowSettlementModal(false)
         loadData()
@@ -761,7 +766,7 @@ function SettlementEditModal(
                         });
                     }
                 } catch (error) {
-                    message.error('Error al introducir el código de conciliación');
+                    message.error(error.message);
                     console.log({ error });
                 } finally {
                     setLoading(false);

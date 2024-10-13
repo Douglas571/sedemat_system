@@ -3,9 +3,24 @@ const { Settlement, User, Person } = require('../database/models');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 
+const ROLES = require('../utils/auth/roles');
+
+function isUserLiquidator(user) {
+  return user.roleId === ROLES.LIQUIDATOR
+}
+
+function checkIfUserIsLiquidator(user) {
+  if (!isUserLiquidator(user)) {
+    let error = new Error('User not authorized');
+    error.name = 'UserNotAuthorized';
+    throw error;
+  }
+}
 class SettlementService {
-  async createSettlement(data) {
+  async createSettlement(data, user) {
     console.log({newSettlement: data})
+
+    checkIfUserIsLiquidator(user)
 
     if (data.grossIncomeInvoiceId) {
       const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
@@ -39,13 +54,18 @@ class SettlementService {
       ]});
   }
 
-  async updateSettlement(id, data) {
+  async updateSettlement(id, data, user) {
+
+    checkIfUserIsLiquidator(user)
+
     const settlement = await Settlement.findByPk(id);
     if (!settlement) throw new Error('Settlement not found');
     return settlement.update(data);
   }
 
-  async deleteSettlement(id) {
+  async deleteSettlement(id, user) {
+
+    checkIfUserIsLiquidator(user)
     
     const settlement = await Settlement.findByPk(id);
     if (!settlement) throw new Error('Settlement not found');
