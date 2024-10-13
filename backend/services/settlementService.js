@@ -25,6 +25,13 @@ class SettlementService {
     if (data.grossIncomeInvoiceId) {
       const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
 
+      // check if some payment is not checked
+      if (grossIncomeInvoice.payments.some(payment => !payment.isVerified)) {
+        let error = new Error('GrossIncomeInvoice can\'t be settled, some payments are not verified');
+        error.name = "PaymentsNotVerified"
+        throw error
+      }
+
       const canBeSettled = grossIncomeInvoice?.canBeSettled;
       
       if (!canBeSettled) {

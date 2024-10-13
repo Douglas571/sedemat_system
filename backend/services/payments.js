@@ -101,12 +101,29 @@ exports.updatePayment = async (id, paymentData) => {
         const prevPayment = await PaymentModel.findByPk(id)
         console.log({paymentData, prevPayment: prevPayment.toJSON()})
 
+        // the only way to add payments to invoice is through the dedicated method
         paymentData.grossIncomeInvoiceId = undefined;
 
-        if (prevPayment.grossIncomeInvoiceId !== null) {
-            let err = new Error('Payment is already associated with an invoice');
-            err.name = "AssociatedWithInvoiceError"
-            throw err
+        // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
+        if (Object.keys(paymentData).length === 2 && paymentData.verifiedAt !== undefined && paymentData.verifiedByUserId !== undefined) {
+            // the user is updating the payment verification data
+            return await PaymentModel.update(paymentData, {
+                where: { id }
+            })
+        }
+
+        // user is updating something else than the payment verification data
+        paymentData.verifiedAt = undefined
+        paymentData.verifiedByUserId = undefined
+        
+        if (prevPayment.grossIncomeInvoiceId) {
+            let grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(prevPayment.grossIncomeInvoiceId)
+
+            if (grossIncomeInvoice.settlement) {
+                let err = new Error('Payment is already associated with a settled invoice');
+                err.name = "InvoiceAlreadySettledError"
+                throw err
+            }
         }
         //     await grossIncomeInvoiceService.removePayment(id);
         // } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
@@ -116,6 +133,7 @@ exports.updatePayment = async (id, paymentData) => {
 
         const newPaymentData = {
             ...paymentData,
+            // this is to warrant 
             businessId: prevPayment.businessId,
             personId: prevPayment.personId
         }

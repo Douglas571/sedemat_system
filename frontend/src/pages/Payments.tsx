@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, PlusOutlined } from '@ant-design/icons';
 import type { PopconfirmProps } from 'antd';
 import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -14,6 +14,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { Payment } from '../util/types';
 import { formatBolivares } from '../util/currency';
+
+import * as paymentService from '../util/paymentsApi'
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -83,39 +85,14 @@ function Payments(): JSX.Element {
         fetchPayments();
     }, []);
 
-
-    async function sendUpdateVerifiedStatus(paymentId: string, isVerified: boolean) {
-        const url = `${HOST}/v1/payments/${paymentId}`;
-
-        try {
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ isVerified })
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Payment status updated successfully:', result);
-            } else {
-                const error = await response.json();
-                console.error('Failed to update payment status:', error);
-            }
-        } catch (error) {
-            console.error('Error making request:', error);
-        }
-    }
-
-
     async function updateVerifiedStatus(id: string, isVerified: boolean) {
         try {
-            await sendUpdateVerifiedStatus(id, isVerified)
+            let paymentUpdated = await paymentService.updatePayment({id: Number(id), isVerified })
 
             fetchPayments()
         } catch (error) {
             console.log({ error })
+            message.error(error.message)
         }
     }
 

@@ -81,14 +81,7 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
         
         let { TCMMVBCV, alicuotaTaxPercent, alicuotaMinTaxMMVBCV, branchOfficeDimensionsMts2 } = grossIncome
         
-        let subTotal = getGrossIncomeTaxSubTotalInBs({
-            grossIncomeInBs: grossIncome.amountBs,
-            alicuota: alicuotaTaxPercent,
-            minTaxMMV: alicuotaMinTaxMMVBCV,
-            MMVToBs: TCMMVBCV,
-            chargeWasteCollection: grossIncome.chargeWasteCollection,
-            branchOfficeDimensions: branchOfficeDimensionsMts2
-        })
+        let subTotal = grossIncome.totalTaxInBs
 
         total = currencyHandler(total).add(subTotal).value
     })
@@ -101,6 +94,10 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
         .reduce((total, payment) => currencyHandler(total).add(payment.amount).value, 0)
 
     console.log({total, totalPayments})
+
+    if (payments.some( p => !p.isVerified)) {
+        return false
+    }
 
     // if total in payments === total in grossIncomes return true
     if (total === totalPayments) {
@@ -154,7 +151,7 @@ class GrossIncomeInvoiceService {
                         {
                             model: BranchOffice,
                             as: 'branchOffice',
-                        }
+                        },
                     ]
                 },
                 {

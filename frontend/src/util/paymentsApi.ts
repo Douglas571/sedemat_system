@@ -45,9 +45,14 @@ export async function updatePayment(paymentData: Payment): Promise<string> {
     })
 
     if (!response.ok) {
-        const data = await response.json()
-        console.log({ data })
-        throw new Error(data.error)
+        const {error} = await response.json()
+        
+        
+        if (error.name === "InvoiceAlreadySettledError") {
+            throw new Error("Este pago está asociado a una factura liquidada")
+        }
+
+        throw new Error(error.msg)
     }
 
     // the payment was updated successfully was successful 

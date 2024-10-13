@@ -63,6 +63,10 @@ router.put('/:id', async (req, res) => {
         const updatedPayment = await paymentService.updatePayment(req.params.id, req.body);
         res.json(updatedPayment);
     } catch (error) {
+
+        if (error.name === "InvoiceAlreadySettledError") {
+            return res.status(400).json({ error: error });
+        }
         // if node env is test, print error
         if (process.env.NODE_ENV === 'test') {
             console.log({error})
