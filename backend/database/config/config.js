@@ -10,7 +10,9 @@ module.exports = {
         database: process.env.MARIADB_DATABASE_DEV || "sedemat",
         host: process.env.MARIADB_HOST || "mariadb",
         dialect: "mariadb",
-        logging: process.env.DB_LOGGING === 'true'
+        logging: process.env.DB_LOGGING === 'true',
+
+        port: process.env.MARIADB_PORT ?? 3306
     },
     test: {
         env: "test",
@@ -19,7 +21,9 @@ module.exports = {
         database: process.env.MARIADB_DATABASE_TEST || "sedemat",
         host: process.env.MARIADB_HOST || "mariadb",
         dialect: "mariadb",
-        logging: process.env.DB_LOGGING === 'true'
+        logging: process.env.DB_LOGGING === 'true',
+
+        port: process.env.MARIADB_PORT ?? 3306
     },
     prod: {
         env: "prod",
@@ -27,10 +31,11 @@ module.exports = {
         password: process.env.MARIADB_PASSWORD || "12345",
         database: process.env.MARIADB_DATABASE || "sedemat",
         host: process.env.MARIADB_HOST || "mariadb",
-        port: process.env.MARIADB_PORT || "3306",
         dialect: "mariadb",
         logging: process.env.DB_LOGGING === 'true',
         connectTimeout: 10000,
+
+        port: process.env.MARIADB_PORT ?? 3306,
     }
 }
 
