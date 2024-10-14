@@ -19,7 +19,8 @@
 		"lint": "run-p run-tsc run-eslint run-stylelint",
 		"validate": "run-p lint test:ci test:e2e:headless",
 		"docker:build": "docker build -t my-react-app -f Dockerfile .",
-		"docker:run": "docker run -d -p 8080:80 my-react-app"
+		"docker:run": "docker run -d -p 8080:80 my-react-app",
+		"start:prod": "npm run build && npx serve -s dist -p 8080"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^5.5.1",
@@ -34,7 +35,8 @@
 		"react-countup": "^6.5.3",
 		"react-dom": "18.2.0",
 		"react-highlight-words": "^0.20.0",
-		"react-router-dom": "6.22.3"
+		"react-router-dom": "6.22.3",
+		"serve": "^14.2.3"
 	},
 	"devDependencies": {
 		"@nabla/vite-plugin-eslint": "2.0.2",
