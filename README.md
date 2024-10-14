@@ -38,3 +38,35 @@ docker exec -t mariadb sh -c 'mariadb -uroot -p"ROOT-PASSWORD" < /backups/all-da
 ```
 
 NOTA: This is a base approach, it can be automated with shell scripts or something and rename the dump file for a better organization. 
+
+## How to install and run directly on windows machine
+
+1. Install package both in backend and server
+```
+npm i
+```
+
+
+2. Create the required .env files 
+
+3. Create the *sedemat* database manually in HeidiSQL
+
+4. Run the command to migrate the database
+```
+npm run db:migrate:nodocker
+```
+
+5. Run the command to populate basic information for database
+```
+npm run db:seed:nodocker
+```
+
+6. Start the backend with 
+```
+npm run start:prod
+```
+
+7. Start the frontend with 
+```
+npm run start:prod
+```
