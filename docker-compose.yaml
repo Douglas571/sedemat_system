@@ -43,11 +43,11 @@ services:
         
     networks:
       - mynet
-    volumes:
-      - ./backup/backend/images:/app/uploads
-      - ./backend/:/app
-      - /app/node_modules
-      - ./backup/backend/logs:/app/data/logs
+    # volumes:
+    #   - ./backup/backend/images:/app/uploads
+    #   #- ./backend/:/app
+    #   #- /app/node_modules
+    #   - ./backup/backend/logs:/app/data/logs
 
     command: "npm run start:dev"
 
@@ -64,12 +64,22 @@ services:
     networks:
       - mynet
 
-    volumes:
-      - ./frontend:/app # Mounts the current directory to /app in the container
-      - /app/node_modules # Prevents conflicts with node_modules on the host
+    # volumes:
+    #   - ./frontend:/app # Mounts the current directory to /app in the container
+    #   - /app/node_modules # Prevents conflicts with node_modules on the host
 
     environment:
       - CHOKIDAR_USEPOLLING=true # Enables file change detection in Docker for Windows/Mac
+
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./frontend/package.json
 
     command: ["npm", "run", "dev"]
 
