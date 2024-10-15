@@ -45,3 +45,9 @@
 
 ## Bank Accounts 
 [] only directors should be able to create, update and delete bank accounts
+
+## Business
+[] only directors, collectors and fiscales can create and update
+
+## Branch Offices 
+[] only directors, collectors and fiscales can create and update branch offices 
