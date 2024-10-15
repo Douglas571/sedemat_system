@@ -110,6 +110,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
     },
+    
+    TCMMVBCVValidSince: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    TCMMVBCVValidUntil: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
 
     businessName: {
       type: DataTypes.STRING,

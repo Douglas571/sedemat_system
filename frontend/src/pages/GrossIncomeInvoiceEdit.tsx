@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input } from 'antd'
+import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input, DatePicker } from 'antd'
+const { RangePicker } = DatePicker
+
 import { ColumnsType } from 'antd/es/table'
 
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc' // ES 2015
+dayjs.extend(utc);
 
-import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, IGrossIncomeInvoiceCreate, IUser } from '../util/types' // Importing IGrossIncome from types
+import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, 
+    IGrossIncomeInvoice, IGrossIncomeInvoiceCreate, IUser } from '../util/types' // Importing IGrossIncome from types
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
@@ -56,12 +61,6 @@ const GrossIncomeInvoice: React.FC = () => {
 
     const selectedCheckedByUserId = Form.useWatch('checkedByUserId', form);
     const selectedCheckedByUser = users?.find(user => user.id === selectedCheckedByUserId)
-        // label will be user.person full name or user.username 
-        // value will be user id 
-    // asigne the options 
-
-    // when user select some user, update the checkedByUsername
-    // when user click update checkByPersonFullName, update it 
     
 
     const [grossIncomesToDisplay, setGrossIncomesToDisplay] = useState<IGrossIncome[]>([])
@@ -214,28 +213,7 @@ const GrossIncomeInvoice: React.FC = () => {
     async function loadGrossIncomes() {
         const fetchedGrossIncomes = await grossIncomeApi.getAllGrossIncomesByBusinessId(Number(businessId));
 
-
-        // const grossIncomesWithoutCurrencyExchangeRate = fetchedGrossIncomes
-        //     .filter(grossIncome => !grossIncome.currencyExchangeRate)
-
-        // if (grossIncomesWithoutCurrencyExchangeRate.length > 0) {
-        //     message.error("Algunas declaraciones de ingresos no tienen tasas de cambio registradas")
-        //     return false
-        // }
-
         setGrossIncomes(fetchedGrossIncomes)
-
-        // if (isEditing) {
-        //     //const grossIncomesWithInvoice = fetchedGrossIncomes.filter(grossIncome => grossIncome.grossIncomeInvoiceId == Number(grossIncomeInvoiceId))
-        //     setGrossIncomes(fetchedGrossIncomes)
-
-        //     const selectedIds = grossIncomeInvoice.grossIncomes.map( g => g.id )
-            
-        //     setSelectedRowKeys(fetchedGrossIncomes.map(g => g.id).filter( id => selectedIds.includes(id)))
-        // } else {
-        //     const grossIncomesWithoutInvoice = fetchedGrossIncomes.filter(grossIncome => !grossIncome.grossIncomeInvoiceId)
-        //     setGrossIncomes(grossIncomesWithoutInvoice)
-        // }
     }
 
     async function loadLastCurrencyExchangeRate() {
@@ -257,10 +235,6 @@ const GrossIncomeInvoice: React.FC = () => {
         form.setFieldsValue({
             checkedByUserPersonFullName: fullName
         })
-        // get the selectedUser 
-        // get the full name
-        // asign the full name to the form field 
-        // if it doesn't as a person, 
     }
 
     async function handleUpdateCreatedByUserPersonFullName() {
@@ -279,7 +253,8 @@ const GrossIncomeInvoice: React.FC = () => {
     async function handleUpdateTCMMVBCV() {
         if (lastCurrencyExchangeRate) {
             form.setFieldsValue({
-                TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate)
+                TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate),
+                TCMMVBCVValueDate: dayjs(lastCurrencyExchangeRate.createdAt).utc()
             })
         }
     }
@@ -331,6 +306,10 @@ const GrossIncomeInvoice: React.FC = () => {
             let newInvoice: IGrossIncomeInvoiceCreate = {
                 ...grossIncomeInvoice,
                 ...values,
+
+                // assuming the start of the week is on monday
+                TCMMVBCVValidSince: dayjs(values.TCMMVBCVValidDateRange).startOf('week').format('YYYY-MM-DD'),
+                TCMMVBCVValidUntil: dayjs(values.TCMMVBCVValidDateRange).endOf('week').format('YYYY-MM-DD'),
                 
                 businessId: businessId,
                 formPriceBs: formPrice,
@@ -420,17 +399,21 @@ const GrossIncomeInvoice: React.FC = () => {
             form.setFieldsValue({
                 ...grossIncomeInvoice,
                 TCMMVBCV: grossIncomeInvoice.TCMMVBCV,
-                
+
+                TCMMVBCVValidDateRange: dayjs(grossIncomeInvoice.TCMMVBCVValidSince).utc()
             })
         } else {
             if (branchOffices) {
                 const branchOfficeId = branchOffices[0].id;
                 form.setFieldValue('branchOfficeId', branchOfficeId);
+
+                form.setFieldsValue({
+                    TCMMVBCVValidDateRange: dayjs().utc(),
+                })
             }
 
             form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
         }
-
 
     }, [grossIncomeInvoice, branchOffices])
 
@@ -460,11 +443,17 @@ const GrossIncomeInvoice: React.FC = () => {
                     <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
                 
                 </Form.Item>
+            </Flex>
 
+            <Flex wrap gap={16}>
                 <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
                     <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
-                
                 </Form.Item>
+
+                <Form.Item name="TCMMVBCVValidDateRange" label="Rango de Validez" rules={[{ required: true }]}>
+                    <DatePicker picker="week"/>
+                </Form.Item>
+
                 <Button onClick={() => handleUpdateTCMMVBCV()}>
                     <ReloadOutlined />
                     Actualizar
