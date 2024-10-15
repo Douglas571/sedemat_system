@@ -4,7 +4,12 @@ import { ColumnProps } from 'antd/lib/table';
 import { IGrossIncome } from '../util/types';
 import * as grossIncomeService from '../util/grossIncomeApi';
 import { formatBolivares } from '../util/currency';
+
+import dayjs_es from 'dayjs/locale/es';
 import dayjs from 'dayjs';
+import _ from 'lodash';
+
+dayjs.locale(dayjs_es);
 
 import * as util from '../util';
 import { useNavigate, Link } from 'react-router-dom';
@@ -75,13 +80,13 @@ const GrossIncomeTable = () => {
       dataIndex: 'month',
       key: 'month',
       render: (text: any, grossIncome: IGrossIncome) => {
-        return dayjs(grossIncome.period).format('MMMM');
+        return _.startCase(dayjs(grossIncome.period).format('MMMM'));
       },
 
-      filters: [...new Set(grossIncomes.map(grossIncome => dayjs(grossIncome.period).format('MMMM')))].map(month => ({text: month, value: month})),
+      filters: [...new Set(grossIncomes.map(grossIncome => _.startCase(dayjs(grossIncome.period).format('MMMM'))))].map(month => ({text: month, value: month})),
 
       onFilter: (value: string, record: IGrossIncome) => {
-        return dayjs(record.period).format('MMMM') === value
+        return dayjs(record.period).format('MMMM') === value.toLowerCase()
       }
     },
     {
