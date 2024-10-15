@@ -99,6 +99,12 @@ exports.updatePayment = async (id, paymentData) => {
 
     try {
         const prevPayment = await PaymentModel.findByPk(id)
+
+        if (!prevPayment) {
+            console.error(`Payment with ID ${id} not found`);
+            throw new Error(`Payment with ID ${id} not found`);
+        }
+
         console.log({paymentData, prevPayment: prevPayment.toJSON()})
 
         // the only way to add payments to invoice is through the dedicated method
@@ -133,23 +139,24 @@ exports.updatePayment = async (id, paymentData) => {
 
         const newPaymentData = {
             ...paymentData,
-            // this is to warrant 
+            // this is to warrant
+            // TODO: for what?
             businessId: prevPayment.businessId,
             personId: prevPayment.personId
         }
 
         if (newPaymentData.businessId && newPaymentData.personId) {
             throw new Error('Payment must have either businessId or personId, but not both');
+        }        
+
+        await prevPayment.update(paymentData);
+        logger.info('Payment updated:', prevPayment);
+
+        if (prevPayment.grossIncomeInvoiceId) {
+            await grossIncomeInvoiceService.updatePaidAtProperty(prevPayment.grossIncomeInvoiceId)
         }
 
-        const payment = await PaymentModel.findByPk(id);
-        if (!payment) {
-            console.error(`Payment with ID ${id} not found`);
-            throw new Error(`Payment with ID ${id} not found`);
-        }
-        await payment.update(paymentData);
-        logger.info('Payment updated:', payment);
-        return payment;
+        return prevPayment;
     } catch (error) {
         console.error('Error updating payment:', error);
         throw error;

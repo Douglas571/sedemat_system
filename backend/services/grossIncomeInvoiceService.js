@@ -374,6 +374,14 @@ class GrossIncomeInvoiceService {
         return payment
     }
 
+    
+    /**
+     * Internal function to update the paidAt property of a GrossIncomeInvoice.
+     * This function should not be invoked directly by users.
+     * @param {number} grossIncomeInvoiceId
+     * @returns {Promise<void>}
+     * @public
+     */
     async updatePaidAtProperty(grossIncomeInvoiceId) {
         console.log({grossIncomeInvoiceId})
         console.log("updating paid at property")
