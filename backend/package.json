@@ -19,7 +19,8 @@
     "db:migrate:nodocker": "npx env-cmd --file ./.env npx sequelize db:migrate",
     "db:seed:nodocker": "npx env-cmd --file ./.env npx sequelize db:seed:all --seeders-path=database/seeders-prod",
 
-    "start:prod": "node --env-file=.env index.js"
+    "start:prod": "node --env-file=.env index.js",
+    "start:dev:nodocker": "nodemon --env-file=.env.dev index.js -L"
   },
   "author": "",
   "license": "ISC",
