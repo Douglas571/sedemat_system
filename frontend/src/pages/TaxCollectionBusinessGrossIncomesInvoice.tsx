@@ -19,7 +19,8 @@ import {
     Divider,
     Alert,
     DatePicker,
-    Badge
+    Badge,
+    Tooltip
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -224,16 +225,30 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
 
-    const markAsSettledButton = <Button 
+    let markAsSettledButton = <Button 
         onClick={() => setShowSettlementModal(true)} 
         disabled={ !canBeMarkedAsPaid }
         >
             Marcar como liquidado
         </Button>
 
+    if (!canBeMarkedAsPaid) {
+        markAsSettledButton = <Tooltip title="La factura sólo puede ser liquidada por un liquidador cuándo haya sido pagada y todos los pagos estén verificados">
+            {markAsSettledButton}
+        </Tooltip>
+    }
+
     const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
 
-    const unmarkAsSettledButton = <Button onClick={() => handleDeleteSettlement(grossIncomeInvoice?.settlement?.id)} >Desmarcar como liquidado</Button>
+    const unmarkAsSettledButton = <Popconfirm
+        title="Desmarcando como liquidado"
+        onConfirm={() => handleDeleteSettlement(grossIncomeInvoice?.settlement?.id)}
+        description="Esta acción no es reversible, se aliminará la liquidación, permitiendo editar el contenido de la factura."
+        okText="Sí"
+        cancelText="No"
+    >
+        <Button >Desmarcar como liquidado</Button>
+    </Popconfirm>
     
     return (
         <Card title={
