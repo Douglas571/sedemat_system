@@ -14,6 +14,11 @@ import settlementService from 'services/SettlementService';
 import { useParams } from 'react-router-dom';
 
 import dayjs from 'dayjs';
+import dayjs_es from 'dayjs/locale/es';
+
+dayjs.locale(dayjs_es);
+
+import _ from 'lodash';
 
 import * as util from '../util'
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
@@ -97,6 +102,7 @@ const getWasteCollectionTax = (props: { grossIncomes: IGrossIncome[] }): number 
 }
 
 const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
+  console.log("executing")
   const monthMap: { [key: number]: string[] } = {};
 
   if (grossIncomes.length === 0) return '';
@@ -105,7 +111,10 @@ const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
     const date = new Date(grossIncomes[0].period);
     const year = date.getFullYear();
     const month = date.toLocaleString('default', { month: 'long' });
-    return `impuesto sobre actividad economica correspondiente al mes de ${month} del ${year}`;
+
+    const month2 = _.upperFirst(dayjs(date).format('MMMM'));
+
+    return `impuesto sobre actividad economica correspondiente al mes de ${month2} del ${year}`;
   }
 
   grossIncomes.forEach(g => {
@@ -113,15 +122,21 @@ const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
     const year = date.getFullYear();
     const month = date.toLocaleString('default', { month: 'long' });
 
+    const month2 = _.upperFirst(dayjs(date).format('MMMM'));
+
     if (!monthMap[year]) {
       monthMap[year] = [];
     }
-    if (!monthMap[year].includes(month)) {
-      monthMap[year].push(month);
+    if (!monthMap[year].includes(month2)) {
+      monthMap[year].push(month2);
     }
   });
+  console.log("i am here")
 
   const formattedParts = Object.entries(monthMap).map(([year, months]) => {
+
+    
+    console.log({year, months})
     const lastMonth = months.pop();
     return `${months.join(', ')}${months.length ? ' y ' : ''}${lastMonth} del ${year}`;
   });

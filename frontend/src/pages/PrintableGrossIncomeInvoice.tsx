@@ -6,7 +6,11 @@ import { useParams } from 'react-router-dom'
 import { Card, Typography, Table, Descriptions, List, Flex} from 'antd';
 const { Title, Text } = Typography;
 
-import dayjs from 'dayjs'
+import dayjs_es from 'dayjs/locale/es';
+import dayjs from 'dayjs';
+import _ from 'lodash';
+
+dayjs.locale(dayjs_es);
 
 import { Business } from 'util/types';
 import { IGrossIncomeInvoice, IGrossIncome, CurrencyExchangeRate } from '../util/types';
@@ -123,7 +127,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
             </Flex>
             <Flex justify='right'>
-                <Text>{`${updatedAt.format('DD')} de ${updatedAt.format('MMMM')} de ${updatedAt.format('YYYY')}`}</Text>
+                <Text>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`}</Text>
             </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
@@ -156,7 +160,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Periodo" 
                     dataIndex="period" 
                     key="period" 
-                    render={(period: Date) => dayjs(period).format('MMM-YY')}
+                    render={(period: Date) => _.upperFirst(dayjs(period).format('MMM-YY'))}
                 />
                 <Table.Column 
                     title="Ingreso" 

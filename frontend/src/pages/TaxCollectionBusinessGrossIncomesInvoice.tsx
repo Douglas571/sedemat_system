@@ -25,7 +25,15 @@ import {
 
 const { Title, Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons';
+
 import dayjs from 'dayjs'
+import dayjs_es from 'dayjs/locale/es';
+
+dayjs.locale(dayjs_es);
+
+import _ from 'lodash';
+
+
 import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement } from '../util/types';
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as paymentsApi from '../util/paymentsApi'
@@ -318,7 +326,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Periodo" 
                     dataIndex="period" 
                     key="period" 
-                    render={(period: Date) => dayjs(period).format('MMM-YY')}
+                    render={(period: Date) => _.upperFirst(dayjs(period).format('MMM-YY'))}
                 />
                 <Table.Column 
                     title="Ingreso" 
