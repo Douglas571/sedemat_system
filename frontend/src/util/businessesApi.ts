@@ -21,7 +21,7 @@ export async function deleteBusiness(businessId: number, token: string) {
         const {error} = await response.json();
         console.log({error})
         if (error.name === 'UserNotAuthorized') {
-            throw new Error("Solo el director puede eliminar empresas")
+            throw new Error("Usuario no autorizado")
         }
 
         throw new Error('Failed to delete business');

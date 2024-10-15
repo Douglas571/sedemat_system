@@ -16,6 +16,7 @@ function checkIfCanCreateOrUpdateBusiness(user) {
         throw error;
     }
 }
+
 // Get all businesses
 exports.getAllBusinesses = async () => {
     return await Business.findAll();
@@ -97,11 +98,7 @@ exports.updateBusiness = async (id, businessData, user) => {
 exports.deleteBusiness = async (id, user) => {
     const business = await Business.findByPk(id);
 
-    if (!user || user.roleId !== ROLES.COLLECTOR) {
-        let error = new Error('User not authorized');
-        error.name = 'UserNotAuthorized';
-        throw error;
-    }
+    checkIfCanCreateOrUpdateBusiness(user)
 
     if (!business) {
         throw new Error('Business not found');
