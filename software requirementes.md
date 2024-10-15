@@ -27,9 +27,11 @@
   [] when update, update paidAt property 
 
 
-[] payment date should update after
+[] paidAt of payment status should update after
+  [] editing payments
   [] editing invoice 
   [] editing gross incomes
+  
 
 [] when adding payments
   [] should show only the payments of the business and the people associated

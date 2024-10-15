@@ -387,7 +387,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             
         } catch (error) {
             console.error('Error al registrar ingreso bruto:', error);
-            messageApi.error('Error al registrar ingreso bruto. Por favor, intente nuevamente.');
+            messageApi.error(error.message);
         }
     };
 

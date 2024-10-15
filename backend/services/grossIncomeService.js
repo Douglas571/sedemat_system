@@ -136,7 +136,9 @@ class GrossIncomeService {
         }
         
         if (existingGrossIncome) {  
-            throw new Error('Gross income already exists for the same period and branch office');
+            let error = new Error('Gross income already exists for the same period and branch office');
+            error.name = 'PeriodAlreadyExistsError';
+            throw error;
         }
 
         let wasteCollectionTax

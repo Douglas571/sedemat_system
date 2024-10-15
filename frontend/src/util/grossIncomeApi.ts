@@ -6,21 +6,29 @@ const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 export async function registerGrossIncome(grossIncome: IGrossIncome): Promise<IGrossIncome> {
-    const response = await fetch(`${HOST}/v1/gross-incomes`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(grossIncome)
-    });
+    try {
+        const response = await fetch(`${HOST}/v1/gross-incomes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(grossIncome)
+        });
+    
+        if (!response.ok) {
+            const {error} = await response.json()
+            throw error
+        }
+    
+        const newGrossIncome = await response.json()
+        return newGrossIncome
+    } catch (error) {
+        if (error.name === 'PeriodAlreadyExistsError') {
+            throw new Error("Ya existe un registro de ingresos para este período")
+        }
 
-    if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Failed to register gross income: ${errorData.error || response.statusText}`)
+        throw error
     }
-
-    const newGrossIncome = await response.json()
-    return newGrossIncome
 }
 
 export async function uploadDeclarationImage(file: File): Promise<string> {
