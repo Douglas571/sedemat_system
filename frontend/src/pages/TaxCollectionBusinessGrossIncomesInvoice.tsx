@@ -18,7 +18,8 @@ import {
     InputNumber,
     Divider,
     Alert,
-    DatePicker
+    DatePicker,
+    Badge
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -610,6 +611,14 @@ function PaymentsAllocatedTable(
             dataIndex: "paymentDate",
             key: "paymentDate",
             render: (date: Date) => dayjs(date).format('DD/MM/YYYY')
+        },
+        {
+            title: "Verificado",
+            dataIndex: "isVerified",
+            key: "isVerified",
+            render: (isVerified: boolean) => (
+                <Badge status={isVerified ? 'success' : 'warning'} text={isVerified ? 'Si' : 'No'} />
+            ),
         },
         {
             title: "Acciones",
