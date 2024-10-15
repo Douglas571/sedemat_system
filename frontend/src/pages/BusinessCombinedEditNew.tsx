@@ -21,6 +21,8 @@ import {
 
 import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 
+import useAuthentication from "../hooks/useAuthentication";
+
 import {
     BusinessFormFields,
     channelOptions,
@@ -45,6 +47,7 @@ export default function BusinessForm(): JSX.Element {
     const [messageApi, contextHolder] = message.useMessage()
     const navigate = useNavigate()
 
+    const { userAuth } = useAuthentication()
 
 
     const [form] = Form.useForm()
@@ -199,9 +202,16 @@ export default function BusinessForm(): JSX.Element {
             console.log({ businessData })
             let newBusinessData: Business
             if (businessId) {
-                newBusinessData = await api.updateBusinessData(Number(businessId), businessData)
+                newBusinessData = await businessesApi.updateBusinessData({
+                    id: Number(businessId), 
+                    business: businessData,
+                    token: userAuth.token ?? ''
+                })
             } else {
-                newBusinessData = await api.sendBusinessData(businessData)
+                newBusinessData = await businessesApi.createBusiness({
+                    business: businessData,
+                    token: userAuth.token ?? ''
+                })
             }
 
             // save Certificate of Incorporation
@@ -223,7 +233,6 @@ export default function BusinessForm(): JSX.Element {
 
                 console.log({ uploadedCoi })
             }
-
 
 
             console.log({ newBusinessData })

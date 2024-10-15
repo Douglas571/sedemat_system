@@ -10,29 +10,24 @@ export async function deleteBusiness(businessId: number, token: string) {
         throw new Error('No token found');
     }
 
-    try {
-        const response = await fetch(`${HOST}/v1/businesses/${businessId}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+    const response = await fetch(`${HOST}/v1/businesses/${businessId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
 
-        if (!response.ok) {
-            const {error} = await response.json();
-            console.log({error})
-            if (error.name === 'UserNotAuthorized') {
-                throw new Error("Solo el director puede eliminar empresas")
-            }
-
-            throw new Error('Failed to delete business');
+    if (!response.ok) {
+        const {error} = await response.json();
+        console.log({error})
+        if (error.name === 'UserNotAuthorized') {
+            throw new Error("Solo el director puede eliminar empresas")
         }
 
-        return response;
-    } catch (error) {
-        console.error('Error deleting business:', error);
-        throw error;
+        throw new Error('Failed to delete business');
     }
+
+    return response;
 }
 
 export async function uploadCertificateOfIncorporation(coi: CertificateOfIncorporation) {
@@ -65,7 +60,7 @@ export async function uploadCertificateOfIncorporation(coi: CertificateOfIncorpo
 }
 
 
-export async function isBusinessEligibleForEconomicLicense(businessId: number): any {
+export async function isBusinessEligibleForEconomicLicense(businessId: number): Promise<any> {
     try {
       const response = await fetch(`${HOST}/v1/businesses/${businessId}/elegible-for-economic-license`, {
         method: 'GET',
@@ -94,3 +89,83 @@ export async function isBusinessEligibleForEconomicLicense(businessId: number): 
       console.log({error})
     }
   }
+
+  export async function updateBusinessData({
+    id, 
+    business,
+    token
+  }:{
+    id: number, 
+    business: Business,
+    token: string
+  }) {
+    const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(business)
+    };
+
+    let response = await fetch(url, requestOptions);
+    let data = await response.json()
+
+    if (!response.ok) {
+        let {error} = data
+        let errorToThrow = new Error(error?.message || 'Failed to post business data')
+
+        // check if is unanutorized error
+        if (error.name === 'UserNotAuthorized') {
+            errorToThrow = new Error('El usuario no autorizado para editar la información de la empresa')
+            error.name = 'UserNotAuthorized'
+            throw errorToThrow
+            
+        }
+        console.log({error})
+        throw errorToThrow
+    }
+
+    let updatedBusiness = data
+    console.log('Business data updated successfully');
+    // Optionally handle response data here
+
+    console.log(JSON.stringify(updatedBusiness, null, 2))
+    
+    return updatedBusiness
+}
+
+export async function createBusiness({
+    business,
+    token
+}: {
+    business: Business,
+    token: string
+}): Promise<Business> {
+    const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
+    const requestOptions = {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(business)
+    };
+
+    try {
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error.msg || 'Failed to post business data');
+        }
+        console.log('Business data posted successfully');
+        // Optionally handle response data here
+        let data = await response.json()
+        return data
+    } catch (error) {
+        console.error('Error posting business data:', error.message);
+        // Handle error state in your application
+        throw Error(error.message)
+    }
+}

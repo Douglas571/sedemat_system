@@ -70,6 +70,9 @@ export async function fetchBusinessById(businessId: number): Promise<Business> {
     }
 }
 
+/**
+ * @deprecated since version 1.0.0
+*/
 export async function sendBusinessData(business: Business): Promise<Business> {
     const url = `${HOST}/v1/businesses/`;  // Replace HOST with your actual host URL
     const requestOptions = {
@@ -95,6 +98,9 @@ export async function sendBusinessData(business: Business): Promise<Business> {
     }
 }
 
+/**
+ * @deprecated since version 1.0.0
+*/
 export async function updateBusinessData(id: number, business: Business) {
     const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
     const requestOptions = {
@@ -127,6 +133,9 @@ export async function updateBusinessData(id: number, business: Business) {
     }
 }
 
+/**
+ * @deprecated since version 1.0.0
+*/
 export async function deleteBusiness(id: number): Promise<void> {
     const url = `${HOST}/v1/businesses/${id}`;  // Replace HOST with your actual host URL
 

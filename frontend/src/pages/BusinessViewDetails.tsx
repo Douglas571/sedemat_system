@@ -15,7 +15,8 @@ import * as economicLicenseApi from '../util/economicLicenseApi'
 import economicActivitiesService from '../services/EconomicActivitiesService'
 
 import { completeUrl, getCommunicationPreference } from './BusinessShared';
-import { build } from 'vite';
+
+import useAuthentication from '../hooks/useAuthentication';
 
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -36,6 +37,8 @@ function BusinessViewDetails(): JSX.Element {
   const [economicLicenses, setEconomicLicenses] = useState<EconomicLicense[]>([])
   const [economicActivity, setEconomicActivity] = useState<EconomicActivity>()
   const navigate = useNavigate()
+
+  const { userAuth } = useAuthentication()
 
   const [licenseStatus, setLicenseStatus] = useState()
 
@@ -67,14 +70,13 @@ function BusinessViewDetails(): JSX.Element {
     setIsModalOpen(false);
 
     try {
-      business?.id && await api.deleteBusiness(business.id)
-    } catch (error) {
-      if (error.message.includes("Business not found")) {
-        message.error("Error al eliminar el contribuyente")
-      }
-    }
+      business?.id && await businessesApi.deleteBusiness(business?.id, userAuth.token ?? '');
 
-    navigate('/business')
+      navigate('/business')
+
+    } catch (error) {
+      message.error(error.message);
+    }
   };
 
   const handleCancel = () => {
