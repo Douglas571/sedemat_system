@@ -8,6 +8,14 @@ const logger = require('../utils/logger')
 const branchOfficeServices = require('./branchOffices');
 
 
+function checkIfCanCreateOrUpdateBusiness(user) {
+    // if user is not an admin, director, fiscal, or collector 
+    if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+        let error = new Error('User not authorized');
+        error.name = 'UserNotAuthorized';
+        throw error;
+    }
+}
 // Get all businesses
 exports.getAllBusinesses = async () => {
     return await Business.findAll();
@@ -45,11 +53,17 @@ exports.getBusinessById = async (id) => {
 
 // Register a new business
 exports.createBusiness = async (businessData, user) => {
+
+    checkIfCanCreateOrUpdateBusiness(user)
+
     const newBusiness = await Business.create(businessData);
     return newBusiness;
 };
 // Update a business
 exports.updateBusiness = async (id, businessData, user) => {
+
+    checkIfCanCreateOrUpdateBusiness(user)
+
     try {
         const business = await Business.findByPk(id);
         logger.info({message: "businessService.updateBusiness", businessId: id, businessData})

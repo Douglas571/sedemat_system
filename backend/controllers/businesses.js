@@ -50,7 +50,7 @@ router.get('/:id', async (req, res) => {
     // with a method to transform to database model 
 
 // Register a new business
-router.post('/', async (req, res) => {
+router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         // todo: verify the request body is well formed
         // const parsedBusiness = {
@@ -110,13 +110,13 @@ router.get('/:businessId/elegible-for-economic-license', async (req, res) => {
 })
 
 // Update a business
-router.put('/:id', async (req, res) => {
+router.put('/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         
         // verify the request body is well formed
         logger.info({message: "Updating business", body: req.body, businessId: req.params.id})
 
-        const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body, user);
+        const updatedBusiness = await businessService.updateBusiness(req.params.id, req.body, req.user);
         res.json(updatedBusiness);
 
     } catch (error) {

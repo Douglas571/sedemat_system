@@ -4,7 +4,7 @@ module.exports = {
   LEGAL_ADVISOR: 3,
   COLLECTOR: 4, // recaudador
   COORDINATOR: 5,
-  PROSECUTOR: 6, // fiscal
+  FISCAL: 6, // fiscal
   TAXPAYER: 7,
   LIQUIDATOR: 8
 }
