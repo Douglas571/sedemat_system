@@ -24,7 +24,7 @@ import {
 } from 'antd';
 
 const { Title, Text } = Typography;
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined} from '@ant-design/icons';
 
 import dayjs from 'dayjs'
 import dayjs_es from 'dayjs/locale/es';
@@ -35,6 +35,9 @@ import _ from 'lodash';
 
 
 import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement } from '../util/types';
+import { EditOutlined } from '@ant-design/icons';
+
+
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as paymentsApi from '../util/paymentsApi'
 import * as api from '../util/api'
@@ -236,6 +239,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     let markAsSettledButton = <Button 
         onClick={() => setShowSettlementModal(true)} 
         disabled={ !canBeMarkedAsPaid }
+        icon={<FileDoneOutlined />}
         >
             Marcar como liquidado
         </Button>
@@ -255,7 +259,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         okText="Sí"
         cancelText="No"
     >
-        <Button >Desmarcar como liquidado</Button>
+        <Button icon={<UndoOutlined />}>Desmarcar como liquidado</Button>
     </Popconfirm>
     
     return (
@@ -263,8 +267,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <Flex align='center' justify='space-between' wrap>
                 <Typography.Title level={4}>Detalles de la Factura</Typography.Title>
                 <Flex gap={10} align='center' justify='end' wrap>                    
-                    { canEdit && <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
-                        disabled={isSettled}
+                    { canEdit 
+                        && <Button 
+                            icon={<EditOutlined />}
+                            onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
+                            disabled={isSettled}
                         >Editar</Button>
                     }
                     
@@ -273,9 +280,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         ? unmarkAsSettledButton
                         : markAsSettledButton
                     }
-                    <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir Recibo</Button>
+                    <Button icon={<PrinterOutlined />} onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir Recibo</Button>
                     {
-                        isSettled && <Button onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Imprimir Liquidación</Button>
+                        isSettled && <Button icon={<PrinterOutlined />} onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/settlement`)}>Imprimir Liquidación</Button>
                     }
                 </Flex>
             </Flex>
@@ -322,6 +329,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     overflow: 'scroll'
                 }}
             >
+                <Table.Column 
+                    title="Acciones" 
+                    dataIndex="actions" 
+                    key="actions" 
+                    render={(period: Date, record: IGrossIncome) => {
+                        return (
+                            <Button
+                                icon={<EditOutlined />}
+                                disabled={!canEdit || isSettled}
+                                onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
+                            >Editar</Button>
+                        )
+                    }}
+                />
                 <Table.Column 
                     title="Periodo" 
                     dataIndex="period" 
