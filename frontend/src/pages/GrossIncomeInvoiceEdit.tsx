@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input, DatePicker } from 'antd'
+import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input, DatePicker, Card } from 'antd'
 const { RangePicker } = DatePicker
 
 import { ColumnsType } from 'antd/es/table'
@@ -259,6 +259,24 @@ const GrossIncomeInvoice: React.FC = () => {
         }
     }
 
+    async function handleBusinessDataUpdate() {
+        if (business) {
+            form.setFieldsValue({
+                businessName: business.businessName,
+                businessDNI: business.dni
+            })
+        }
+
+        if (selectedOffice) {
+            form.setFieldsValue({
+                branchOfficeName: selectedOffice.nickname,
+                branchOfficeAddress: selectedOffice.address,
+                branchOfficeDimensions: selectedOffice.dimensions,
+                branchOfficeType: selectedOffice.type
+            })
+        }
+    }
+
     async function loadCurrencyExchangeRates() {
         const fetchedCurrencyExchangeRates = await currencyExchangeRatesService.getAll();
         
@@ -294,15 +312,6 @@ const GrossIncomeInvoice: React.FC = () => {
                 return false 
             }
 
-            const staticInformationRelatedToBusiness = {
-                businessName: business.businessName,
-                businessDNI: business.dni,
-                branchOfficeName: selectedOffice.nickname,
-                branchOfficeAddress: selectedOffice.address,
-                branchOfficeDimensions: selectedOffice.dimensions,
-                branchOfficeType: selectedOffice.type
-            }
-
             let newInvoice: IGrossIncomeInvoiceCreate = {
                 ...grossIncomeInvoice,
                 ...values,
@@ -319,13 +328,13 @@ const GrossIncomeInvoice: React.FC = () => {
                 TCMMVBCV: values.TCMMVBCV,
             }
 
-            if (!isEditing) {
+            // if (!isEditing) {
 
-                // asigne the business data only when creating the invoice 
-                // TODO: Add controls to change this information after creating the invoice 
-                newInvoice = Object.assign(newInvoice, staticInformationRelatedToBusiness)
+            //     // asigne the business data only when creating the invoice 
+            //     // TODO: Add controls to change this information after creating the invoice 
+            //     newInvoice = Object.assign(newInvoice)
 
-            }
+            // }
 
             let registeredInvoice
 
@@ -413,6 +422,8 @@ const GrossIncomeInvoice: React.FC = () => {
             }
 
             form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
+
+            handleBusinessDataUpdate()
         }
 
     }, [grossIncomeInvoice, branchOffices])
@@ -423,104 +434,137 @@ const GrossIncomeInvoice: React.FC = () => {
     
 
     return (
-        <Form form={form} onFinish={onFinish}>
-            <Typography.Title level={2}>{isEditing ? 'Editar Factura' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
+        <Card>
+            <Form form={form} onFinish={onFinish}>
+                <Typography.Title level={2}>{isEditing ? 'Editar Factura' : 'Nuevo Calculo de Ingresos Brutos'}</Typography.Title>
 
-            <Flex wrap gap={16}>
-                <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
-                    <Select
-                        options={branchOffices?.map(branchOffice => ({
-                            key: branchOffice.id,
-                            value: branchOffice.id,
-                            label: branchOffice.nickname
-                        }))} 
-
-                        disabled={isEditing}
-                    />
-                </Form.Item>
-
-                <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
-                    <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
-                
-                </Form.Item>
-            </Flex>
-
-            <Flex wrap gap={16}>
-                <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
-                    <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
-                </Form.Item>
-
-                <Form.Item name="TCMMVBCVValidDateRange" label="Rango de Validez" rules={[{ required: true }]}>
-                    <DatePicker picker="week"/>
-                </Form.Item>
-
-                <Button onClick={() => handleUpdateTCMMVBCV()}>
-                    <ReloadOutlined />
-                    Actualizar
-                </Button>
-            </Flex>
-
-            <Flex wrap gap={16} vertical>
-                <Flex gap={16}>
-                    <Form.Item name="createdByUserPersonFullName" label="Creado por" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Button onClick={() => handleUpdateCreatedByUserPersonFullName()}>
-                        <ReloadOutlined /> 
+                <Flex align='center' justify='space-between'>
+                    <Typography.Title level={4}>Información de la Empresa</Typography.Title>
+                    <Button onClick={() => handleBusinessDataUpdate()}>
+                        <ReloadOutlined />
                         Actualizar
                     </Button>
                 </Flex>
-
                 <Flex gap={16} wrap>
-                    <Form.Item name="checkedByUserPersonFullName" label="Revisado por" rules={[{ required: true }]}>
+                    <Form.Item name="businessName" label="Razón Social">
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        name="checkedByUserId" 
-                        label="Usuario" 
-                        rules={[{ required: true }]}
+                    <Form.Item name="businessDNI" label="RIF">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="branchOfficeName" label="Nombre de la sucursal">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="branchOfficeType" label="Tipo de sucursal">
+                        <Input />
+                    </Form.Item>
+                </Flex>
 
-                        style={{ width: 350}}
-                    >
+                <Typography.Title level={4}>Información de la Factura</Typography.Title>
+                <Flex wrap gap={16}>
+                    <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
                         <Select
-                            options={checkByUserOptions}
+                            options={branchOffices?.map(branchOffice => ({
+                                key: branchOffice.id,
+                                value: branchOffice.id,
+                                label: branchOffice.nickname
+                            }))} 
+
+                            disabled={isEditing}
                         />
                     </Form.Item>
-                    <Button onClick={() => handleUpdateCheckedByUserPersonFullName()}>
-                        <ReloadOutlined /> 
+
+                    <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
+                        <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                    
+                    </Form.Item>
+                </Flex>
+
+                <Flex wrap gap={16}>
+                    <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
+                        <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                    </Form.Item>
+
+                    <Form.Item name="TCMMVBCVValidDateRange" label="Rango de Validez" rules={[{ required: true }]}>
+                        <DatePicker picker="week"/>
+                    </Form.Item>
+
+                    <Button onClick={() => handleUpdateTCMMVBCV()}>
+                        <ReloadOutlined />
                         Actualizar
                     </Button>
                 </Flex>
-            </Flex>
 
-            <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
-            <Form.Item name="selectedItems" initialValue={[]}>
-                <Table
-                    rowSelection={rowSelection}
-                    columns={columns}
-                    dataSource={grossIncomesToDisplay}
-                    rowKey='id'
-                    pagination={false}
-                />
-                <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
-                    <Table.Column title="label" render={() => <Typography.Text>Formulario</Typography.Text>}/>
-                    <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formatBolivares(formPrice)}</Typography.Text>}/>
-                </Table>
-                <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
-                    <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
-                    <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{formatBolivares(TOTAL)}</Typography.Text>}/>
-                </Table>
-            </Form.Item>
-            <Form.Item>
-                <Button
-                    type='primary'
-                    htmlType="submit"
-                    style={{ marginTop: '20px' }}
-                >
-                    Registrar Calculo
-                </Button>
-            </Form.Item>
-        </Form>
+                <Flex wrap gap={16} vertical>
+                    <Flex gap={16}>
+                        <Form.Item name="createdByUserPersonFullName" label="Creado por" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Button onClick={() => handleUpdateCreatedByUserPersonFullName()}>
+                            <ReloadOutlined /> 
+                            Actualizar
+                        </Button>
+                    </Flex>
+
+                    <Flex gap={16} wrap>
+                        <Form.Item name="checkedByUserPersonFullName" label="Revisado por" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="checkedByUserId" 
+                            label="Usuario" 
+                            rules={[{ required: true }]}
+
+                            style={{ width: 350}}
+                        >
+                            <Select
+                                options={checkByUserOptions}
+                            />
+                        </Form.Item>
+                        <Button onClick={() => handleUpdateCheckedByUserPersonFullName()}>
+                            <ReloadOutlined /> 
+                            Actualizar
+                        </Button>
+                    </Flex>
+                </Flex>
+
+                <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
+                <Form.Item name="selectedItems" initialValue={[]}>
+                    <Table
+                        rowSelection={rowSelection}
+                        columns={columns}
+                        dataSource={grossIncomesToDisplay}
+                        rowKey='id'
+                        pagination={false}
+                    />
+                    <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
+                        <Table.Column title="label" render={() => <Typography.Text>Formulario</Typography.Text>}/>
+                        <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formatBolivares(formPrice)}</Typography.Text>}/>
+                    </Table>
+                    <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
+                        <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
+                        <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{formatBolivares(TOTAL)}</Typography.Text>}/>
+                    </Table>
+                </Form.Item>
+                <Form.Item>
+                    <Button
+                        type='primary'
+                        htmlType="submit"
+                        style={{ marginTop: '20px' }}
+                    >
+                        Registrar Calculo
+                    </Button>
+                </Form.Item>
+            </Form>
+            
+        </Card>
+        
     )
 }
 
