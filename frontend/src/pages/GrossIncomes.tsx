@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, Badge, Flex } from 'antd';
+import { Table, Button, Card, Badge, Flex, Typography } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { IGrossIncome } from '../util/types';
 import * as grossIncomeService from '../util/grossIncomeApi';
@@ -191,9 +191,8 @@ const GrossIncomeTable = () => {
   ];
 
   return (<>
-    <Card title="Ingresos Brutos Declarados">
+    <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
       <Table columns={columns} dataSource={grossIncomes} />
-
     </Card>
   
   </>);
