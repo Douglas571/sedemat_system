@@ -93,6 +93,13 @@ const GrossIncomeTable = () => {
       title: "Empresa",
       dataIndex: "business",
       key: "business",
+
+      filters: [... new Set(grossIncomes.map(grossIncome => grossIncome.business.businessName))].map(business => ({text: business, value: business})),
+
+      onFilter: (value: string, record: IGrossIncome) => {
+        return record.business.businessName === value
+      },
+
       render: (text: any, grossIncome: IGrossIncome) => {
         return <Link to={`/tax-collection/${grossIncome?.business.id}`}>{grossIncome?.business.businessName}</Link>;
       }
