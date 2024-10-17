@@ -69,12 +69,18 @@ const GrossIncomeTable = () => {
         return dayjs(grossIncome.period).format('YYYY');
       },
 
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1,
+
+      filterSearch: true,
+
       filters: [...new Set(grossIncomes.map(grossIncome => dayjs(grossIncome.period).format('YYYY')))].map(year => ({text: year, value: year})),
 
       onFilter: (value: string, record: IGrossIncome) => {
         return dayjs(record.period).format('YYYY') === value
       }
     },
+
     {
       title: 'Mes',
       dataIndex: 'month',
@@ -83,22 +89,32 @@ const GrossIncomeTable = () => {
         return _.startCase(dayjs(grossIncome.period).format('MMMM'));
       },
 
+      filterSearch: true,
+
       filters: [...new Set(grossIncomes.map(grossIncome => _.startCase(dayjs(grossIncome.period).format('MMMM'))))].map(month => ({text: month, value: month})),
 
       onFilter: (value: string, record: IGrossIncome) => {
         return dayjs(record.period).format('MMMM') === value.toLowerCase()
-      }
+      },
+
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1,
     },
     {
       title: "Empresa",
       dataIndex: "business",
       key: "business",
 
+      filterSearch: true,
+
       filters: [... new Set(grossIncomes.map(grossIncome => grossIncome.business.businessName))].map(business => ({text: business, value: business})),
 
       onFilter: (value: string, record: IGrossIncome) => {
         return record.business.businessName === value
       },
+
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncome, b: IGrossIncome) => a.business.businessName.localeCompare(b.business.businessName),
 
       render: (text: any, grossIncome: IGrossIncome) => {
         return <Link to={`/tax-collection/${grossIncome?.business.id}`}>{grossIncome?.business.businessName}</Link>;
@@ -108,9 +124,19 @@ const GrossIncomeTable = () => {
       title: 'Sucursal',
       dataIndex: 'branchOffice',
       key: 'branchOffice',
+
+      filters: [... new Set(grossIncomes.map(grossIncome => grossIncome.branchOffice.nickname))].map(branchOffice => ({text: branchOffice, value: branchOffice})),
+
+      onFilter: (value: string, record: IGrossIncome) => {
+        return record.branchOffice.nickname === value
+      },
+
       render: (text: any, grossIncome: IGrossIncome) => {
         return grossIncome?.branchOffice?.nickname || '';
-      }
+      },
+
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncome, b: IGrossIncome) => a.branchOffice.nickname.localeCompare(b.branchOffice.nickname),
     },
     {
       title: 'Estado',
@@ -126,7 +152,10 @@ const GrossIncomeTable = () => {
 
       onFilter: (value: string, record: IGrossIncomeWithStatus) => {
         return record.status === value
-      }
+      },
+
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.status.localeCompare(b.status),
     },
     {
       title: 'Total',
@@ -134,7 +163,10 @@ const GrossIncomeTable = () => {
       key: 'total',
       render: (text: any, grossIncome: IGrossIncome) => {
         return formatBolivares(text)
-      }
+      },
+
+      showSorterTooltip: false,
+      sorter: (a: IGrossIncome, b: IGrossIncome) => a.totalTaxInBs - b.totalTaxInBs
     },
     {
       title: 'Acciones',
