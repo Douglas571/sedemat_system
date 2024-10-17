@@ -37,7 +37,8 @@ const isBadDebt = ({
   // console.log({monthsDifference})
 
   // console.log({monthBadDeb: grossIncomeDate.get('month')})
-  return monthsDifference > 2;
+  // when months difference is greater than 1 (2, 3 4...) then it is a bad debt
+  return monthsDifference > 1;
 }
 
 const getBadDebtTax = ({
