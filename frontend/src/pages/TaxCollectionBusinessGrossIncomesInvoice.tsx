@@ -34,7 +34,7 @@ dayjs.locale(dayjs_es);
 import _ from 'lodash';
 
 
-import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement } from '../util/types';
+import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
 import { EditOutlined } from '@ant-design/icons';
 
 
@@ -42,6 +42,8 @@ import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as paymentsApi from '../util/paymentsApi'
 import * as api from '../util/api'
 import * as util from '../util'
+
+import * as penaltyService from '../services/penaltyService'
 
 import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
@@ -504,6 +506,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <br/>
 
+            <PenaltiesTable TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}/>
+
+            <br/>
+
             <PaymentsAllocatedTable 
                 paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
                 payments={payments}
@@ -598,6 +604,387 @@ function Settlement({settlement}: {settlement: ISettlement}) {
 }
 
 export default GrossIncomeInvoiceDetails;
+
+function PenaltiesTable({
+    TCMMVBCV,
+    penalties = []
+}:{
+    TCMMVBCV: number,
+    penalties: IPenalty[]
+}) {
+
+    // TODO: Delete when everything is ready
+    // penalties = [
+    //     {
+    //         id: 1,
+    //         penaltyType: {
+    //             id: 1,
+    //             name: 'Baja',
+    //             defaultAmountMMVBCV: 20
+    //         },
+    //         penaltyTypeId: 0,
+    //         amountMMVBCV: 20,
+    //         description: 'La contribuyente adeuda 6 meses de impuesto de renta',
+    //         createdAt: dayjs().format(),
+    //         updatedAt: dayjs().format()
+    //     },
+    //     {
+    //         id: 2,
+    //         penaltyType: {
+    //             id: 2,
+    //             name: 'Media',
+    //             defaultAmountMMVBCV: 40
+    //         },
+    //         penaltyTypeId: 1,
+    //         amountMMVBCV: 30,
+    //         description: ' dummy penalty 2',
+    //         createdAt: dayjs().add(1, 'day').format(),
+    //         updatedAt: dayjs().add(1, 'day').format()
+    //     },
+    //     {
+    //         id: 3,
+    //         penaltyType: {
+    //             id: 3,
+    //             name: 'Alta',
+    //             defaultAmountMMVBCV: 60
+    //         },
+    //         penaltyTypeId: 2,
+    //         amountMMVBCV: 60,
+    //         description: ' dummy penalty 3',
+    //         createdAt: dayjs().add(2, 'day').format(),
+    //         updatedAt: dayjs().add(2, 'day').format()
+    //     },
+    // ]
+
+    console.log({penalties})
+
+    const [showPenaltyEditModal, setShowPenaltyEditModal] = useState(false)
+    let [selectedPenaltyId, setSelectedPenaltyId] = useState<(null | number)>(null)
+    let selectedPenalty = penalties.find( penalty => penalty.id === selectedPenaltyId)
+    const { userAuth } = useAuthentication()
+
+    const handleToggleShowPenaltyEditModal = () => {
+        setShowPenaltyEditModal(!showPenaltyEditModal)
+    }
+
+    const columns: ColumnsType<IPenalty> = [
+        {
+            title: 'Tipo',
+            dataIndex: ['penaltyType', 'name'],
+            key: 'type',
+        },
+        {
+            title: 'Monto (TCMMVBCV)',
+            dataIndex: 'amountMMVBCV',
+            key: 'amountMMVBCV',
+            render: (text: string, record: IPenalty) => {
+                return CurrencyHandler(text).format()
+            }
+        },
+        {
+            title: 'Monto (Bs.)',
+            dataIndex: 'amountBs',
+            key: 'amountBs',
+            render: (text: string, record: IPenalty) => CurrencyHandler(record.amountMMVBCV).multiply(TCMMVBCV).format()
+        },
+        {
+            title: 'Fecha',
+            dataIndex: 'date',
+            key: 'date',
+            render: (text: string, record: IPenalty) => dayjs(text).format('DD-MM-YYYY')
+        },
+        {
+            title: 'Motivo',
+            dataIndex: 'description',
+            key: 'description',
+
+            render: (text: string) => {
+                return (
+                    <Typography.Paragraph ellipsis={true}>
+                        {text}
+                    </Typography.Paragraph>
+                )
+            }
+        },
+        {
+            title: 'Acciones',
+            key: 'actions',
+            render: (text, record: IPenalty) => (
+                <Flex gap={16}>
+                    <Button 
+                        icon={<EditOutlined />} 
+                        onClick={() => handleEditPenalty(record.id)}
+                    >
+                        Editar
+                    </Button>
+                    <Popconfirm
+                        title="¿Estás seguro de eliminar la multa?"
+                        onConfirm={() => handleDeletePenalty(record.id)}
+                        okText="Sí"
+                        cancelText="No"
+                    >
+                        <Button 
+                            icon={<DeleteOutlined />}
+                            danger
+                            >
+                            Eliminar
+                        </Button>
+                    </Popconfirm>
+                </Flex>
+            )
+        },
+    ];
+
+    function handleEditPenalty(id: number) {
+        setSelectedPenaltyId(id)
+        handleToggleShowPenaltyEditModal()
+    }
+
+    const onCancel = () => {
+        // Implement cancellation logic here
+        handleToggleShowPenaltyEditModal()
+        setSelectedPenaltyId(null)
+    };
+
+    const onEdit = async ({id, penalty}: {id: number, penalty: IPenalty}) => {
+
+        try {
+            let createdPenalty = await penaltyService.updatePenalty({
+                id: id,
+                penalty,
+                token: userAuth.token ?? ''
+            })
+            handleToggleShowPenaltyEditModal()
+        } catch(error) {
+            console.log({error})
+            message.error(error.message)
+        }
+    };
+
+    const onNew = async (penalty: IPenalty) => {
+        // Implement new penalty creation logic here
+
+        console.log({penalty})
+
+        try {
+            let createdPenalty = await penaltyService.createPenalty({
+                penalty,
+                token: userAuth.token ?? ''
+            })
+            handleToggleShowPenaltyEditModal()
+        } catch(error) {
+            console.log({error})
+            message.error(error.message)
+        }
+
+        
+    };
+
+    async function handleDeletePenalty(id: number) {
+        try {
+            await penaltyService.deletePenalty({
+                id,
+                token: userAuth.token ?? ''
+            })
+        } catch(error) {
+            console.log({error})
+            message.error(error.message)
+        }
+    }
+
+    return (
+        <Flex vertical>
+            <Flex align='center' justify='space-between'>
+                <Typography.Title level={4}>Multas</Typography.Title>
+                <Button 
+                    icon={<PlusOutlined />} 
+                    onClick={() => handleToggleShowPenaltyEditModal()}>
+                    Agregar
+                </Button>
+            </Flex>
+            <Alert message={`El monto de la multa se calcula en base a la TCMMV-BCV (${formatBolivares(TCMMVBCV)}) grabada en la factura.`} type="info" showIcon/>
+            <Table 
+                dataSource={penalties} 
+                columns={columns} 
+                pagination={false}
+            />
+
+            {/* add a component called PenaltyEditModal */}
+            <PenaltyEditModal
+                open={showPenaltyEditModal}
+                
+                onCancel={onCancel}
+                onEdit={onEdit}
+                onNew={onNew}
+
+                penalty={selectedPenalty}
+            />
+        </Flex>
+    )
+}
+
+function PenaltyEditModal({
+    open,
+    penalty,
+    onCancel,
+    onEdit,
+    onNew
+}: {
+    open: boolean,
+    penalty?: IPenalty
+    onCancel: () => void,
+    onEdit: ({id, penalty}: {id: number, penalty: IPenalty}) => Promise<void>,
+    onNew: (penalty: IPenalty) => Promise<void>
+}) {
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
+    const [penaltyTypes, setPenaltyTypes] = useState<IPenaltyType[]>([]);
+
+    const {userAuth} = useAuthentication()
+    
+    const userPerson = userAuth?.user?.person
+    const fullName = userPerson?.firstName + ' ' + userPerson?.lastName
+
+    const isEditing = !!penalty;
+
+    const typeOfPenaltyOptions = penaltyTypes.map((penaltyType) => ({
+        label: penaltyType.name,
+        value: penaltyType.id,
+    }))
+
+    const selectedPenaltyTypeId = Form.useWatch('penaltyTypeId', form)
+
+    if (!userPerson) {
+        console.error("User don't have a contact data asigned");
+        message.error('El usuario no tiene datos de contacto asignados');
+        onCancel();
+    }
+
+    const handleOk = () => {
+        form.validateFields()
+            .then(async (values) => {
+                setLoading(true);
+                try {
+                    if (isEditing) {
+                        await onEdit({
+                            id: penalty.id,
+                            penalty: {
+                                ...penalty,
+                                ...values,
+                            }
+                        });
+                    } else {
+                        await onNew({
+                            ...values,
+                        });
+                    }
+
+                    resetForm()
+                } catch (error) {
+                    message.error(error.message);
+                    console.log({ error });
+                } finally {
+                    setLoading(false);
+                }
+            })
+            .catch((error) => {
+                console.log({ error });
+            });
+    }
+
+    async function loadPenaltyTypes() {
+        let fetchedPenaltyTypes = await penaltyService.getAllPenaltyTypes()
+        setPenaltyTypes(fetchedPenaltyTypes)
+    }
+
+    function resetForm() {
+        form.setFieldsValue({
+            penaltyTypeId: penaltyTypes[0]?.id,
+            createdAt: dayjs(),
+            description: ''
+        })
+    }
+
+    useEffect(() => {
+        loadPenaltyTypes()
+    }, [])
+
+    useEffect(() => {
+        if (!isEditing) {
+            resetForm()
+        }
+    }, [penaltyTypes])
+
+    useEffect(() => {
+        if (penalty) {
+            form.setFieldsValue({
+                ...penalty,
+                createdAt: dayjs(penalty.createdAt),
+            })
+        }
+    }, [penalty])
+
+    useEffect(() => {
+        form.setFieldsValue({
+            amountMMVBCV: penaltyTypes.find((penaltyType) => penaltyType.id === selectedPenaltyTypeId)?.defaultAmountMMVBCV,
+        })
+    }, [selectedPenaltyTypeId])
+
+    return (
+        <Modal
+            title={isEditing ? 'Editar Liquidación' : 'Nueva Liquidación'}
+            open={open}
+            onOk={handleOk}
+            confirmLoading={loading}
+            onCancel={() => {
+                resetForm()
+                onCancel()
+            }}
+        >
+            <Form layout="vertical" form={form}>
+                <Flex gap={16}>
+                    <Form.Item
+                        style={{ flex: 1 }}
+                        label="Tipo"
+                        name="penaltyTypeId"
+                        rules={[{ required: true, message: 'Por favor, seleccione el tipo de multa' }]}
+                    >
+                        <Select options={typeOfPenaltyOptions}/>
+                    </Form.Item>
+                    <Form.Item
+                        style={{ flex: 1 }}
+                        label="Monto"
+                        name="amountMMVBCV"
+                        rules={[{ required: true, message: 'Por favor, ingrese el monto de la multa en TCMMVBCV' }]}
+                    >
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            addonAfter='TCMMV-BCV'
+                            min={0}
+                            step={0.01}
+                            decimalSeparator=','
+                        />
+                    </Form.Item>
+                </Flex>
+                <Form.Item
+                    label="Motivo"
+                    name="description"
+                    rules={[{ required: true, message: 'Por favor, ingrese el motivo de la multa' }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Fecha"
+                    name="createdAt"
+                    rules={[{ required: true, message: 'Por favor, ingrese la fecha' }]}
+                >
+                    <DatePicker />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+}
 
 function PaymentsAllocatedTable(
     {paidAt, paymentsAllocated, payments, onDelete, onAdd, disabled} : 

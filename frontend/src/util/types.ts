@@ -289,3 +289,27 @@ export interface ISettlementCreate {
     settledByUserId: number;
     grossIncomeInvoiceId: number;
 }
+
+export interface IPenaltyType {
+    id: number,
+    name: string,
+    defaultAmountMMVBCV: number
+}
+
+export interface IPenalty {
+    id: number,
+    penaltyType: IPenaltyType,
+    penaltyTypeId: number,
+
+    amountMMVBCV: number,
+    
+    description: string,
+    
+    createdAt: string,
+    updatedAt: string,
+
+
+    // TODO: Remove the optional
+    createdByUserId?: number,
+    createdByUser?: IUser,
+}
