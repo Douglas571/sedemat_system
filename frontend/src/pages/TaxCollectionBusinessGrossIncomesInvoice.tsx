@@ -24,7 +24,7 @@ import {
 } from 'antd';
 
 const { Title, Text } = Typography;
-import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined} from '@ant-design/icons';
+import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined} from '@ant-design/icons';
 
 import dayjs from 'dayjs'
 import dayjs_es from 'dayjs/locale/es';
@@ -606,6 +606,7 @@ function PaymentsAllocatedTable(
 
     // console.log({paymentsAllocated})
     const { grossIncomeInvoiceId } = useParams()
+    const navigate = useNavigate()
 
     const [showPaymentAssociationModal, setShowPaymentAssociationModal] = useState(false)
 
@@ -638,6 +639,7 @@ function PaymentsAllocatedTable(
     }
 
     const columns = [
+        
         { 
             title: "Referencia", 
             dataIndex: "reference", 
@@ -668,9 +670,17 @@ function PaymentsAllocatedTable(
             title: "Acciones",
             key: "actions",
             render: (text: any, record: any) => (
-                <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
-                    <Button danger disabled={disabled}>Remover</Button>
-                </Popconfirm>
+                <Flex gap={16}>
+                    <Button 
+                        disabled={disabled}
+                        onClick={() => navigate(`/payments/${record.id}`)}>
+                        <EditOutlined/>
+                        Editar
+                    </Button>
+                    <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
+                        <Button icon={<DeleteOutlined />} danger disabled={disabled}>Remover</Button>
+                    </Popconfirm>
+                </Flex>
             ),
         },
     ];

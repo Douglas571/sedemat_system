@@ -285,7 +285,7 @@ function PaymentsEdit(): JSX.Element {
 
 			message.success("Pago guardado exitosamente")
 
-			navigate('/payments')
+			navigate(-1)
 
 			// cleanDataFromForm()
 
