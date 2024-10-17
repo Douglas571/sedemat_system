@@ -8,7 +8,9 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'dev';
 const config = require('../config/config.js')[env];
 
-console.log({config})
+if (process.env.NODE_ENV === 'dev') {
+  console.log({config})
+}
 
 const db = {};
 
