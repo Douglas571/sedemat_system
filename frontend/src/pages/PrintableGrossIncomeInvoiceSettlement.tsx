@@ -207,7 +207,10 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const wasteCollectionTax = getWasteCollectionTax({grossIncomes})
   const formTax = grossIncomeInvoice?.formPriceBs || 0
 
-  let totalBs = CurrencyHandler(badDebtTax).add(economicActivityTax).add(wasteCollectionTax).add(formTax).value
+  const penaltiesTotalInMMVBCV = grossIncomeInvoice?.penalties?.reduce((acc: number, curr: Penalty) => CurrencyHandler(acc).add(curr.amountMMVBCV).value, 0)
+  const penaltiesTotalInBs = CurrencyHandler(penaltiesTotalInMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 1).value
+
+  let totalBs = CurrencyHandler(badDebtTax).add(economicActivityTax).add(wasteCollectionTax).add(penaltiesTotalInBs).add(formTax).value
 
   const REFERENCE_SEPARATOR = ' - '
   let references: string = useMemo(() => payments.reduce((acc: string, curr: Payment) => acc ? acc + REFERENCE_SEPARATOR + curr.reference : curr.reference, ''), [payments])
@@ -370,6 +373,14 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
       amountBs: formatBolivares(formTax), // Assuming amount is not specified
     },
   ];
+
+  if (penaltiesTotalInBs > 0) {
+    tableItems.push({
+      code: '301110800',
+      description: 'Multas Y Recargos'.toUpperCase(),
+      amountBs: formatBolivares(penaltiesTotalInBs),
+    })
+  }
 
   if (wasteCollectionTax > 0) {
     tableItems.push({
