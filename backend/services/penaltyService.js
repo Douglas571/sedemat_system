@@ -1,5 +1,7 @@
 const { Penalty, PenaltyType, GrossIncomeInvoice, User } = require('../database/models');
 
+const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
+
 const ROLES = require('../utils/auth/roles');
 
 function canCreateUpdateDeletePenalty(user) {
@@ -19,6 +21,11 @@ const createPenalty = async ({data, user}) => {
     ...data,
     createdByUserId: user.id,
   });
+
+  if (data.grossIncomeInvoiceId) {
+    await grossIncomeInvoiceService.updatePaidAtProperty(data.grossIncomeInvoiceId)
+  }
+
   return penalty;
 };
 
@@ -32,7 +39,13 @@ const updatePenalty = async ({id, data, user}) => {
   if (!penalty) {
     throw new Error('Penalty not found');
   }
+
   await penalty.update(data);
+
+  if (data.grossIncomeInvoiceId) {
+    await grossIncomeInvoiceService.updatePaidAtProperty(data.grossIncomeInvoiceId)
+  }
+
   return penalty;
 };
 
@@ -45,6 +58,11 @@ const deletePenalty = async ({id, user}) => {
     throw new Error('Penalty not found');
   }
   await penalty.destroy();
+
+  if (penalty.grossIncomeInvoiceId) {
+    await grossIncomeInvoiceService.updatePaidAtProperty(penalty.grossIncomeInvoiceId)
+  }
+
   return penalty;
 };
 

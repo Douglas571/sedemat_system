@@ -96,7 +96,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 1
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
-    let TOTAL = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
+    let TOTAL = grossIncomeInvoice
+        ?.grossIncomes.reduce(
+            (total, grossIncome) => CurrencyHandler(total)
+                .add(grossIncome.totalTaxInBs).value, 0) ?? 0
+
+    TOTAL = grossIncomeInvoice
+        ?.penalties
+            .reduce((total, penalty) => {   
+                let penaltyTotalInBs = CurrencyHandler(penalty.amountMMVBCV)
+                    .multiply(grossIncomeInvoice.TCMMVBCV).value
+                return CurrencyHandler(total)
+                    .add(penaltyTotalInBs).value
+            }, TOTAL) ?? 0
+
     TOTAL = CurrencyHandler(TOTAL).add(grossIncomeInvoice?.formPriceBs).value
 
     const totalLessPaymentsAllocatedBs = CurrencyHandler(TOTAL).subtract(totalPaymentsAllocated).value

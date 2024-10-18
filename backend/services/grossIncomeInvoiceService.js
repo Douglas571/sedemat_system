@@ -73,7 +73,14 @@ function getGrossIncomeTaxSubTotalInBs({
     return Math.max(taxInBs, minTaxInBs) + wasteCollectionTax
 }
 
-function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
+function canBeSettled({
+    grossIncomes, 
+    payments, 
+    formPriceBs = 0,
+
+    TCMMVBCV,
+    penalties = [],
+}) {
     let total = 0
     let totalPayments = 0
 
@@ -86,6 +93,12 @@ function canBeSettled({grossIncomes, payments, formPriceBs = 0}) {
         let subTotal = grossIncome.totalTaxInBs
 
         total = currencyHandler(total).add(subTotal).value
+    })
+
+    // add penalties
+    penalties.forEach(penalty => {
+        let penaltyTotal = currencyHandler(penalty.amountMMVBCV).multiply(TCMMVBCV).value
+        total = currencyHandler(total).add(penaltyTotal).value
     })
 
     // add the form price 
@@ -239,7 +252,8 @@ class GrossIncomeInvoiceService {
             canBeSettled: canBeSettled({
                 grossIncomes: grossIncomeInvoice.grossIncomes,
                 payments: grossIncomeInvoice.payments,
-                formPriceBs: grossIncomeInvoice.formPriceBs
+                formPriceBs: grossIncomeInvoice.formPriceBs,
+                ...grossIncomeInvoice
             })
         }
 
@@ -427,12 +441,25 @@ class GrossIncomeInvoiceService {
                 {
                     model: Payment,
                     as: 'payments'
+                },
+                {
+                    model: Penalty,
+                    as: 'penalties'
                 }
             ]
         })
 
-        let totalGrossIncomes = grossIncomeInvoice.grossIncomes.reduce((total, grossIncome) => currencyHandler(total).add(grossIncome.totalTaxInBs).value, 0)
-        totalGrossIncomes = currencyHandler(totalGrossIncomes).add(grossIncomeInvoice.formPriceBs).value
+        // add gross incomes subtotal
+        let total = grossIncomeInvoice.grossIncomes.reduce((total, grossIncome) => currencyHandler(total).add(grossIncome.totalTaxInBs).value, 0)
+
+        
+        // add penalties
+        grossIncomeInvoice.penalties.forEach(penalty => {
+            let penaltyTotal = currencyHandler(penalty.amountMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).value
+            total = currencyHandler(total).add(penaltyTotal).value
+        })
+
+        total = currencyHandler(total).add(grossIncomeInvoice.formPriceBs).value
 
         const totalPayments = grossIncomeInvoice.payments.reduce((total, payment) => currencyHandler(total).add(payment.amount).value, 0)
 
@@ -452,7 +479,7 @@ class GrossIncomeInvoiceService {
         }
 
         let invoice 
-        if (totalGrossIncomes === totalPayments) {
+        if (total === totalPayments) {
             invoice = await grossIncomeInvoice.update({ paidAt: lastPayment.paymentDate })
         } else {
             invoice = await grossIncomeInvoice.update({ paidAt: null })
