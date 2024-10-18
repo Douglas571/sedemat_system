@@ -558,7 +558,7 @@ const GrossIncomeInvoice: React.FC = () => {
                         htmlType="submit"
                         style={{ marginTop: '20px' }}
                     >
-                        Registrar Calculo
+                        {isEditing ? 'Actualizar' : 'Guardar'} factura
                     </Button>
                 </Form.Item>
             </Form>
