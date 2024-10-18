@@ -16,6 +16,17 @@ function canCreateUpdateDeletePenalty(user) {
 const createPenalty = async ({data, user}) => {
 
   canCreateUpdateDeletePenalty(user)
+
+  if (data.grossIncomeInvoiceId) {
+    const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
+    if (!grossIncomeInvoice) {
+      throw new Error('Gross Income Invoice not found');
+    }
+
+    if (grossIncomeInvoice.settlement) {
+      throw new Error('Gross Income Invoice has a settled invoice associated');
+    }
+  }
   
   const penalty = await Penalty.create({
     ...data,
@@ -35,9 +46,19 @@ const updatePenalty = async ({id, data, user}) => {
 
   const penalty = await Penalty.findByPk(id);
 
-  console.log({data})
   if (!penalty) {
     throw new Error('Penalty not found');
+  }
+
+  if (penalty.grossIncomeInvoiceId) {
+    const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
+    if (!grossIncomeInvoice) {
+      throw new Error('Gross Income Invoice not found');
+    }
+
+    if (grossIncomeInvoice.settlement) {
+      throw new Error('Gross Income Invoice has a settled invoice associated');
+    }
   }
 
   await penalty.update(data);

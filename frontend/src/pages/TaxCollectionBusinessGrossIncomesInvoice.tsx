@@ -267,6 +267,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
 
+    const cadEditPenalties = [ROLES.RECAUDADOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement.id
+
     const unmarkAsSettledButton = <Popconfirm
         title="Desmarcando como liquidado"
         onConfirm={() => handleDeleteSettlement(grossIncomeInvoice?.settlement?.id)}
@@ -526,6 +528,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 onUpdate={() => {
                     loadData()
                 }}
+
+                canEdit={cadEditPenalties}
             />
 
             
@@ -631,12 +635,14 @@ function PenaltiesTable({
     TCMMVBCV,
     penalties = [],
     grossIncomeInvoiceId,
-    onUpdate
+    onUpdate,
+    canEdit
 }:{
     TCMMVBCV: number,
     penalties: IPenalty[],
     grossIncomeInvoiceId: number,
-    onUpdate: () => void
+    onUpdate: () => void,
+    canEdit: boolean
 }) {
 
     // TODO: Delete when everything is ready
@@ -740,6 +746,7 @@ function PenaltiesTable({
                     <Button 
                         icon={<EditOutlined />} 
                         onClick={() => handleEditPenalty(record.id)}
+                        disabled={!canEdit}
                     >
                         Editar
                     </Button>
@@ -752,6 +759,7 @@ function PenaltiesTable({
                         <Button 
                             icon={<DeleteOutlined />}
                             danger
+                            disabled={!canEdit}
                             >
                             Eliminar
                         </Button>
@@ -830,7 +838,9 @@ function PenaltiesTable({
                 <Typography.Title level={4}>Multas</Typography.Title>
                 <Button 
                     icon={<PlusOutlined />} 
-                    onClick={() => handleToggleShowPenaltyEditModal()}>
+                    onClick={() => handleToggleShowPenaltyEditModal()}
+                    disabled={!canEdit}    
+                >
                     Agregar
                 </Button>
             </Flex>
