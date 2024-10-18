@@ -34,6 +34,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [business, setBusiness] = useState<Business>();
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
 
+    
+
     // a variable for storing all currency exchange rates 
     const [alicuotaHistory, setAlicuotaHistory] = useState<IAlicuota[]>([]);
 
@@ -322,7 +324,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
     async function handleChange({ fileList: newFileList }: { fileList: UploadFile[] }) {
         console.log('newFileList', newFileList)
-        setFileList(newFileList); // Only keep the last uploaded file
+        setFileList(newFileList);
     };
 
     async function onFinish(values: any) {
@@ -368,6 +370,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 alicuotaTaxPercent: percentHandler(values.alicuotaTaxPercent).divide(100).value,
             };
 
+            if (!hasBranchOffices) {
+                // TODO: Delete after setting the default value as false in database
+                newGrossIncome.chargeWasteCollection = false
+            }
+
             newGrossIncome.alicuotaId = values.alicuotaId
             newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRatesId
 
@@ -375,7 +382,6 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
             // if is editing, update the gross income
             if (isEditing) {
-
                 const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome);
                 message.success('Ingreso bruto actualizado exitosamente');
             } else {
@@ -420,7 +426,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         amountBs: 0
                     }}
                 >
-                    <Form.Item
+                    { hasBranchOffices && <Form.Item
                         layout='horizontal'
                         name="branchOffice"
                         label="Sucursal"
@@ -448,7 +454,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             }}
                             disabled={isEditing}
                         />
-                    </Form.Item>
+                    </Form.Item> }
 
                     <Flex wrap gap={16} align='center'>
                         <Form.Item
@@ -570,69 +576,76 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     </Flex>
 
 
-                    <Flex align='center' justify='space-between'>
-                        <Typography.Title level={4}>Aseo Urbano</Typography.Title>
-                        <Button onClick={() => updateWasteCollection()}>
-                            <ReloadOutlined/>
-                            Actualizar
-                        </Button>
-                    </Flex>
-                    <Flex vertical>
-                        
-                        <Form.Item
-                            name="chargeWasteCollection"
-                            valuePropName="checked"
-                        >
-                            <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
-                        </Form.Item>
-
-                        <Flex gap={16}>
-
-                            <Form.Item
-                                name="branchOfficeDimensionsMts2"
-                                label="Dimensiones"
-                                rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
+                    
+                    {
+                        hasBranchOffices &&
+                            (<Flex vertical>
+                                <Flex align='center' justify='space-between'>
+                                    <Typography.Title level={4}>Aseo Urbano</Typography.Title>
+                                    <Button onClick={() => updateWasteCollection()}>
+                                        <ReloadOutlined/>
+                                        Actualizar
+                                    </Button>
+                                </Flex>
+            
+                                <Flex vertical>
                                 
-                            >
-                                <InputNumber
-                                    style={{ width: '100%' }}
-                                    addonAfter='Mts2'
-                                    min={0}
-                                    step={0.01}
-                                    decimalSeparator=','
-                                    disabled={!chargeWasteCollectionTax}
-                                />
-                            </Form.Item>
+                                    <Form.Item
+                                        name="chargeWasteCollection"
+                                        valuePropName="checked"
+                                    >
+                                        <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
+                                    </Form.Item>
 
-                            <Form.Item
-                                name="branchOfficeType"
-                                label="Tipo de Terreno"
-                                rules={[{ required: true, message: 'Por favor introduzca el tipo de terreno para esta sucursal (I, II o III)' }]}
-                            >
-                                <Input
-                                    
-                                    disabled={!chargeWasteCollectionTax}
-                                />
-                            </Form.Item>
+                                    <Flex gap={16}>
 
-                            <Form.Item
-                                name="wasteCollectionTaxMMVBCV"
-                                label="Impuesto (MMVBCV)"
-                                rules={[{ required: true, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
-                                
-                            >
-                                <InputNumber
-                                    style={{ width: '100%' }}
-                                    addonAfter='MMVBCV'
-                                    min={0}
-                                    step={0.01}
-                                    decimalSeparator=','
-                                    disabled={!chargeWasteCollectionTax}
-                                />
-                            </Form.Item>
-                        </Flex>
-                        
-                    </Flex>
+                                        <Form.Item
+                                            name="branchOfficeDimensionsMts2"
+                                            label="Dimensiones"
+                                            rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
+                                            
+                                        >
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                addonAfter='Mts2'
+                                                min={0}
+                                                step={0.01}
+                                                decimalSeparator=','
+                                                disabled={!chargeWasteCollectionTax}
+                                            />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            name="branchOfficeType"
+                                            label="Tipo de Terreno"
+                                            rules={[{ required: true, message: 'Por favor introduzca el tipo de terreno para esta sucursal (I, II o III)' }]}
+                                        >
+                                            <Input
+                                                
+                                                disabled={!chargeWasteCollectionTax}
+                                            />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            name="wasteCollectionTaxMMVBCV"
+                                            label="Impuesto (MMVBCV)"
+                                            rules={[{ required: true, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
+                                            
+                                        >
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                addonAfter='MMVBCV'
+                                                min={0}
+                                                step={0.01}
+                                                decimalSeparator=','
+                                                disabled={!chargeWasteCollectionTax}
+                                            />
+                                        </Form.Item>
+                                    </Flex>
+                                </Flex>
+                            </Flex>)
+                    }
+                    
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
                             Guardar
