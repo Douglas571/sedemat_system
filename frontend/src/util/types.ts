@@ -307,7 +307,8 @@ export interface IPenalty {
     
     createdAt: string,
     updatedAt: string,
-
+    
+    grossIncomeInvoiceId: number
 
     // TODO: Remove the optional
     createdByUserId?: number,

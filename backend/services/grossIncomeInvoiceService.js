@@ -10,6 +10,8 @@ const {
     Alicuota,
     BranchOffice,
     WasteCollectionTax,
+    Penalty,
+    PenaltyType
 } = require('../database/models');
 
 const currency = require('currency.js');
@@ -193,6 +195,36 @@ class GrossIncomeInvoiceService {
                 {
                     model: Payment,
                     as: 'payments'
+                },
+                {
+                    model: Penalty,
+                    as: 'penalties',
+                    include: [
+                        {
+                            model: PenaltyType,
+                            as: 'penaltyType'
+                        },
+                        {
+                            model: User,
+                            as: 'createdByUser',
+                            include: [
+                                {
+                                    model: Person,
+                                    as: 'person'
+                                }
+                            ]
+                        },
+                        {
+                            model: User,
+                            as: 'revokedByUser',
+                            include: [
+                                {
+                                    model: Person,
+                                    as: 'person'
+                                }
+                            ]
+                        }
+                    ]
                 }
                 
             ]

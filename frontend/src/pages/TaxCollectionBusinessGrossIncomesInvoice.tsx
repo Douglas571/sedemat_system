@@ -506,7 +506,16 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <br/>
 
-            <PenaltiesTable TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}/>
+            <PenaltiesTable 
+                TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}
+                grossIncomeInvoiceId={Number(grossIncomeInvoiceId)}
+                penalties={grossIncomeInvoice?.penalties}
+                onUpdate={() => {
+                    loadData()
+                }}
+            />
+
+            
 
             <br/>
 
@@ -607,10 +616,14 @@ export default GrossIncomeInvoiceDetails;
 
 function PenaltiesTable({
     TCMMVBCV,
-    penalties = []
+    penalties = [],
+    grossIncomeInvoiceId,
+    onUpdate
 }:{
     TCMMVBCV: number,
-    penalties: IPenalty[]
+    penalties: IPenalty[],
+    grossIncomeInvoiceId: number,
+    onUpdate: () => void
 }) {
 
     // TODO: Delete when everything is ready
@@ -755,6 +768,7 @@ function PenaltiesTable({
                 token: userAuth.token ?? ''
             })
             handleToggleShowPenaltyEditModal()
+            onUpdate()
         } catch(error) {
             console.log({error})
             message.error(error.message)
@@ -768,10 +782,14 @@ function PenaltiesTable({
 
         try {
             let createdPenalty = await penaltyService.createPenalty({
-                penalty,
+                penalty: {
+                    ...penalty,
+                    grossIncomeInvoiceId
+                },
                 token: userAuth.token ?? ''
             })
             handleToggleShowPenaltyEditModal()
+            onUpdate()
         } catch(error) {
             console.log({error})
             message.error(error.message)
@@ -786,6 +804,7 @@ function PenaltiesTable({
                 id,
                 token: userAuth.token ?? ''
             })
+            onUpdate()
         } catch(error) {
             console.log({error})
             message.error(error.message)
@@ -848,12 +867,21 @@ function PenaltyEditModal({
 
     const isEditing = !!penalty;
 
-    const typeOfPenaltyOptions = penaltyTypes.map((penaltyType) => ({
+    
+    let typeOfPenaltyOptions: {label: string, value: number}[] = []
+
+    typeOfPenaltyOptions = penaltyTypes?.map((penaltyType) => ({
         label: penaltyType.name,
         value: penaltyType.id,
-    }))
+    })) ?? []
 
     const selectedPenaltyTypeId = Form.useWatch('penaltyTypeId', form)
+
+    if (!userAuth) {
+        console.error("User don't have a contact data asigned");
+        message.error('El usuario no tiene datos de contacto asignados');
+        onCancel();
+    }
 
     if (!userPerson) {
         console.error("User don't have a contact data asigned");
@@ -877,6 +905,7 @@ function PenaltyEditModal({
                     } else {
                         await onNew({
                             ...values,
+                            createdByUserId: userAuth?.user.id
                         });
                     }
 
@@ -896,6 +925,8 @@ function PenaltyEditModal({
     async function loadPenaltyTypes() {
         let fetchedPenaltyTypes = await penaltyService.getAllPenaltyTypes()
         setPenaltyTypes(fetchedPenaltyTypes)
+
+        console.log({fetchedPenaltyTypes})
     }
 
     function resetForm() {
