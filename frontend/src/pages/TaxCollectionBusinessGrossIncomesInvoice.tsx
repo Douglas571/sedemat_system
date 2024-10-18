@@ -96,21 +96,23 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     let MMVExchangeRate = grossIncomeInvoice?.TCMMVBCV ?? 1
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
-    let TOTAL = grossIncomeInvoice
+    let totalBeforePenalties = grossIncomeInvoice
         ?.grossIncomes.reduce(
             (total, grossIncome) => CurrencyHandler(total)
                 .add(grossIncome.totalTaxInBs).value, 0) ?? 0
 
-    TOTAL = grossIncomeInvoice
+    totalBeforePenalties = CurrencyHandler(totalBeforePenalties).add(grossIncomeInvoice?.formPriceBs).value
+
+    let TOTAL = grossIncomeInvoice
         ?.penalties
             .reduce((total, penalty) => {   
                 let penaltyTotalInBs = CurrencyHandler(penalty.amountMMVBCV)
                     .multiply(grossIncomeInvoice.TCMMVBCV).value
                 return CurrencyHandler(total)
                     .add(penaltyTotalInBs).value
-            }, TOTAL) ?? 0
+            }, totalBeforePenalties) ?? 0
 
-    TOTAL = CurrencyHandler(TOTAL).add(grossIncomeInvoice?.formPriceBs).value
+    
 
     const totalLessPaymentsAllocatedBs = CurrencyHandler(TOTAL).subtract(totalPaymentsAllocated).value
     const totalLessPaymentsAllocatedMMV = CurrencyHandler(totalLessPaymentsAllocatedBs).divide(MMVExchangeRate).value
@@ -179,37 +181,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }
 
-    const toggleIsSettled = async () => {
-        // console.log('mark as settled')
-
-        // try {
-        //     let response
-        //     if (grossIncomeInvoice?.paidAt) {
-        //         response = await settlementService.create({
-                    
-        //         }, token)
-        //     } else {
-        //         response = await GrossIncomesInvoiceService.markAsPaid(Number(grossIncomeInvoiceId), token)
-        //     }
-            
-        //     // console.log({response})
-
-        //     loadData()
-
-        //     if (response.paidAt) {
-        //         message.success('Factura marcados como pagados')
-        //     } else {
-        //         message.success('Factura desmarcados como pagados')
-        //     }
-
-        // } catch (error) {
-        //     message.error('Error al marcar como pagado')
-        //     console.log({error})
-        // }
-
-        
-    }
-
 
     const handleNewSettlement = async (data) => {
         let createdSettlement = {
@@ -267,7 +238,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
 
-    const cadEditPenalties = [ROLES.RECAUDADOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement.id
+    const cadEditPenalties = [ROLES.RECAUDADOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
 
     const unmarkAsSettledButton = <Popconfirm
         title="Desmarcando como liquidado"
@@ -437,6 +408,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 />
             </Table>
 
+            {/* table for form price */}
             <Table 
                 size='small'
                 dataSource={[{ formularyPrice: 1 }]} 
@@ -454,7 +426,29 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     )}
                 />
             </Table>
-            
+
+            {/* table for penalties */}
+            { grossIncomeInvoice?.penalties?.length > 0 && 
+                (<Table 
+                    size='small'
+                    dataSource={grossIncomeInvoice?.penalties ?? []} 
+                    pagination={false}
+                    showHeader={false}
+                >
+                    <Table.Column 
+                        title="Formulary Price"
+                        key="formularyPrice" 
+                        render={(_, record: IPenalty) => (
+                            <>
+                                <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
+                                <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
+                            </>
+                        )}
+                    />
+                </Table>)
+            }
+
+            {/* table for total before penalties */}
             <Table 
                 size='small'
                 dataSource={[{ total: 1 }]} 
@@ -464,7 +458,29 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Table.Column 
                     title="Total" 
                     key="total" 
-                    render={(text: any) => <Text strong>Total en Bs</Text>}
+                    render={(text: any) => <Text strong>Subtotal Bs</Text>}
+                    align="right"
+                />
+                <Table.Column 
+                    title="Total en Bs" 
+                    key="total" 
+                    align="right"
+                    width="15%"
+                    render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
+                />
+            </Table>
+            
+            {/* table for total */}
+            <Table 
+                size='small'
+                dataSource={[{ total: 1 }]} 
+                pagination={false}
+                showHeader={false}
+            >
+                <Table.Column 
+                    title="Total" 
+                    key="total" 
+                    render={(text: any) => <Text strong>Total a Pagar en Bs</Text>}
                     align="right"
                 />
                 <Table.Column 
@@ -475,6 +491,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     render={(text: any) => <Text strong>{formatBolivares(TOTAL)}</Text>}
                 />
             </Table>
+
+            {/* table for total less payments allocated */}
             <Table 
                 size='small'
                 dataSource={[{ allocated: 1 }]} 
@@ -496,6 +514,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 />
             </Table>
 
+            {/* table for total less payments allocated in MMV */}
             <Table 
                 size='small'
                 dataSource={[{ total: 40 }]} 
