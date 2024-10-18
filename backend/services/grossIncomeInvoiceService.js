@@ -81,6 +81,11 @@ function canBeSettled({
     TCMMVBCV,
     penalties = [],
 }) {
+
+    if (!TCMMVBCV) {
+        throw new Error('TCMMVBCV is required')
+    }
+
     let total = 0
     let totalPayments = 0
 
@@ -98,8 +103,10 @@ function canBeSettled({
     // add penalties
     penalties.forEach(penalty => {
         let penaltyTotal = currencyHandler(penalty.amountMMVBCV).multiply(TCMMVBCV).value
+        console.log({TCMMVBCV, penalty, penaltyTotal})
         total = currencyHandler(total).add(penaltyTotal).value
     })
+
 
     // add the form price 
     total = currencyHandler(total).add(formPriceBs).value
@@ -108,7 +115,7 @@ function canBeSettled({
     totalPayments = payments
         .reduce((total, payment) => currencyHandler(total).add(payment.amount).value, 0)
 
-    console.log({total, totalPayments})
+    // console.log({total, totalPayments})
 
     if (payments.some( p => !p.isVerified)) {
         return false
@@ -253,7 +260,7 @@ class GrossIncomeInvoiceService {
                 grossIncomes: grossIncomeInvoice.grossIncomes,
                 payments: grossIncomeInvoice.payments,
                 formPriceBs: grossIncomeInvoice.formPriceBs,
-                ...grossIncomeInvoice
+                ...grossIncomeInvoice.toJSON() // to pass all properties like TCMMVBCV
             })
         }
 
