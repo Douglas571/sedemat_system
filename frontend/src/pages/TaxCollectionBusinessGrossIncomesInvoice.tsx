@@ -429,46 +429,50 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             {/* table for penalties */}
             { grossIncomeInvoice?.penalties?.length > 0 && 
-                (<Table 
-                    size='small'
-                    dataSource={grossIncomeInvoice?.penalties ?? []} 
-                    pagination={false}
-                    showHeader={false}
-                >
-                    <Table.Column 
-                        title="Formulary Price"
-                        key="formularyPrice" 
-                        render={(_, record: IPenalty) => (
-                            <>
-                                <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
-                                <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
-                            </>
-                        )}
-                    />
-                </Table>)
+                (<Flex vertical>
+                    <Table 
+                        size='small'
+                        dataSource={grossIncomeInvoice?.penalties ?? []} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Formulary Price"
+                            key="formularyPrice" 
+                            render={(_, record: IPenalty) => (
+                                <>
+                                    <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
+                                    <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
+                                </>
+                            )}
+                        />
+                    </Table>
+
+                    {/* table for total before penalties */}
+                    <Table 
+                        size='small'
+                        dataSource={[{ total: 1 }]} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Total" 
+                            key="total" 
+                            render={(text: any) => <Text strong>Subtotal Bs (sin multas)</Text>}
+                            align="right"
+                        />
+                        <Table.Column 
+                            title="Total en Bs" 
+                            key="total" 
+                            align="right"
+                            width="15%"
+                            render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
+                        />
+                    </Table>
+                </Flex>)
             }
 
-            {/* table for total before penalties */}
-            <Table 
-                size='small'
-                dataSource={[{ total: 1 }]} 
-                pagination={false}
-                showHeader={false}
-            >
-                <Table.Column 
-                    title="Total" 
-                    key="total" 
-                    render={(text: any) => <Text strong>Subtotal Bs</Text>}
-                    align="right"
-                />
-                <Table.Column 
-                    title="Total en Bs" 
-                    key="total" 
-                    align="right"
-                    width="15%"
-                    render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
-                />
-            </Table>
+            
             
             {/* table for total */}
             <Table 
@@ -740,9 +744,9 @@ function PenaltiesTable({
         },
         {
             title: 'Fecha',
-            dataIndex: 'date',
+            dataIndex: 'createdAt',
             key: 'date',
-            render: (text: string, record: IPenalty) => dayjs(text).format('DD-MM-YYYY')
+            render: (text: string) => dayjs(text).format('DD-MM-YYYY')
         },
         {
             title: 'Motivo',

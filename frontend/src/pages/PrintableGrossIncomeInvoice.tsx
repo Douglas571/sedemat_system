@@ -45,6 +45,25 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const updatedAt = dayjs(grossIncomeInvoice?.updatedAt)
 
+    let TCMMVBCV = grossIncomeInvoice?.TCMMVBCV ?? 1
+    
+
+    console.log({lastCurrencyExchangeRate, TCMMVBCV})
+
+    // TOTALS CALCULATION 
+
+    const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
+
+    let totalBeforePenalties = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
+
+    totalBeforePenalties = CurrencyHandler(totalBeforePenalties).add(grossIncomeInvoice?.formPriceBs).value
+
+    let TOTAL = grossIncomeInvoice?.penalties.reduce((total, penalty) =>{ 
+        let penaltyTotal = CurrencyHandler(penalty.amountMMVBCV).multiply(TCMMVBCV).value
+        return CurrencyHandler(total).add(penaltyTotal).value
+    }, totalBeforePenalties)
+
+
     const getWeekRange = (date: Date) => {
         // being aware that Monday is the start of the week 
         const start = dayjs(date).startOf('week').add(1, 'day');
@@ -101,18 +120,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         loadData()
     }, [])
 
-    let TCMMVBCV = grossIncomeInvoice?.TCMMVBCV ?? 1
-    
-
-    console.log({lastCurrencyExchangeRate, TCMMVBCV})
-
-    if (!business) {
+    if (!business || !grossIncomeInvoice?.id) {
+        console.log("here")
+        console.log({business, grossIncomeInvoice})
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
-
-    const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
-    let TOTAL = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
-    TOTAL = CurrencyHandler(TOTAL).add(grossIncomeInvoice?.formPriceBs).value
 
     return (
         <Flex vertical>
@@ -243,10 +255,55 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     )}
                 />
             </Table>
-            
+
+            {/* table for penalties */}
+            { grossIncomeInvoice?.penalties?.length > 0 && 
+                (<Flex vertical>
+                    <Table 
+                        size='small'
+                        dataSource={grossIncomeInvoice?.penalties ?? []} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Formulary Price"
+                            key="formularyPrice" 
+                            render={(_, record: IPenalty) => (
+                                <>
+                                    <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
+                                    <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
+                                </>
+                            )}
+                        />
+                    </Table>
+                    
+                    <Table 
+                        size='small'
+                        dataSource={[{ total: 0 }]} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Total" 
+                            key="total" 
+                            render={(text: any) => <Text strong>Subtotal en Bs</Text>}
+                            align="right"
+                        />
+                        <Table.Column 
+                            title="Total en Bs" 
+                            key="total" 
+                            align="right"
+                            width="15%"
+                            render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
+                        />
+                    </Table>
+                </Flex>
+                )
+            }
+
             <Table 
                 size='small'
-                dataSource={[{ total: 1 }]} 
+                dataSource={[{ total: 0 }]} 
                 pagination={false}
                 showHeader={false}
             >
@@ -274,7 +331,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Table.Column 
                     title="Total" 
                     key="total" 
-                    render={(text: any) => <Text strong>Total en MMV</Text>}
+                    render={(text: any) => <Text strong>Total en TCMMV-BCV</Text>}
                     align="right"
                 />
                 <Table.Column 
@@ -282,10 +339,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     key="total" 
                     align="right"
                     width="15%"
-                    render={(text: any) => <Text strong>{`${CurrencyHandler(TOTAL).divide(TCMMVBCV).format()} MMVBCV` }</Text>}
+                    render={(text: any) => <Text strong>{`${CurrencyHandler(TOTAL).divide(TCMMVBCV).format()}` }</Text>}
                 />
             </Table>
-            <Typography.Paragraph style={{ textAlign: 'center', paddingTop: '10px', paddingBottom: '10px' }} strong>Tasa de cambio de la Moneda de Mayor Valor dle Banco Central de Venezuela (TCMMVBCV)={formatBolivares(TCMMVBCV)} desde el día {getWeekRange(grossIncomeInvoice?.updatedAt).start.format('DD/MM/YYYY')} hasta el {getWeekRange(grossIncomeInvoice?.updatedAt).end.format('DD/MM/YYYY')}.</Typography.Paragraph>
+            <Typography.Paragraph style={{ textAlign: 'center', paddingTop: '10px', paddingBottom: '10px' }} strong>Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV)={formatBolivares(TCMMVBCV)} desde el día {dayjs.utc(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el {dayjs.utc(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.</Typography.Paragraph>
 
             
             <Descriptions bordered layout='vertical' size='small'>
