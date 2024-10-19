@@ -39,6 +39,7 @@ const GrossIncomeTable = () => {
       let grossIncomesWithStatus: IGrossIncomeWithStatus[] = grossIncomes.map((grossIncome: IGrossIncome) => {
 
         let {status, badgeStatus} = util.getGrossIncomeState({grossIncome})
+        let branchOffice = grossIncome?.branchOffice?.nickname ?? '--'
 
 
         return ({
@@ -46,7 +47,8 @@ const GrossIncomeTable = () => {
         period: dayjs(grossIncome.period).format('YYYY-MM'),
 
         status, 
-        badgeStatus
+        badgeStatus,
+        branchOfficeNickName: branchOffice
 
       })});
 
@@ -125,18 +127,18 @@ const GrossIncomeTable = () => {
       dataIndex: 'branchOffice',
       key: 'branchOffice',
 
-      filters: [... new Set(grossIncomes.map(grossIncome => grossIncome.branchOffice.nickname))].map(branchOffice => ({text: branchOffice, value: branchOffice})),
+      filters: [... new Set(grossIncomes.map(grossIncome => grossIncome.branchOfficeNickName))].map(branchOffice => ({text: branchOffice, value: branchOffice})),
 
       onFilter: (value: string, record: IGrossIncome) => {
-        return record.branchOffice.nickname === value
+        return record.branchOfficeNickName === value
       },
 
       render: (text: any, grossIncome: IGrossIncome) => {
-        return grossIncome?.branchOffice?.nickname || '';
+        return grossIncome.branchOfficeNickName;
       },
 
       showSorterTooltip: false,
-      sorter: (a: IGrossIncome, b: IGrossIncome) => a.branchOffice.nickname.localeCompare(b.branchOffice.nickname),
+      sorter: (a: IGrossIncome, b: IGrossIncome) => a.branchOfficeNickName.localeCompare(b.branchOfficeNickName),
     },
     {
       title: 'Estado',
