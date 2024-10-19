@@ -343,10 +343,14 @@ function BusinessViewDetails(): JSX.Element {
           />
 
           <Flex gap='middle' wrap>
-            <ContactDisplay
-              contact={business.owner}
-              role={"Propietario"}
-            />
+            {
+              business.owner && (
+                <ContactDisplay
+                  contact={business.owner}
+                  role={"Propietario"}
+                />
+              )
+            }
 
             {business.accountant && (
               <ContactDisplay

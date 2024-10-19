@@ -426,7 +426,9 @@ function BusinessContactInformationForm({ people }): JSX.Element {
                     name={"owner"}
                     label={"Propietario"}
                     style={{ width: '100%' }}
-                    rules={[{ required: true, message: "Seleccione un propietario" }]}>
+                    // ! Disabled for now
+                    // rules={[{ required: true, message: "Seleccione un propietario" }]}
+                >
                     <Select
                         showSearch
                         options={peopleOptions}
