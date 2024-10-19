@@ -110,13 +110,23 @@ const BusinessInfo: React.FC<{
 const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ grossIncome }) => {
     if (!grossIncome) return null;
 
+    const hasBranchOffice = grossIncome?.branchOffice?.nickname;
+
     return (
         <Descriptions title="Detalles del Ingreso Bruto" bordered>
             <Descriptions.Item label="Año">{dayjs(grossIncome.period).year()}</Descriptions.Item>
             <Descriptions.Item label="Mes">{dayjs(grossIncome.period).format('MMMM')}</Descriptions.Item>
             <Descriptions.Item label="Monto Declarado">{formatBolivares(grossIncome.amountBs)}</Descriptions.Item>
-            <Descriptions.Item label="Cobrar Aseo">{grossIncome.chargeWasteCollection ? "SI" : "NO"}</Descriptions.Item>
-            <Descriptions.Item label="Sucursal">{grossIncome.branchOffice.nickname}</Descriptions.Item>
+
+            {
+                hasBranchOffice && (
+                <>
+                    <Descriptions.Item label="Cobrar Aseo">{grossIncome.chargeWasteCollection ? "SI" : "NO"}</Descriptions.Item>
+                    <Descriptions.Item label="Sucursal">{grossIncome?.branchOffice?.nickname}</Descriptions.Item>
+                </>   
+                )
+            }
+            
         </Descriptions>
     );
 };

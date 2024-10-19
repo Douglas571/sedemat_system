@@ -9,6 +9,9 @@
   ### Technical requirements
   [] when update, update the paidAt property of gross income invoice 
 
+  ### security
+  [] only collectors can create, update and edit gross incomes
+
 ## Gross income invoice 
 [] it should not be able to modify after is settled 
   [] should not be able to remove payments after it is settled
@@ -22,6 +25,9 @@
 
 [] only Liquidator can settle invoices 
 [] invoice can be settled, only if the payments are checked 
+
+  ### security
+  [] only collectors can create, update and edit gross income invoices 
 
   ### Technical requirements 
   [] when update, update paidAt property 

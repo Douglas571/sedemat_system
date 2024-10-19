@@ -70,6 +70,7 @@ const GrossIncomeInvoice: React.FC = () => {
     const selectedOfficeId = Form.useWatch('branchOfficeId', form);
     const selectedOffice = branchOffices?.find(branchOffice => branchOffice.id === selectedOfficeId)
     const formPrice = Form.useWatch('form', form);
+    const hasBranchOffices = branchOffices?.length > 0
 
     const isEditing = grossIncomeInvoiceId !== undefined
 
@@ -171,6 +172,12 @@ const GrossIncomeInvoice: React.FC = () => {
             dataIndex: 'wasteCollectionTax',
             key: 'wasteCollectionTax',
             render: (text: string, record: IGrossIncome) => {
+
+                if (!record.chargeWasteCollection) {
+                    return '--'
+                }
+                    
+                
                 return (
                 <Tooltip title={util.getMinTaxMMVStringOperationToolTipText({
                     minTaxMMV: util.getWasteCollectionTaxInMMV(record.branchOffice.dimensions),
@@ -301,9 +308,14 @@ const GrossIncomeInvoice: React.FC = () => {
     const onFinish = async (values: any) => {
         console.log('Form values:', values);
 
-        if (!business || !selectedOffice) {
-            message.warning('Por favor, seleccione una sucursal y una declaración de ingresos brutos')
-            return 
+        if (!business) {
+            if (!selectedBranchOffice) {
+                message.warning('Por favor, seleccione una sucursal y una declaración de ingresos brutos')
+                return 
+            }
+
+            message.warning('Por favor, seleccione una declaración de ingresos brutos')
+            return
         }
 
         try {
@@ -373,7 +385,18 @@ const GrossIncomeInvoice: React.FC = () => {
     useEffect(() => {
 
         // filter by office 
-        let toDisplay = grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)
+        let toDisplay: IGrossIncome = []
+
+        if (hasBranchOffices) {
+            toDisplay = grossIncomes.filter(income => income.branchOfficeId === selectedOfficeId)
+        } else {
+            toDisplay = grossIncomes
+        }
+
+        console.log('toDisplay', toDisplay)
+
+
+
     
         // if is not editing, hide those who have grossIncomeInvoiceId
         if (!isEditing) {
@@ -412,16 +435,15 @@ const GrossIncomeInvoice: React.FC = () => {
                 TCMMVBCVValidDateRange: dayjs(grossIncomeInvoice.TCMMVBCVValidSince).utc()
             })
         } else {
-            if (branchOffices) {
+            if (branchOffices?.length > 0) {
                 const branchOfficeId = branchOffices[0].id;
                 form.setFieldValue('branchOfficeId', branchOfficeId);
-
-                form.setFieldsValue({
-                    TCMMVBCVValidDateRange: dayjs().utc(),
-                })
             }
 
-            form.setFieldValue('form', CurrencyHandler(1.6).multiply(40).value)
+            form.setFieldsValue({
+                TCMMVBCVValidDateRange: dayjs().utc(),
+                form: CurrencyHandler(1.6).multiply(40).value
+            })
 
             handleBusinessDataUpdate()
         }
@@ -452,33 +474,46 @@ const GrossIncomeInvoice: React.FC = () => {
                     <Form.Item name="businessDNI" label="RIF">
                         <Input />
                     </Form.Item>
-                    <Form.Item name="branchOfficeName" label="Nombre de la sucursal">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="branchOfficeType" label="Tipo de sucursal">
-                        <Input />
-                    </Form.Item>
+
+                    {
+                        hasBranchOffices && (
+                            <Flex>
+                                <Form.Item name="branchOfficeName" label="Nombre de la sucursal">
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal">
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal">
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item name="branchOfficeType" label="Tipo de sucursal">
+                                    <Input />
+                                </Form.Item>
+                            </Flex>
+                        )
+                    }
+                    
                 </Flex>
 
                 <Typography.Title level={4}>Información de la Factura</Typography.Title>
                 <Flex wrap gap={16}>
-                    <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
-                        <Select
-                            options={branchOffices?.map(branchOffice => ({
-                                key: branchOffice.id,
-                                value: branchOffice.id,
-                                label: branchOffice.nickname
-                            }))} 
 
-                            disabled={isEditing}
-                        />
-                    </Form.Item>
+                    {
+                        hasBranchOffices && (
+                            <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
+                                <Select
+                                    options={branchOffices?.map(branchOffice => ({
+                                        key: branchOffice.id,
+                                        value: branchOffice.id,
+                                        label: branchOffice.nickname
+                                    }))} 
+
+                                    disabled={isEditing}
+                                />
+                            </Form.Item>
+                        )
+                    }
 
                     <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
                         <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
