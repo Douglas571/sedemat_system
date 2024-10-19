@@ -468,26 +468,27 @@ const GrossIncomeInvoice: React.FC = () => {
                     </Button>
                 </Flex>
                 <Flex gap={16} wrap>
-                    <Form.Item name="businessName" label="Razón Social">
+                    <Form.Item name="businessName" label="Razón Social" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="businessDNI" label="RIF">
+                    <Form.Item name="businessDNI" label="RIF" rules={[{ required: true }]}>  
                         <Input />
                     </Form.Item>
 
                     {
                         hasBranchOffices && (
-                            <Flex>
-                                <Form.Item name="branchOfficeName" label="Nombre de la sucursal">
+                            <Flex gap={16} wrap>
+                                <Form.Item 
+                                    name="branchOfficeName" label="Nombre de la sucursal" rules={[{ required: true }]}>  
                                     <Input />
                                 </Form.Item>
-                                <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal">
+                                <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal" rules={[{ required: true }]}>  
                                     <Input />
                                 </Form.Item>
-                                <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal">
+                                <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal" rules={[{ required: true }]}>  
                                     <Input />
                                 </Form.Item>
-                                <Form.Item name="branchOfficeType" label="Tipo de sucursal">
+                                <Form.Item name="branchOfficeType" label="Tipo de sucursal" rules={[{ required: true }]}>  
                                     <Input />
                                 </Form.Item>
                             </Flex>
@@ -501,7 +502,9 @@ const GrossIncomeInvoice: React.FC = () => {
 
                     {
                         hasBranchOffices && (
-                            <Form.Item name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
+                            <Form.Item 
+                                style={{ minWidth: 300 }}
+                                name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
                                 <Select
                                     options={branchOffices?.map(branchOffice => ({
                                         key: branchOffice.id,
