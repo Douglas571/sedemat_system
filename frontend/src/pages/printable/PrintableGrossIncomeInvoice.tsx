@@ -206,8 +206,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               <tbody>
                 { grossIncomes && grossIncomes.map( grossIncome => {
                   return (<tr>
-                    <td>{_.upperFirst(dayjs(grossIncome.period).format('MMM-YY'))}</td>
-                    <td>{CurrencyHandler(grossIncome.amountBs).format()}</td>
+                    <td>{_.upperFirst(dayjs(grossIncome.period).format('MMM-YY')).toUpperCase()}</td>
+                    <td>{grossIncome.declarationImage ? CurrencyHandler(grossIncome.amountBs).format() : '--'}</td>
                     <td>{formatPercents(grossIncome.alicuotaTaxPercent)}</td>
                     <td>{CurrencyHandler(grossIncome.taxInBs).format()}</td>
                     <td>{CurrencyHandler(grossIncome.minTaxInBs).format()}</td>
@@ -281,6 +281,33 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   <td colSpan={3}>BANCO DE VENEZUELA - CUENTA CORRIENTE 0102-0339-2500-0107-1892</td>
                 </tr>
               </tbody>
+            </table>
+
+
+            <br/>
+
+            <table>
+              <tbody>
+                {grossIncomeInvoice.penalties.length > 0 && (
+                  <>
+                    {grossIncomeInvoice.penalties.map(penalty => {
+                      return (<tr>
+                        <td>NOTA</td>
+                        <td colSpan={2}>{penalty.description.toUpperCase()}</td>
+                      </tr>)
+                    })}
+                  </>
+                )}
+
+                {grossIncomes?.filter(grossIncome => !grossIncome.declarationImage).map(grossIncome => {
+                  return (<tr>
+                    <td>NOTA</td>
+                    <td colSpan={2}>FALTA LA DECLARACIÓN DEL MES DE {dayjs(grossIncome.period).format('MMMM [DEL AÑO] YYYY').toUpperCase()}</td>
+                  </tr>)
+                })}
+                
+              </tbody>
+            
             </table>
 
         </Flex>
