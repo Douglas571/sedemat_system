@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { Card, Typography, Button, Flex, Descriptions, Image, Popconfirm, message } from 'antd';
+import { Card, Typography, Button, Flex, Descriptions, Image, Popconfirm, message, Empty } from 'antd';
 
 import * as grossIncomeApi from '../util/grossIncomeApi';
 import * as api from '../util/api';
@@ -126,21 +126,23 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
                 </>   
                 )
             }
-            
         </Descriptions>
     );
 };
 
-const DeclarationImage: React.FC<{ imageUrl: string | undefined }> = ({ imageUrl }) => {
-    if (!imageUrl) return null;
+const DeclarationImage: React.FC<{ imageUrl: string | null }> = ({ imageUrl }) => {
 
     return (
-        <Card title="Declaración SENIAT" style={{ marginTop: 16 }}>
-            <Image
-                src={imageUrl}
-                alt="Declaración SENIAT"
-                style={{ maxWidth: '100%' }}
-            />
+        <Card title="Declaración del SENIAT" style={{ marginTop: 16 }}>
+            {
+                imageUrl 
+                ? (<Image
+                    src={imageUrl}
+                    alt="Declaración SENIAT"
+                    style={{ maxWidth: '100%' }}
+                />)
+                : (<Empty description={"No hay declaración de ingresos"}/>)
+            }
         </Card>
     );
 };

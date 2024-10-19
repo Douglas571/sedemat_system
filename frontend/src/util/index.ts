@@ -7,7 +7,9 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-export function completeUrl(url: string): string {
+export function completeUrl(url?: string): string | null {
+    if (!url) return null
+
     return HOST + url
 }
 
@@ -300,8 +302,13 @@ export function numbersToWords(
       }
     }
 
-    let status = 'Pendiente'
-    let badgeStatus = 'error'
+    let status = 'Sin Cálculos'
+    let badgeStatus = 'default'
+
+    if (grossIncome?.declarationImage) {
+        status = 'Pendiente'
+        badgeStatus = 'error'
+    }
 
     if (invoice?.paidAt) {
         status = 'Por Liquidar'

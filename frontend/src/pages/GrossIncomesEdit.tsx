@@ -174,30 +174,32 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 alicuotaTaxPercent: percentHandler(grossIncome.alicuotaTaxPercent).multiply(100).value,
             })
 
-            const imageUrl = completeUrl(grossIncome.declarationImage)
-            
-            fetch(imageUrl)
-                .then(response => response.blob())
-                .then(imageBlob => {
-                    const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
+            if (grossIncome.declarationImage) {
+                const imageUrl = completeUrl(grossIncome.declarationImage)
+                
+                fetch(imageUrl)
+                    .then(response => response.blob())
+                    .then(imageBlob => {
+                        const imageFile = new File([imageBlob], 'image.jpg', { type: imageBlob.type })
 
-                    const uploadFile = {
-                        uid: '-1',
-                        name: 'image.jpg',
-                        status: 'done',
-                        url: imageUrl,
-                        originFileObj: imageFile,
-                    } as UploadFile;
-                    
-                    setFileList([uploadFile]);
+                        const uploadFile = {
+                            uid: '-1',
+                            name: 'image.jpg',
+                            status: 'done',
+                            url: imageUrl,
+                            originFileObj: imageFile,
+                        } as UploadFile;
+                        
+                        setFileList([uploadFile]);
 
-                    form.setFieldsValue({
-                        declarationImage: uploadFile
+                        form.setFieldsValue({
+                            declarationImage: uploadFile
+                        })
                     })
-                })
-                .catch(error => {
-                    console.error('Error fetching image:', error);
-                })
+                    .catch(error => {
+                        console.error('Error fetching image:', error);
+                    })
+            }
 
             console.log({grossIncome})
         }
@@ -334,28 +336,32 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         try {
             let declarationImageUrl = null;
 
-            if (!values.declarationImage) {
-                message.error('Por favor suba la declaración');
-                return false;
-            }
+            // ! disabled for now
+            // if (!values.declarationImage) {
+            //     message.error('Por favor suba la declaración');
+            //     return false;
+            // }
 
-            // if there is no new files, values.declarationImage will be undefined
-            if (values.declarationImage.uid === '-1') {
-                console.log('no new files')
-                declarationImageUrl = grossIncome?.declarationImage;
-            } else {
-                // otherwise, values.declarationImage will be the file object, in this case, should update the image
-                const file = values.declarationImage.file
-                
-                try {
-                    declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file);
+            if (values.declarationImage) {
+                // if there is no new files, values.declarationImage will be undefined
+                if (values.declarationImage.uid === '-1') {
+                    console.log('no new files')
+                    declarationImageUrl = grossIncome?.declarationImage;
+                } else {
+                    // otherwise, values.declarationImage will be the file object, in this case, should update the image
+                    const file = values.declarationImage.file
                     
-                } catch (error) {
-                    console.error('Error uploading declaration image:', error);
-                    message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
-                    return false;
+                    try {
+                        declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file);
+                        
+                    } catch (error) {
+                        console.error('Error uploading declaration image:', error);
+                        message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
+                        return false;
+                    }
                 }
             }
+            
 
             
             const newGrossIncome: IGrossIncome = {
@@ -484,7 +490,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         <Form.Item
                             name="declarationImage"
                             label="Declaración"
-                            rules={[{ required: true, message: 'Por favor suba la declaración' }]}
+                            // ! disabled for now
+                            // rules={[{ required: true, message: 'Por favor suba la declaración' }]}
                         >
                             <Upload
                                 {...uploadProps}
