@@ -1,3 +1,6 @@
+import 'index.css'
+
+
 import UserHome from 'pages/UserHome';
 
 import BusinessView from 'pages/BusinessView'
@@ -33,7 +36,7 @@ import GrossIncomes from 'pages/GrossIncomes'
 import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
-import PrintableGrossIncomeInvoice from 'pages/PrintableGrossIncomeInvoice'
+import PrintableGrossIncomeInvoice from 'pages/printable/PrintableGrossIncomeInvoice'
 import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInvoiceSettlement'
 
 import BankAccounts from 'pages/BankAccounts'

@@ -1,0 +1,24 @@
+/* body {
+  background-color: red;
+} */
+
+.printable * {
+  margin: 0;
+}
+
+.printable table {
+  border-collapse: collapse;
+  text-align: center; 
+  vertical-align: middle;
+  table-layout: fixed
+}
+
+.printable table th,
+.printable table td {
+  border: 1px solid black;
+  width: 100px;
+}
+
+.printable table th {
+  background: lightgray;
+}
