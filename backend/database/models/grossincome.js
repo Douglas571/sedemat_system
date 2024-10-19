@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     amountBs: {
       type: DataTypes.DECIMAL(15, 2),
-      allowNull: false
+      allowNull: true
     },
     chargeWasteCollection: {
       type: DataTypes.BOOLEAN,
@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     declarationImage: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
 
     // Deprecated 
