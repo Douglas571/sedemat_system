@@ -130,19 +130,19 @@ module.exports = (sequelize, DataTypes) => {
     },
     branchOfficeName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     branchOfficeAddress: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     branchOfficeDimensions: {
       type: DataTypes.DOUBLE,
-      allowNull: false,
+      allowNull: true,
     },
     branchOfficeType: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     createdByUserPersonFullName: {
