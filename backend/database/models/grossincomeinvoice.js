@@ -154,6 +154,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
 
+    note: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
     createdAt: {
       type: DataTypes.DATE

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip, Flex, Input, DatePicker, Card } from 'antd'
 const { RangePicker } = DatePicker
+const {TextArea} = Input
 
 import { ColumnsType } from 'antd/es/table'
 
@@ -442,7 +443,8 @@ const GrossIncomeInvoice: React.FC = () => {
 
             form.setFieldsValue({
                 TCMMVBCVValidDateRange: dayjs().utc(),
-                form: CurrencyHandler(1.6).multiply(40).value
+                form: CurrencyHandler(1.6).multiply(40).value,
+                note: 'LOS PAGOS DEBEN SER CANCELADOS A LA TASA DEL DÍA POR TCMMV-BCV',
             })
 
             handleBusinessDataUpdate()
@@ -570,6 +572,10 @@ const GrossIncomeInvoice: React.FC = () => {
                             Actualizar
                         </Button>
                     </Flex>
+
+                    <Form.Item label="Nota" name="note">
+                        <TextArea max={225}/> 
+                    </Form.Item>
                 </Flex>
 
                 <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>

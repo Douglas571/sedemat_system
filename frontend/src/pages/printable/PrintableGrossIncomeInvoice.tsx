@@ -283,11 +283,18 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </tbody>
             </table>
 
-
             <br/>
 
             <table>
               <tbody>
+                { grossIncomeInvoice?.note?.split('\n').map((line, index) => (
+                  <tr key={index}>
+                    <td>NOTA</td>
+                    <td colSpan={2}>{line.toUpperCase()}</td>
+                  </tr>
+                ))
+                }
+
                 {grossIncomeInvoice.penalties.length > 0 && (
                   <>
                     {grossIncomeInvoice.penalties.map(penalty => {
