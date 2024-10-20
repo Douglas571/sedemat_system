@@ -37,7 +37,7 @@ import GrossIncomeDetails from 'pages/GrossIncomeDetails'
 import GrossIncomeInvoiceEdit from 'pages/GrossIncomeInvoiceEdit'
 
 import PrintableGrossIncomeInvoice from 'pages/printable/PrintableGrossIncomeInvoice'
-import PrintableGrossIncomeInvoiceSettlement from 'pages/PrintableGrossIncomeInvoiceSettlement'
+import PrintableGrossIncomeInvoiceSettlement from 'pages/printable/PrintableGrossIncomeInvoiceSettlement'
 
 import BankAccounts from 'pages/BankAccounts'
 import BankAccountsEdit from 'pages/BankAccountsEdit'

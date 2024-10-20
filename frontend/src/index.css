@@ -11,7 +11,8 @@
   border-collapse: collapse;
   text-align: center; 
   vertical-align: middle;
-  table-layout: fixed
+  table-layout: fixed;
+  width: 100%;
 }
 
 .printable table th,
@@ -21,5 +22,5 @@
 }
 
 .printable table th {
-  background: lightgray;
+  background: #e6e6e6;
 }

@@ -150,6 +150,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               <thead>
                 <tr style={{ background: 'lightgray' }}>
                   <th>Contribuyente</th>
+
+                  {
+                    hasBranchOffice && (
+                      <th>SUCURSAL</th>
+                    )
+                  }
+
                   <th>Rif</th>
                   <th>N°</th>
                   <th>Ramo</th>
@@ -168,7 +175,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </thead>
               <tbody>
                 <tr >
-                  <td>{grossIncomeInvoice.businessName} { hasBranchOffice && `(${grossIncomeInvoice.branchOfficeName})`}</td>
+                  <td>{grossIncomeInvoice.businessName}</td>
+                  {
+                    hasBranchOffice && (
+                      <td>{grossIncomeInvoice.branchOfficeName}</td>
+                    )
+                  }
                   <td>{grossIncomeInvoice.businessDNI}</td>
                   <td>{business.economicActivity.code}</td>
                   <td>{business.economicActivity.title}</td>
@@ -240,11 +252,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 }
 
                 <tr>
-                  <td colSpan={6}>TOTAL A PAGAR EN BS</td>
+                  <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN BS</td>
                   <td><strong>{CurrencyHandler(TOTAL_IN_BS).format()}</strong></td>
                 </tr>
                 <tr>
-                  <td colSpan={6}>TOTAL A PAGAR EN TCMMV-BCV</td>
+                  <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN TCMMV-BCV</td>
                   <td><strong>{CurrencyHandler(TOTAL_IN_MMV).format()}</strong></td>
                 </tr>
               </tbody>
