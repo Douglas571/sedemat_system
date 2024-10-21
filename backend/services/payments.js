@@ -94,7 +94,7 @@ exports.createPayment = async (paymentData) => {
     }
 };
 
-exports.updatePayment = async (id, paymentData) => {
+exports.updatePayment = async (id, paymentData, user) => {
     logger.info(`Updating payment with ID ${id} with data:`, paymentData);
 
     try {
@@ -109,18 +109,6 @@ exports.updatePayment = async (id, paymentData) => {
 
         // the only way to add payments to invoice is through the dedicated method
         paymentData.grossIncomeInvoiceId = undefined;
-
-        // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
-        if (Object.keys(paymentData).length === 2 && paymentData.verifiedAt !== undefined && paymentData.verifiedByUserId !== undefined) {
-            // the user is updating the payment verification data
-            return await PaymentModel.update(paymentData, {
-                where: { id }
-            })
-        }
-
-        // user is updating something else than the payment verification data
-        paymentData.verifiedAt = undefined
-        paymentData.verifiedByUserId = undefined
         
         if (prevPayment.grossIncomeInvoiceId) {
             let grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(prevPayment.grossIncomeInvoiceId)
@@ -131,10 +119,41 @@ exports.updatePayment = async (id, paymentData) => {
                 throw err
             }
         }
-        //     await grossIncomeInvoiceService.removePayment(id);
-        // } else if (!isNaN(paymentData.grossIncomeInvoiceId)) {
-        //     await grossIncomeInvoiceService.addPayment(paymentData.grossIncomeInvoiceId, id);
-        // }
+
+        // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
+
+        if (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt) {
+
+            console.log({updatingCheckedAt: paymentData})
+
+            // unmarking the payment as verified
+            if (paymentData.checkedAt === null) {
+                return await PaymentModel.update({
+                    receivedAt: null,
+                    checkedAt: null,
+                    checkedByUserId: user.id
+                }, {
+                    where: { id }
+                })
+            }
+
+            console.log({checkedByUser: user})
+
+            // the user is updating the payment verification data
+            return await PaymentModel.update({
+                receivedAt: paymentData.receivedAt,
+                checkedAt: paymentData.checkedAt,
+                checkedByUserId: user.id
+            }, {
+                where: { id }
+            })
+        }
+
+        // user is updating something else than the payment verification data
+        paymentData.verifiedAt = undefined
+        paymentData.verifiedByUserId = undefined
+        paymentData.receivedAt = undefined
+        paymentData.checkedByUserId = undefined
         
 
         const newPaymentData = {

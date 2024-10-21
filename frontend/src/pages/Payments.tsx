@@ -1,6 +1,6 @@
 import { ConsoleSqlOutlined, PlusOutlined } from '@ant-design/icons';
 import type { PopconfirmProps } from 'antd';
-import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography } from 'antd';
+import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
@@ -17,12 +17,17 @@ import { formatBolivares } from '../util/currency';
 
 import * as paymentService from '../util/paymentsApi'
 
+import useAuthentication from 'hooks/useAuthentication';
+
+import dayjs from 'dayjs';
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 
 async function getPayments(): Promise<Array<Payment>> {
+
     let payments: Array<Payment> = [];
 
     try {
@@ -33,7 +38,7 @@ async function getPayments(): Promise<Array<Payment>> {
         const data = await response.json();
         console.log('I got the data...');
         payments = data;
-        console.log({ data });
+        // console.log({ data });
     } catch (error) {
         console.log("I got an error...");
         console.error('Fetch error:', error);
@@ -47,13 +52,15 @@ function Payments(): JSX.Element {
     const [messageApi, contextHolder] = message.useMessage()
     const [dataSource, setDataSource] = useState<Payment[]>([]);
 
+    let { userAuth } = useAuthentication()
+
     const navigate = useNavigate()
 
     const fetchPayments = async () => {
-        console.log("Cargando pagos...")
+        // console.log("Cargando pagos...")
         try {
             const payments = await getPayments();
-            console.log({payments})
+            // console.log({payments})
             const mappedData = payments.map(payment => {
                 const newPayment = {
                     ...payment,
@@ -70,12 +77,12 @@ function Payments(): JSX.Element {
                     newPayment.status = "Liquidado"
                 }
 
-                console.log({ newPayment })
+                // console.log({ newPayment })
 
                 return newPayment
             });
             setDataSource(mappedData);
-            console.log({ mappedData })
+            // console.log({ mappedData })
         } catch (error) {
             console.error('Error fetching payments:', error);
         }
@@ -86,8 +93,20 @@ function Payments(): JSX.Element {
     }, []);
 
     async function updateVerifiedStatus(id: string, isVerified: boolean) {
-        try {
-            let paymentUpdated = await paymentService.updatePayment({id: Number(id), isVerified })
+        try {            
+            // TODO: Implement a controle to set this information manually
+
+            let checkedAt = dayjs().utc()
+            let receivedAt = dayjs().utc()
+
+            if (isVerified) {
+                checkedAt = null
+                receivedAt = null
+            }
+
+            console.log({ isVerified, checkedAt, receivedAt })
+            
+            let paymentUpdated = await paymentService.updatePayment({id: Number(id), checkedAt, receivedAt}, userAuth.token)
 
             fetchPayments()
         } catch (error) {
@@ -176,7 +195,7 @@ function Payments(): JSX.Element {
             filterSearch: true,
 
             render: (text: string, record: Payment) => {
-                console.log({record, text})
+                // console.log({record, text})
                 if (record.businessId) {
                     return record.business.businessName
                 } else {
@@ -197,7 +216,7 @@ function Payments(): JSX.Element {
                 if(payment.businessId) return payment.business.businessName
                 else return `${payment?.person?.firstName} ${payment?.person?.lastName}`
             }))].map(t => {
-                console.log(t)
+                // console.log(t)
                 return { text: t, value: t }
             }),
 
@@ -305,6 +324,11 @@ function Payments(): JSX.Element {
             key: 'status',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
+
+            render: (text: string, record: Payment) => {
+                return (<Badge status={record.isVerified ? 'success' : 'warning'} text={text} />)
+            },
+
             sorter: (a, b) => a.status.localeCompare(b.status),
 
             filters: [...new Set(dataSource.map((payment) => {
@@ -329,7 +353,7 @@ function Payments(): JSX.Element {
                 <Space size="middle">
 
                     <Button
-                        onClick={() => updateVerifiedStatus(record.id, !record.isVerified)}
+                        onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
                         shape="circle"
                     >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>
 

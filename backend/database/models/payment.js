@@ -52,7 +52,16 @@ module.exports = (sequelize, DataTypes) => {
     image: DataTypes.STRING ,
     state: DataTypes.STRING,
     businessName: DataTypes.STRING,
-    isVerified: DataTypes.BOOLEAN,
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      get() {
+        if (this.checkedAt && this.checkedByUserId) {
+          return true
+        }
+
+        return false
+      }
+    },
     // add liquidation date
     // add state 
 

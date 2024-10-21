@@ -16,6 +16,8 @@ import * as paymentsApi from '../util/paymentsApi'
 import { completeUrl } from './BusinessShared';
 import bankAccountService from 'services/bankAccountService';
 
+import useAuthentication from 'hooks/useAuthentication';
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -55,6 +57,8 @@ const methods = methodNames.map(method => ({
 }))
 
 function PaymentsEdit(): JSX.Element {
+
+	let { userAuth } = useAuthentication()
 
 	const [messageApi, contextHolder] = message.useMessage()
 	const [form] = Form.useForm();
@@ -277,10 +281,10 @@ function PaymentsEdit(): JSX.Element {
 			// if is editing, update payment 
 			if (isEditing) {
 				// call paymentapi with updatePayment()
-				await paymentsApi.updatePayment(newPaymentData)
+				await paymentsApi.updatePayment(newPaymentData, userAuth.token)
 			} else {
 				// call paymentapi with createPayment()
-				await paymentsApi.createPayment(newPaymentData)
+				await paymentsApi.createPayment(newPaymentData, userAuth.token)
 			}
 
 			message.success("Pago guardado exitosamente")

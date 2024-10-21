@@ -12,10 +12,11 @@ export async function fetchPaymentById(id: string): Promise<Payment> {
 }
 
 // a function to create a new payment
-export async function createPayment(paymentData: Payment): Promise<string> {
+export async function createPayment(paymentData: Payment, token: string): Promise<string> {
     const response = await fetch(HOST + '/v1/payments', {
         method: 'POST', // Specify the method
         headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(paymentData)
@@ -35,10 +36,11 @@ export async function createPayment(paymentData: Payment): Promise<string> {
 }
 
 // a function to update a payment
-export async function updatePayment(paymentData: Payment): Promise<string> {
+export async function updatePayment(paymentData: Payment, token: string): Promise<string> {
     const response = await fetch(HOST + '/v1/payments/' + paymentData.id, {
         method: 'PUT',
         headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(paymentData)

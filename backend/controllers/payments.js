@@ -2,9 +2,12 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const router = express.Router();
+const passport = require('passport');
 
 
 const logger = require('../utils/logger')
+
+
 
 
 
@@ -19,13 +22,16 @@ router.get('/', async (req, res) => {
         const payments = await paymentService.findAll({filters});
         res.json(payments);
     } catch (error) {
+        console.log({error})
         res.status(500).json({ error: 'Error fetching payments' });
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', 
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
     try {
-        const newPayment = await paymentService.createPayment(req.body);
+        const newPayment = await paymentService.createPayment(req.body, req.user);
         res.status(201).json(newPayment);
     } catch (error) {
         console.log({error})
@@ -57,10 +63,12 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', 
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
 
     try {
-        const updatedPayment = await paymentService.updatePayment(req.params.id, req.body);
+        const updatedPayment = await paymentService.updatePayment(req.params.id, req.body, req.user);
         res.json(updatedPayment);
     } catch (error) {
 
@@ -89,9 +97,11 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', 
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
     try {
-        const deletedPayment = await paymentService.deletePayment(req.params.id);
+        const deletedPayment = await paymentService.deletePayment(req.params.id, req.user);
         
         res.status(204).json(deletedPayment);
     } catch (error) {
