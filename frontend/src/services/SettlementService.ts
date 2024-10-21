@@ -63,6 +63,10 @@ class SettlementService {
                 throw new Error("Solo el liquidador puede liquidar facturas");
             }
 
+            if (error.name === "DuplicatedSettlementCode") {
+                throw new Error("El código de liquidación ya existe");
+            }
+
             throw error
         }
 

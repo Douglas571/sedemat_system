@@ -7,8 +7,10 @@ class SettlementController {
       const settlement = await settlementService.createSettlement(req.body, req.user);
       res.status(201).json(settlement);
     } catch (error) {
-      console.log({error});
-      res.status(400).json({ error: error });
+      res.status(400).json({ error: {
+        message: error.message,
+        ...error
+      } });
     }
   }
 

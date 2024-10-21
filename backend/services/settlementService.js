@@ -18,31 +18,48 @@ function checkIfUserIsLiquidator(user) {
 }
 class SettlementService {
   async createSettlement(data, user) {
-    console.log({newSettlement: data})
+    try {
+      console.log({newSettlement: data})
 
-    checkIfUserIsLiquidator(user)
+      checkIfUserIsLiquidator(user)
 
-    if (data.grossIncomeInvoiceId) {
-      const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
+      if (data.grossIncomeInvoiceId) {
+        const grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(data.grossIncomeInvoiceId);
 
-      // check if some payment is not checked
-      if (grossIncomeInvoice.payments.some(payment => !payment.isVerified)) {
-        let error = new Error('GrossIncomeInvoice can\'t be settled, some payments are not verified');
-        error.name = "PaymentsNotVerified"
-        throw error
-      }
+        // check if some payment is not checked
+        if (grossIncomeInvoice.payments.some(payment => !payment.isVerified)) {
+          let error = new Error('GrossIncomeInvoice can\'t be settled, some payments are not verified');
+          error.name = "PaymentsNotVerified"
+          throw error
+        }
 
-      const canBeSettled = grossIncomeInvoice?.canBeSettled;
-      
-      if (!canBeSettled) {
+        const canBeSettled = grossIncomeInvoice?.canBeSettled;
         
-        let error = new Error('GrossIncomeInvoice can\'t be settled');
-        error.name = "GrossIncomeInvoiceCantBeSettled";
-        throw error
+        if (!canBeSettled) {
+          
+          let error = new Error('GrossIncomeInvoice can\'t be settled');
+          error.name = "GrossIncomeInvoiceCantBeSettled";
+          throw error
+        }
       }
-    }
 
-    return Settlement.create(data);
+      let returnedSettlement = await Settlement.create(data);
+
+      return returnedSettlement
+    } catch (error) {
+
+      if (error.name === "SequelizeUniqueConstraintError") {
+        
+        let err = new Error("A settlement with this gross income invoice already exists");
+        err.message = "A settlement with this gross income invoice already exists"
+        err.name = "DuplicatedSettlementCode"
+
+        throw err
+      }
+
+      throw error
+    }
+    
   }
 
   async getSettlementById(id) {
