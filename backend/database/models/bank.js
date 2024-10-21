@@ -26,6 +26,12 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+
+    isSavingAccount: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false, 
+      defaultValue: false,
     }
   }, {
     sequelize,

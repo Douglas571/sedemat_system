@@ -91,7 +91,28 @@ module.exports = (sequelize, DataTypes) => {
         model: 'GrossIncomeInvoices',
         key: 'id'
       }
-    }
+    },
+
+    checkedByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      },
+    },
+
+    // this is used to know when the payment was marked as checked
+    checkedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    // this is used to know when the payment was actually received in sedemat accounts
+    receivedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
 
 
   }, {

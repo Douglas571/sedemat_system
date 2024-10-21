@@ -159,6 +159,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
 
+    firstBankAccountId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Bank',
+        key: 'id'
+      }
+    },
+
+    secondBankAccountId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Bank',
+        key: 'id'
+      }
+    },
+
     createdAt: {
       type: DataTypes.DATE
     },
