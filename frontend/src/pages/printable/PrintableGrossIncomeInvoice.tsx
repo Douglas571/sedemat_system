@@ -45,9 +45,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const updatedAt = dayjs(grossIncomeInvoice?.updatedAt)
 
     let TCMMVBCV = grossIncomeInvoice?.TCMMVBCV ?? 1
-    
-
-    console.log({lastCurrencyExchangeRate, TCMMVBCV})
 
     // TOTALS CALCULATION 
 
@@ -201,7 +198,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <Title level={5} style={{ textAlign: 'center' }}>Estado de Cuenta</Title>
 
             <div style={{ border: '1px solid black', padding: 4, textAlign: 'center', borderBottom: 'none'  }}>
-                <p>Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV) = {formatBolivares(grossIncomeInvoice.TCMMVBCV)} desde el día {dayjs.utc(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el {dayjs.utc(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.</p>
+                <p>Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV) = {formatBolivares(grossIncomeInvoice.TCMMVBCV)} desde el día {dayjs(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el {dayjs(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.</p>
             </div>
 
             <table>
@@ -297,11 +294,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             <br/>
 
+            { /* the NOTES table */ }
             <table>
               <tbody>
                 { grossIncomeInvoice?.note?.split('\n').map((line, index) => (
                   <tr key={index}>
-                    <td>NOTA</td>
+                    <td style={{width: 40}}>NOTA</td>
                     <td colSpan={2}>{line.toUpperCase()}</td>
                   </tr>
                 ))
@@ -311,7 +309,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   <>
                     {grossIncomeInvoice.penalties.map(penalty => {
                       return (<tr>
-                        <td>NOTA</td>
+                        <td style={{width: 40}}>NOTA</td>
                         <td colSpan={2}>{penalty.description.toUpperCase()}</td>
                       </tr>)
                     })}
@@ -320,7 +318,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                 {grossIncomes?.filter(grossIncome => !grossIncome.declarationImage).map(grossIncome => {
                   return (<tr>
-                    <td>NOTA</td>
+                    <td style={{width: 40}}>NOTA</td>
                     <td colSpan={2}>FALTA LA DECLARACIÓN DEL MES DE {dayjs(grossIncome.period).format('MMMM [DEL AÑO] YYYY').toUpperCase()}</td>
                   </tr>)
                 })}

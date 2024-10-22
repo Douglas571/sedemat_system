@@ -330,8 +330,9 @@ const GrossIncomeInvoice: React.FC = () => {
                 ...values,
 
                 // assuming the start of the week is on monday
-                TCMMVBCVValidSince: dayjs(values.TCMMVBCVValidDateRange).startOf('week').format('YYYY-MM-DD'),
-                TCMMVBCVValidUntil: dayjs(values.TCMMVBCVValidDateRange).endOf('week').format('YYYY-MM-DD'),
+                // add and substract 1 day so when it is converted from utc to local, it will adjust to monday and friday instead of saturday and sunday
+                TCMMVBCVValidSince: dayjs(values.TCMMVBCVValidDateRange).startOf('week').add(1, 'day').format('YYYY-MM-DD'),
+                TCMMVBCVValidUntil: dayjs(values.TCMMVBCVValidDateRange).endOf('week').subtract(1, 'day').format('YYYY-MM-DD'),
                 
                 businessId: businessId,
                 formPriceBs: formPrice,
