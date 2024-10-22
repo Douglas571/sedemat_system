@@ -21,6 +21,7 @@ import GrossIncomesInvoiceService from 'services/GrossIncomesInvoiceService';
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 import useAuthentication from 'hooks/useAuthentication';
 import { CurrencyHandler,formatBolivares, formatPercents } from 'util/currency';
+import { format } from 'util';
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
@@ -122,6 +123,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         console.log({business, grossIncomeInvoice})
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
+
+    const branchOfficeMinTaxMMVBCV = util.getWasteCollectionTaxInMMV(grossIncomeInvoice?.branchOfficeDimensions)
 
     return (
         <Flex vertical
@@ -263,6 +266,24 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <br/>
 
             <table>
+              <tbody>
+                <tr>
+                  <th>MÍNIMO TRIBUTABLE</th>
+                  <td style={{ width: "60%", textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x15</td>
+                  <td>{formatBolivares(CurrencyHandler(15).multiply(grossIncomeInvoice.TCMMVBCV).value)}</td>
+                </tr>
+                <tr>
+                  <th>RECOLECCIÓN DE ASEO</th>
+                  <td style={{ width: "60%", textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x{branchOfficeMinTaxMMVBCV}</td>
+                  <td>
+                    {formatBolivares(CurrencyHandler(branchOfficeMinTaxMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).value)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+
+            <table>
               <thead>
                 <th></th>
                 <th>NOMBRE</th>
@@ -310,8 +331,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 
               </tbody>
             </table>
-
-            <br/>
 
             { /* the NOTES table */ }
             <table>
