@@ -178,9 +178,9 @@ function Payments(): JSX.Element {
     });
 
     const filterIconProp = {
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
+        // filterIcon: (filtered: boolean) => (
+        //     <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        // ),
     }
 
     // TODO: Sort this object
@@ -281,7 +281,7 @@ function Payments(): JSX.Element {
             onFilter: (value: string, record: Payment) => {
                 if (!record?.reference) return false
                 
-                return record.reference.toLowerCase().includes((value as string).toLowerCase())
+                return record.reference.toLowerCase() === (value as string).toLowerCase()
             },
 
             sorter: (a, b) => a.reference.localeCompare(b.reference),
