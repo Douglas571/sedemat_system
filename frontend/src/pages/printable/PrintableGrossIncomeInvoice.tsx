@@ -324,6 +324,17 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 ))
                 }
 
+                {grossIncomeInvoice.penalties.length > 0 && (
+                  <>
+                    {grossIncomeInvoice.penalties.map(penalty => {
+                      return (<tr>
+                        <td>NOTA</td>
+                        <td colSpan={2}>{penalty.description.toUpperCase()}</td>
+                      </tr>)
+                    })}
+                  </>
+                )}
+
               
                 {(() => {
                   // TODO: Study more in deep this fragment of code
