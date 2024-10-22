@@ -242,7 +242,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (value: number) => formatBolivares(value),
         },
         {
-            title: 'Sucursal',
+            title: 'Sede',
             dataIndex: 'branchOffice',
             key: 'branchOffice',
             // TODO: Create a dedicated page for branch offices

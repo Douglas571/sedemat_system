@@ -154,7 +154,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                   {
                     hasBranchOffice && (
-                      <th>SUCURSAL</th>
+                      <th>SEDE</th>
                     )
                   }
 

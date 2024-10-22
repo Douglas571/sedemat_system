@@ -123,7 +123,7 @@ const GrossIncomeTable = () => {
       }
     },
     {
-      title: 'Sucursal',
+      title: 'Sede',
       dataIndex: 'branchOffice',
       key: 'branchOffice',
 
