@@ -23,6 +23,8 @@ import useAuthentication from 'hooks/useAuthentication';
 import { CurrencyHandler,formatBolivares, formatPercents } from 'util/currency';
 import { format } from 'util';
 
+const NOTES_COLUMN_WIDTH = 30
+
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
@@ -197,6 +199,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </tbody>
             </table>
 
+            <br/>
+
             <Title level={5} style={{ textAlign: 'center' }}>ESTADO DE CUENTA</Title>
 
             <div style={{ border: '1px solid black', padding: 4, textAlign: 'center', borderBottom: 'none'  }}>
@@ -237,12 +241,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   grossIncomeInvoice.penalties.length > 0 && (
                     <>
                       <tr>
-                        <td colSpan={6} style={{ textAlign: 'right', paddingLeft: 10 }} >SUBTOTAL EN BS</td>
+                        <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }} >SUBTOTAL EN BS.</td>
                         <td><strong>{CurrencyHandler(totalBeforePenalties).format()}</strong></td>
                       </tr>
                       {grossIncomeInvoice.penalties.map(penalty => {
                         return (<tr>
-                          <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>Multa {penalty.penaltyType.name} ({CurrencyHandler(penalty.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</td>
+                          <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>Multa {penalty.penaltyType.name} ({CurrencyHandler(penalty.amountMMVBCV).format()} TCMMV-BDV x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()} BS.)</td>
                           <td>{CurrencyHandler(penalty.amountMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).format()}</td>
                         </tr>)
                       })}
@@ -251,7 +255,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 }
 
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN BS</td>
+                  <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN BS.</td>
                   <td><strong>{CurrencyHandler(TOTAL_IN_BS).format()}</strong></td>
                 </tr>
                 <tr>
@@ -290,12 +294,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">CREADO POR</th>
+                  <th style={{ padding: 10}} scope="row">CREADO POR</th>
                   <td>{grossIncomeInvoice.createdByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                 </tr>
                 <tr>
-                  <th scope="row">REVISADO POR</th>
+                  <th style={{ padding: 10}} scope="row">REVISADO POR</th>
                   <td>{grossIncomeInvoice.checkedByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                   
@@ -336,7 +340,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               <tbody>
                 { grossIncomeInvoice?.note?.split('\n').map((line, index) => (
                   <tr key={index}>
-                    <td style={{width: 40}}>NOTA</td>
+                    <th style={{width: NOTES_COLUMN_WIDTH}}>NOTA</th>
                     <td colSpan={2}>{line.toUpperCase()}</td>
                   </tr>
                 ))
@@ -346,7 +350,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   <>
                     {grossIncomeInvoice.penalties.map(penalty => {
                       return (<tr>
-                        <td>NOTA</td>
+                        <th style={{width: NOTES_COLUMN_WIDTH}}>NOTA</th>
                         <td colSpan={2}>{penalty.description.toUpperCase()}</td>
                       </tr>)
                     })}
@@ -382,7 +386,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   // Step 3: Render
                   return sortedYears.map(year => (
                     <tr key={year}>
-                      <td style={{ width: 40 }}>NOTA</td>
+                      <th style={{ width: NOTES_COLUMN_WIDTH }}>NOTA</th>
                       <td colSpan={2}>
                         FALTA DECLARACIONES DEL AÑO {year}: {missingDeclarations[year].join(', ').toUpperCase()}
                       </td>
