@@ -121,8 +121,10 @@ exports.updatePayment = async (id, paymentData, user) => {
 
         // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
 
+        console.log({paymentData})
+
         // we count the number of properties to warrant that it is only updating the check at date. Usually, it's less than 4, it also include the id, but i will remove it later
-        if (Object.keys(paymentData).length < 4 && (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt)) {
+        if (Object.keys(paymentData).length < 5 && (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt)) {
 
             // unmarking the payment as verified
             if (paymentData.checkedAt === null) {
