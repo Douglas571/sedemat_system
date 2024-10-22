@@ -138,7 +138,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
             </Flex>
             <Flex justify='right'>
-                <Text>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</Text>
+                <p>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</p>
             </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>DESCRIPCIÓN DEL CONTRIBUYENTE</Title>
@@ -146,7 +146,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <table>
               <thead>
                 <tr style={{ background: 'lightgray' }}>
-                  <th>Contribuyente</th>
+                  <th>CONTRIBUYENTE</th>
 
                   {
                     hasBranchOffice && (
@@ -154,15 +154,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     )
                   }
 
-                  <th>Rif</th>
+                  <th>RIF</th>
                   <th>N°</th>
-                  <th>Ramo</th>
+                  <th>RAMO</th>
 
                   {
                     hasBranchOffice && (
                       <>
-                        <th>Mts2</th>
-                        <th>Tipo</th>
+                        <th>MTS<sup>2</sup></th>
+                        <th>TIPO</th>
                       </>
                     )
                   }
@@ -198,7 +198,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <Title level={5} style={{ textAlign: 'center' }}>ESTADO DE CUENTA</Title>
 
             <div style={{ border: '1px solid black', padding: 4, textAlign: 'center', borderBottom: 'none'  }}>
-                <p>Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV) = {formatBolivares(grossIncomeInvoice.TCMMVBCV)} desde el día {dayjs(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el {dayjs(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.</p>
+                <p>{`Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV) = ${formatBolivares(grossIncomeInvoice.TCMMVBCV)} desde el día ${dayjs(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el ${dayjs(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.`.toUpperCase()}</p>
             </div>
 
             <table>
@@ -265,17 +265,17 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             <table>
               <thead>
                 <th></th>
-                <th>Nombre</th>
-                <th>Firma</th>
+                <th>NOMBRE</th>
+                <th>FIRMA</th>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Creado por</th>
+                  <th scope="row">CREADO POR</th>
                   <td>{grossIncomeInvoice.createdByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                 </tr>
                 <tr>
-                  <th scope="row">Revisado por</th>
+                  <th scope="row">REVISADO POR</th>
                   <td>{grossIncomeInvoice.checkedByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                   
@@ -324,23 +324,42 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 ))
                 }
 
-                {grossIncomeInvoice.penalties.length > 0 && (
-                  <>
-                    {grossIncomeInvoice.penalties.map(penalty => {
-                      return (<tr>
-                        <td style={{width: 40}}>NOTA</td>
-                        <td colSpan={2}>{penalty.description.toUpperCase()}</td>
-                      </tr>)
-                    })}
-                  </>
-                )}
+              
+                {(() => {
+                  // TODO: Study more in deep this fragment of code
+                  if (!grossIncomes) return null;
 
-                {grossIncomes?.filter(grossIncome => !grossIncome.declarationImage).map(grossIncome => {
-                  return (<tr>
-                    <td style={{width: 40}}>NOTA</td>
-                    <td colSpan={2}>FALTA LA DECLARACIÓN DEL MES DE {dayjs(grossIncome.period).format('MMMM [DEL AÑO] YYYY').toUpperCase()}</td>
-                  </tr>)
-                })}
+                  // Step 1: Group by year and collect missing months
+                  const missingDeclarations = grossIncomes
+                    .filter(grossIncome => !grossIncome.declarationImage)
+                    .reduce((acc, grossIncome) => {
+                      const year = dayjs(grossIncome.period).format('YYYY');
+                      const month = dayjs(grossIncome.period).format('MMMM');
+                      
+                      if (!acc[year]) {
+                        acc[year] = [];
+                      }
+                      acc[year].push(month);
+                      return acc;
+                    }, {});
+
+                  // Step 2: Sort the years and months
+                  const sortedYears = Object.keys(missingDeclarations).sort((a, b) => a - b);
+                  
+                  sortedYears.forEach(year => {
+                    missingDeclarations[year] = missingDeclarations[year].sort((a, b) => dayjs(a, 'MMMM').month() - dayjs(b, 'MMMM').month());
+                  });
+
+                  // Step 3: Render
+                  return sortedYears.map(year => (
+                    <tr key={year}>
+                      <td style={{ width: 40 }}>NOTA</td>
+                      <td colSpan={2}>
+                        FALTA DECLARACIONES DEL AÑO {year}: {missingDeclarations[year].join(', ').toUpperCase()}
+                      </td>
+                    </tr>
+                  ));
+                })()}
                 
               </tbody>
             
