@@ -11,7 +11,8 @@ const {
     BranchOffice,
     WasteCollectionTax,
     Penalty,
-    PenaltyType
+    PenaltyType,
+    Bank
 } = require('../database/models');
 
 const currency = require('currency.js');
@@ -245,6 +246,15 @@ class GrossIncomeInvoiceService {
                             ]
                         }
                     ]
+                },
+                
+                {
+                    model: Bank,
+                    as: 'firstBankAccount'
+                },
+                {
+                    model: Bank,
+                    as: 'secondBankAccount'
                 }
                 
             ]

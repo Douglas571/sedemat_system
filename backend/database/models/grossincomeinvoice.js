@@ -41,6 +41,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'grossIncomeInvoiceId',
         as: 'settlement'
       })
+
+      GrossIncomeInvoice.belongsTo(models.Bank, {
+        foreignKey: 'firstBankAccountId',
+        as: 'firstBankAccount'
+      })
+
+      GrossIncomeInvoice.belongsTo(models.Bank, {
+        foreignKey: 'secondBankAccountId',
+        as: 'secondBankAccount'
+      })
     }
   }
   GrossIncomeInvoice.init({

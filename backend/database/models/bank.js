@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
       const { Payment } = models;
       // Bank has many payments associated
       Bank.hasMany(Payment, { foreignKey: 'bankId', as: 'payments' });
+
+      Bank.hasMany(models.GrossIncomeInvoice, { foreignKey: 'firstBankAccountId', as: 'grossIncomeInvoicesFirstBankAccount' });
+
+      Bank.hasMany(models.GrossIncomeInvoice, { foreignKey: 'secondBankAccountId', as: 'grossIncomeInvoicesSecondBankAccount' });
     }
   }
   Bank.init({

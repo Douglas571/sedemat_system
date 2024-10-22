@@ -12,12 +12,13 @@ import utc from 'dayjs/plugin/utc' // ES 2015
 dayjs.extend(utc);
 
 import { IGrossIncome, BranchOffice, Business, CurrencyExchangeRate, 
-    IGrossIncomeInvoice, IGrossIncomeInvoiceCreate, IUser } from '../util/types' // Importing IGrossIncome from types
+    IGrossIncomeInvoice, IGrossIncomeInvoiceCreate, IUser, IBankAccount} from '../util/types' // Importing IGrossIncome from types
 import * as grossIncomeApi from '../util/grossIncomeApi'
 import * as api from '../util/api'
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService'
 import grossIncomesInvoiceService from '../services/GrossIncomesInvoiceService'
 import userService from '../services/UserService'
+import bankAccountService from '../services/bankAccountService'
 
 import { CurrencyHandler, formatBolivares, percentHandler } from '../util/currency'
 
@@ -41,6 +42,9 @@ import * as util from '../util'
 import useAuthentication from 'hooks/useAuthentication'
 import { ReloadOutlined } from '@ant-design/icons'
 
+const FIRST_BANK_ACCOUNT_ID = 3
+const SECOND_BANK_ACCOUNT_ID = 1
+
 const GrossIncomeInvoice: React.FC = () => {
     const [form] = Form.useForm()
     const { businessId, grossIncomeInvoiceId } = useParams()
@@ -54,6 +58,12 @@ const GrossIncomeInvoice: React.FC = () => {
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice | undefined>(undefined)
     const [users, setUsers] = useState<IUser[]>()
 
+    const [ bankAccounts, setBankAccounts ] = useState<IBankAccount[]>()
+
+    const bankAccountsOptions = bankAccounts?.map(bankAccount => ({ label: `${bankAccount.name} - ${bankAccount.accountNumber.split('-')[4]}`, value: bankAccount.id }))
+
+    console.log({grossIncomeInvoice})
+    
     // create the select options 
     const checkByUserOptions = users?.map(user => ({
         label: user.username, 
@@ -92,8 +102,14 @@ const GrossIncomeInvoice: React.FC = () => {
         console.log({fetchedGrossIncomeInvoice})
     }
 
+    const loadBankAccounts = async () => {
+        const fetchedBankAccounts = await bankAccountService.findAll()
+        setBankAccounts(fetchedBankAccounts)
+    }
+
     const loadData = async () => {
         await loadLastCurrencyExchangeRate()
+        await loadBankAccounts()
         await loadBusiness()
         await loadBranchOffices()
 
@@ -446,6 +462,10 @@ const GrossIncomeInvoice: React.FC = () => {
                 TCMMVBCVValidDateRange: dayjs().utc(),
                 form: CurrencyHandler(1.6).multiply(40).value,
                 note: 'LOS PAGOS DEBEN SER CANCELADOS A LA TASA DEL DÍA POR TCMMV-BCV',
+
+                // TODO: Replace these default variables with global ones extracted from backend config data
+                firstBankAccountId: FIRST_BANK_ACCOUNT_ID,
+                secondBankAccountId: SECOND_BANK_ACCOUNT_ID,
             })
 
             handleBusinessDataUpdate()
@@ -573,6 +593,14 @@ const GrossIncomeInvoice: React.FC = () => {
                             Actualizar
                         </Button>
                     </Flex>
+
+                    <Form.Item label="Cuenta Destino 1" name="firstBankAccountId">
+                        <Select options={bankAccountsOptions}/>
+                    </Form.Item>
+
+                    <Form.Item label="Cuenta Destino 2" name="secondBankAccountId">
+                        <Select options={bankAccountsOptions}/>
+                    </Form.Item>
 
                     <Form.Item label="Nota" name="note">
                         <TextArea max={225}/> 
