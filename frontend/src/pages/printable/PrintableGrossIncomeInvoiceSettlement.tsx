@@ -310,65 +310,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     return <Flex><Typography.Text>Cargando...</Typography.Text></Flex>
   }
 
-  
-
-  // TODO: DELETE AFTER DELETING THE DEPENDENCY ELEMENTS 
-  const headerItems: DescriptionsProps['items'] = [
-    {
-      key: '1',
-      label: 'RAZÓN SOCIAL',
-      children: grossIncomeInvoice.businessName.toUpperCase(),
-      span: 3,
-    },
-    {
-      key: '2',
-      label: 'RIF',
-      children: grossIncomeInvoice.businessDNI.toUpperCase(),
-      span: 3,
-    },
-    {
-      key: '3',
-      label: 'DESCRIPCIÓN DEL PAGO',
-      children: <><strong>PAGO POR: </strong> {description.toUpperCase()}</>,
-      span: 6,
-    },
-    {
-      key: '4',
-      label: 'MONTO',
-      children: formatBolivares(totalBs),
-      span: 2,
-    },{
-      key: '5',
-      labelStyle: {
-        display: "none",
-      },
-      children: util.numbersToWords(totalBs).toUpperCase(),
-      span: 4,
-    },
-  ];
-
-  const tableColumns: TableProps['columns'] = [
-    {
-      title: 'CÓDIGO',
-      dataIndex: 'code',
-      key: 'code',
-      align: 'left',
-    },
-    {
-      title: 'DESCRIPCIÓN',
-      dataIndex: 'description',
-      key: 'description',
-      align: 'left',
-    },
-    {
-      title: 'MONTO',
-      dataIndex: 'amountBs',
-      key: 'amountBs',
-      align: 'right',
-      render: (value) => formatBolivares(value)
-    }
-  ];
-
   let tableItems = [
     {
       code: '301090101',
@@ -411,39 +352,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
   // reverse for styling purpose 
   tableItems = tableItems.reverse();
-
-  const descriptionPaymentDetails: DescriptionsProps['items'] = [
-  {
-    key: '1',
-    label: 'BANCO',
-    children: displayBankName.toUpperCase(),
-  },
-  {
-    key: '2',
-    label: 'CUENTA',
-    children: displayBankAccountNumber,
-  },
-  {
-    key: '3',
-    label: 'BENEFICIARIO',
-    children: "SEDEMAT",
-  },
-  {
-    key: '4',
-    label: 'FECHA',
-    children: paymentDate,
-  },
-  {
-    key: '5',
-    label: 'REFERENCIA',
-    children: references,
-  },
-  {
-    key: '6',
-    label: 'LIQUIDADOR',
-    children: grossIncomeInvoice.settlement?.settledByUserPersonFullName.toUpperCase(),
-  },    
-];
 
   return (
     <Flex className="printable" vertical style={{ width: '100%' }}>
