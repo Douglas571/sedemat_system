@@ -172,21 +172,21 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </thead>
               <tbody>
                 <tr >
-                  <td>{grossIncomeInvoice.businessName}</td>
+                  <td>{grossIncomeInvoice.businessName.toUpperCase()}</td>
                   {
                     hasBranchOffice && (
-                      <td>{grossIncomeInvoice.branchOfficeName}</td>
+                      <td>{grossIncomeInvoice.branchOfficeName.toUpperCase()}</td>
                     )
                   }
-                  <td>{grossIncomeInvoice.businessDNI}</td>
+                  <td>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
                   <td>{business.economicActivity.code}</td>
-                  <td>{business.economicActivity.title}</td>
+                  <td>{business.economicActivity.title.toUpperCase()}</td>
 
                   {
                     hasBranchOffice && (
                       <>
                         <td>{grossIncomeInvoice.branchOfficeDimensions}</td>
-                        <td>{grossIncomeInvoice.branchOfficeType}</td>
+                        <td>{grossIncomeInvoice.branchOfficeType.toUpperCase()}</td>
                       </>
                     )
                   }
