@@ -284,10 +284,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   <td colSpan={3}>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT</td>
                 </tr>
                 <tr>
-                  <td colSpan={3}>BANCO BICENTENARIO - CUENTA CORRIENTE 0175-0162-3100-7494-9290</td>
+                  <td colSpan={3}>{grossIncomeInvoice.firstBankAccount.name.toUpperCase()} - {grossIncomeInvoice.firstBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} N° {grossIncomeInvoice.firstBankAccount.accountNumber}</td>
                 </tr>
                 <tr>
-                  <td colSpan={3}>BANCO DE VENEZUELA - CUENTA CORRIENTE 0102-0339-2500-0107-1892</td>
+                <td colSpan={3}>{grossIncomeInvoice.secondBankAccount.name.toUpperCase()} - {grossIncomeInvoice.secondBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} N° {grossIncomeInvoice.secondBankAccount.accountNumber}</td>
                 </tr>
               </tbody>
             </table>
