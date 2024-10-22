@@ -138,10 +138,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
             </Flex>
             <Flex justify='right'>
-                <Text>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`}</Text>
+                <Text>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</Text>
             </Flex>
 
-            <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
+            <Title level={5} style={{ textAlign: 'center' }}>DESCRIPCIÓN DEL CONTRIBUYENTE</Title>
 
             <table>
               <thead>
@@ -195,7 +195,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </tbody>
             </table>
 
-            <Title level={5} style={{ textAlign: 'center' }}>Estado de Cuenta</Title>
+            <Title level={5} style={{ textAlign: 'center' }}>ESTADO DE CUENTA</Title>
 
             <div style={{ border: '1px solid black', padding: 4, textAlign: 'center', borderBottom: 'none'  }}>
                 <p>Tasa de cambio de la Moneda de Mayor Valor del Banco Central de Venezuela (TCMMV-BCV) = {formatBolivares(grossIncomeInvoice.TCMMVBCV)} desde el día {dayjs(grossIncomeInvoice?.TCMMVBCVValidSince).format('DD/MM/YYYY')} hasta el {dayjs(grossIncomeInvoice?.TCMMVBCVValidUntil).format('DD/MM/YYYY')}.</p>
@@ -271,12 +271,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               <tbody>
                 <tr>
                   <th scope="row">Creado por</th>
-                  <td>{grossIncomeInvoice.createdByUserPersonFullName}</td>
+                  <td>{grossIncomeInvoice.createdByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                 </tr>
                 <tr>
                   <th scope="row">Revisado por</th>
-                  <td>{grossIncomeInvoice.checkedByUserPersonFullName}</td>
+                  <td>{grossIncomeInvoice.checkedByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
                   
                 </tr>

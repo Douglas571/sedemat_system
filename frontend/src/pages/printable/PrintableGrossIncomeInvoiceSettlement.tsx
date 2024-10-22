@@ -368,7 +368,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code}</Typography.Text></Flex>
+      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</Typography.Text></Flex>
       <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</Typography.Text></Flex>
 
       <table>
@@ -390,7 +390,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
               MONTO
             </th>
             <td>{formatBolivares(totalBs)}</td>
-            <td colSpan={3}>
+            <td colSpan={3} style={{textAlign: "left", padding: 10}}>
               {util.numbersToWords(totalBs).toUpperCase()}
             </td>
           </tr>
