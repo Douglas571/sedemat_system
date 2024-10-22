@@ -96,6 +96,7 @@ exports.createPayment = async (paymentData) => {
 
 exports.updatePayment = async (id, paymentData, user) => {
     logger.info(`Updating payment with ID ${id} with data:`, paymentData);
+    console.log({paymentData, user})
 
     try {
         const prevPayment = await PaymentModel.findByPk(id)
@@ -104,8 +105,6 @@ exports.updatePayment = async (id, paymentData, user) => {
             console.error(`Payment with ID ${id} not found`);
             throw new Error(`Payment with ID ${id} not found`);
         }
-
-        console.log({paymentData, prevPayment: prevPayment.toJSON()})
 
         // the only way to add payments to invoice is through the dedicated method
         paymentData.grossIncomeInvoiceId = undefined;
@@ -122,22 +121,20 @@ exports.updatePayment = async (id, paymentData, user) => {
 
         // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
 
-        if (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt) {
-
-            console.log({updatingCheckedAt: paymentData})
+        // we count the number of properties to warrant that it is only updating the check at date. Usually, it's less than 4, it also include the id, but i will remove it later
+        if (Object.keys(paymentData).length < 4 && (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt)) {
 
             // unmarking the payment as verified
             if (paymentData.checkedAt === null) {
                 return await PaymentModel.update({
                     receivedAt: null,
                     checkedAt: null,
+                    // we preserve the checkedByUserId to know that i was unmarked by that user
                     checkedByUserId: user.id
                 }, {
                     where: { id }
                 })
             }
-
-            console.log({checkedByUser: user})
 
             // the user is updating the payment verification data
             return await PaymentModel.update({
@@ -153,8 +150,7 @@ exports.updatePayment = async (id, paymentData, user) => {
         paymentData.verifiedAt = undefined
         paymentData.verifiedByUserId = undefined
         paymentData.receivedAt = undefined
-        paymentData.checkedByUserId = undefined
-        
+        paymentData.checkedByUserId = undefined        
 
         const newPaymentData = {
             ...paymentData,

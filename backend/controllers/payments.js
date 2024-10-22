@@ -122,11 +122,11 @@ router.delete('/:id',
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        console.log("executing the destination fuction")
+        // console.log("executing the destination fuction")
         cb(null, 'uploads/'); // Specify the destination directory for uploaded images
     },
     filename: (req, file, cb) => {
-        console.log('creating file name')
+        // console.log('creating file name')
         //cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // Specify the filename for uploaded images
         cb(null, Date.now() + path.extname(file.originalname));
     }
@@ -143,27 +143,53 @@ const upload = multer({
         const mimetype = filetypes.test(file.mimetype);
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
+        // console.log({mimetype, extname, mi: file.mimetype, ori: file.originalname})
+
         if (mimetype && extname) {
             return cb(null, true);
         } else {
-            cb(new Error('Only images are allowed'));
+            let err = new Error('Format not supported (only jpeg, jpg, png)')
+            err.name = 'FormatNotSupportedError';
+            cb(err, false);
         }
     }
-});
+}).single('image');
 
-router.post('/upload', upload.single('image'), (req, res) => {
-    try {
-        console.log("executing the route")
+router.post('/upload', function(req, res) {
+    upload(req, res, function(err) {
+        
+        if (err) {
+            console.log("there was an error")
+            return res.status(500).json({ error: {
+                name: err.name,
+                message: err.message
+            } });
+        }
+
+        // console.log("executing the route")
         if (!req.file) {
             return res.status(400).json({ error: 'Please upload an image' });
         }
+
         res.status(200).json({ message: 'Image uploaded successfully', file: req.file,
             path: req.file.destination + req.file.filename
         });
-    } catch (error) {
-        console.log("there was an error")
-        res.status(500).json({ error: error.message });
-    }
-});
+    })
+})
+
+// router.post('/upload', upload.single('image'), (req, res) => {
+//     try {
+//         console.log("executing the route")
+//         if (!req.file) {
+//             return res.status(400).json({ error: 'Please upload an image' });
+//         }
+//         res.status(200).json({ message: 'Image uploaded successfully', file: req.file,
+//             path: req.file.destination + req.file.filename
+//         });
+//     } catch (error) {
+//         console.log("there was an error")
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 
 module.exports = router;
