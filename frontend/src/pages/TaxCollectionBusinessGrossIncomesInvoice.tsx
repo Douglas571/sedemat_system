@@ -166,7 +166,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice({...fetchedInvoice})
-        setGrossIncomes(fetchedGrossIncomes)
+        setGrossIncomes(fetchedGrossIncomes.sort((a, b) => dayjs(b.period).isBefore(dayjs(a.period)) ? 1 : -1))
     }
 
     useEffect(() => {
@@ -341,7 +341,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     title="Ingreso" 
                     dataIndex="amountBs" 
                     key="amountBs" 
-                    render={(amountBs: number) => formatBolivares(amountBs)}
+                    render={(amountBs: number, record: IGrossIncome) => {
+                        if (!record.declarationImage) {
+                            return '--'
+                        }
+
+                        return formatBolivares(amountBs)
+                    }}
                 />
                 <Table.Column 
                     title="Alicuota"
@@ -390,7 +396,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     width="15%"
                     render={(_: any, record: IGrossIncome) => {
                         if (!record.chargeWasteCollection) {
-                            return 0
+                            return '--'
                         }
                         const tax = record.wasteCollectionTaxInBs
                         return formatBolivares(tax)
