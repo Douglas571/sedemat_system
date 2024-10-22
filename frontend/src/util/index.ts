@@ -24,6 +24,11 @@ export function getMMVExchangeRate(currencyExchangeRate: CurrencyExchangeRate): 
  * @returns {number} - The waste collection tax amount.
  */
 export function getWasteCollectionTaxInMMV(mts2: number): number {
+  // TODO: Study this function in deep and analyze edge cases for mts2
+
+    if (mts2 === null) {
+      return 0
+    }
     // Return 20 if mts2 is greater than or equal to 300
     if (mts2 >= 300) {
         return 20;

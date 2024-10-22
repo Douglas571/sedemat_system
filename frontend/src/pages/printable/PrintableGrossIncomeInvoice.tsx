@@ -50,6 +50,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     // TOTALS CALCULATION 
 
     const formPriceBs = grossIncomeInvoice?.formPriceBs ?? 0
+    const branchOfficeMinTaxMMVBCV = util.getWasteCollectionTaxInMMV(grossIncomeInvoice?.branchOfficeDimensions)
 
     let totalBeforePenalties = grossIncomeInvoice?.grossIncomes.reduce((total, grossIncome) => CurrencyHandler(total).add(grossIncome.totalTaxInBs).value, 0) ?? 0
 
@@ -123,8 +124,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         console.log({business, grossIncomeInvoice})
         return <Flex align="center" justify="center">Cargando...</Flex>
     }
-
-    const branchOfficeMinTaxMMVBCV = util.getWasteCollectionTaxInMMV(grossIncomeInvoice?.branchOfficeDimensions)
 
     return (
         <Flex vertical
