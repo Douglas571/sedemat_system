@@ -245,8 +245,6 @@ function PaymentsEdit(): JSX.Element {
 			// if (!bank?.id) {
 			// 	throw Error('Banco inválido')
 			// }
-
-			
 			
 			let newPaymentData: Payment = {
 				id: Number(id),
@@ -340,6 +338,7 @@ function PaymentsEdit(): JSX.Element {
 		maxCount: 1
 	}
 
+	// TODO: Pass this function to the paymentsApi module  
 	const handleUploadBoucher = async (): Promise<string | undefined> => {
 		try {
 			console.log("sending files")
@@ -359,9 +358,15 @@ function PaymentsEdit(): JSX.Element {
 				body: formData,
 			})
 
-			console.log("response")
+			if (!response.ok) {
+				let { error } = await response.json()
+				throw error
+			}
+			
 			const data = await response.json()
+
 			console.log({ data })
+
 			const imagePath = data.path
 
 			return imagePath
@@ -370,10 +375,11 @@ function PaymentsEdit(): JSX.Element {
 			console.log({ error })
 			console.log("hubo un error con la imagen")
 
-			messageApi.open({
-				type: 'error',
-				content: error.message,
-			});
+			if (error.name === "FormatNotSupportedError") {
+				throw Error("El formato de imagen no es admitido, debe ser .jpeg, .jpg o .png")
+			}
+
+			throw error
 		}
 	}
 

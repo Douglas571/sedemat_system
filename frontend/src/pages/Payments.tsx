@@ -183,6 +183,7 @@ function Payments(): JSX.Element {
         ),
     }
 
+    // TODO: Sort this object
     const columns = [
         {
             title: 'Nombre o Razón Social',
@@ -204,7 +205,7 @@ function Payments(): JSX.Element {
             },
 
             sorter: (a: Payment, b: Payment) => {
-                console.log("here")
+                
                 if (a.businessId) {
                     return a.business.businessName.localeCompare(b.business.businessName)
                 } else {
@@ -221,10 +222,10 @@ function Payments(): JSX.Element {
             }),
 
             onFilter: (value: string, record: Payment) =>
-                record?.business['businessName']
+                record ? record.business['businessName']
                     .toString()
                     .toLowerCase()
-                    .includes((value as string).toLowerCase()),
+                    .includes((value as string).toLowerCase()) : false,
             
             ...filterIconProp,
         },
@@ -234,6 +235,14 @@ function Payments(): JSX.Element {
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
+
+            filterSearch: true,
+            onFilter: (value: string, record: Payment) =>
+                record ? record?.business['dni']
+                    .toString()
+                    .toLowerCase()
+                    .includes((value as string).toLowerCase()) : false,
+
             sorter: (a, b) => {
                 if (a.businessId) {
                     return a.business?.dni.localeCompare(b.business?.dni)
@@ -267,6 +276,14 @@ function Payments(): JSX.Element {
             key: 'reference',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
+
+            filterSearch: true,
+            onFilter: (value: string, record: Payment) => {
+                if (!record?.reference) return false
+                
+                return record.reference.toLowerCase().includes((value as string).toLowerCase())
+            },
+
             sorter: (a, b) => a.reference.localeCompare(b.reference),
             render: (text: string, record: Payment) => {
                 return <Link to={`/payments/${record.id}`}>{text}</Link>
