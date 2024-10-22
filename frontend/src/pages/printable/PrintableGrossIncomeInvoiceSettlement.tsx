@@ -23,6 +23,8 @@ import _ from 'lodash';
 import * as util from 'util'
 import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService';
 
+
+const MONTHS_NEEDED_TO_BE_A_BAD_DEBT = 1;
 // is a bad debt is the current d
 const isBadDebt = ({
   grossIncome,
@@ -38,7 +40,7 @@ const isBadDebt = ({
 
   // console.log({monthBadDeb: grossIncomeDate.get('month')})
   // when months difference is greater than 1 (2, 3 4...) then it is a bad debt
-  return monthsDifference > 1;
+  return monthsDifference > MONTHS_NEEDED_TO_BE_A_BAD_DEBT;
 }
 
 const getBadDebtTax = ({
