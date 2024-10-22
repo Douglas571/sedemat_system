@@ -220,7 +220,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     <td>{formatPercents(grossIncome.alicuotaTaxPercent)}</td>
                     <td>{CurrencyHandler(grossIncome.taxInBs).format()}</td>
                     <td>{CurrencyHandler(grossIncome.minTaxInBs).format()}</td>
-                    <td>{ grossIncome.chargeWasteCollectionTax ? CurrencyHandler(grossIncome.wasteCollectionTaxInBs).format() : '--'}</td>
+                    <td>{ grossIncome.chargeWasteCollection ? CurrencyHandler(grossIncome.wasteCollectionTaxInBs).format() : '--'}</td>
                     <td>{CurrencyHandler(grossIncome.totalTaxInBs).format()}</td>
                   </tr>)
                 })}
