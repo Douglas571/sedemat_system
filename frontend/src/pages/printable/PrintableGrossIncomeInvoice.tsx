@@ -220,7 +220,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     <td>{formatPercents(grossIncome.alicuotaTaxPercent)}</td>
                     <td>{CurrencyHandler(grossIncome.taxInBs).format()}</td>
                     <td>{CurrencyHandler(grossIncome.minTaxInBs).format()}</td>
-                    <td>{CurrencyHandler(grossIncome.wasteCollectionTaxInBs).format()}</td>
+                    <td>{ grossIncome.chargeWasteCollectionTax ? CurrencyHandler(grossIncome.wasteCollectionTaxInBs).format() : '--'}</td>
                     <td>{CurrencyHandler(grossIncome.totalTaxInBs).format()}</td>
                   </tr>)
                 })}
@@ -235,7 +235,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   grossIncomeInvoice.penalties.length > 0 && (
                     <>
                       <tr>
-                        <td colSpan={6} >SUBTOTAL EN BS</td>
+                        <td colSpan={6} style={{ textAlign: 'right', paddingLeft: 10 }} >SUBTOTAL EN BS</td>
                         <td><strong>{CurrencyHandler(totalBeforePenalties).format()}</strong></td>
                       </tr>
                       {grossIncomeInvoice.penalties.map(penalty => {
@@ -281,7 +281,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   
                 </tr>
                 <tr>
-                  <td colSpan={3}>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT</td>
+                  <td colSpan={3}>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT G-20012768-6</td>
                 </tr>
 
                 {
@@ -289,20 +289,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     // in case that there is no bank accounts
                     <>
                       <tr>
-                        <td colSpan={3}>BANCO BICENTENARIO - CUENTA CORRIENTE 0175-0162-3100-7494-9290</td>
+                        <td colSpan={3}>BANCO BICENTENARIO - CUENTA CORRIENTE - N° 0175-0162-3100-7494-9290</td>
                       </tr>
                       <tr>
-                        <td colSpan={3}>BANCO DE VENEZUELA - CUENTA CORRIENTE 0102-0339-2500-0107-1892</td>
+                        <td colSpan={3}>BANCO DE VENEZUELA - CUENTA CORRIENTE - N° 0102-0339-2500-0107-1892</td>
                       </tr>
                   </>
                   )
                   : (
                     <>
                       <tr>
-                        <td colSpan={3}>{grossIncomeInvoice.firstBankAccount.name.toUpperCase()} - {grossIncomeInvoice.firstBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} N° {grossIncomeInvoice.firstBankAccount.accountNumber}</td>
+                        <td colSpan={3}>{grossIncomeInvoice.firstBankAccount.name.toUpperCase()} - {grossIncomeInvoice.firstBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} - N° {grossIncomeInvoice.firstBankAccount.accountNumber}</td>
                       </tr>
                       <tr>
-                        <td colSpan={3}>{grossIncomeInvoice.secondBankAccount.name.toUpperCase()} - {grossIncomeInvoice.secondBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} N° {grossIncomeInvoice.secondBankAccount.accountNumber}</td>
+                        <td colSpan={3}>{grossIncomeInvoice.secondBankAccount.name.toUpperCase()} - {grossIncomeInvoice.secondBankAccount.isSavingAccount ? 'CUENTA AHORROS' : 'CUENTA CORRIENTE'} - N° {grossIncomeInvoice.secondBankAccount.accountNumber}</td>
                       </tr>
                   </>
                   )
