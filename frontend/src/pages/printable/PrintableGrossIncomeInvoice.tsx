@@ -132,14 +132,27 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
           className='printable'
         >
 
-            <Flex align='center' justify='center' gap={10}>
-                <img src={"/images/zamora_flag.png"} width={100} alt="Zamora Flag" />
-                <img src={"/images/zamora_shield.png"} width={100} alt="Zamora Shield" />
-                <Flex style={{maxWidth: "350px", textAlign: 'center', fontFamily: "Arial"}}>
-                    REPÚBLICA BOLIVARIANA DE VENEZUELA<br/>
-                    ALCALDIA DEL MUNICIPIO ZAMORA ESTADO FALCÓN
+            <Flex align='center' justify='space-between' gap={10}>
+                <Flex align="center">
+                  <img src={"/images/zamora_flag.png"} width={100} alt="Zamora Flag" />
+                  <img src={"/images/zamora_shield.png"} width={100} alt="Zamora Shield" />
                 </Flex>
-                <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
+                <Flex 
+                  vertical
+                  style={{
+                    flex: 2, 
+                    alignContent: 'center',
+                    textAlign: 'center',
+                    fontFamily: "Arial"
+                  }}
+                >
+                    <p>REPÚBLICA BOLIVARIANA DE VENEZUELA</p>
+                    <p>ALCALDIA DEL MUNICIPIO ZAMORA ESTADO FALCÓN</p>
+                    <p>SERVICIO DESCONCENTRADO DE ADMINISTRACIÓN TRIBUTARIA</p>
+                </Flex>
+                <Flex>
+                  <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
+                </Flex>
             </Flex>
             <Flex justify='right'>
                 <p>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</p>
@@ -233,7 +246,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                 
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>Formulario</td>
+                  <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>FORMULARIO</td>
                   <td>{CurrencyHandler(grossIncomeInvoice.formPriceBs).format()}</td>
                 </tr>
 
@@ -242,11 +255,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     <>
                       <tr>
                         <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }} >SUBTOTAL EN BS.</td>
-                        <td><strong>{CurrencyHandler(totalBeforePenalties).format()}</strong></td>
+                        <td style={{ fontSize: 25 }}><strong>{CurrencyHandler(totalBeforePenalties).format()}</strong></td>
                       </tr>
                       {grossIncomeInvoice.penalties.map(penalty => {
                         return (<tr>
-                          <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>Multa {penalty.penaltyType.name} ({CurrencyHandler(penalty.amountMMVBCV).format()} TCMMV-BDV x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()} BS.)</td>
+                          <td colSpan={6} style={{ textAlign: 'left', paddingLeft: 20 }}>MULTA {penalty.penaltyType.name.toUpperCase()} ({CurrencyHandler(penalty.amountMMVBCV).format()} TCMMV-BDV x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()} BS.)</td>
                           <td>{CurrencyHandler(penalty.amountMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).format()}</td>
                         </tr>)
                       })}
@@ -256,11 +269,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN BS.</td>
-                  <td><strong>{CurrencyHandler(TOTAL_IN_BS).format()}</strong></td>
+                  <td style={{ fontSize: 25 }}><strong>{CurrencyHandler(TOTAL_IN_BS).format()}</strong></td>
                 </tr>
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'right', paddingRight: 20 }}>TOTAL A PAGAR EN TCMMV-BCV</td>
-                  <td><strong>{CurrencyHandler(TOTAL_IN_MMV).format()}</strong></td>
+                  <td style={{ fontSize: 25 }}><strong>{CurrencyHandler(TOTAL_IN_MMV).format()}</strong></td>
                 </tr>
               </tbody>
             </table>
@@ -272,13 +285,13 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               <tbody>
                 <tr>
                   <th>MÍNIMO TRIBUTABLE</th>
-                  <td style={{ width: "60%", textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x15</td>
-                  <td>{formatBolivares(CurrencyHandler(15).multiply(grossIncomeInvoice.TCMMVBCV).value)}</td>
+                  <td style={{ textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x15</td>
+                  <td style={{ width: "60%", textAlign: "left", paddingLeft: 20 }}>{formatBolivares(CurrencyHandler(15).multiply(grossIncomeInvoice.TCMMVBCV).value)}</td>
                 </tr>
                 <tr>
                   <th>RECOLECCIÓN DE ASEO</th>
-                  <td style={{ width: "60%", textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x{branchOfficeMinTaxMMVBCV}</td>
-                  <td>
+                  <td style={{ textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x{branchOfficeMinTaxMMVBCV}</td>
+                  <td style={{ width: "60%", textAlign: "left", paddingLeft: 20 }}>
                     {formatBolivares(CurrencyHandler(branchOfficeMinTaxMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).value)}
                   </td>
                 </tr>
@@ -291,12 +304,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <th></th>
                 <th>NOMBRE</th>
                 <th>FIRMA</th>
+                <th>SELLO</th>
               </thead>
               <tbody>
                 <tr>
                   <th style={{ padding: 10}} scope="row">CREADO POR</th>
                   <td>{grossIncomeInvoice.createdByUserPersonFullName.toUpperCase() ?? ''}</td>
                   <td></td>
+                  <td rowSpan={5}></td>
                 </tr>
                 <tr>
                   <th style={{ padding: 10}} scope="row">REVISADO POR</th>
@@ -305,7 +320,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   
                 </tr>
                 <tr>
-                  <td colSpan={3}>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT G-20012768-6</td>
+                  <td colSpan={3}><strong>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT G-20012768-6</strong></td>
                 </tr>
 
                 {
