@@ -368,16 +368,16 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><Typography.Text>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</Typography.Text></Flex>
-      <Flex justify='right'><Typography.Text>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</Typography.Text></Flex>
+      <Flex justify='right'><p>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</p></Flex>
+      <Flex justify='right'><p>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</p></Flex>
 
       <table>
         <tbody>
           <tr>
-            <th style={{width: 40}}>RAZON SOCIAL</th>
-            <td colSpan={2}>{grossIncomeInvoice.businessName.toUpperCase()}</td>
+            <th style={{width: 50}}>RAZON SOCIAL</th>
+            <td colSpan={2} style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessName.toUpperCase()} { grossIncomeInvoice.branchOfficeName && `(${grossIncomeInvoice.branchOfficeName})`.toUpperCase()}</td>
             <th style={{width: 40}}>RIF</th>
-            <td>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
+            <td style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
           </tr>
           <tr>
             <th>DESCRIPCIÓN DEL PAGO</th>
@@ -389,7 +389,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
             <th>
               MONTO
             </th>
-            <td>{formatBolivares(totalBs)}</td>
+            <td style={{textAlign: "left", padding: 10}}>{formatBolivares(totalBs)}</td>
             <td colSpan={3} style={{textAlign: "left", padding: 10}}>
               {util.numbersToWords(totalBs).toUpperCase()}
             </td>
