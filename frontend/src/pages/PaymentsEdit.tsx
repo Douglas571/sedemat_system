@@ -223,20 +223,21 @@ function PaymentsEdit(): JSX.Element {
 				return ''
 			}
 
-			if (fileList.length === 0) {
-				message.error("Selecciona un boucher")
-				return ''
-			}
+			// if (fileList.length === 0) {
+			// 	message.error("Selecciona un boucher")
+			// 	return ''
+			// }
 
 			// if there is not image, upload the image
 			// console.log({fileList})
 			if (fileList[0]?.url?.includes(payment?.image)) {
 				console.log("using existing image")
 				boucherImageUrl = payment?.image
-			} else {
+			} else if (fileList.length > 0) {
 				console.log("uploading image")
 				boucherImageUrl = await handleUploadBoucher()
 			}
+			
 			console.log({boucherImageUrl})
 
 			// map all values to a ready to ship payment object

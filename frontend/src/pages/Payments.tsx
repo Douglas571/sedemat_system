@@ -405,7 +405,10 @@ function Payments(): JSX.Element {
                     </Popconfirm>
 
                     <Button onClick={() => navigate(`/payments/${record.id}`)}>Editar</Button>
-                    <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
+
+                    {
+                        record.image && <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
+                    }
                 </Space>
             )},
         },
