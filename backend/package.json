@@ -14,11 +14,8 @@
     "tb": "npx mocha test/business.test.js",
     "te": "npx mocha test/economicActivity.test.js",
     "tbo": "npx mocha test/economicActivity.test.js",
-
-
     "db:migrate:nodocker": "npx env-cmd --file ./.env npx sequelize db:migrate",
     "db:seed:nodocker": "npx env-cmd --file ./.env npx sequelize db:seed:all --seeders-path=database/seeders-prod",
-
     "start:prod": "node --env-file=.env index.js",
     "start:dev:nodocker": "nodemon --env-file=.env.dev index.js -L"
   },
@@ -28,8 +25,8 @@
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
-    
     "crypto": "^1.0.1",
+    "csv-parser": "^3.0.0",
     "currency.js": "^2.0.4",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",

@@ -1,0 +1,117 @@
+id,code,title,alicuota,minimumTax
+1,1.1.01,Pesca,0.0100,15.00
+2,1.1.02,Agricultura,0.0100,15.00
+3,1.1.03,Avicultura,0.0100,15.00
+4,1.1.04,Ganadería,0.0100,15.00
+5,1.1.05,Silvicultura,0.0100,15.00
+6,1.1.06,Acuicultura,0.0100,15.00
+7,2.1.01,Industria de la carne,0.0100,15.00
+8,2.1.02,Industrias lácteas,0.0100,15.00
+9,2.1.03,"Industria de conservación de frutas, hortalizas y similares",0.0100,15.00
+10,2.1.04,Fabricación de aceites y grasas animales y/o vegetales,0.0100,15.00
+11,2.1.05,Industrias de productos alimenticios diversos para el consumo humano,0.0150,15.00
+12,2.1.06,Industrias de alimentos y demás productos para el consumo animal.,0.0150,15.00
+13,2.1.07,Fabricación de bebidas no alcohólicas,0.0150,15.00
+14,2.1.08,Fabricación de bebidas alcohólicas obtenidas por destilación de especies vegetales nacionales,0.0300,15.00
+15,2.1.09,Fabricación de las demás bebidas alcohólicas y licores,0.0400,15.00
+16,2.1.10,"Manufactura de tabaco, cigarrillos y derivados",0.0500,15.00
+17,2.1.11,Industrias textil,0.0150,15.00
+18,2.1.12,Fabricación de prendas de vestir y demás accesorios de vestir,0.0150,15.00
+19,2.1.13,"Industria del cuero natural, sintética y conexa.",0.0150,15.00
+20,2.1.14,"Fabricación de calzado, artículos de talabartería y guarnicionería",0.0150,15.00
+21,2.1.15,Industrias de la madera y corcho,0.0150,15.00
+22,2.1.16,Fabricación de papel y cartón y productos de estas materias,0.0150,15.00
+23,2.1.17,"Industria de impresión, reproducción, editorial y artes gráficas",0.0100,15.00
+24,2.1.18,"Fabricación de envases, empaques, embalajes",0.0100,15.00
+25,2.1.19,Fabricación de productos a partir de los derivados del petróleo del caucho y plástico.,0.0150,15.00
+26,2.1.20,Industrias químicas,0.0150,15.00
+27,2.1.21,"Fabricación de productos farmacéuticos, sustancias químicas medicinales y productos botánicos de uso farmacéutico.",0.0100,15.00
+28,2.1.22,"Fabricación de productos de higiene, cosméticos y otros",0.0150,15.00
+29,2.1.23,"Industria de la transformación de otros productos minerales no
+metálicos e insumos para la construcción",0.0150,15.00
+30,2.1.24,Industria metalúrgica y metalmecánica,0.0100,15.00
+31,2.1.25,"Fabricación de productos elaborados de metal, excepto maquinarias y equipos.",0.0150,15.00
+32,2.1.26,"Fabricación de equipos, materiales e instrumentos de informática, electrónicos y eléctricos.",0.0150,15.00
+33,2.1.27,Fabricación de maquinarias y otros equipos e instrumentos.,0.0150,15.00
+34,2.1.28,"Fabricación de mobiliario, utensilios de uso industrial y domestico",0.0200,15.00
+35,2.1.29,"Industrias Químicas y derivado de recursos naturales renovables y afines, carbón activado, desechos agroindustriales y otros.",0.0100,15.00
+36,2.1.30,"Fabricación y ensamblaje de vehículos de motor, remolque o semirremolque",0.0300,15.00
+37,2.1.31,Fabricación de otros equipos de transporte,0.0200,15.00
+38,2.1.32,Fabricación de autopartes y repuestos para vehículos terrestres,0.0200,15.00
+39,2.1.33,Otras industrias manufactureras,0.0200,15.00
+40,2.2.01,Construcción de viviendas y edificios,0.0200,15.00
+41,2.2.03,Obras de ingeniería civil,0.0200,15.00
+42,2.2.04,Actividades especializadas de construcción,0.0300,15.00
+43,2.3.01,"Construcción y servicios a la industria petrolera, petroquímica y similares",0.0300,15.00
+44,3.1.01.01,Mayor de materias primas y similares,0.0150,15.00
+45,3.1.02.01,Mayor de alimentos,0.0100,15.00
+46,3.1.02.02,Mayor de bebidas no alcohólicas,0.0150,15.00
+47,3.1.03.01,Mayor de bebidas alcohólicas,0.0300,15.00
+48,3.1.03.02,"Mayor de cigarrillos, tabacos y derivados",0.0300,15.00
+49,3.1.04.01,"Mayor de productos textiles, del cuero, sintéticos, del calzados, deportivos, prendas, accesorios de vestir y conexos",0.0150,15.00
+50,3.1.05.01,"Mayor de productos y derivados de madera, corcho y artes gráficas",0.0150,15.00
+51,3.1.06.01,"Mayor de productos químicos, derivados del petróleo y afines",0.0150,15.00
+52,3.1.06.02,Mayor de cauchos,0.0150,15.00
+53,3.1.06.03,Mayor de productos plásticos y similares,0.0150,15.00
+54,3.1.07.01,"Mayor de medicamentos, productos de uso farmacéuticos y similares",0.0100,15.00
+55,3.1.08.01,"Mayor de productos de higiene, cosméticos y otros",0.0150,15.00
+56,3.1.09.01,"Mayor de materiales y productos para la construcción, metálicos, no metálicos y otro",0.0150,15.00
+57,3.1.10.01,"Mayor de productos, maquinaria y equipos diversos, así como sus repuestos y accesorios",0.0150,15.00
+58,3.1.11,Otras actividades de comercio al mayor,0.0200,15.00
+59,3.2.01.01,Detal de materias primas y similares,0.0150,15.00
+60,3.2.02.01,Detal de alimentos,0.0150,15.00
+61,3.2.02.02,Detal de bebidas no alcohólicas,0.0150,15.00
+62,3.2.03.01,Detal de bebidas alcohólicas,0.0300,15.00
+63,3.2.03.02,"Detal de cigarrillos, tabacos y derivados",0.0300,15.00
+64,3.2.04.01,"Detal de productos textiles, del cuero, sintéticos, del calzados, deportivos, prendas, accesorios de vestir y conexos",0.0150,15.00
+65,3.2.05.01,"Detal de productos y derivados de madera, corcho y artes gráficas",0.0150,15.00
+66,3.2.06.01,"Detal de productos químicos, derivados del petróleo y afines",0.0250,15.00
+67,3.2.06.02,Detal de cauchos,0.0200,15.00
+68,3.2.06.03,Detal de productos plásticos y similares,0.0200,15.00
+69,3.2.07.01,"Detal de medicamentos, productos de uso farmacéuticos y similares",0.0100,15.00
+70,3.2.08.01,"Detal de productos de higiene, cosméticos y otros",0.0150,15.00
+71,3.2.09.01,"Detal de materiales y productos para la construcción, metálicos, no metálicos y otros",0.0200,15.00
+72,3.2.10.01,"Detal de productos, maquinarias y equipos diversos, así como sus repuestos y accesorio",0.0200,15.00
+73,3.2.10.02,Detal de vehículos,0.0300,15.00
+74,3.2.10.03,Detal repuestos y accesorios para vehículos y motos,0.0200,15.00
+75,3.2.11.01,"Detal de muebles, artefactos y artículos para la industria, comercio y domésticos",0.0200,15.00
+76,3.2.12,"Detal de equipos e instrumentos diversos, eléctricos, electrónicos, de energía solar, así como sus repuestos, accesorios y consumibles",0.0300,15.00
+77,3.2.13,Detal de productos y artefactos diversos en general,0.0200,15.00
+78,3.2.14.01,Detal de productos y artículos y materiales diversos para        animales.,0.0200,15.00
+79,3.2.14.02,Detal de alimento para animales,0.0150,15.00
+80,3.2.14.03,"Venta de joyas, relojes y piedras preciosas",0.0300,15.00
+81,3.2.14.04,"Supermercados, hipermercados, auto mercados, panaderías, pescaderías, carnicerías, Hortalizas, y afines",0.0150,15.00
+82,3.2.14.05,Tiendas por departamento,0.0150,15.00
+83,3.2.15,Otras actividades de comercio al detal no especificadas en los sub-ramos anteriores,0.0300,15.00
+84,3.3.01,"Servicio de restaurant, alimentos y bebidas preparados, heladerías y afines",0.0200,15.00
+85,3.3.02,"Servicio deportivo, de recreación, eventos y agencias de festejos",0.0200,15.00
+86,3.3.03,Juegos y Apuestas licitas,0.0300,15.00
+87,3.3.04,Hoteles y posadas,0.0200,15.00
+88,3.3.05,Pensiones y Afines,0.0150,15.00
+89,3.3.06,"Transporte de pasajeros, en vehículos, autobuses y motos",0.0150,15.00
+90,3.3.07,Transporte de carga terrestre,0.0200,15.00
+91,3.3.08,Servicios de almacenaje,0.0200,15.00
+92,3.3.09,Estaciones surtidora de combustibles,0.0025,15.00
+93,3.3.10,Servicios de salud (clínicas y laboratorios),0.0100,15.00
+94,3.3.11,"Servicios de estética, belleza y cuidados personales",0.0150,15.00
+95,3.3.12,"Servicios de atención, cuidado y estética para animales",0.0200,15.00
+96,3.3.13,"Limpieza, mantenimiento, ornato, floristería  y fumigación",0.0150,15.00
+97,3.3.14,"Servicios de formación, vigilancia y servicios diversos prestados por agencias especializadas",0.0300,15.00
+98,3.3.15,Servicio de estacionamiento,0.0100,15.00
+99,3.3.16,Arrendamientos diversos de maquinarias y equipos en general,0.0200,15.00
+100,3.3.17,Servicios radiodifusión y telecomunicaciones,0.0100,15.00
+101,3.3.18,Servicios de tecnología y medios de difusión,0.0100,15.00
+102,3.3.19,"Servicios fotográficos, de imprenta y reproducción",0.0200,15.00
+103,3.3.20,"Servicios de instalación y reparación de artefactos, equipos y accesorios",0.0150,15.00
+104,3.3.21,"Servicios de mecánica, electricidad, gas y similares.",0.0150,15.00
+105,3.3.22,Bancos universales e instituciones financieras,0.0300,15.00
+106,3.3.23,Instituciones de seguros y similares.,0.0300,15.00
+107,3.3.24,"Servicios inmobiliarios, de administración de inmuebles y actividades de índole similar",0.0300,15.00
+108,3.3.25,Servicio de publicidad,0.0300,15.00
+109,3.3.26,Servicio de mantenimiento y reparación a la industria petrolera.,0.0250,15.00
+110,3.3.27,Servicio de mantenimiento y reparación a la industria gasífera y petroquímica.,0.0250,15.00
+111,3.3.28,"Servicio de mantenimiento preventivo y correctivo, remodelaciones menores y adecuaciones de obras civiles",0.0200,15.00
+112,3.3.29,Servicios de asesorías profesionales y técnicas,0.0100,15.00
+113,3.3.30,Servicios Funerarios,0.0200,15.00
+114,3.3.31,Instituciones Educativas Privadas,0.0000,15.00
+115,3.4.01,"Actividades industriales, comerciales, de servicios y de índole similar no especificadas en el clasificador de actividades económicas",0.0300,15.00
