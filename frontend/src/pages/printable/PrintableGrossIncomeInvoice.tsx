@@ -114,7 +114,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setGrossIncomeInvoice(fetchedInvoice)
         setGrossIncomes(fetchedGrossIncomes)
 
-        document.title = `${fetchedBusiness.businessName} - Estado de cuenta - ${dayjs().format("MMMM YYYY")}`
+        let branchOfficeName = fetchedInvoice?.branchOfficeName
+
+        document.title = `Calculo - ${dayjs().format("MMMM YYYY")} - ${fetchedInvoice.businessName} ${branchOfficeName && "(" + branchOfficeName + ")"}`.toUpperCase()
     }
 
     useEffect(() => {
