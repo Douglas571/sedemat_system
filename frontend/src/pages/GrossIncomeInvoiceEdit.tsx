@@ -278,7 +278,7 @@ const GrossIncomeInvoice: React.FC = () => {
         if (lastCurrencyExchangeRate) {
             form.setFieldsValue({
                 TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate),
-                TCMMVBCVValueDate: dayjs(lastCurrencyExchangeRate.createdAt).utc()
+                TCMMVBCVValidDateRange: dayjs(lastCurrencyExchangeRate.createdAt).utc()
             })
         }
     }
@@ -327,7 +327,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
         if (!business) {
             if (!selectedBranchOffice) {
-                message.warning('Por favor, seleccione una sucursal y una declaración de ingresos brutos')
+                message.warning('Por favor, seleccione una sede y una declaración de ingresos brutos')
                 return 
             }
 
@@ -490,30 +490,37 @@ const GrossIncomeInvoice: React.FC = () => {
                         Actualizar
                     </Button>
                 </Flex>
-                <Flex gap={16} wrap>
-                    <Form.Item name="businessName" label="Razón Social" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="businessDNI" label="RIF" rules={[{ required: true }]}>  
-                        <Input />
-                    </Form.Item>
+                <Flex wrap>
+                    <Flex gap={16}>
+                        <Form.Item name="businessName" label="Razón Social" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="businessDNI" label="RIF" rules={[{ required: true }]}>  
+                            <Input />
+                        </Form.Item>
+                    </Flex>
 
                     {
                         hasBranchOffices && (
-                            <Flex gap={16} wrap>
-                                <Form.Item 
-                                    name="branchOfficeName" label="Nombre de la sucursal" rules={[{ required: true }]}>  
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item name="branchOfficeAddress" label="Dirección de la sucursal" rules={[{ required: true }]}>  
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item name="branchOfficeDimensions" label="Dimensiones de la sucursal" rules={[{ required: true }]}>  
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item name="branchOfficeType" label="Tipo de sucursal" rules={[{ required: true }]}>  
-                                    <Input />
-                                </Form.Item>
+                            <Flex gap={16} wrap vertical>
+                                <Flex>
+                                    <Typography.Title level={4}>Sede</Typography.Title>
+                                </Flex>
+                                <Flex wrap gap={16}>
+                                    <Form.Item 
+                                        name="branchOfficeName" label="Nombre" rules={[{ required: true }]}>  
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item name="branchOfficeAddress" label="Dirección" rules={[{ required: true }]}>  
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item name="branchOfficeDimensions" label="Dimensiones" rules={[{ required: true }]}>  
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item name="branchOfficeType" label="Tipo" rules={[{ required: true }]}>  
+                                        <Input />
+                                    </Form.Item>
+                                </Flex>
                             </Flex>
                         )
                     }
@@ -547,6 +554,14 @@ const GrossIncomeInvoice: React.FC = () => {
                     </Form.Item>
                 </Flex>
 
+                <Flex align="center" gap={16}>
+                    <Typography.Title level={5}>Tasa de Cambio</Typography.Title>
+
+                    <Button onClick={() => handleUpdateTCMMVBCV()}>
+                        <ReloadOutlined />
+                        Actualizar
+                    </Button>
+                </Flex>
                 <Flex wrap gap={16}>
                     <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
                         <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
@@ -555,13 +570,11 @@ const GrossIncomeInvoice: React.FC = () => {
                     <Form.Item name="TCMMVBCVValidDateRange" label="Rango de Validez" rules={[{ required: true }]}>
                         <DatePicker picker="week"/>
                     </Form.Item>
-
-                    <Button onClick={() => handleUpdateTCMMVBCV()}>
-                        <ReloadOutlined />
-                        Actualizar
-                    </Button>
                 </Flex>
 
+                <Flex align="center" gap={16}>
+                    <Typography.Title level={5}>Personal</Typography.Title>
+                </Flex>
                 <Flex wrap gap={16} vertical>
                     <Flex gap={16}>
                         <Form.Item name="createdByUserPersonFullName" label="Creado por" rules={[{ required: true }]}>
