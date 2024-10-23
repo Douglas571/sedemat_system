@@ -336,6 +336,22 @@ function Payments(): JSX.Element {
             sorter: (a, b) => a.paymentDate.localeCompare(b.paymentDate),
         },
         {
+            title: 'Fecha de Verificación',
+            dataIndex: 'checkedAt',
+            key: 'checkedAt',
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => a?.checkedAt?.localeCompare(b?.checkedAt),
+
+            render: (text: string, record: Payment) => {
+                if (text) {
+                    return dayjs(text).format('DD/MM/YYYY')
+                } else {
+                    return '--'
+                }
+            }
+        },
+        {
             title: 'Estado',
             dataIndex: 'status',
             key: 'status',
