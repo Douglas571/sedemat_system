@@ -144,7 +144,9 @@ function Payments(): JSX.Element {
     const deletePayment = async (id: number) => {
         try {
             // send the request
-            await sendRequestToDeletePayment(id)
+            // await sendRequestToDeletePayment(id)
+
+            let res = await paymentService.deletePayment(id, userAuth.token)
 
             // deleted successfully, reload payments
             fetchPayments()

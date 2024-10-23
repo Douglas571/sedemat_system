@@ -83,3 +83,19 @@ export async function findAll(filters?: PaymentFilters) {
     return data
 }
 
+// a function to delete a payment
+export async function deletePayment(id: number, token: string): Promise<void> {
+    const response = await fetch(HOST + '/v1/payments/' + id, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    })
+
+    if (!response.ok) {
+        const {error} = await response.json()
+        throw new Error(error.msg)
+    }
+
+    console.log({ response })
+}
