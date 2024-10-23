@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Flex, Button, Table, Typography, Popconfirm, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -40,16 +40,81 @@ const EconomicActivitiesTable = () => {
         loadData();
     }, []);
 
+    const codeFilterSearch = useMemo(() => {
+        let primary = {
+            text: "Primario",
+            value: '1',
+            children: economicActivities.filter(e => e.code.startsWith("1.")).map(e => ({
+                text: e.code,
+                value: e.code
+            }))
+        }
+
+        let secondary = {
+            text: "Secundario",
+            value: '2',
+            children: economicActivities.filter(e => e.code.startsWith("2.")).map(e => ({
+                text: e.code,
+                value: e.code
+            }))
+        }
+
+        let tertiary = {
+            text: "Terciario",
+            value: '3',
+            children: economicActivities.filter(e => e.code.startsWith("3.")).map(e => ({
+                text: e.code,
+                value: e.code
+            }))
+        }
+
+        return [primary, secondary, tertiary]
+    }, [economicActivities]);
+
+    const titleFilterSearch = useMemo(() => {
+        return economicActivities.map(e => ({
+            text: e.title,
+            value: e.title
+        }))
+    }, [economicActivities]);
+
     const columns = [
         {
             title: 'Código',
             dataIndex: 'code',
             key: 'code',
+
+            filters: codeFilterSearch,
+            filterSearch: true,
+
+            filterMode: 'tree',
+
+            onFilter: (value: string, record: EconomicActivity) => {
+
+                console.log({filterCodeValue: value})
+                return record.code.toLowerCase().startsWith(value.toLowerCase());
+            },
+
+            showSorterTooltip: false,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Título',
             dataIndex: 'title',
             key: 'title',
+
+            filters: titleFilterSearch,
+
+            filterSearch: true,
+
+            onFilter: (value: string, record: EconomicActivity) => {
+                return record.title.toLowerCase().includes(value.toLowerCase());
+            },
+
+            showSorterTooltip: false,
+            sorter: (a, b) => {
+                console.log("sorting")
+                return a.title.localeCompare(b.title)},
         },
         {
             title: 'Alicuota',
@@ -57,7 +122,10 @@ const EconomicActivitiesTable = () => {
             key: 'alicuota',
             render(_: string, record: EconomicActivity) {
                 return formatPercents(percentHandler(record.currentAlicuota?.taxPercent).value);
-            }
+            },
+
+            showSorterTooltip: false,
+            sorter: (a, b) => a.currentAlicuota?.taxPercent - b.currentAlicuota?.taxPercent,
         },
         {
             title: 'Mínimo Tributario',
