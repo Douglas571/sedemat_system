@@ -12,8 +12,7 @@ import _ from 'lodash';
 
 dayjs.locale(dayjs_es);
 
-import { Business } from 'util/types';
-import { IGrossIncomeInvoice, IGrossIncome, CurrencyExchangeRate } from '../util/types';
+import { Business, IGrossIncomeInvoice, IGrossIncome, CurrencyExchangeRate } from '../../util/types';
 import * as grossIncomeApi from '../../util/grossIncomeApi'
 import * as api from '../../util/api'
 import * as util from '../../util'
