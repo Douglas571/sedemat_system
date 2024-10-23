@@ -172,14 +172,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   }
 
                   <th>RIF</th>
-                  <th>N°</th>
+                  <th style={{ width: 50 }}>N°</th>
                   <th>RAMO</th>
 
                   {
                     hasBranchOffice && (
                       <>
-                        <th>MTS<sup>2</sup></th>
-                        <th>TIPO</th>
+                        <th style={{ width: 40 }}>MTS<sup>2</sup></th>
+                        <th style={{ width: 40 }}>TIPO</th>
                       </>
                     )
                   }
@@ -286,12 +286,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <tr>
                   <th>MÍNIMO TRIBUTABLE</th>
                   <td style={{ textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x15</td>
-                  <td style={{ width: "60%", textAlign: "left", paddingLeft: 20 }}>{formatBolivares(CurrencyHandler(15).multiply(grossIncomeInvoice.TCMMVBCV).value)}</td>
+                  <td style={{ width: "50%", textAlign: "left", paddingLeft: 20 }}>{formatBolivares(CurrencyHandler(15).multiply(grossIncomeInvoice.TCMMVBCV).value)}</td>
                 </tr>
                 <tr>
                   <th>RECOLECCIÓN DE ASEO</th>
                   <td style={{ textAlign: 'left', paddingLeft: 20 }}>TCMMV-BCV ({formatBolivares(grossIncomeInvoice.TCMMVBCV)}) TASA DEL DÍA x{branchOfficeMinTaxMMVBCV}</td>
-                  <td style={{ width: "60%", textAlign: "left", paddingLeft: 20 }}>
+                  <td style={{ width: "50%", textAlign: "left", paddingLeft: 20 }}>
                     {formatBolivares(CurrencyHandler(branchOfficeMinTaxMMVBCV).multiply(grossIncomeInvoice.TCMMVBCV).value)}
                   </td>
                 </tr>
@@ -320,7 +320,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   
                 </tr>
                 <tr>
-                  <td colSpan={3}><strong>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT G-20012768-6</strong></td>
+                  <th colSpan={3}><strong>DATOS PARA EL DEPOSITO Y/O TRANSFERENCIA A NOMBRE DEL SEDEMAT G-20012768-6</strong></th>
                 </tr>
 
                 {
