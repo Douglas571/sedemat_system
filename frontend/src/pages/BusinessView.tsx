@@ -129,6 +129,10 @@ function BusinessView(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a: Business, b: Business) => a.economicActivity.title.localeCompare(b.economicActivity.title),
             
+            filterSearch: true,
+            onFilter: (value: string, record: Business) => {
+                return record.economicActivity.title.includes(value)
+            },
 
             filters: economicActivitiesTitle,
 
@@ -141,45 +145,45 @@ function BusinessView(): JSX.Element {
         //     sortDirections: ['ascend', 'descend', 'ascend'],
         //     sorter: (a, b) => a.email.localeCompare(b.email),
         // },
-        {
-            title: '',
-            key: 'actions',
-            render: (_, business: Business) => {
-                return (
-                    <Flex gap="small">
-                        <Button
-                            // shape="circle"
-                            onClick={() => {
-                                console.log({ goingTo: business.id })
-                                navigate(`edit/${business.id}`)
-                            }
-                            }
-                        ><EditFilled />Editar</Button>
+        // {
+        //     title: '',
+        //     key: 'actions',
+        //     render: (_, business: Business) => {
+        //         return (
+        //             <Flex gap="small">
+        //                 <Button
+        //                     // shape="circle"
+        //                     onClick={() => {
+        //                         console.log({ goingTo: business.id })
+        //                         navigate(`edit/${business.id}`)
+        //                     }
+        //                     }
+        //                 ><EditFilled />Editar</Button>
 
-                        <Popconfirm
-                            title="Eliminar Pago"
-                            description="¿Estás seguro de que deseas eliminar esta empresa?"
-                            onConfirm={async () => {
-                                console.log("the business will be deleted")
-                                await deleteBusiness(business.id)
-                                loadBusiness()
-                            }}
-                            //onCancel={cancel}
-                            okText="Si"
-                            cancelText="No"
-                        >
-                            <Button
-                                danger
-                                // shape="circle"
-                            >
-                                <DeleteFilled />
-                                Eliminar
-                            </Button>
-                        </Popconfirm>
-                    </Flex>
-                )
-            }
-        }
+        //                 <Popconfirm
+        //                     title="Eliminar Pago"
+        //                     description="¿Estás seguro de que deseas eliminar esta empresa?"
+        //                     onConfirm={async () => {
+        //                         console.log("the business will be deleted")
+        //                         await deleteBusiness(business.id)
+        //                         loadBusiness()
+        //                     }}
+        //                     //onCancel={cancel}
+        //                     okText="Si"
+        //                     cancelText="No"
+        //                 >
+        //                     <Button
+        //                         danger
+        //                         // shape="circle"
+        //                     >
+        //                         <DeleteFilled />
+        //                         Eliminar
+        //                     </Button>
+        //                 </Popconfirm>
+        //             </Flex>
+        //         )
+        //     }
+        // }
     ];
 
     return (
