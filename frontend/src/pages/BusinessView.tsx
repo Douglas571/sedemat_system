@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message } from 'antd'
 import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
 
@@ -32,11 +32,31 @@ function BusinessView(): JSX.Element {
 
     const navigate = useNavigate();
 
-
     function onNewTaxPayer() {
         navigate('/business/new')
     }
 
+    const economicActivitiesTitle = useMemo(() => {
+        console.log("calculating title for economic activities")
+        return [...new Set(business.map( b => b.economicActivity.title))].map((title: string) => ({
+            text: title,
+            value: title
+        }))
+    }, [business])
+
+    const businessNames = useMemo(() => {
+        return business.map( b => ({
+            text: b.businessName,
+            value: b.businessName
+        }))
+    }, [business])
+
+    const businessDNIs = useMemo(() => {
+        return business.map( b => ({
+            text: b.dni,
+            value: b.dni
+        }))
+    }, [business])
 
 
     async function loadBusiness() {
@@ -69,13 +89,7 @@ function BusinessView(): JSX.Element {
             sorter: (a: Business, b: Business) => a.businessName.localeCompare(b.businessName),
             //...getColumnSearchProps('businessName'),
             
-            filterIcon: (filtered: boolean) => (
-                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-            ),
-            filters: business.map((b: Business) => ({
-                text: b.businessName,
-                value: b.businessName
-            })),
+            filters: businessNames,
             filterMode: 'menu',
             filterSearch: true,
             onFilter: (value: string, record: Business) => {
@@ -84,11 +98,13 @@ function BusinessView(): JSX.Element {
 
             render: (value: string, record: Business) => {
                 return <Typography.Text><Link to={`/business/${record.id}`}>{value}</Link></Typography.Text>
-            }
+            },
+
+            width: 300,
 
         },
         {
-            title: 'Rif o Cédula',
+            title: 'Rif',
             dataIndex: 'dni',
             key: 'dni',
             showSorterTooltip: false,
@@ -96,18 +112,27 @@ function BusinessView(): JSX.Element {
             sorter: (a: Business, b: Business) => a.dni.localeCompare(b.dni),
             // ...getColumnSearchProps('dni'),
 
-            filterIcon: (filtered: boolean) => (
-                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-            ),
-            filters: business.map((b: Business) => ({
-                text: b.dni,
-                value: b.dni
-            })),
+            filters: businessDNIs,
             filterMode: 'menu',
             filterSearch: true,
             onFilter: (value: string, record: Business) => {
                 return record.dni.includes(value)
             },
+
+            width: 200,
+        },
+        {
+            title: 'Actividad Económica',
+            dataIndex: ['economicActivity', 'title'],
+            key: 'economicActivity',
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a: Business, b: Business) => a.economicActivity.title.localeCompare(b.economicActivity.title),
+            
+
+            filters: economicActivitiesTitle,
+
+            width: 400,
         },
         // {
         //     title: 'Correo',
