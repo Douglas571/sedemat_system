@@ -122,7 +122,7 @@ class GrossIncomeService {
         const existingGrossIncome = await GrossIncome.findOne({
             where: {
                 period: newGrossIncome.period,
-                businessId: newGrossIncome.businessId
+                branchOfficeId: newGrossIncome.branchOfficeId
             }
         });
 
