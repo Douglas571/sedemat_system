@@ -233,7 +233,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (period: any) => {
                 return period.year() + ' - ' + monthMapper[period.month()];
             },
-            sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)),
+            sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? 1 : -1,
         },
         {
             title: 'Ingreso Bruto',
