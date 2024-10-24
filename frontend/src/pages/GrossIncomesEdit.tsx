@@ -435,8 +435,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     { hasBranchOffices && <Form.Item
                         layout='horizontal'
                         name="branchOffice"
-                        label="Sucursal"
-                        rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sucursal' }]}
+                        label="Sede"
+                        rules={[{ required: hasBranchOffices, message: 'Por favor seleccione la sede' }]}
                     >
                         <Select
                             placeholder='Seleccione la sucursal'

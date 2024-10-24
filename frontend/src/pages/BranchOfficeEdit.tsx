@@ -219,7 +219,7 @@ export default function BranchOfficeForm(): JSX.Element {
             onFinish={onFinish}
         >
             <Typography.Title level={1}>
-                { isEditing ? "Editando Sucursal" : "Nueva Sucursal"}
+                { isEditing ? "Editando Sede" : "Nueva Sede"}
             </Typography.Title>
 
             {/* <Form.Item 

@@ -122,7 +122,7 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
                 hasBranchOffice && (
                 <>
                     <Descriptions.Item label="Cobrar Aseo">{grossIncome.chargeWasteCollection ? "SI" : "NO"}</Descriptions.Item>
-                    <Descriptions.Item label="Sucursal">{grossIncome?.branchOffice?.nickname}</Descriptions.Item>
+                    <Descriptions.Item label="Sede">{grossIncome?.branchOffice?.nickname}</Descriptions.Item>
                 </>   
                 )
             }

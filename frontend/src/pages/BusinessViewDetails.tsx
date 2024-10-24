@@ -437,7 +437,7 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
     <>
       <Flex gap="large" align='center' justify='space-between'>
         <Title level={2}>
-          SEDES
+          Sedes
         </Title>
         <Button onClick={() => onNew()}>
           <PlusOutlined />
