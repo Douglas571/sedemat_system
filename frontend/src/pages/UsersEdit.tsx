@@ -123,7 +123,8 @@ function UserEditForm() {
     useEffect(() => {
         form.setFieldsValue({
             ...user,
-            role: user?.role.name
+            role: user?.role.name,
+            password: undefined
         })
     }, [user])
 
@@ -137,10 +138,10 @@ function UserEditForm() {
                     form={form}
                     onFinish={handleSubmit}
                 >
-                    <Form.Item label="Username" name='username'>
-                        <Input  />
+                    <Form.Item label="Nombre de Usuario" name='username'>
+                        <Input disabled={isEditing} />
                     </Form.Item>
-                    <Form.Item label="Email" name='email'>
+                    <Form.Item label="Correo" name='email'>
                         <Input type="email" />
                     </Form.Item>
                     <Form.Item label="Rol" name='roleId'>
@@ -158,7 +159,7 @@ function UserEditForm() {
                     )}
 
                     {!isEditing && (
-                        <Form.Item label="password" name="password">
+                        <Form.Item label="Nueva Contraseña" name="password">
                             <Input.Password />
                         </Form.Item>
                     )}
