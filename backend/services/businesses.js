@@ -19,7 +19,14 @@ function checkIfCanCreateOrUpdateBusiness(user) {
 
 // Get all businesses
 exports.getAllBusinesses = async () => {
-    return await Business.findAll();
+    return await Business.findAll({
+        include: [
+            {
+                model: EconomicActivity,
+                as: 'economicActivity'
+            }
+        ]
+    });
 };
 
 // Get business by ID

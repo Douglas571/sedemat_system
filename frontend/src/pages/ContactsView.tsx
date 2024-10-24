@@ -41,7 +41,7 @@ export default function ContactsView(): JSX.Element {
         }
     }
 
-    let dniText = contact?.dni && <>Cédula: {contact.dni}</>
+    let dniText = contact?.dni ? contact.dni : "No registrada"
 
     if (contact?.dniPictureUrl) {
         dniText = <a 

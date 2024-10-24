@@ -67,7 +67,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
         const newBusiness = await businessService.createBusiness(req.body, req.user);
         res.status(201).json(newBusiness);
     } catch (error) {
-        let msg = "error random"
+        let msg = error.message
         let code = 0
         console.log({error})
         logger.error({message: "Error creating business", error})
@@ -78,6 +78,11 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
             if (error.fields.hasOwnProperty("businessName")) {
                 console.log("Razón social ya registrada")
                 msg = "Razón social ya registrada."
+            }
+
+            if (error.fields.hasOwnProperty("unique_business_dni")) {
+                console.log("DNI ya registrado")
+                msg = "RIF ya registrado."
             }
             
         }
