@@ -85,7 +85,7 @@ const BasicComponent: React.FC = () => {
         
       onFilter: (value: any, record: reportRow) => record.classification === value,
 
-      sorter: (a, b) => a.classification - b.classification,
+      sorter: (a, b) => a.monthsPendingToBePaidCount - b.monthsPendingToBePaidCount,
       sortDirections: ['ascend', 'descend', 'ascend'],
       showSorterTooltip: false,
 
