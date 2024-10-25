@@ -119,12 +119,23 @@ class GrossIncomeService {
         console.log({newGrossIncome})
 
         // check if there is already a gross income with the same period and branchOfficeId
-        const existingGrossIncome = await GrossIncome.findOne({
-            where: {
-                period: newGrossIncome.period,
-                branchOfficeId: newGrossIncome.branchOfficeId
-            }
-        });
+        let existingGrossIncome
+
+        if (newGrossIncome.branchOfficeId) {
+            existingGrossIncome = await GrossIncome.findOne({
+                where: {
+                    period: newGrossIncome.period,
+                    branchOfficeId: newGrossIncome.branchOfficeId
+                }
+            });
+        } else {
+            existingGrossIncome = await GrossIncome.findOne({
+                where: {
+                    period: newGrossIncome.period,
+                    businessId: newGrossIncome.businessId
+                }
+            })
+        }
 
         // Calculate taxes fields
         const calcs = calculateTaxFields({grossIncome: newGrossIncome})
