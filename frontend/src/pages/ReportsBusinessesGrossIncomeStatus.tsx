@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Card, Typography, Table, Button, Flex} from 'antd';
+import { Card, Typography, Table, Button, Flex, Tag} from 'antd';
 
 const { Title, Text } = Typography;
 
@@ -73,7 +73,7 @@ const BasicComponent: React.FC = () => {
       key: 'branchOfficeNickName',
     },
     {
-      title: 'Clasificación',
+      title: 'Morosidad',
       dataIndex: 'classification',
       key: 'classification',
 
@@ -89,36 +89,34 @@ const BasicComponent: React.FC = () => {
       sortDirections: ['ascend', 'descend', 'ascend'],
       showSorterTooltip: false,
 
-      render: (value: number, record: reportRow) => {
-        let monthsPendingCount = record.monthsPendingToBePaidCount
+      render: (value: number) => {
 
         let shipStyles = {
-          padding: '5px', borderRadius: '5px' , height: '30px', width: '50px'
+          padding: '5px', borderRadius: '5px' , height: '30px', width: '50px',
+          textAlign: 'center'
         }
 
         if (value === 1 ) {
           return <Flex justify="center" align="center">
-            <div style={{ background: '#0dff8e', ...shipStyles}}></div>
+            <Tag color='green' style={{...shipStyles}}>AL DÍA</Tag>
           </Flex>
         }
         
         if (value === 2 ) {
           return <Flex justify="center" align="center">
-            <div style={{ background: '#fff94f', ...shipStyles}}></div>
+            <Tag color='orange' style={{ ...shipStyles}}>BAJA</Tag>
           </Flex>
         }
 
         if (value === 3 ) {
           return <Flex justify="center" align="center">
-            <div style={{ background: '#1994ff', ...shipStyles}}></div>
+            <Tag color='blue' style={{ ...shipStyles}}>MEDIA</Tag>
           </Flex>
         }
 
         return <Flex justify="center" align="center">
-            <div style={{ background: '#ff0d76', ...shipStyles}}></div>
+            <Tag color='red' style={{ ...shipStyles}}>ALTA</Tag>
           </Flex>
-
-        
       }
     },
     {
