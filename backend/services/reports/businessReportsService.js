@@ -116,7 +116,8 @@ function mapBusinessToRowReport(businessReport){
           monthsPendingToBePaidCount: branchOffice.monthsPendingToBePaidCount,
           
           monthsPendingToBeSettledCount: branchOffice.monthsPendingToBeSettledCount,
-          lastMonthSettled: branchOffice.lastMonthSettled
+          lastMonthSettled: branchOffice.lastMonthSettled,
+          lackingMonths: branchOffice.lackingMonths
         })
       })        
     } else {
@@ -134,7 +135,8 @@ function mapBusinessToRowReport(businessReport){
         monthsPendingToBePaidCount: business.monthsPendingToBePaidCount,
         
         monthsPendingToBeSettledCount: business.monthsPendingToBeSettledCount,
-        lastMonthSettled: business.lastMonthSettled
+        lastMonthSettled: business.lastMonthSettled,
+        lackingMonths: business.lackingMonths
       })
     }
   })
@@ -159,10 +161,9 @@ function getBusinessesGrossIncomeReport(businesses) {
       businessReport.branchOffices = []
 
       // for each branch office
-      business.branchOffices.map((branchOffice) => {
+      business.branchOffices.forEach((branchOffice) => {
         
         let branchOfficeReport = {}
-        branchOfficeReport.lastMonthSettled = INITIAL_DATE
         
         // get the gross incomes for that branch office
         branchOfficeReport.grossIncomes = business.grossIncomes.filter( g => g.branchOfficeId === branchOffice.id)        
@@ -174,21 +175,20 @@ function getBusinessesGrossIncomeReport(businesses) {
           branchOfficeReport.lastMonthSettled = dayjs(lastPeriodSettled)
         }
 
-
         branchOfficeReport = {
-          ...businessReport,
           ...branchOffice,
           ...branchOfficeReport,
           ...getGrossIncomeReport({
-            lastMonthSettled: branchOfficeReport.lastMonthSettled, grossIncomes: branchOfficeReport.grossIncomes}),
+            lastMonthSettled: branchOfficeReport.lastMonthSettled,
+            initialPeriod: branchOfficeReport.initialPeriod, 
+            grossIncomes: branchOfficeReport.grossIncomes}),
 
         }
         businessReport.branchOffices.push(branchOfficeReport)
 
       })
-    } else { // if it not has branch office
 
-      businessReport.lastMonthSettled = INITIAL_DATE
+    } else { // if it not has branch office
 
       let lastPeriodSettled = business.grossIncomes.filter( g => g?.grossIncomeInvoice?.settlement != null ).sort((a, b) => dayjs(a.period) - dayjs(b.period)).pop()?.period
 
@@ -230,19 +230,21 @@ function getGrossIncomeReport({
     monthsPendingToBeSettled: [],
     monthsSettled: [],
 
-    classification: 1
+    classification: 1,
+
+    lackingMonths: []
   }
 
   const CURRENT_DATE = dayjs();
 
-  let initialYear = lastMonthSettled.year()
+  let initialYear = lastMonthSettled ? lastMonthSettled.year() : INITIAL_DATE.year()
   let finalYear = CURRENT_DATE.year()
 
   while (initialYear <= finalYear) {
 
     // console.log({initialYear, finalYear})
 
-    let initialMonth = lastMonthSettled.month()
+    let initialMonth = lastMonthSettled ? lastMonthSettled.month() : INITIAL_DATE.month()
     let finalMonth = CURRENT_DATE.month()
 
     while (initialMonth < finalMonth) {
@@ -275,6 +277,8 @@ function getGrossIncomeReport({
         // branch office lack declaration for this period
         report.monthsWithoutDeclarationCount += 1
         report.monthsPendingToBePaidCount += 1
+
+        report.lackingMonths.push(dayjs(`${initialYear}-${initialMonth + 1}-03`))
 
         // if there is a gross income for this period
         if (grossIncome) {

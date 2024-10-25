@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Card, Typography, Table, Button, Flex, Tag} from 'antd';
+import { Card, Typography, Table, Button, Flex, Tag, Tooltip} from 'antd';
 
 const { Title, Text } = Typography;
 
@@ -9,6 +9,8 @@ import useAuthentication from '../hooks/useAuthentication';
 import * as reportsService from '../services/reportsService';
 import dayjs from 'dayjs';
 import { render } from '@testing-library/react';
+
+
 
 
 interface reportRow {
@@ -20,7 +22,8 @@ interface reportRow {
   monthsWithoutDeclarationCount: number
   monthsPendingToBePaidCount: number
   monthsPendingToBeSettledCount: number
-  lastMonthSettled: dayjs.Dayjs
+  lastMonthSettled: dayjs.Dayjs,
+  lackingMonths: dayjs.Dayjs[]
 }
 
 const BasicComponent: React.FC = () => {
@@ -134,7 +137,19 @@ const BasicComponent: React.FC = () => {
       key: 'monthsWithoutDeclarationCount',
       sorter: (a, b) => a.monthsWithoutDeclarationCount - b.monthsWithoutDeclarationCount,
       showSorterTooltip: false,
-      sortDirections: ['ascend', 'descend', 'ascend']
+      sortDirections: ['ascend', 'descend', 'ascend'],
+
+
+      render: (value, record) => {
+        return <Tooltip title={record
+          .lackingMonths
+          .sort((a, b) => dayjs(a).isBefore(dayjs(b) ? 1 : -1))
+          .map(month => dayjs(month).format('MMMM-YY').toUpperCase()).join(', ')}>
+          <Flex justify="center" align="center">
+            {value} Meses
+          </Flex>
+        </Tooltip>
+      }
     },
     {
       title: 'Meses pendientes de liquidar',
@@ -150,8 +165,10 @@ const BasicComponent: React.FC = () => {
       dataIndex: 'lastMonthSettled',
       key: 'lastMonthSettled',
       render: (value: string) => {
+
+        if (!value) return '--'
         
-        return dayjs(value).format('DD/MM/YYYY')
+        return dayjs(value).format('MMMM-YY').toUpperCase()
       },
     }
   ]
