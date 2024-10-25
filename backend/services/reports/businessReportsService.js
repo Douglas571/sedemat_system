@@ -111,13 +111,6 @@ function getBusinessesGrossIncomeReport(businesses) {
         // get the gross incomes for that branch office
         branchOfficeReport.grossIncomes = business.grossIncomes.filter( g => g.branchOfficeId === branchOffice.id)
 
-        // branchOfficeReport.initialGrossIncomePeriod = branchOfficeReport
-        //   .grossIncomes
-        //     .sort((a, b) => dayjs(a.period) - dayjs(b.period))
-        //     .filter( g => {
-        
-        //     })
-
         // get the initial gross income period to count 
         branchOfficeReport.lastMonthSettled = INITIAL_DATE
 
