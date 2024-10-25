@@ -105,18 +105,16 @@ function mapBusinessToRowReport(businessReport){
       
     if (business?.branchOffices?.length > 0) {
       business.branchOffices.forEach(branchOffice => {
-        
-        let monthsPendingToBePaidCount = branchOffice.monthsPendingToBePaidCount + branchOffice.monthsWithoutDeclarationCount
-        let classification = getBusinessClassification(monthsPendingToBePaidCount)
 
         reportRows.push({
           businessId: business.id,
           businessName: business.businessName,
           businessDni: business.dni,
           branchOfficeNickname: branchOffice.nickname,
-          classification: classification, //branchOffice.classification,
+          classification: branchOffice.classification, //branchOffice.classification,
           monthsWithoutDeclarationCount: branchOffice.monthsWithoutDeclarationCount,
-          monthsPendingToBePaidCount: monthsPendingToBePaidCount,
+          monthsPendingToBePaidCount: branchOffice.monthsPendingToBePaidCount,
+          
           monthsPendingToBeSettledCount: branchOffice.monthsPendingToBeSettledCount,
           lastMonthSettled: branchOffice.lastMonthSettled
         })
@@ -131,9 +129,10 @@ function mapBusinessToRowReport(businessReport){
         businessName: business.businessName,
         businessDni: business.dni,
         branchOfficeNickname: '--',
-        classification: classification,
+        classification: business.classification,
         monthsWithoutDeclarationCount: business.monthsWithoutDeclarationCount,
-        monthsPendingToBePaidCount: business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount,
+        monthsPendingToBePaidCount: business.monthsPendingToBePaidCount,
+        
         monthsPendingToBeSettledCount: business.monthsPendingToBeSettledCount,
         lastMonthSettled: business.lastMonthSettled
       })
@@ -144,11 +143,7 @@ function mapBusinessToRowReport(businessReport){
 }
 
 function getBusinessesGrossIncomeReport(businesses) {
-  const CURRENT_DATE = dayjs();
-
   let report = []
-
-  let reportRows = []
 
   // iterate over each branch office 
   businesses.map((business) => {
@@ -218,7 +213,6 @@ function getBusinessesGrossIncomeReport(businesses) {
 }
 
 
-// TODO: In progress...
 function getGrossIncomeReport({
   lastMonthSettled,
   grossIncomes
@@ -234,7 +228,9 @@ function getGrossIncomeReport({
     monthsWithoutDeclaration: [],
     monthsPendingToBePaid: [],
     monthsPendingToBeSettled: [],
-    monthsSettled: []
+    monthsSettled: [],
+
+    classification: 1
   }
 
   const CURRENT_DATE = dayjs();
@@ -278,10 +274,12 @@ function getGrossIncomeReport({
       } else {
         // branch office lack declaration for this period
         report.monthsWithoutDeclarationCount += 1
+        report.monthsPendingToBePaidCount += 1
 
         // if there is a gross income for this period
         if (grossIncome) {
           report.monthsWithoutDeclaration.push(grossIncome)
+          
         }
       }
 
@@ -291,5 +289,9 @@ function getGrossIncomeReport({
     initialYear++
   }
 
+  report.classification = getBusinessClassification(report.monthsPendingToBePaidCount)
+
   return report
 }
+
+exports.getGrossIncomeReport = getGrossIncomeReport
