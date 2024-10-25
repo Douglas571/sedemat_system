@@ -98,6 +98,18 @@ const App: React.FC = () => {
 			]
 		},
 		{
+			key: '/reports',
+			icon: '',
+			label: 'Reportes',
+			children: [
+				{
+					key: '/reports/gross-income-status',
+					icon: '',
+					label: 'Cálculos'
+				},
+			]
+		},
+		{
 			key: '/config',
 			icon: '',
 			label: 'Configuración',

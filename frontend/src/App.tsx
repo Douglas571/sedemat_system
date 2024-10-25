@@ -56,6 +56,8 @@ import useAuthentication from "./hooks/useAuthentication";
 import MainLayout from 'layout/main'
 import Logout from 'pages/Logout';
 
+import ReportsBusinessesGrossIncomeStatus from 'pages/ReportsBusinessesGrossIncomeStatus';
+
 function App(): JSX.Element {
 	return (
 		<div>
@@ -119,6 +121,8 @@ function App(): JSX.Element {
 								<Route path='bank-accounts' element={<BankAccounts/>}/>
 								<Route path='bank-accounts/new' element={<BankAccountsEdit/>}/>
 								<Route path='bank-accounts/:bankAccountId/edit' element={<BankAccountsEdit/>}/>
+
+								<Route path='reports/gross-income-status' element={<ReportsBusinessesGrossIncomeStatus/>}/>
 								
 								
 							</Route>

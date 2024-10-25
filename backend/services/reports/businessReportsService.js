@@ -28,9 +28,28 @@ module.exports.getBusinessesGrossIncomeReportJSON = async function(user) {
 
   canDownloadGrossIncomeReport(user);
 
-  // I need to get the data
+  let businesses = await getBusinessData();
 
-  let businesses = await Business.findAll({
+  let report = getBusinessesGrossIncomeReport(businesses.map(b => b.toJSON()))
+
+  let reportRows = mapBusinessToRowReport(report)
+
+  return reportRows
+}
+
+module.exports.getBusinessesGrossIncomeReportExcel = async function(user) {
+
+  canDownloadGrossIncomeReport(user);
+
+  // let businesses = await getBusinessData();
+
+  // let report = getBusinessesGrossIncomeReport(businesses.map(b => b.toJSON()))
+
+}
+
+
+async function getBusinessData() {
+  return await Business.findAll({
     
     include: [
       {
@@ -60,17 +79,69 @@ module.exports.getBusinessesGrossIncomeReportJSON = async function(user) {
       }
     ]
   })
+}
 
-  let report = {
-    name: 'Branch Offices Gross Income Report',
-
-    businesses
+function getBusinessClassification(monthsPendingToBePaidCount) {
+  if (monthsPendingToBePaidCount === 0 ) {
+    return 1
+  }
+  
+  if (monthsPendingToBePaidCount <= 3 ) {
+    return 2
   }
 
-  report = getBusinessesGrossIncomeReport(businesses.map(b => b.toJSON()))
+  if (monthsPendingToBePaidCount <= 6 ) {
+    return 3
+  }
 
-  return report
-};
+  return 4
+}
+
+function mapBusinessToRowReport(businessReport){
+
+  let reportRows = []
+
+  businessReport.forEach(business => {
+      
+    if (business?.branchOffices?.length > 0) {
+      business.branchOffices.forEach(branchOffice => {
+        
+        let monthsPendingToBePaidCount = branchOffice.monthsPendingToBePaidCount + branchOffice.monthsWithoutDeclarationCount
+        let classification = getBusinessClassification(monthsPendingToBePaidCount)
+
+        reportRows.push({
+          businessId: business.id,
+          businessName: business.businessName,
+          businessDni: business.dni,
+          branchOfficeNickname: branchOffice.nickname,
+          classification: classification, //branchOffice.classification,
+          monthsWithoutDeclarationCount: branchOffice.monthsWithoutDeclarationCount,
+          monthsPendingToBePaidCount: monthsPendingToBePaidCount,
+          monthsPendingToBeSettledCount: branchOffice.monthsPendingToBeSettledCount,
+          lastMonthSettled: branchOffice.lastMonthSettled
+        })
+      })        
+    } else {
+
+      let monthsPendingToBePaidCount = business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount
+      let classification = getBusinessClassification(monthsPendingToBePaidCount)
+
+      reportRows.push({
+        businessId: business.id,
+        businessName: business.businessName,
+        businessDni: business.dni,
+        branchOfficeNickname: '--',
+        classification: classification,
+        monthsWithoutDeclarationCount: business.monthsWithoutDeclarationCount,
+        monthsPendingToBePaidCount: business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount,
+        monthsPendingToBeSettledCount: business.monthsPendingToBeSettledCount,
+        lastMonthSettled: business.lastMonthSettled
+      })
+    }
+  })
+
+  return reportRows
+}
 
 function getBusinessesGrossIncomeReport(businesses) {
   const CURRENT_DATE = dayjs();
@@ -83,6 +154,7 @@ function getBusinessesGrossIncomeReport(businesses) {
   businesses.map((business) => {
 
     let businessReport = {
+      id: business.id,
       businessName: business.businessName,
       dni: business.dni,
     }
@@ -177,8 +249,8 @@ function getBusinessesGrossIncomeReport(businesses) {
 
         businessReport.branchOffices.push(branchOfficeReport)
       })
-    } else {
-      // if it not has branch office
+    } else { // if it not has branch office
+      
       businessReport = {
         ...businessReport,
         monthsWithoutDeclarationCount: 0,
@@ -252,6 +324,86 @@ function getBusinessesGrossIncomeReport(businesses) {
 
     report.push(businessReport)
   })
+
+  return report
+}
+
+
+// TODO: In progress...
+function getGrossIncomeReport({
+  // business, branchOffice, grossIncomes, lastMonthSettled
+
+  // grossIncomes
+  // lastPeriodPaid date
+
+  lastMonthSettled,
+  grossIncomes
+
+}) {
+
+  let report = {
+    monthsWithoutDeclarationCount: 0,
+    monthsPendingToBePaidCount: 0,
+    monthsPendingToBeSettledCount: 0,
+    monthsSettledCount: 0,
+
+    monthsWithoutDeclaration: [],
+    monthsPendingToBePaid: [],
+    monthsPendingToBeSettled: [],
+    monthsSettled: []
+  }
+
+  let initialYear = lastMonthSettled.year()
+  let finalYear = CURRENT_DATE.year()
+
+  while (initialYear <= finalYear) {
+
+    // console.log({initialYear, finalYear})
+
+    let initialMonth = lastMonthSettled.month()
+    let finalMonth = CURRENT_DATE.month()
+
+    while (initialMonth < finalMonth) {
+      // console.log({initialMonth, finalMonth})
+
+      let grossIncome = report.grossIncomes.find( g => dayjs(g.period).year() === initialYear && dayjs(g.period).month() === initialMonth)
+
+      if (grossIncome && grossIncome.declarationImage) {
+
+        // check if it's pending to be paid 
+        if (!grossIncome?.grossIncomeInvoice?.paidAt) {
+          report.monthsPendingToBePaidCount += 1
+          report.monthsPendingToBePaid.push(grossIncome)
+        }
+
+        // check if it's pending to be settled
+        if (!grossIncome?.grossIncomeInvoice?.settlement && grossIncome?.grossIncomeInvoice?.paidAt) { 
+          report.monthsPendingToBeSettledCount += 1
+          report.monthsPendingToBeSettled.push(grossIncome)
+        }
+
+        // check if it's settled
+        if (grossIncome?.grossIncomeInvoice?.settlement) {
+          // keep this just in case, we need to clarify since when start counting settled months
+          report.monthsSettledCount += 1
+          report.monthsSettled.push(grossIncome)
+        }
+
+      } else {
+        // branch office lack declaration for this period
+        report.monthsWithoutDeclarationCount += 1
+
+        // if there is a gross income for this period
+        if (grossIncome) {
+          report.monthsWithoutDeclaration.push(grossIncome)
+        }
+      }
+
+      initialMonth++
+    }
+
+    initialYear++
+  }
 
   return report
 }
