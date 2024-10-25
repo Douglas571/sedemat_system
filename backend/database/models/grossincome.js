@@ -41,7 +41,6 @@ module.exports = (sequelize, DataTypes) => {
         as: 'business'
       })
     }
-    
   }
   GrossIncome.init({
     businessId: {

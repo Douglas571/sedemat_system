@@ -61,6 +61,10 @@ const settlementRouter = require('./routers/settlementRouter');
 
 const penaltyRouter = require('./routers/penaltyRouter');
 
+// REPORTS
+
+const reportBusinesses = require('./routers/reports/businessesReportsRouter');
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -82,6 +86,8 @@ app.use(requestLogger);
 app.get('/ping', (req, res) => {
   res.status(200).send('pong')
 })
+
+app.use("/v1/reports/businesses", reportBusinesses)
 
 app.use("/v1/payments", paymentsRouter)
 
