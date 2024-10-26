@@ -44,11 +44,11 @@ class AuthService {
                 ]
             })
 
-            console.log({users: users.map( u => u.toJSON())})
+            // console.log({users: users.map( u => u.toJSON())})
 
             let isThereAndAdmin = users.some( u => u.role.id === ROLES.ADMIN)
         
-            console.log({isThereAndAdmin})
+            // console.log({isThereAndAdmin})
 
             return isThereAndAdmin
         } catch (error) {
@@ -71,7 +71,7 @@ class AuthService {
                         },
                     ]
                 })
-                console.log({user})
+                // console.log({user})
                 return done(null, user.toJSON());
             } catch(error) {
                 console.log({error})

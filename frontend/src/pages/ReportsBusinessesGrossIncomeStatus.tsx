@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, Typography, Table, Button, Flex, Tag, Tooltip} from 'antd';
+import { FileExcelOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -176,7 +177,12 @@ const BasicComponent: React.FC = () => {
     return (
         <Card 
           style={{  }}
-          title={<Title level={1}>Reporte de Contribuyentes</Title>}
+          title={<Flex align='center' justify='space-between'>
+            <Title level={1}>Reporte de Contribuyentes</Title>
+            <Button icon={<FileExcelOutlined />} onClick={() => reportsService.downloadBusinessesGrossIncomeStatusReport({ token: userAuth.token, format: 'excel' })}>
+              Descargar Excel
+            </Button>
+          </Flex>}
         >
             
             <Table 

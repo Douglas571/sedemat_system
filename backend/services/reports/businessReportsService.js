@@ -9,6 +9,9 @@ const {
   Settlement
 } = require('../../database/models');
 
+const ExcelJS = require('exceljs');
+const stream = require('stream');
+
 const dayjs = require('dayjs');
 
 
@@ -24,7 +27,7 @@ function canDownloadGrossIncomeReport(user) {
   }
 }
 
-module.exports.getBusinessesGrossIncomeReportJSON = async function(user) {
+module.exports.getBusinessesGrossIncomeReportJSON = async function({user}) {
 
   canDownloadGrossIncomeReport(user);
 
@@ -37,14 +40,39 @@ module.exports.getBusinessesGrossIncomeReportJSON = async function(user) {
   return reportRows
 }
 
-module.exports.getBusinessesGrossIncomeReportExcel = async function(user) {
+module.exports.getBusinessesGrossIncomeReportExcel = async function({user, stream}) {
 
   canDownloadGrossIncomeReport(user);
 
-  // let businesses = await getBusinessData();
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Reporte de ingresos brutos');
 
-  // let report = getBusinessesGrossIncomeReport(businesses.map(b => b.toJSON()))
+  const headerRow = [
+    'RIF del establecimiento',
+    'Nombre del establecimiento',
+    'N mero de sucursales',
+    'Ingresos brutos',
+    'Ingresos brutos con multas',
+    'Ingresos brutos con multas y sanciones',
+    'Ingresos brutos con multas y sanciones con descuentos',
+    'Ingresos brutos pagados',
+    'Ingresos brutos pendientes de pago',
+    'Ingresos brutos con multas y sanciones pendientes de pago',
+    'Ingresos brutos con multas y sanciones con descuentos pendientes de pago'
+  ];
 
+  worksheet.addRow(headerRow); 
+
+  const reportRows = await module.exports.getBusinessesGrossIncomeReportJSON({user});
+
+  reportRows.forEach(row => worksheet.addRow(row));
+
+  workbook.xlsx.write(stream)
+    .then(function() {
+        console.log("file saved")
+    });
+
+  return
 }
 
 
