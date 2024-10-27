@@ -219,10 +219,10 @@ const BasicComponent: React.FC = () => {
         {
           label: "Núm. de Contribuyentes",
           data: [
-            businessGrossIncomesStatus.filter(b => b.classification === 1).length + 10,
-            businessGrossIncomesStatus.filter(b => b.classification === 2).length + 40,
-            businessGrossIncomesStatus.filter(b => b.classification === 3).length + 50,
-            businessGrossIncomesStatus.filter(b => b.classification === 4).length - 100,
+            businessGrossIncomesStatus.filter(b => b.classification === 1).length,
+            businessGrossIncomesStatus.filter(b => b.classification === 2).length,
+            businessGrossIncomesStatus.filter(b => b.classification === 3).length,
+            businessGrossIncomesStatus.filter(b => b.classification === 4).length,
           ],
           backgroundColor: [
             "rgb(38, 224, 88)",
