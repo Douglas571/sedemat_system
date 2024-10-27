@@ -9,7 +9,15 @@ import useAuthentication from '../hooks/useAuthentication';
 
 import * as reportsService from '../services/reportsService';
 import dayjs from 'dayjs';
-import { render } from '@testing-library/react';
+
+
+import Chart from "chart.js/auto";
+import { CategoryScale } from "chart.js";
+
+Chart.register(CategoryScale);
+
+import { Doughnut, Pie } from 'react-chartjs-2';
+
 
 
 
@@ -19,7 +27,7 @@ interface reportRow {
   businessName: string,
   businessDni: string
   branchOfficeNickname: string,
-  classification: number, // from 1 to 3
+  classification: number, // from 1 to 4
   monthsWithoutDeclarationCount: number
   monthsPendingToBePaidCount: number
   monthsPendingToBeSettledCount: number
@@ -165,6 +173,7 @@ const BasicComponent: React.FC = () => {
       title: 'Último mes liquidado',
       dataIndex: 'lastMonthSettled',
       key: 'lastMonthSettled',
+
       render: (value: string) => {
 
         if (!value) return '--'
@@ -173,6 +182,60 @@ const BasicComponent: React.FC = () => {
       },
     }
   ]
+
+
+  const [chartData, setChartData] = useState({
+    labels: ["Al día", "Baja", "Media", "Alta"], 
+    datasets: [
+      {
+        label: "Núm. de Contribuyentes",
+        data: [
+          businessGrossIncomesStatus.filter(b => b.classification === 1).length,
+          businessGrossIncomesStatus.filter(b => b.classification === 2).length,
+          businessGrossIncomesStatus.filter(b => b.classification === 3).length,
+          businessGrossIncomesStatus.filter(b => b.classification === 4).length,
+        ],
+        backgroundColor: [
+          "green",
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)'
+        ],
+        borderColor: "black",
+        borderWidth: 2
+      }
+    ]
+  });
+
+  useEffect(() => {
+    setChartData({
+      labels: [
+        "Al día" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 1).length,
+        "Baja" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 2).length, 
+        "Media" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 3).length, 
+        "Alta" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 4).length
+      ], 
+      datasets: [
+        {
+          label: "Núm. de Contribuyentes",
+          data: [
+            businessGrossIncomesStatus.filter(b => b.classification === 1).length + 10,
+            businessGrossIncomesStatus.filter(b => b.classification === 2).length + 40,
+            businessGrossIncomesStatus.filter(b => b.classification === 3).length + 50,
+            businessGrossIncomesStatus.filter(b => b.classification === 4).length - 100,
+          ],
+          backgroundColor: [
+            "rgb(38, 224, 88)",
+            'rgb(255, 205, 86)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 99, 132)',
+          ],
+          borderColor: "black",
+          borderWidth: 2
+        }
+      ]
+    })
+  }, [businessGrossIncomesStatus])
 
     return (
         <Card 
@@ -184,6 +247,40 @@ const BasicComponent: React.FC = () => {
             </Button>
           </Flex>}
         >
+
+            <Flex style={{ marginBottom: '18px' }}>    
+              <div style={{width: '500px', height: '500px'}}>
+                <Doughnut
+                  data={chartData}
+                  options={{
+                    plugins: {
+                      title: {
+                        display: true,
+                        position: "bottom",
+                        text: "Contribuyentes por Clasificación",
+                      },
+                      legend: {
+                        position: "bottom",
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: (context) => {
+                            let total = businessGrossIncomesStatus.length
+                            let sample = context.parsed
+
+                            let percent = ((sample / total) * 100).toFixed(2)
+                            
+                            return `${percent}%`}
+                        }
+                      }
+                      
+                    },
+                    maintainAspectRatio: false 
+                    
+                  }}
+                />
+              </div>
+            </Flex>
             
             <Table 
               rowKey={ record => record.businessName + record.branchOfficeNickname + record.busienssDni }

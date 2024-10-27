@@ -5,6 +5,7 @@ const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 import downloadFile from 'js-file-download'
+import dayjs from 'dayjs'
 
 export async function getBusinessesGrossIncomeStatusReport({token}: {token: string}) {
   try {
@@ -43,7 +44,7 @@ export async function downloadBusinessesGrossIncomeStatusReport({token}: {token:
   
     let data = await response.data
 
-    downloadFile(data, 'gross_incomes.xlsx')
+    downloadFile(data, `reporte-ingresos-brutos-${dayjs().format('DD-MM-YYYY')}.xlsx`)
   
     return data
   } catch (error) {
