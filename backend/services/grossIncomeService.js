@@ -1,9 +1,11 @@
 // services/grossIncomeService.js
-const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business } = require('../database/models');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity } = require('../database/models');
 const dayjs = require('dayjs');
 const currency = require('currency.js');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
+
+const ROLES = require('../utils/auth/roles');
 
 const currencyHandler = (value) => currency(value, 
     { 
@@ -343,6 +345,165 @@ class GrossIncomeService {
                 }
             ]
         });
+    }
+
+
+    async createUndeclaredGrossIncome({ user, data }) {
+
+        // verify that the user is admin, collector or fiscal 
+        function canCreateUndeclaredGrossIncome(user) {
+            
+            // if user is not an admin, director, fiscal, or collector 
+            if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
+                let error = new Error('User not authorized');
+                error.name = 'UserNotAuthorized';
+                error.statusCode = 401;
+                throw error;
+            }
+        }
+
+        canCreateUndeclaredGrossIncome(user)
+
+        // first get the period for the gross income record 
+        let period;
+
+        if (data.year && data.month) {
+            period = dayjs(`${data.year}-${data.month}-01`).subtract(1, 'month').set('date', 3).toDate();
+        } else {
+            period = dayjs().subtract(1, 'month').set('date', 3).toDate();
+        }
+
+        const lastCurrencyExchangeRate = await CurrencyExchangeRates.findOne({
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            limit: 1
+        })
+
+        console.log({period, lastCurrencyExchangeRate})
+
+        // get a list of all business with
+        const businesses = await Business.findAll({
+            include: [
+                {
+                    model: EconomicActivity,
+                    as: 'economicActivity',
+                    include: [
+                        {
+                            model: Alicuota,
+                            as: 'alicuotaHistory',
+                        }
+                    ]
+                },
+                
+                {
+                    model: BranchOffice,
+                    as: 'branchOffices'
+                },
+                {
+                    model: GrossIncome,
+                    as: 'grossIncomes',
+                }
+            ]
+        })
+
+        let grossIncomesToBeCreated = []
+        
+        businesses.forEach((business) => {
+            // TODO: Reimplement this using a new column called "usedSinceDate"
+            let lastAlicuota = business.economicActivity.alicuotaHistory.sort((a, b) => b.id - a.id)[0]
+            
+            if (business?.branchOffices?.length > 0) {
+                // otherwise, create gross incomes for each branch office
+
+                business.branchOffices.forEach((branchOffice) => {
+                    const grossIncomeToInsert = {
+                        businessId: business.id,
+                        branchOfficeId: branchOffice.id,
+                        period: period,
+                        amountBs: 0,
+                        grossIncomeInvoiceId: null,
+                        alicuotaId: lastAlicuota.id,
+                        alicuotaTaxPercent: lastAlicuota.taxPercent,
+                        alicuotaMinTaxMMVBCV: lastAlicuota.minTaxMMV,
+                        TCMMVBCV: Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs),
+
+                        chargeWasteCollection: branchOffice.chargeWasteCollection,
+                        branchOfficeDimensionsMts2: branchOffice.dimensions,
+                        branchOfficeType: branchOffice.type,
+
+                        wasteCollectionTaxMMVBCV: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }
+
+                    const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year') && grossIncome.branchOfficeId === branchOffice.id)
+
+                    if (!grossIncomeAlreadyExists) {
+                        // calculateTaxes
+                        let calcs = calculateTaxFields({grossIncome: grossIncomeToInsert})
+
+                        grossIncomesToBeCreated.push({
+                            ...grossIncomeToInsert,
+                            ...calcs
+                        })
+                    }
+                })
+
+            } else {
+                // handle if it don't have branch offices
+                // create the gross incomes
+                const grossIncomeToInsert = {
+                    businessId: business.id,
+                    period: period,
+                    amountBs: 0,
+                    grossIncomeInvoiceId: null,
+                    alicuotaId: lastAlicuota.id,
+                    alicuotaTaxPercent: lastAlicuota.taxPercent,
+                    alicuotaMinTaxMMVBCV: lastAlicuota.minTaxMMV,
+                    TCMMVBCV: Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs),
+                    chargeWasteCollection: false,
+                    wasteCollectionTaxMMVBCV: 0,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+                // check that the gross income didn't exists 
+                const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year'))
+
+                
+
+                if (!grossIncomeAlreadyExists) {
+                    // calculateTaxes
+                    let calcs = calculateTaxFields({grossIncome: grossIncomeToInsert})                    
+
+                    grossIncomesToBeCreated.push({
+                        ...grossIncomeToInsert,
+                        ...calcs
+                    })
+                }
+            }
+
+            console.log({n: grossIncomesToBeCreated.length})    
+            // console.log({grossIncomesToBeCreated})
+        })
+
+        if (grossIncomesToBeCreated.length > 0) {
+            await GrossIncome.bulkCreate(grossIncomesToBeCreated)
+        }
+
+        return {
+            grossIncomesCreated: grossIncomesToBeCreated?.length ?? 0
+        }
+
+        // create a gross income without declaration 
+            // get the business 
+            // get the branch office
+        
+            // get the alicuota and min tax 
+            // add the associated economic activity last alicuota 
+            //
+
+        // add the gross income to the business and branch office (if apply)
     }
 }
 

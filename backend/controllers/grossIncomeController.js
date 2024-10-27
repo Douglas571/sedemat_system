@@ -119,6 +119,19 @@ class GrossIncomeController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async createUndeclaredGrossIncome(req, res) {
+    try {
+      console.log("here")
+      const newGrossIncome = await grossIncomeService.createUndeclaredGrossIncome({user: req.user, data: req.body});
+
+      res.status(201).json(newGrossIncome);
+    } catch (error) {
+      console.log({error});
+      res.status(error?.statusCode ?? 500).json({ error });
+    }
+
+  }
 }
 
 module.exports = new GrossIncomeController();
