@@ -75,7 +75,7 @@ const BasicComponent: React.FC = () => {
       render: (value: string, record: reportRow) => <Link to={`/tax-collection/${record.businessId}`}>{value}</Link>,
     },
     {
-      title: 'DNI',
+      title: 'RIF',
       dataIndex: 'businessDni',
       key: 'businessDni',
     },
@@ -85,7 +85,7 @@ const BasicComponent: React.FC = () => {
       key: 'branchOfficeNickName',
     },
     {
-      title: 'Morosidad',
+      title: 'Clasificación (Por Puntualidad)',
       dataIndex: 'classification',
       key: 'classification',
 
@@ -116,7 +116,7 @@ const BasicComponent: React.FC = () => {
         
         if (value === 2 ) {
           return <Flex justify="center" align="center">
-            <Tag color='orange' style={{ ...shipStyles}}>BAJA</Tag>
+            <Tag color='orange' style={{ ...shipStyles}}>ALTA</Tag>
           </Flex>
         }
 
@@ -127,7 +127,7 @@ const BasicComponent: React.FC = () => {
         }
 
         return <Flex justify="center" align="center">
-            <Tag color='red' style={{ ...shipStyles}}>ALTA</Tag>
+            <Tag color='red' style={{ ...shipStyles}}>BAJA</Tag>
           </Flex>
       }
     },
@@ -249,14 +249,14 @@ const BasicComponent: React.FC = () => {
         >
 
             <Flex style={{ marginBottom: '18px' }}>    
-              <div style={{width: '500px', height: '500px'}}>
+              <div>
                 <Doughnut
                   data={chartData}
                   options={{
                     plugins: {
                       title: {
                         display: true,
-                        position: "bottom",
+                        position: "top",
                         text: "Contribuyentes por Clasificación",
                       },
                       legend: {
@@ -275,9 +275,14 @@ const BasicComponent: React.FC = () => {
                       }
                       
                     },
+                    aspectRatio: 1,
+
                     maintainAspectRatio: false 
                     
                   }}
+
+                  height={"500px"}
+
                 />
               </div>
             </Flex>
