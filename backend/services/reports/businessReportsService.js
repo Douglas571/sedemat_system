@@ -17,6 +17,21 @@ const dayjs = require('dayjs');
 
 const INITIAL_DATE = dayjs('2024-01-01');
 
+const monthMapper = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre'
+];
+
 function canDownloadGrossIncomeReport(user) {
   // if user is not an admin, director, fiscal, or collector
   if (!user || [ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
@@ -48,31 +63,59 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
   const worksheet = workbook.addWorksheet('Reporte de ingresos brutos');
 
   const headerRow = [
-    'RIF del establecimiento',
-    'Nombre del establecimiento',
-    'N mero de sucursales',
-    'Ingresos brutos',
-    'Ingresos brutos con multas',
-    'Ingresos brutos con multas y sanciones',
-    'Ingresos brutos con multas y sanciones con descuentos',
-    'Ingresos brutos pagados',
-    'Ingresos brutos pendientes de pago',
-    'Ingresos brutos con multas y sanciones pendientes de pago',
-    'Ingresos brutos con multas y sanciones con descuentos pendientes de pago'
+    'Contribuyente',
+    'Sucursal',
+    'Clasificación',
+
+    'Meses pendientes de pagar',
+    'Meses sin declaración',
+    'Meses pendientes de liquidar',
+    'Último mes liquidado',
+    
   ];
 
   worksheet.addRow(headerRow); 
 
   const reportRows = await module.exports.getBusinessesGrossIncomeReportJSON({user});
 
-  reportRows.forEach(row => worksheet.addRow(row));
+  reportRows.forEach(row => {
+    let formattedRow = [
+      row.businessName,
+      row.branchOfficeNickname,
+      row.classification,
+
+      row.monthsPendingToBePaidCount,
+      row.monthsWithoutDeclarationCount,
+      row.monthsPendingToBeSettledCount,
+      row.lastMonthSettled ? `${monthMapper[row.lastMonthSettled.month()]}-${row.lastMonthSettled.year()}` : '--',
+    ]
+    worksheet.addRow(formattedRow)
+  });
+
+  const COLORS = {
+    1: '30ff45',
+    2: 'ffea00',
+    3: '0080ff',
+    4: 'ff0000',
+  }
+  
+  worksheet.getColumn(3).eachCell(function(cell, rowNumber) {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: COLORS[cell.value]},
+      bgColor: { argb: COLORS[cell.value] }
+    }
+
+  })
+
 
   workbook.xlsx.write(stream)
     .then(function() {
-        console.log("file saved")
+        console.log("Excel file with the report sent to client")
     });
 
-  return
+  return workbook.xlsx
 }
 
 
