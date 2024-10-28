@@ -187,6 +187,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    economicActivityTitle: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    economicActivityCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     createdAt: {
       type: DataTypes.DATE
     },

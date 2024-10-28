@@ -283,6 +283,16 @@ const GrossIncomeInvoice: React.FC = () => {
         }
     }
 
+    async function handleUpdateEconomicActivity(){
+        if (business) {
+            form.setFieldsValue({
+                economicActivityTitle: business.economicActivity.title,
+                economicActivityCode: business.economicActivity.code
+            })
+        }
+        
+    }
+
     async function handleBusinessDataUpdate() {
         if (business) {
             form.setFieldsValue({
@@ -463,6 +473,10 @@ const GrossIncomeInvoice: React.FC = () => {
                 form: CurrencyHandler(1.6).multiply(40).value,
                 note: 'LOS PAGOS DEBEN SER CANCELADOS A LA TASA DEL DÍA POR TCMMV-BCV',
 
+                economicActivityTitle: business?.economicActivity.title,
+                economicActivityCode: business?.economicActivity.code,
+
+
                 // TODO: Replace these default variables with global ones extracted from backend config data
                 firstBankAccountId: FIRST_BANK_ACCOUNT_ID,
                 secondBankAccountId: SECOND_BANK_ACCOUNT_ID,
@@ -562,6 +576,7 @@ const GrossIncomeInvoice: React.FC = () => {
                         Actualizar
                     </Button>
                 </Flex>
+
                 <Flex wrap gap={16}>
                     <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
                         <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
@@ -571,6 +586,28 @@ const GrossIncomeInvoice: React.FC = () => {
                         <DatePicker picker="week"/>
                     </Form.Item>
                 </Flex>
+
+
+                <Flex align="center" gap={16}>
+                    <Typography.Title level={5}>Actividad Económica</Typography.Title>
+
+                    <Button onClick={() => handleUpdateEconomicActivity()}>
+                        <ReloadOutlined />
+                        Actualizar
+                    </Button>
+                </Flex>
+
+                <Flex wrap gap={16}>
+                    <Form.Item name="economicActivityTitle" label="Ramo" rules={[{ required: true }]}>
+                        <Input/>
+                    </Form.Item>
+
+                    <Form.Item name="economicActivityCode" label="Código" rules={[{ required: true }]}>
+                        <Input/>
+                    </Form.Item>
+                </Flex>
+
+
 
                 <Flex align="center" gap={16}>
                     <Typography.Title level={5}>Personal</Typography.Title>

@@ -198,8 +198,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     )
                   }
                   <td>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
-                  <td>{business.economicActivity.code}</td>
-                  <td>{business.economicActivity.title.toUpperCase()}</td>
+                  <td>{grossIncomeInvoice?.economicActivityCode ?? business.economicActivity.code}</td>
+                  <td>{grossIncomeInvoice?.economicActivityTitle ?? business.economicActivity.title.toUpperCase()}</td>
 
                   {
                     hasBranchOffice && (
