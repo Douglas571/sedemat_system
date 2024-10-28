@@ -295,7 +295,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     branchOffice
                     ? (
                         <>
-                            <Descriptions.Item label="Ramo" style={{ maxWidth: '20%' }}>{business.economicActivity.title}</Descriptions.Item>
+                            <Descriptions.Item label="Ramo" style={{ maxWidth: '20%' }}>{grossIncomeInvoice.economicActivityTitle ?? business.economicActivity.title}</Descriptions.Item>
                             <Descriptions.Item label="Mts2" style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeDimensions}</Descriptions.Item>
                             <Descriptions.Item label="Tipo"  style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeType}</Descriptions.Item>
                         </>
