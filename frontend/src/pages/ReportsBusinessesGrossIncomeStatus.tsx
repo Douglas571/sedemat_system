@@ -190,7 +190,6 @@ const BasicComponent: React.FC = () => {
     datasets: [
       // ! this will be overwritten too, but leaved this here for setting the types
       {
-        label: "Núm. de Contribuyentes Por Puntualidad",
         data: [
           businessGrossIncomesStatus.filter(b => b.classification === 1).length,
           businessGrossIncomesStatus.filter(b => b.classification === 2).length,
@@ -203,8 +202,7 @@ const BasicComponent: React.FC = () => {
           'rgb(54, 162, 235)',
           'rgb(255, 205, 86)'
         ],
-        borderColor: "black",
-        borderWidth: 2
+        
       }
     ]
   });
@@ -220,7 +218,6 @@ const BasicComponent: React.FC = () => {
       ], 
       datasets: [
         {
-          label: "Núm. de Contribuyentes",
           data: [
             businessGrossIncomesStatus.filter(b => b.classification === 1).length,
             businessGrossIncomesStatus.filter(b => b.classification === 2).length,
@@ -234,9 +231,9 @@ const BasicComponent: React.FC = () => {
             'rgb(255, 99, 132)',
           ],
           borderColor: "black",
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 1
+        },
+      ],
     })
   }, [businessGrossIncomesStatus])
 
@@ -256,11 +253,14 @@ const BasicComponent: React.FC = () => {
                 <Doughnut
                   data={chartData}
                   options={{
+                    offset: 10,
+                    spacing: 5,
+                    hoverOffset: 40,
                     plugins: {
                       title: {
                         display: true,
                         position: "top",
-                        text: "Contribuyentes por Clasificación",
+                        text: "Núm. de Contribuyentes Por Puntualidad",
                       },
                       legend: {
                         position: "bottom",
@@ -284,7 +284,9 @@ const BasicComponent: React.FC = () => {
                     
                   }}
 
-                  height={"500px"}
+                  height={"400px"}
+                  width={"400px"}
+                  margin={50}
 
                 />
               </div>
