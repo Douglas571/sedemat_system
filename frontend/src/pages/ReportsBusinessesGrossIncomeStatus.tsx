@@ -185,10 +185,12 @@ const BasicComponent: React.FC = () => {
 
 
   const [chartData, setChartData] = useState({
-    labels: ["Al día", "Baja", "Media", "Alta"], 
+    // ! This information is overwritten by the setChartData bellow
+    
     datasets: [
+      // ! this will be overwritten too, but leaved this here for setting the types
       {
-        label: "Núm. de Contribuyentes",
+        label: "Núm. de Contribuyentes Por Puntualidad",
         data: [
           businessGrossIncomesStatus.filter(b => b.classification === 1).length,
           businessGrossIncomesStatus.filter(b => b.classification === 2).length,
@@ -209,11 +211,12 @@ const BasicComponent: React.FC = () => {
 
   useEffect(() => {
     setChartData({
+      ...chartData,
       labels: [
         "Al día" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 1).length,
-        "Baja" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 2).length, 
+        "Alta" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 2).length, 
         "Media" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 3).length, 
-        "Alta" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 4).length
+        "Baja" + ": " + businessGrossIncomesStatus.filter(b => b.classification === 4).length
       ], 
       datasets: [
         {
