@@ -417,6 +417,8 @@ class GrossIncomeService {
                 // otherwise, create gross incomes for each branch office
 
                 business.branchOffices.forEach((branchOffice) => {
+
+                    // console.log(branchOffice.toJSON())
                     const grossIncomeToInsert = {
                         businessId: business.id,
                         branchOfficeId: branchOffice.id,
@@ -451,6 +453,7 @@ class GrossIncomeService {
                 })
 
             } else {
+                console.log("charign just the business")
                 // handle if it don't have branch offices
                 // create the gross incomes
                 const grossIncomeToInsert = {
@@ -483,11 +486,13 @@ class GrossIncomeService {
                 }
             }
 
-            console.log({n: grossIncomesToBeCreated.length})    
+            // console.log({n: grossIncomesToBeCreated.length})    
+
             // console.log({grossIncomesToBeCreated})
         })
 
         if (grossIncomesToBeCreated.length > 0) {
+            
             await GrossIncome.bulkCreate(grossIncomesToBeCreated)
         }
 
