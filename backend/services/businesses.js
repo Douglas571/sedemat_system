@@ -10,7 +10,7 @@ const branchOfficeServices = require('./branchOffices');
 
 function checkIfCanCreateOrUpdateBusiness(user) {
     // if user is not an admin, director, fiscal, or collector 
-    if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+    if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
         let error = new Error('User not authorized');
         error.name = 'UserNotAuthorized';
         throw error;
