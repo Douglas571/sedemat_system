@@ -368,7 +368,7 @@ class GrossIncomeService {
         let period;
 
         if (data.year && data.month) {
-            period = dayjs(`${data.year}-${data.month}-01`).subtract(1, 'month').set('date', 3).toDate();
+            period = dayjs(`${data.year}-${data.month}-01`).set('date', 3).toDate();
         } else {
             period = dayjs().subtract(1, 'month').set('date', 3).toDate();
         }

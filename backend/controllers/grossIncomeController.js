@@ -6,6 +6,8 @@ const crypto = require('crypto');
 
 const grossIncomeService = require('../services/grossIncomeService');
 
+const { z } = require("zod");
+
 // Set up the path for seneat_declarations
 const DECLARATIONS_PATH = path.resolve(__dirname, '../uploads/seneat-declarations');
 fse.ensureDirSync(DECLARATIONS_PATH);
@@ -122,7 +124,24 @@ class GrossIncomeController {
 
   async createUndeclaredGrossIncome(req, res) {
     try {
-      console.log("here")
+      
+      // check that the req.body has a valid year and month params
+
+      const validBody = z.object({
+        year: z.number().optional(),
+        month: z.number().optional()
+      })
+
+      req.body = validBody.parse(req.body);
+
+      if ((!req.body.year && req.body.month) || (req.body.year && !req.body.month)) {
+        return res.status(400).json({ error: {
+          message: 'Both year and month params are required',
+          name: 'InvalidParams',
+          statusCode: 400
+        } });
+      }
+
       const newGrossIncome = await grossIncomeService.createUndeclaredGrossIncome({user: req.user, data: req.body});
 
       res.status(201).json(newGrossIncome);
