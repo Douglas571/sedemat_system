@@ -347,7 +347,14 @@ class GrossIncomeService {
         });
     }
 
-
+    
+    /**
+     * Creates a new GrossIncome record for each active business and its branch offices for the given period
+     * @param {Object} data - an object with the period and year and month
+     * @param {User} user - the user that is creating the gross income
+     * @returns {Promise<Object>} - an object with the number of gross incomes created
+     * @throws {Error} - if the user is not authorized
+     */
     async createUndeclaredGrossIncome({ user, data }) {
 
         // verify that the user is admin, collector or fiscal 
@@ -412,11 +419,19 @@ class GrossIncomeService {
         businesses.forEach((business) => {
             // TODO: Reimplement this using a new column called "usedSinceDate"
             let lastAlicuota = business.economicActivity.alicuotaHistory.sort((a, b) => b.id - a.id)[0]
+
+            if (!business.isActive) {
+                return 
+            }
             
             if (business?.branchOffices?.length > 0) {
                 // otherwise, create gross incomes for each branch office
 
                 business.branchOffices.forEach((branchOffice) => {
+
+                    if (!branchOffice.isActive) {
+                        return null
+                    }
 
                     // console.log(branchOffice.toJSON())
                     const grossIncomeToInsert = {
@@ -453,7 +468,6 @@ class GrossIncomeService {
                 })
 
             } else {
-                console.log("charign just the business")
                 // handle if it don't have branch offices
                 // create the gross incomes
                 const grossIncomeToInsert = {
@@ -470,10 +484,9 @@ class GrossIncomeService {
                     createdAt: new Date(),
                     updatedAt: new Date()
                 }
+
                 // check that the gross income didn't exists 
                 const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year'))
-
-                
 
                 if (!grossIncomeAlreadyExists) {
                     // calculateTaxes
@@ -499,16 +512,6 @@ class GrossIncomeService {
         return {
             grossIncomesCreated: grossIncomesToBeCreated?.length ?? 0
         }
-
-        // create a gross income without declaration 
-            // get the business 
-            // get the branch office
-        
-            // get the alicuota and min tax 
-            // add the associated economic activity last alicuota 
-            //
-
-        // add the gross income to the business and branch office (if apply)
     }
 }
 
