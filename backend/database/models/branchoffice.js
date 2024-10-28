@@ -110,6 +110,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
     },
 
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+
   }, {
     sequelize,
     modelName: 'BranchOffice',

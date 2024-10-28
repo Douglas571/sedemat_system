@@ -16,7 +16,8 @@ import {
     Upload,
     UploadProps,
     message,
-    Card
+    Card,
+    Switch
 } from "antd";
 
 import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
@@ -77,6 +78,7 @@ export default function BusinessForm(): JSX.Element {
         console.log(JSON.stringify(businessData, null, 2))
 
         const formInitData = {
+            ...businessData,
             businessName: businessData.businessName,
             dni: businessData.dni,
             economicActivity: businessData.economicActivity.title,
@@ -159,6 +161,7 @@ export default function BusinessForm(): JSX.Element {
 
             // set up the business data to register
             const businessData: Business = {
+                ...values,
                 businessName: values.businessName,
                 dni: values.dni,
                 companyExpirationDate: values.companyExpirationDate,
@@ -218,7 +221,7 @@ export default function BusinessForm(): JSX.Element {
             console.log("OUTSIDE")
             console.log(values.certificateOfIncorporationUpload)
             if (newBusinessData.id && values?.certificateOfIncorporationUpload?.fileList?.length > 0) {
-                console.log("HERE")
+                
                 // if there is files to upload
 
                 // make up the file to upload
@@ -393,6 +396,10 @@ function BusinessBasicInformarionForm({ economicActivities }): JSX.Element {
                     showSearch
                     options={economicActivities.map(e => ({ label: e?.title, value: e?.title }))}
                 />
+            </Form.Item>
+
+            <Form.Item name="isActive" label="Activo">
+                <Switch checkedChildren="SI" unCheckedChildren="NO" />
             </Form.Item>
 
             <Divider />

@@ -263,7 +263,7 @@ function BusinessViewDetails(): JSX.Element {
       title={
         <Flex align='center' wrap style={{ marginBottom: '20px' }} justify='space-between'>
           <Title style={{ marginRight: '20px' }}>
-            {business?.businessName || "Cargando..."}
+            {`${business?.businessName} - ${ business.isActive ? "Activo" : "Inactivo"}` || "Cargando..."}
           </Title>
           <Flex gap={'middle'}>
             <Button
@@ -470,7 +470,7 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
               <Flex key={office.id} vertical>
 
                 <Flex gap={"small"} align='center' justify='space-between'>
-                  <Title level={4}>{office.nickname}</Title>
+                  <Title level={4}>{`${office.nickname} - ${office.isActive ? 'Activa' : 'Inactiva'}`}</Title>
                   <Flex gap={'small'}>
                     <Button onClick={() => onEdit(office.id)}><EditOutlined />Editar</Button>
                     <Button danger onClick={() => handleOpenDeleteModal(office.id)}><DeleteOutlined /> Eliminar</Button>
