@@ -122,6 +122,11 @@ module.exports = (sequelize, DataTypes) => {
 
     reminderInterval: DataTypes.INTEGER,
 
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE

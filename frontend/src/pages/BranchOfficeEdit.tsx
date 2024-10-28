@@ -73,6 +73,7 @@ export default function BranchOfficeForm(): JSX.Element {
             //const businessId: number = getBusinessId(values.business)
 
             const newOffice: BranchOffice= {
+                ...values,
                 businessId: Number(businessId),
                 nickname: values.nickname,
                 address: values.address,
@@ -187,6 +188,7 @@ export default function BranchOfficeForm(): JSX.Element {
         setBranchOffice(officeData)
         // set the office data in the form
         form.setFieldsValue({
+            ...officeData,
             nickname: officeData.nickname,
             address: officeData.address,
             type: officeData.type,
@@ -272,20 +274,29 @@ export default function BranchOfficeForm(): JSX.Element {
                         ]}
                     />
                 </Form.Item>
+
+                <Form.Item name="isActive" label="Activo">
+                    <Switch checkedChildren="SI" unCheckedChildren="NO"/>
+                </Form.Item>
                 
-                <Form.Item label="Es Alquilado?" name='isRented'>
+                <Form.Item label="Es Alquilado" name='isRented'>
                     <Switch 
-                        checkedChildren="SÍ"
+                        checkedChildren="SI"
+                        unCheckedChildren="NO"/>
+                </Form.Item>
+
+                <Form.Item
+                    name="chargeWasteCollection"
+                    label="Cobrar Aseo Urbano"
+                    valuePropName="checked"
+                >
+                    <Switch
+                        checkedChildren="SI"
                         unCheckedChildren="NO"/>
                 </Form.Item>
             </Flex>
 
-            <Form.Item
-                name="chargeWasteCollection"
-                valuePropName="checked"
-            >
-                <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
-            </Form.Item>
+            
 
             {/* Origin */}
             <OriginUploadControls isRented={isRented} />
