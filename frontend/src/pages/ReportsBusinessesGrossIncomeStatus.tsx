@@ -73,11 +73,13 @@ const BasicComponent: React.FC = () => {
       showSorterTooltip: false,
 
       render: (value: string, record: reportRow) => <Link to={`/tax-collection/${record.businessId}`}>{value}</Link>,
+      width: 400
     },
     {
       title: 'RIF',
       dataIndex: 'businessDni',
       key: 'businessDni',
+      width: 130,
     },
     {
       title: 'Sucursal',
