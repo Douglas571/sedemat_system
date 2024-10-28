@@ -250,7 +250,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         },
         {
             title: 'Cobrar Aseo',
-            dataIndex: 'wasteCollectionTaxId',
+            dataIndex: 'chargeWasteCollection',
             render: (text: string) => text ? 'SI' : 'NO'
         },
         // {
