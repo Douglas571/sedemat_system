@@ -61,6 +61,8 @@ const settlementRouter = require('./routers/settlementRouter');
 
 const penaltyRouter = require('./routers/penaltyRouter');
 
+const inactivityPeriodRouter = require('./routers/inactivityPeriodRoutes');
+
 // REPORTS
 
 const reportBusinesses = require('./routers/reports/businessesReportsRouter');
@@ -82,10 +84,6 @@ const requestLogger = (req, res, next) => {
     next();
 };
 app.use(requestLogger);
-
-app.get('/ping', (req, res) => {
-  res.status(200).send('pong')
-})
 
 app.use("/v1/reports/businesses", reportBusinesses)
 
@@ -114,6 +112,8 @@ app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
 app.use('/v1/settlements', settlementRouter);
 app.use('/v1/penalties', penaltyRouter);
 
+app.use('/v1/inactivity-periods', inactivityPeriodRouter);
+
 app.use('/v1/bank-accounts', bankAccountRouter)
 
 app.use('/v1/users', userRouter)
@@ -121,6 +121,10 @@ app.use('/v1/auth', authRouter);
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong')
+})
 
 app.get("/status", (request, response) => {
     console.log("get here")
