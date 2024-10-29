@@ -26,11 +26,11 @@ import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
 import * as economicLicenseApi from '../util/economicLicenseApi'
 import economicActivitiesService from '../services/EconomicActivitiesService'
+import * as inactivityPeriodService from '../services/inactivityPeriodService'
 
 import { completeUrl } from './BusinessShared';
 
 import useAuthentication from '../hooks/useAuthentication';
-
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -197,7 +197,10 @@ function BusinessViewDetails(): JSX.Element {
     {
       label: 'Cartas de Inactividad',
       key: 'inactivity-letters',
-      children: <InactivityLettersDisplay/>
+      children: <InactivityLettersDisplay
+          businessId={Number(businessId)}
+          branchOffices={business?.branchOffices}
+        />
     }
   ]
 
@@ -276,103 +279,76 @@ function BusinessViewDetails(): JSX.Element {
 
 export default BusinessViewDetails
 
-function InactivityLettersDisplay({}): JSX.Element {
+function InactivityLettersDisplay({ businessId, branchOffices }: { businessId: number, branchOffices: BranchOffice[]}): JSX.Element {
 
-  const letters: IInactivityLetter[] = [
-    {
-      id: 1,
-      startAt: dayjs('2022-01-01'), // Fecha de inicio del periodo de inactividad
-      endAt: dayjs('2022-01-31'), // Fecha de fin del periodo de inactividad
-      branchOfficeId: 1, // ID de la sucursal
-      branchOffice: {
-        id: 1,
-        nickname: 'Sucursal Principal', // Apodo de la sucursal
-        type: 'Propio', // Tipo de sucursal
-        address: 'Calle 1, entre Calle 2 y Calle 3, Zamora, Venezuela', // Dirección de la sucursal
-        contact: {
-          id: 1,
-          firstName: 'Juan', // Nombre del contacto
-          lastName: 'Pérez', // Apellido del contacto
-          phone: '0412-1234567', // Teléfono del contacto
-          email: 'juan.perez@example.com' // Correo electrónico del contacto
-        }
-      },
-      comment: 'Comentario para la inactividad 1' // Comentario sobre la carta de inactividad
-    },
-    {
-      id: 2,
-      startAt: dayjs('2022-02-01'),
-      endAt: dayjs('2022-02-28'),
-      branchOfficeId: 2,
-      branchOffice: {
-        id: 2,
-        nickname: 'Sucursal 2',
-        type: 'Alquilado',
-        address: 'Avenida 1, entre Avenida 2 y Avenida 3, Zamora, Venezuela',
-        contact: {
-          id: 2,
-          firstName: 'María',
-          lastName: 'González',
-          phone: '0414-1234567',
-          email: 'maria.gonzalez@example.com'
-        }
-      },
-      comment: 'Comentario para la inactividad 2'
-    },
-    {
-      id: 3,
-      startAt: dayjs('2022-03-01'),
-      endAt: null, // Periodo de inactividad aún en curso
-      branchOfficeId: 1,
-      branchOffice: {
-        id: 1,
-        nickname: 'Sucursal Principal',
-        type: 'Propio',
-        address: 'Calle 1, entre Calle 2 y Calle 3, Zamora, Venezuela',
-        contact: {
-          id: 1,
-          firstName: 'Juan',
-          lastName: 'Pérez',
-          phone: '0412-1234567',
-          email: 'juan.perez@example.com'
-        }
-      },
-      comment: 'Comentario para la inactividad 3'
+  const [periods, setPeriods] = useState<IInactivityLetter[]>([])
+  const { userAuth } = useAuthentication();
+  const token = userAuth.token;
+
+  if (!businessId || !token) return <></>
+
+  const loadInactivityPeriods = async () => {
+    try {
+      let periods = await inactivityPeriodService.getInactivityPeriods(businessId, token)
+
+      setPeriods([...periods])
+    } catch (err) {
+      console.log({ err })
     }
-  ]
+  }
 
   const [showEditForm, setShowEditForm] = useState(false)
-  const [selectedLetter, setSelectedLetter] = useState<IInactivityLetter | null>(null)
+  const [selectedPeriod, setSelectedPeriod] = useState<IInactivityLetter | null>(null)
 
-  function handleNew(newLetter: IInactivityLetter){
-    
-    setShowEditForm(false)
+  async function handleNew(newLetter: IInactivityLetter){
+
+    try {
+
+      let createdLetter = await inactivityPeriodService.createInactivityPeriod({
+        businessId,
+        ...newLetter
+      }, token)
+      
+      setShowEditForm(false)
+      loadInactivityPeriods()
+    } catch (err) {
+      if (err.response?.data?.error?.name === 'InvalidPeriod') {
+        message.error('La fecha de inicio debe ser menor a la fecha de fin')
+      }
+
+      console.log({ err })
+    }
   }
 
   
-  function handleEdit(id: number){
-    // implement logic here
+  async function handleEdit(id: number, data: IInactivityLetter) {
+    let updatedLetter = await inactivityPeriodService.updateInactivityPeriod(id, data, token)
 
-    setSelectedLetter(null)
+
+    setSelectedPeriod(null)
     setShowEditForm(false)
+    loadInactivityPeriods()
   }
 
-  function handleDelete(id: number){
-    // implement logic here
+  async function handleDelete(id: number){
+    await inactivityPeriodService.deleteInactivityPeriod(id, token)
+
+    loadInactivityPeriods()
   }
 
   function handleCancelModal() {
 
-    setSelectedLetter(null)
+    setSelectedPeriod(null)
     setShowEditForm(false)
+    loadInactivityPeriods()
   }
 
   function handleOpenModalForEdit(letterId: number) {
 
-    const selectedLetter = letters.find(letter => letter.id === letterId)
+    const selectedPeriod = periods.find(periods => periods.id === letterId)
 
-    if (selectedLetter) {
-      setSelectedLetter(selectedLetter)
+    if (selectedPeriod) {
+      setSelectedPeriod(selectedPeriod)
       setShowEditForm(true)
     }
   }
@@ -394,7 +370,12 @@ function InactivityLettersDisplay({}): JSX.Element {
       dataIndex: 'startAt',
       key: 'startAt',
       render: (date: dayjs.Dayjs) => dayjs(date).format('DD/MM/YYYY'),
-      sorter: (a, b) => a.startAt.unix() - b.startAt.unix(),
+      sorter: (a, b) => {
+        
+        if (!a.startAt || !b.startAt) return 0
+
+        return dayjs(a.startAt).isBefore(dayjs(b.startAt)) ? 1 : -1
+      },
       sortDirections: ['ascend', 'descend', 'ascend'],
       showSorterTooltip: false,
       defaultSortOrder: 'ascend',
@@ -408,7 +389,7 @@ function InactivityLettersDisplay({}): JSX.Element {
         if (a.endAt === null) return 1
         if (b.endAt === null) return -1
 
-        return a.endAt.unix() - b.endAt.unix()
+        return dayjs(a.endAt).isBefore(dayjs(b.endAt)) ? 1 : -1
       },
       sortDirections: ['ascend', 'descend', 'ascend'],
       showSorterTooltip: false,
@@ -423,6 +404,15 @@ function InactivityLettersDisplay({}): JSX.Element {
       showSorterTooltip: false,
       defaultSortOrder: 'ascend',
     },
+    {
+      title: 'Comentario',
+      dataIndex: 'comment',
+      key: 'comment',
+      sorter: (a, b) => a.comment.localeCompare(b.comment),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false,
+      defaultSortOrder: 'ascend',
+    }
     , {
       title: 'Acciones',
       key: 'actions',
@@ -432,11 +422,15 @@ function InactivityLettersDisplay({}): JSX.Element {
           <Button danger onClick={() => handleDelete(letter.id)}>
             Eliminar
           </Button>
-          <Button type='link'>Comprobante</Button>
+          {/* <Button type='link'>Comprobante</Button> */}
         </Space>
       ),
     },
   ]
+
+  useEffect(() => {
+    loadInactivityPeriods()
+  }, [])
 
   return (
     <Flex vertical gap={16}>
@@ -447,13 +441,14 @@ function InactivityLettersDisplay({}): JSX.Element {
           Agregar Carta
         </Button>
       </Flex>
-      <Table columns={columns} dataSource={letters}/>
+      <Table columns={columns} dataSource={periods}/>
       <InactivityLetterEditModal 
         open={showEditForm}
         onCancel={handleCancelModal}
         onNew={handleNew}
         onEdit={handleEdit}
-        inactivityLetter={selectedLetter}
+        inactivityLetter={selectedPeriod}
+        branchOffices={branchOffices}
 
       />
         
@@ -463,6 +458,7 @@ function InactivityLettersDisplay({}): JSX.Element {
 function InactivityLetterEditModal(
   { 
       inactivityLetter,
+      branchOffices,
       onNew, 
       onEdit,
       onCancel,
@@ -470,8 +466,9 @@ function InactivityLetterEditModal(
   }
   : { 
       inactivityLetter?: IInactivityLetter,
-      onNew: (settlement: ISettlement) => void, 
-      onEdit: (settlement: ISettlement) => void,
+      branchOffices: BranchOffice[],
+      onNew: (id: number, settlement: ISettlement) => void, 
+      onEdit: (id: number, settlement: ISettlement) => void,
       onCancel: () => void,
       open: boolean,
 
@@ -496,10 +493,15 @@ function InactivityLetterEditModal(
   const handleOk = () => {
       form.validateFields()
           .then(async (values) => {
-              setLoading(true);
+              
+              if (values.startAt >= values.endAt) {
+                  message.error('La fecha de inicio debe ser antes de la fecha de fin');
+                  return;
+              }
+              
               try {
                   if (isEditing) {
-                      await onEdit({
+                      await onEdit(inactivityLetter.id, {
                           ...inactivityLetter,
                           ...values,
                           
@@ -530,10 +532,23 @@ function InactivityLetterEditModal(
   }
 
   useEffect(() => {
-    form.setFieldsValue({
-      ...inactivityLetter
-    })
-  })
+
+    if (inactivityLetter) {
+      form.setFieldsValue({
+        ...inactivityLetter,
+        startAt: dayjs(inactivityLetter?.startAt),
+        endAt: dayjs(inactivityLetter?.endAt),
+        comment: inactivityLetter?.comment
+      })
+    }
+
+    
+  }, [inactivityLetter])
+
+  const selectOptions = branchOffices.map((office) => ({
+    value: office.id,
+    label: `${office.nickname} - ${office.address}`, 
+  }));
 
   return (
       <Modal
@@ -543,7 +558,15 @@ function InactivityLetterEditModal(
           confirmLoading={loading}
           onCancel={handleCancelModal}
       >
-          <Form layout="vertical" form={form}>
+          <Form 
+            layout="vertical" form={form}
+          >
+            {branchOffices.length > 0 && (
+              <Form.Item name="branchOfficeId" label="Sede">
+                <Select options={selectOptions}/>
+              </Form.Item>
+            )}
+            
             <Form.Item
                 label="Inicio del periodo de inactividad"
                 name="startAt"
