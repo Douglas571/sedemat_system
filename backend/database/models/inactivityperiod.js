@@ -14,27 +14,27 @@ module.exports = (sequelize, DataTypes) => {
       
     }
   }
-  inactivityPeriod.init({
+  InactivityPeriod.init({
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
       allowNull: false,
     },
     startAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     endAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     comment: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       defaultValue: '',
     },
     businessId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Businesses',
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     branchOfficeId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: 'BranchOffices',
@@ -53,5 +53,5 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'InactivityPeriod',
   });
-  return inactivityPeriod;
+  return InactivityPeriod;
 };

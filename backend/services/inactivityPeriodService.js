@@ -1,6 +1,6 @@
 // services/inactivityPeriodService.js
 
-const { InactivityPeriod } = require('../models');
+const { InactivityPeriod } = require('../database/models');
 
 module.exports = {
   async createInactivityPeriod(data) {
