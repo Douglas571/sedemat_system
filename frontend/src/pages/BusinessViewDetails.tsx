@@ -10,10 +10,12 @@ import {
   Flex, 
   Image, 
   Table,
-  Tabs
+  Tabs,
+  DatePicker
 } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
+import dayjs from 'dayjs'
 
 import { Business, BranchOffice, License, EconomicActivity } from '../util/types'
 
@@ -195,8 +197,8 @@ function BusinessViewDetails(): JSX.Element {
     {
       label: 'Cartas de Inactividad',
       key: 'inactivity-letters',
-      children: "Cartas de inactividad"
-    },
+      children: <InactivityLettersDisplay/>
+    }
   ]
 
   return (
@@ -225,9 +227,10 @@ function BusinessViewDetails(): JSX.Element {
       }
     >
       <Tabs defaultActiveKey="general" items={tabsItems} />
-      <div>
 
         {/* 
+          <div>
+
                 Deactivated while i work on the gross income feature
                 
                 <Typography.Title level={3}>
@@ -256,9 +259,9 @@ function BusinessViewDetails(): JSX.Element {
                     )}
                 </Flex>
 
-                <EconomicLicensesTable economicLicenses={economicLicenses}/> */}        
-      </div>
-
+                <EconomicLicensesTable economicLicenses={economicLicenses}/>
+            </div>
+        */}        
 
       <Modal title="Eliminar Contribuyente"
         data-test='business-delete-modal'
@@ -272,6 +275,300 @@ function BusinessViewDetails(): JSX.Element {
 }
 
 export default BusinessViewDetails
+
+function InactivityLettersDisplay({}): JSX.Element {
+
+  const letters: IInactivityLetter[] = [
+    {
+      id: 1,
+      startAt: dayjs('2022-01-01'), // Fecha de inicio del periodo de inactividad
+      endAt: dayjs('2022-01-31'), // Fecha de fin del periodo de inactividad
+      branchOfficeId: 1, // ID de la sucursal
+      branchOffice: {
+        id: 1,
+        nickname: 'Sucursal Principal', // Apodo de la sucursal
+        type: 'Propio', // Tipo de sucursal
+        address: 'Calle 1, entre Calle 2 y Calle 3, Zamora, Venezuela', // Dirección de la sucursal
+        contact: {
+          id: 1,
+          firstName: 'Juan', // Nombre del contacto
+          lastName: 'Pérez', // Apellido del contacto
+          phone: '0412-1234567', // Teléfono del contacto
+          email: 'juan.perez@example.com' // Correo electrónico del contacto
+        }
+      },
+      comment: 'Comentario para la inactividad 1' // Comentario sobre la carta de inactividad
+    },
+    {
+      id: 2,
+      startAt: dayjs('2022-02-01'),
+      endAt: dayjs('2022-02-28'),
+      branchOfficeId: 2,
+      branchOffice: {
+        id: 2,
+        nickname: 'Sucursal 2',
+        type: 'Alquilado',
+        address: 'Avenida 1, entre Avenida 2 y Avenida 3, Zamora, Venezuela',
+        contact: {
+          id: 2,
+          firstName: 'María',
+          lastName: 'González',
+          phone: '0414-1234567',
+          email: 'maria.gonzalez@example.com'
+        }
+      },
+      comment: 'Comentario para la inactividad 2'
+    },
+    {
+      id: 3,
+      startAt: dayjs('2022-03-01'),
+      endAt: null, // Periodo de inactividad aún en curso
+      branchOfficeId: 1,
+      branchOffice: {
+        id: 1,
+        nickname: 'Sucursal Principal',
+        type: 'Propio',
+        address: 'Calle 1, entre Calle 2 y Calle 3, Zamora, Venezuela',
+        contact: {
+          id: 1,
+          firstName: 'Juan',
+          lastName: 'Pérez',
+          phone: '0412-1234567',
+          email: 'juan.perez@example.com'
+        }
+      },
+      comment: 'Comentario para la inactividad 3'
+    }
+  ]
+
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [selectedLetter, setSelectedLetter] = useState<IInactivityLetter | null>(null)
+
+  function handleNew(newLetter: IInactivityLetter){
+    
+    setShowEditForm(false)
+  }
+
+  
+  function handleEdit(id: number){
+    // implement logic here
+
+    setSelectedLetter(null)
+    setShowEditForm(false)
+  }
+
+  function handleDelete(id: number){
+    // implement logic here
+  }
+
+  function handleCancelModal() {
+
+    setSelectedLetter(null)
+    setShowEditForm(false)
+  }
+
+  function handleOpenModalForEdit(letterId: number) {
+
+    const selectedLetter = letters.find(letter => letter.id === letterId)
+
+    if (selectedLetter) {
+      setSelectedLetter(selectedLetter)
+      setShowEditForm(true)
+    }
+  }
+
+
+
+  interface IInactivityLetter {
+    id: number,
+    startAt: dayjs.Dayjs,
+    endAt: dayjs.Dayjs | null,
+    branchOfficeId: number,
+    branchOffice: IBranchOffice,
+    comment: string
+  }
+
+  const columns = [
+    {
+      title: 'Inicia',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      render: (date: dayjs.Dayjs) => dayjs(date).format('DD/MM/YYYY'),
+      sorter: (a, b) => a.startAt.unix() - b.startAt.unix(),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false,
+      defaultSortOrder: 'ascend',
+    }, {
+      title: 'Finaliza',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      render: (date: dayjs.Dayjs) => date ? dayjs(date).format('DD/MM/YYYY') : '--',
+      sorter: (a, b) => {
+        // TODO: Understand why this is working
+        if (a.endAt === null) return 1
+        if (b.endAt === null) return -1
+
+        return a.endAt.unix() - b.endAt.unix()
+      },
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false,
+      defaultSortOrder: 'ascend',
+    },
+    {
+      title: 'Sede',
+      dataIndex: ['branchOffice', 'nickname'],
+      key: 'branchOffice',
+      sorter: (a, b) => a.branchOffice.nickname.localeCompare(b.branchOffice.nickname),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false,
+      defaultSortOrder: 'ascend',
+    },
+    , {
+      title: 'Acciones',
+      key: 'actions',
+      render: (_: any, letter: IInactivityLetter) => (
+        <Space size="middle">
+          <Button onClick={() => handleOpenModalForEdit(letter.id)}>Editar</Button>
+          <Button danger onClick={() => handleDelete(letter.id)}>
+            Eliminar
+          </Button>
+          <Button type='link'>Comprobante</Button>
+        </Space>
+      ),
+    },
+  ]
+
+  return (
+    <Flex vertical gap={16}>
+      <Flex justify="end">
+        <Button icon={<PlusOutlined />}	onClick={() => {
+          setShowEditForm(true)
+        }}>
+          Agregar Carta
+        </Button>
+      </Flex>
+      <Table columns={columns} dataSource={letters}/>
+      <InactivityLetterEditModal 
+        open={showEditForm}
+        onCancel={handleCancelModal}
+        onNew={handleNew}
+        onEdit={handleEdit}
+        inactivityLetter={selectedLetter}
+
+      />
+        
+    </Flex>)
+}
+
+function InactivityLetterEditModal(
+  { 
+      inactivityLetter,
+      onNew, 
+      onEdit,
+      onCancel,
+      open,
+  }
+  : { 
+      inactivityLetter?: IInactivityLetter,
+      onNew: (settlement: ISettlement) => void, 
+      onEdit: (settlement: ISettlement) => void,
+      onCancel: () => void,
+      open: boolean,
+
+  }
+) {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const {userAuth} = useAuthentication()
+  console.log({userAuth})
+  const userPerson = userAuth?.user?.person
+  const fullName = userPerson?.firstName + ' ' + userPerson?.lastName
+
+  const isEditing = !!inactivityLetter;
+
+  if (!userPerson) {
+      console.error("User don't have a contact data asigned");
+      message.error('El usuario no tiene datos de contacto asignados');
+      onCancel();
+  }
+
+  const handleOk = () => {
+      form.validateFields()
+          .then(async (values) => {
+              setLoading(true);
+              try {
+                  if (isEditing) {
+                      await onEdit({
+                          ...inactivityLetter,
+                          ...values,
+                          
+                      });
+                  } else {
+                      await onNew({
+                          ...values,
+                          
+                      });
+                  }
+
+                  form.resetFields();
+              } catch (error) {
+                  message.error(error.message);
+                  console.log({ error });
+              } finally {
+                  setLoading(false);
+              }
+          })
+          .catch((error) => {
+              console.log({ error });
+          });
+  }
+
+  function handleCancelModal() {
+      form.resetFields();
+      onCancel();
+  }
+
+  useEffect(() => {
+    form.setFieldsValue({
+      ...inactivityLetter
+    })
+  })
+
+  return (
+      <Modal
+          title={isEditing ? 'Editar Carta de Inactividad' : 'Nueva Cara de Inactividad'}
+          open={open}
+          onOk={handleOk}
+          confirmLoading={loading}
+          onCancel={handleCancelModal}
+      >
+          <Form layout="vertical" form={form}>
+            <Form.Item
+                label="Inicio del periodo de inactividad"
+                name="startAt"
+                rules={[{ required: true }]}
+            >
+                <DatePicker />
+            </Form.Item>
+            <Form.Item
+                label="Fin del periodo de inactividad"
+                name="endAt"
+            >
+                <DatePicker />
+            </Form.Item>
+            <Form.Item
+                label="Comentarios"
+                name="comment"
+                rules={[{ required: true }]}
+            >
+                <Input.TextArea />
+            </Form.Item>
+          </Form>
+      </Modal>
+  );
+}
+
 
 function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.Element {
 
