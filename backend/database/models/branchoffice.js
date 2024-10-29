@@ -65,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "branchOfficeId",
         as: "grossIncomes"
       })
+
+      BranchOffice.hasMany(models.InactivityPeriod, {
+        foreignKey: "branchOfficeId",
+        as: "inactivityPeriods"
+      })
     }
   }
   BranchOffice.init({

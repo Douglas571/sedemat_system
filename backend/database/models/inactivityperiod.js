@@ -10,8 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-      
+      InactivityPeriod.belongsTo(models.BranchOffice, {
+        foreignKey: 'branchOfficeId',
+        as: 'branchOffice'
+      });
     }
   }
   InactivityPeriod.init({

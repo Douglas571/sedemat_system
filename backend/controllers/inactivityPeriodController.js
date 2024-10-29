@@ -9,7 +9,7 @@ module.exports = {
       const inactivityPeriod = await inactivityPeriodService.createInactivityPeriod(data);
       return res.status(201).json(inactivityPeriod);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({ error: { message: error.message, name: error.name, statusCode: error.statusCode } });
     }
   },
 
@@ -19,7 +19,7 @@ module.exports = {
       const inactivityPeriods = await inactivityPeriodService.getInactivityPeriods(businessId);
       return res.json(inactivityPeriods);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({ error: { message: error.message, name: error.name, statusCode: error.statusCode } });
     }
   },
 
@@ -28,11 +28,11 @@ module.exports = {
       const { id } = req.params;
       const inactivityPeriod = await inactivityPeriodService.getInactivityPeriodById(id);
       if (!inactivityPeriod) {
-        return res.status(404).json({ error: 'Inactivity Period not found' });
+        return res.status(404).json({ error: { message: 'Inactivity Period not found', name: 'NotFound', statusCode: 404 } });
       }
       return res.json(inactivityPeriod);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({ error: { message: error.message, name: error.name, statusCode: error.statusCode } });
     }
   },
 
@@ -42,11 +42,11 @@ module.exports = {
       const updates = req.body;
       const inactivityPeriod = await inactivityPeriodService.updateInactivityPeriod(id, updates);
       if (!inactivityPeriod) {
-        return res.status(404).json({ error: 'Inactivity Period not found' });
+        return res.status(404).json({ error: { message: 'Inactivity Period not found', name: 'NotFound', statusCode: 404 } });
       }
       return res.json(inactivityPeriod);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({ error: { message: error.message, name: error.name, statusCode: error.statusCode } });
     }
   },
 
@@ -55,11 +55,12 @@ module.exports = {
       const { id } = req.params;
       const deleted = await inactivityPeriodService.deleteInactivityPeriod(id);
       if (!deleted) {
-        return res.status(404).json({ error: 'Inactivity Period not found' });
+        return res.status(404).json({ error: { message: 'Inactivity Period not found', name: 'NotFound', statusCode: 404 } });
       }
       return res.status(204).send();
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({ error: { message: error.message, name: error.name, statusCode: error.statusCode } });
     }
   },
 };
+
