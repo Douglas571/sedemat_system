@@ -1,6 +1,17 @@
 import React, { Children, useEffect, useState } from 'react'
 import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
-import { Form, Input, Button, message, Typography, Select, Flex, Image, Table } from 'antd'
+import { 
+  Form, 
+  Input, 
+  Button, 
+  message, 
+  Typography, 
+  Select, 
+  Flex, 
+  Image, 
+  Table,
+  Tabs
+} from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 
@@ -14,7 +25,7 @@ import * as businessesApi from '../util/businessesApi'
 import * as economicLicenseApi from '../util/economicLicenseApi'
 import economicActivitiesService from '../services/EconomicActivitiesService'
 
-import { completeUrl, getCommunicationPreference } from './BusinessShared';
+import { completeUrl } from './BusinessShared';
 
 import useAuthentication from '../hooks/useAuthentication';
 
@@ -122,115 +133,7 @@ function BusinessViewDetails(): JSX.Element {
     }
   }
 
-  function getCommunicationPreference() {
-    let communicationPreference = {
-      preferredContact: '',
-      preferredChannel: '',
-      sendCalculosTo: ''
-    };
-
-    if (!business) {
-      return communicationPreference
-    }
-
-
-    // Set preferred contact
-    switch (business.preferredContact) {
-      case "OWNER":
-        communicationPreference.preferredContact = "Propietario";
-        break;
-      case "ACCOUNTANT":
-        communicationPreference.preferredContact = "Contador";
-        break;
-      case "ADMIN":
-        communicationPreference.preferredContact = "Administrador";
-        break;
-      default:
-        communicationPreference.preferredContact = "Desconocido";
-    }
-
-    // Set preferred channel
-    switch (business.preferredChannel) {
-      case "PHONE":
-        if (business.preferredContact === "OWNER") {
-          communicationPreference.preferredChannel = business.owner.phone;
-        } else if (business.preferredContact === "ACCOUNTANT") {
-          communicationPreference.preferredChannel = business?.accountant?.phone;
-        } else if (business.preferredContact === "ADMIN") {
-          communicationPreference.preferredChannel = business?.administrator?.phone;
-        }
-        break;
-      case "WHATSAPP":
-        // console.log("NOTA: El contacto quiere whatsapp")
-        if (business.preferredContact === "OWNER") {
-          // console.log("NOTA: El contacto ES PROPIETARIO")
-          communicationPreference.preferredChannel = business.owner.whatsapp;
-        } else if (business.preferredContact === "ACCOUNTANT") {
-          communicationPreference.preferredChannel = business?.accountant?.whatsapp;
-        } else if (business.preferredContact === "ADMIN") {
-          communicationPreference.preferredChannel = business?.administrator?.whatsapp;
-        }
-        break;
-      case "EMAIL":
-        if (business.preferredContact === "OWNER") {
-          communicationPreference.preferredChannel = business.owner.email;
-        } else if (business.preferredContact === "ACCOUNTANT") {
-          communicationPreference.preferredChannel = business.accountant.email;
-        } else if (business.preferredContact === "ADMIN") {
-          communicationPreference.preferredChannel = business.administrator.email;
-        }
-        break;
-      default:
-        communicationPreference.preferredChannel = "Desconocido";
-    }
-
-    // Set sendCalculosTo
-    switch (business.sendCalculosTo) {
-      case "PHONE":
-        if (business.preferredContact === "OWNER" && business.owner) {
-          communicationPreference.sendCalculosTo = business.owner.phone;
-        } else if (business.preferredContact === "ACCOUNTANT") {
-          communicationPreference.sendCalculosTo = business?.accountant?.phone;
-        } else if (business.preferredContact === "ADMIN") {
-          communicationPreference.sendCalculosTo = business?.administrator?.phone;
-        }
-        break;
-      case "WHATSAPP":
-        if (business.preferredContact === "OWNER") {
-          communicationPreference.sendCalculosTo = business.owner.whatsapp;
-        } else if (business.preferredContact === "ACCOUNTANT") {
-          communicationPreference.sendCalculosTo = business.accountant.whatsapp;
-        } else if (business.preferredContact === "ADMIN") {
-          communicationPreference.sendCalculosTo = business.administrator.whatsapp;
-        }
-        break;
-      case "EMAIL":
-        if (business.preferredContact === "OWNER") {
-          communicationPreference.sendCalculosTo = business.owner.email;
-        } else if (business.preferredContact === "ACCOUNTANT" && business.accountant) {
-          communicationPreference.sendCalculosTo = business.accountant.email;
-        } else if (business.preferredContact === "ADMIN" && business.administrator) {
-          communicationPreference.sendCalculosTo = business.administrator.email;
-        }
-        break;
-      default:
-        communicationPreference.sendCalculosTo = "Desconocido";
-    }
-    return communicationPreference;
-  }
-
-  function getPreferredChannelName(): String {
-    const mapper: { [key: string]: string } = {
-      "WHATSAPP": "Whatsapp",
-      "PHONE": "Teléfono",
-      "EMAIL": "Correo"
-    }
-
-    if (!business?.preferredChannel) {
-      return ''
-    }
-    return mapper[business?.preferredChannel]
-  }
+  
 
   async function handleNewBranchOffice() {
     // travel to /businesses/:businessId/branch-offices/new
@@ -258,6 +161,44 @@ function BusinessViewDetails(): JSX.Element {
     return (<div>Cargando</div>)
   }
 
+  const tabsItems = [
+    {
+      label: 'General',
+      key: 'general',
+      children: <Flex vertical gap={16}>
+        <GeneralInformationDescription
+          business={business}
+        />
+
+        <EconomicActivityDescription
+          economicActivity={economicActivity}
+        />
+      </Flex>
+    },
+    {
+      label: 'Sedes',
+      key: 'branchOffices',
+      children: <BranchOfficesDisplay
+        branchOffices={business?.branchOffices}
+        onNew={handleNewBranchOffice}
+        onDelete={handleDeleteBranchOffice}
+        onEdit={handleEditBranchOffice}
+      />
+    },
+    {
+      label: 'Comunicación',
+      key: 'communication-preference',
+      children: CommunicationDisplay({
+        business
+      })
+    },
+    {
+      label: 'Cartas de Inactividad',
+      key: 'inactivity-letters',
+      children: "Cartas de inactividad"
+    },
+  ]
+
   return (
     <Card
       title={
@@ -283,16 +224,8 @@ function BusinessViewDetails(): JSX.Element {
         </Flex>
       }
     >
+      <Tabs defaultActiveKey="general" items={tabsItems} />
       <div>
-
-        <GeneralInformationDescription
-          business={business}
-        />
-        <br />
-
-        <EconomicActivityDescription
-          economicActivity={economicActivity}
-        />
 
         {/* 
                 Deactivated while i work on the gross income feature
@@ -323,63 +256,7 @@ function BusinessViewDetails(): JSX.Element {
                     )}
                 </Flex>
 
-                <EconomicLicensesTable economicLicenses={economicLicenses}/> */}
-
-
-        {/* contacts */}
-        <Flex vertical gap={'middle'}>
-          <Title level={3}>
-            Encargados
-          </Title>
-
-          <ContactPreferenceDescription
-            preference={{
-              preferredContact: getCommunicationPreference().preferredContact,
-              preferredChannel: getCommunicationPreference().preferredChannel,
-              sendCalculosTo: getCommunicationPreference().sendCalculosTo,
-              reminderInterval: business.reminderInterval && reminderIntervalMap[business.reminderInterval],
-              preferredChannelType: getPreferredChannelName()
-            }}
-          />
-
-          <Flex gap='middle' wrap>
-            {
-              business.owner && (
-                <ContactDisplay
-                  contact={business.owner}
-                  role={"Propietario"}
-                />
-              )
-            }
-
-            {business.accountant && (
-              <ContactDisplay
-                contact={business.accountant}
-                role={"Contador"}
-              />
-            )}
-
-            {business.administrator && (
-              <ContactDisplay
-                contact={business.administrator}
-                role={"Administrador"}
-              />
-            )}
-          </Flex>
-        </Flex>
-
-        <Divider />
-
-        <BranchOfficesDisplay
-          branchOffices={business?.branchOffices}
-          onNew={handleNewBranchOffice}
-          onDelete={handleDeleteBranchOffice}
-          onEdit={handleEditBranchOffice}
-
-        />
-        {/* <Title level={3}>
-                    Calculos
-                </Title> */}
+                <EconomicLicensesTable economicLicenses={economicLicenses}/> */}        
       </div>
 
 
@@ -676,6 +553,166 @@ function ZonationDoc({zonations, lastZonationDoc}) {
                   }
       </>
   )
+}
+
+function CommunicationDisplay({
+  business
+}: {
+  business: Business
+}) {
+  function getCommunicationPreference(business: Business) {
+    let communicationPreference = {
+      preferredContact: '',
+      preferredChannel: '',
+      sendCalculosTo: ''
+    };
+
+    if (!business) {
+      return communicationPreference
+    }
+
+
+    // Set preferred contact
+    switch (business.preferredContact) {
+      case "OWNER":
+        communicationPreference.preferredContact = "Propietario";
+        break;
+      case "ACCOUNTANT":
+        communicationPreference.preferredContact = "Contador";
+        break;
+      case "ADMIN":
+        communicationPreference.preferredContact = "Administrador";
+        break;
+      default:
+        communicationPreference.preferredContact = "Desconocido";
+    }
+
+    // Set preferred channel
+    switch (business.preferredChannel) {
+      case "PHONE":
+        if (business.preferredContact === "OWNER") {
+          communicationPreference.preferredChannel = business.owner.phone;
+        } else if (business.preferredContact === "ACCOUNTANT") {
+          communicationPreference.preferredChannel = business?.accountant?.phone;
+        } else if (business.preferredContact === "ADMIN") {
+          communicationPreference.preferredChannel = business?.administrator?.phone;
+        }
+        break;
+      case "WHATSAPP":
+        // console.log("NOTA: El contacto quiere whatsapp")
+        if (business.preferredContact === "OWNER") {
+          // console.log("NOTA: El contacto ES PROPIETARIO")
+          communicationPreference.preferredChannel = business.owner.whatsapp;
+        } else if (business.preferredContact === "ACCOUNTANT") {
+          communicationPreference.preferredChannel = business?.accountant?.whatsapp;
+        } else if (business.preferredContact === "ADMIN") {
+          communicationPreference.preferredChannel = business?.administrator?.whatsapp;
+        }
+        break;
+      case "EMAIL":
+        if (business.preferredContact === "OWNER") {
+          communicationPreference.preferredChannel = business.owner.email;
+        } else if (business.preferredContact === "ACCOUNTANT") {
+          communicationPreference.preferredChannel = business.accountant.email;
+        } else if (business.preferredContact === "ADMIN") {
+          communicationPreference.preferredChannel = business.administrator.email;
+        }
+        break;
+      default:
+        communicationPreference.preferredChannel = "Desconocido";
+    }
+
+    // Set sendCalculosTo
+    switch (business.sendCalculosTo) {
+      case "PHONE":
+        if (business.preferredContact === "OWNER" && business.owner) {
+          communicationPreference.sendCalculosTo = business.owner.phone;
+        } else if (business.preferredContact === "ACCOUNTANT") {
+          communicationPreference.sendCalculosTo = business?.accountant?.phone;
+        } else if (business.preferredContact === "ADMIN") {
+          communicationPreference.sendCalculosTo = business?.administrator?.phone;
+        }
+        break;
+      case "WHATSAPP":
+        if (business.preferredContact === "OWNER") {
+          communicationPreference.sendCalculosTo = business.owner.whatsapp;
+        } else if (business.preferredContact === "ACCOUNTANT") {
+          communicationPreference.sendCalculosTo = business.accountant.whatsapp;
+        } else if (business.preferredContact === "ADMIN") {
+          communicationPreference.sendCalculosTo = business.administrator.whatsapp;
+        }
+        break;
+      case "EMAIL":
+        if (business.preferredContact === "OWNER") {
+          communicationPreference.sendCalculosTo = business.owner.email;
+        } else if (business.preferredContact === "ACCOUNTANT" && business.accountant) {
+          communicationPreference.sendCalculosTo = business.accountant.email;
+        } else if (business.preferredContact === "ADMIN" && business.administrator) {
+          communicationPreference.sendCalculosTo = business.administrator.email;
+        }
+        break;
+      default:
+        communicationPreference.sendCalculosTo = "Desconocido";
+    }
+    return communicationPreference;
+  }
+
+  const preference = getCommunicationPreference(business)
+
+  function getPreferredChannelName(business: Business): String {
+    const mapper: { [key: string]: string } = {
+      "WHATSAPP": "Whatsapp",
+      "PHONE": "Teléfono",
+      "EMAIL": "Correo"
+    }
+
+    if (!business?.preferredChannel) {
+      return ''
+    }
+    return mapper[business?.preferredChannel]
+  }
+
+
+  return <Flex vertical gap={'middle'}>
+      <Title level={3}>
+        Encargados
+      </Title>
+
+      <ContactPreferenceDescription
+        preference={{
+          preferredContact: preference.preferredContact,
+          preferredChannel: preference.preferredChannel,
+          sendCalculosTo: preference.sendCalculosTo,
+          reminderInterval: business.reminderInterval && reminderIntervalMap[business.reminderInterval],
+          preferredChannelType: getPreferredChannelName(business)
+        }}
+      />
+
+      <Flex gap='middle' wrap>
+        {
+          business.owner && (
+            <ContactDisplay
+              contact={business.owner}
+              role={"Propietario"}
+            />
+          )
+        }
+
+        {business.accountant && (
+          <ContactDisplay
+            contact={business.accountant}
+            role={"Contador"}
+          />
+        )}
+
+        {business.administrator && (
+          <ContactDisplay
+            contact={business.administrator}
+            role={"Administrador"}
+          />
+        )}
+      </Flex>
+    </Flex>
 }
 
 function ContactDisplay({ contact, role }): JSX.Element {
