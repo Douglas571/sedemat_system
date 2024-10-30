@@ -70,7 +70,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
 
   const headerRow = [
     'Contribuyente',
-    'Sucursal',
+    'Sede',
     'Clasificación',
 
     'Meses pendientes de pagar',
@@ -435,71 +435,59 @@ function getGrossIncomeReport({
   // get the oldest economic license in the list 
   // 
   
+  
 
-  while (initialYear <= finalYear) {
+  while (startToCountSince.isSameOrBefore(CURRENT_DATE, 'month')) {
 
     // console.log({initialYear, finalYear})
 
-    let initialMonth = startToCountSince.month()
-    let finalMonth = CURRENT_DATE.month()
-
-    while (initialMonth < finalMonth) {
-      // console.log({initialMonth, finalMonth})
-
-      // if there is a inactivity period with the same year and month, skip 
-      if (inactivityPeriodsList.some(p => {
-        // console.log({p})
-        // console.log(p.year === initialYear)
-        // console.log(p.month === initialMonth)
-        return p.year === initialYear && p.month === initialMonth
-      })) {
-        initialMonth += 1
-        console.log(`skipped ${initialYear}-${initialMonth}`)
-        continue
-      }
-
-
-      let grossIncome = grossIncomes.find( g => dayjs(g.period).year() === initialYear && dayjs(g.period).month() === initialMonth)
-
-      if (grossIncome && grossIncome.declarationImage) {
-
-        // check if it's pending to be paid 
-        if (!grossIncome?.grossIncomeInvoice?.paidAt) {
-          report.monthsPendingToBePaidCount += 1
-          report.monthsPendingToBePaid.push(grossIncome)
-        }
-
-        // check if it's pending to be settled
-        if (!grossIncome?.grossIncomeInvoice?.settlement && grossIncome?.grossIncomeInvoice?.paidAt) { 
-          report.monthsPendingToBeSettledCount += 1
-          report.monthsPendingToBeSettled.push(grossIncome)
-        }
-
-        // check if it's settled
-        if (grossIncome?.grossIncomeInvoice?.settlement) {
-          // keep this just in case, we need to clarify since when start counting settled months
-          report.monthsSettledCount += 1
-          report.monthsSettled.push(grossIncome)
-        }
-
-      } else {
-        // branch office lack declaration for this period
-        report.monthsWithoutDeclarationCount += 1
-        report.monthsPendingToBePaidCount += 1
-
-        report.lackingMonths.push(dayjs(`${initialYear}-${initialMonth + 1}-03`))
-
-        // if there is a gross income for this period
-        if (grossIncome) {
-          report.monthsWithoutDeclaration.push(grossIncome)
-          
-        }
-      }
-
-      initialMonth++
+    if (inactivityPeriodsList.some(p => {
+      return p.year === startToCountSince.year() && p.month === startToCountSince.month()
+    })) {
+      startToCountSince = startToCountSince.add(1, 'month')
+      console.log(`skipped ${startToCountSince.year()}-${startToCountSince.month()}`)
+      continue
     }
 
-    initialYear++
+
+    let grossIncome = grossIncomes.find( g => dayjs(g.period).year() === startToCountSince.year() && dayjs(g.period).month() === startToCountSince.month() )
+
+    if (grossIncome && grossIncome.declarationImage) {
+
+      // check if it's pending to be paid 
+      if (!grossIncome?.grossIncomeInvoice?.paidAt) {
+        report.monthsPendingToBePaidCount += 1
+        report.monthsPendingToBePaid.push(grossIncome)
+      }
+
+      // check if it's pending to be settled
+      if (!grossIncome?.grossIncomeInvoice?.settlement && grossIncome?.grossIncomeInvoice?.paidAt) { 
+        report.monthsPendingToBeSettledCount += 1
+        report.monthsPendingToBeSettled.push(grossIncome)
+      }
+
+      // check if it's settled
+      if (grossIncome?.grossIncomeInvoice?.settlement) {
+        // keep this just in case, we need to clarify since when start counting settled months
+        report.monthsSettledCount += 1
+        report.monthsSettled.push(grossIncome)
+      }
+
+    } else {
+      // branch office lack declaration for this period
+      report.monthsWithoutDeclarationCount += 1
+      report.monthsPendingToBePaidCount += 1
+
+      report.lackingMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
+
+      // if there is a gross income for this period
+      if (grossIncome) {
+        report.monthsWithoutDeclaration.push(grossIncome)
+        
+      }
+    }
+
+    startToCountSince = startToCountSince.add(1, 'month')
   }
 
   report.classification = getBusinessClassification(report.monthsPendingToBePaidCount)
