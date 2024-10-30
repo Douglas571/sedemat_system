@@ -78,7 +78,7 @@ exports.createEconomicLicense = async (licenseData) => {
     }
 };
 
-exports.getEconomicLicenses = async () => {
+exports.getEconomicLicenses = async ({filters}) => {
     try {
         const licenses = await EconomicLicense.findAll({
             include: [
@@ -86,7 +86,10 @@ exports.getEconomicLicenses = async () => {
                     model: Invoice,
                     as: 'invoice'
                 }
-            ]
+            ],
+            where: {
+                ...filters
+            }
         });
         return licenses;
     } catch (error) {

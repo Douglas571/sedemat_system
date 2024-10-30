@@ -30,7 +30,9 @@ class EconomicLicenseController {
 
     async getEconomicLicenses(req, res) {
         try {
-            const licenses = await economicLicenseService.getEconomicLicenses();
+            const licenses = await economicLicenseService.getEconomicLicenses({
+                filters: req.query
+            });
             res.status(200).json(licenses);
         } catch (error) {
             logger.error(error);

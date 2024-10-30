@@ -72,7 +72,12 @@ function BusinessViewDetails(): JSX.Element {
   }, [business])
 
   const loadEconomicLicenses = async () => {
-    const licenses = await economicLicenseApi.findAll()
+    const licenses = await economicLicenseApi.findAll({
+      filters: {
+        businessId
+      },
+      token: userAuth.token
+    })
     console.log({ licenses })
     setEconomicLicenses(licenses?.filter(license => license.businessId === Number(businessId)))
   }
@@ -1365,6 +1370,8 @@ function EconomicLicensesTab({
       })
 
       loadEconomicLicenses(businessId)
+
+      setShowEditModal(false)
 
     } catch (err) {
       console.error(err)
