@@ -6,16 +6,22 @@ const {
   BranchOffice, 
   GrossIncomeInvoice, 
   Penalty,
-  Settlement
+  Settlement,
+  EconomicLicense,
+  InactivityPeriod
 } = require('../../database/models');
+
+
 
 const ExcelJS = require('exceljs');
 const stream = require('stream');
 
 const dayjs = require('dayjs');
+var isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
+dayjs.extend(isSameOrBefore);
 
 
-const INITIAL_DATE = dayjs('2024-01-01');
+const INITIAL_DATE = dayjs('2023-01-01');
 
 const monthMapper = [
   'Enero',
@@ -147,6 +153,14 @@ async function getBusinessData() {
             ]
           }
         ]
+      },
+      {
+        model: EconomicLicense,
+        as: 'economicLicenses',
+      },
+      {
+        model: InactivityPeriod,
+        as: 'inactivityPeriods',
       }
     ]
   })
@@ -168,6 +182,17 @@ function getBusinessClassification(monthsPendingToBePaidCount) {
   return 4
 }
 
+/**
+ * Maps a list of business objects to a desired list of report rows. Each row corresponds to a
+ * branch office of the business, and the columns are the business id, name, dni, and
+ * branch office nickname, classification, months without declaration, months pending
+ * to be paid, months pending to be settled, last month settled, and lacking months.
+ * If the business does not have any branch offices, a single row is created with the
+ * business information and a classification calculated from the sum of months without
+ * declaration and months pending to be paid.
+ * @param {Business[]} businessReport - The list of business objects.
+ * @returns {reportRow[]} - The list of report rows.
+ */
 function mapBusinessToRowReport(businessReport){
 
   let reportRows = []
@@ -227,6 +252,12 @@ function getBusinessesGrossIncomeReport(businesses) {
       dni: business.dni,
     }
 
+    let initialPeriod = business.economicLicenses.sort((a, b) => dayjs(a.issuedDate) - dayjs(b.issuedDate)).shift()?.issuedDate
+
+    if (business.economicLicenses.length > 0) {
+      console.log({business: business.businessName, initialPeriod: dayjs(initialPeriod).format('YYYY-MM')})
+    }
+
     // if it has branch office 
     if (business.branchOffices.length > 0) {
       businessReport.branchOffices = []
@@ -242,8 +273,23 @@ function getBusinessesGrossIncomeReport(businesses) {
         // find the last month settled
         let lastPeriodSettled = branchOfficeReport.grossIncomes.filter( g => g?.grossIncomeInvoice?.settlement != null ).sort((a, b) => dayjs(a.period) - dayjs(b.period)).pop()?.period
 
+        // find the initial period by economic license 
+          // sort the licenses 
+          // get the first one 
+          // get the initial period
+        
+
+        
+
         if (lastPeriodSettled) {
           branchOfficeReport.lastMonthSettled = dayjs(lastPeriodSettled)
+        }
+
+        if (initialPeriod) {
+          branchOfficeReport.initialPeriod = dayjs(initialPeriod)
+          console.log({
+            business: business.businessName,
+            initialPeriod: dayjs(initialPeriod).format('YYYY-MM'),})
         }
 
         branchOfficeReport = {
@@ -252,7 +298,10 @@ function getBusinessesGrossIncomeReport(businesses) {
           ...getGrossIncomeReport({
             lastMonthSettled: branchOfficeReport.lastMonthSettled,
             initialPeriod: branchOfficeReport.initialPeriod, 
-            grossIncomes: branchOfficeReport.grossIncomes}),
+            grossIncomes: branchOfficeReport.grossIncomes,
+            inactivityPeriods: business.inactivityPeriods.filter( g => g.branchOfficeId === branchOffice.id),
+            economicLicenses: business.economicLicenses,
+          }),
 
         }
         businessReport.branchOffices.push(branchOfficeReport)
@@ -271,8 +320,12 @@ function getBusinessesGrossIncomeReport(businesses) {
         ...business,
         ...businessReport,
         ...getGrossIncomeReport({
+          initialPeriod,
           lastMonthSettled: businessReport.lastMonthSettled, 
-          grossIncomes: business.grossIncomes})
+          grossIncomes: business.grossIncomes,
+          inactivityPeriods: business.inactivityPeriods,
+          economicLicenses: business.economicLicenses,
+        })
       }
 
     }
@@ -284,10 +337,34 @@ function getBusinessesGrossIncomeReport(businesses) {
 }
 
 
+/**
+ * Generates a report on the gross income status for a given business.
+ * 
+ * @param {dayjs.Dayjs} params - The input parameters for generating the report.
+ * @param {dayjs.Dayjs} params.initialPeriod - The initial period of the report.
+ * @param {dayjs.Dayjs} params.lastMonthSettled - The last month that was settled.
+ * @param {Array} params.grossIncomes - An array of gross income records.
+ * @param {Array} params.economicLicenses - An array of economic licenses.
+ * @param {Array} params.inactivityPeriods - An array of periods during which the business was inactive.
+ * 
+ * @returns {Object} - A report object containing counts and details of various statuses, including:
+ *   - monthsWithoutDeclarationCount: Number of months without declarations.
+ *   - monthsPendingToBePaidCount: Number of months pending payment.
+ *   - monthsPendingToBeSettledCount: Number of months pending settlement.
+ *   - monthsSettledCount: Number of months settled.
+ *   - monthsWithoutDeclaration: Array of gross incomes for months without declarations.
+ *   - monthsPendingToBePaid: Array of gross incomes pending payment.
+ *   - monthsPendingToBeSettled: Array of gross incomes pending settlement.
+ *   - monthsSettled: Array of settled gross incomes.
+ *   - classification: Business classification based on pending payments.
+ *   - lackingMonths: Array of dates for periods lacking declarations.
+ */
 function getGrossIncomeReport({
+  initialPeriod,
   lastMonthSettled,
-  grossIncomes
-
+  grossIncomes,
+  // economicLicenses,
+  inactivityPeriods
 }) {
 
   let report = {
@@ -308,18 +385,77 @@ function getGrossIncomeReport({
 
   const CURRENT_DATE = dayjs();
 
-  let initialYear = lastMonthSettled ? lastMonthSettled.year() : INITIAL_DATE.year()
+  let startToCountSince 
+
+  if (lastMonthSettled) {
+    startToCountSince = lastMonthSettled
+  } else if (initialPeriod) {
+    startToCountSince = initialPeriod
+  } else {
+    startToCountSince = INITIAL_DATE
+  }
+
+  let initialYear = startToCountSince.year()
   let finalYear = CURRENT_DATE.year()
+
+  const inactivityPeriodsList = [] 
+  inactivityPeriods.forEach(p => {
+    // make a string of the form "YYYY-MM" with all the months in the range between p.startAt and p.endAt
+
+    // take the endAt date
+      // push into periods endAt.format("YYYY-MM")
+      // if endAt month and year is equal to startAt month and year
+        // finish
+      // if not, substract 1 month to endAt and repeat 
+    
+    let startAt = dayjs(p.startAt)
+    let endAt = dayjs(p.endAt)
+    while (startAt.isSameOrBefore(endAt, 'month')) {
+
+      inactivityPeriodsList.push({
+        year: endAt.get('year'),
+        month: endAt.get('month'),
+      })
+
+      // console.log({
+      //   getMonth: endAt.get('month'),
+      //   month: endAt.month(),
+      // })
+
+      endAt = endAt.subtract(1, 'month')
+    }
+  })
+
+  // if (inactivityPeriodsList.length > 0) {
+  //   console.log({periods: JSON.stringify(inactivityPeriodsList)})
+  // }
+
+  // get the oldest economic license in the list 
+  // 
+  
 
   while (initialYear <= finalYear) {
 
     // console.log({initialYear, finalYear})
 
-    let initialMonth = lastMonthSettled ? lastMonthSettled.month() : INITIAL_DATE.month()
+    let initialMonth = startToCountSince.month()
     let finalMonth = CURRENT_DATE.month()
 
     while (initialMonth < finalMonth) {
       // console.log({initialMonth, finalMonth})
+
+      // if there is a inactivity period with the same year and month, skip 
+      if (inactivityPeriodsList.some(p => {
+        // console.log({p})
+        // console.log(p.year === initialYear)
+        // console.log(p.month === initialMonth)
+        return p.year === initialYear && p.month === initialMonth
+      })) {
+        initialMonth += 1
+        console.log(`skipped ${initialYear}-${initialMonth}`)
+        continue
+      }
+
 
       let grossIncome = grossIncomes.find( g => dayjs(g.period).year() === initialYear && dayjs(g.period).month() === initialMonth)
 

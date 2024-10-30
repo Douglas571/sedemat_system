@@ -80,6 +80,10 @@ const BasicComponent: React.FC = () => {
       dataIndex: 'businessDni',
       key: 'businessDni',
       width: 130,
+
+      sorter: (a, b) => a.businessDni.localeCompare(b.businessDni),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false
     },
     {
       title: 'Sucursal',
@@ -297,7 +301,12 @@ const BasicComponent: React.FC = () => {
             <Table 
               rowKey={ record => record.businessName + record.branchOfficeNickname + record.busienssDni }
               columns={columns} 
-              dataSource={businessGrossIncomesStatus}/>
+              dataSource={businessGrossIncomesStatus}
+              
+              style={{
+                overflow: 'scroll'
+              }}
+            />
         </Card> 
     );
 };
