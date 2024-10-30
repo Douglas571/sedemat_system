@@ -254,6 +254,8 @@ function getBusinessesGrossIncomeReport(businesses) {
 
     let initialPeriod = business.economicLicenses.sort((a, b) => dayjs(a.issuedDate) - dayjs(b.issuedDate)).shift()?.issuedDate
 
+    businessReport.initialPeriod = dayjs(initialPeriod)
+
     if (business.economicLicenses.length > 0) {
       console.log({business: business.businessName, initialPeriod: dayjs(initialPeriod).format('YYYY-MM')})
     }
@@ -320,7 +322,7 @@ function getBusinessesGrossIncomeReport(businesses) {
         ...business,
         ...businessReport,
         ...getGrossIncomeReport({
-          initialPeriod,
+          initialPeriod: businessReport.initialPeriod,
           lastMonthSettled: businessReport.lastMonthSettled, 
           grossIncomes: business.grossIncomes,
           inactivityPeriods: business.inactivityPeriods,
