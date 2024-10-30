@@ -135,13 +135,16 @@ exports.getEconomicLicenseById = async (id) => {
 
 exports.updateEconomicLicense = async (id, updateData) => {
     try {
-        const [updated] = await EconomicLicense.update(updateData, {
+        const updatedLicense = await EconomicLicense.update(updateData, {
             where: { id }
         });
-        if (!updated) {
+
+        if (!updatedLicense) {
             throw new Error('License not found or not updated');
         }
-        return await EconomicLicense.findByPk(id);
+        
+         // TODO: this is returning an array with the number of rows affected, improve it later
+        return updatedLicense
     } catch (error) {
         throw new Error(`Unable to update license: ${error.message}`);
     }

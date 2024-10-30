@@ -1,7 +1,11 @@
 // Router (to be moved to a separate file)
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
+
 const economicLicenseController = require('../controllers/economicLicenseController');
+
+router.use(passport.authenticate('jwt', { session: false }));
 
 router.post('/', economicLicenseController.createEconomicLicense);
 router.get('/', economicLicenseController.getEconomicLicenses);
