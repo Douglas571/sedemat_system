@@ -11,7 +11,9 @@ import {
   Image, 
   Table,
   Tabs,
-  DatePicker
+  DatePicker,
+  Popconfirm,
+  TimePicker
 } from 'antd'
 const { Title, Paragraph } = Typography
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
@@ -190,9 +192,17 @@ function BusinessViewDetails(): JSX.Element {
     {
       label: 'Comunicación',
       key: 'communication-preference',
-      children: CommunicationDisplay({
-        business
-      })
+      children: <CommunicationDisplay business={business} />
+    },
+    {
+      label: 'Licencia de Actividad Económica',
+      key: 'economic-license',
+      children: <EconomicLicensesTab
+        businessId={Number(businessId)}
+        onNew={handleNewEconomicLicense}
+        licenseStatus={licenseStatus}
+        economicLicenses={economicLicenses}
+      />
     },
     {
       label: 'Cartas de Inactividad',
@@ -229,42 +239,12 @@ function BusinessViewDetails(): JSX.Element {
         </Flex>
       }
     >
-      <Tabs defaultActiveKey="general" items={tabsItems} />
-
-        {/* 
-          <div>
-
-                Deactivated while i work on the gross income feature
-                
-                <Typography.Title level={3}>
-                    Licencia De Actividad Economica
-                </Typography.Title>
-                <Flex>
-                    { licenseStatus?.isValid 
-                    ? (
-                        <Flex vertical>
-                            <Paragraph>El Contribuyente es apto para una licencia de actividad económica</Paragraph>
-                            <Button
-                                onClick={() => handleNewEconomicLicense()}
-                            >Otorgar Licencia</Button>
-                        </Flex>
-                    ) : (
-                        <>
-                            <List 
-                                bordered
-                                header={<strong>El contribuyente no es apto para la licencia de actividad económica por las siguientes razones:</strong>}
-                                dataSource={licenseStatus?.error?.fields}
-                                renderItem={
-                                    (field) => <List.Item>{field.message}</List.Item>
-                                }
-                            />
-                        </>
-                    )}
-                </Flex>
-
-                <EconomicLicensesTable economicLicenses={economicLicenses}/>
-            </div>
-        */}        
+      <Tabs 
+        defaultActiveKey="general" 
+        items={tabsItems}
+        type="card"
+      />
+        
 
       <Modal title="Eliminar Contribuyente"
         data-test='business-delete-modal'
@@ -994,9 +974,9 @@ function CommunicationDisplay({
 
 
   return <Flex vertical gap={'middle'}>
-      <Title level={3}>
+      {/* <Title level={3}>
         Encargados
-      </Title>
+      </Title> */}
 
       <ContactPreferenceDescription
         preference={{
@@ -1307,80 +1287,389 @@ function EconomicActivityDescription({ economicActivity }: { economicActivity: E
   )
 }
 
+function EconomicLicensesTab({ 
+  licenseStatus, 
+  onUpdate, 
+  businessId,
+  // economicLicenses 
+}) {
+
+  // let handleNewEconomicLicense = onUpdate
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedEconomicLicense, setSelectedEconomicLicense] = useState<EconomicLicense | null>(null)
+  const { userAuth } = useAuthentication()
+
+
+  // const dummyData = [
+  //   {
+  //     id: 1,
+  //     businessId: 1,
+  //     invoice: { isPaid: false },
+  //     issuedDate: null,
+  //     expirationDate: null,
+  //   },
+  //   {
+  //     id: 2,
+  //     businessId: 1,
+  //     invoice: { isPaid: true },
+  //     issuedDate: dayjs("2022-01-01"),
+  //     expirationDate: null,
+  //   },
+  //   {
+  //     id: 3,
+  //     businessId: 1,
+  //     invoice: { isPaid: true },
+  //     issuedDate: dayjs("2022-01-01"),
+  //     expirationDate: dayjs("2022-06-01"),
+  //   },
+  //   {
+  //     id: 4,
+  //     businessId: 1,
+  //     invoice: { isPaid: true },
+  //     issuedDate: dayjs("2022-01-01"),
+  //     expirationDate: dayjs("2021-06-01"),
+  //   },
+  // ]
+
+  const [economicLicenses, setEconomicLicenses] = useState<EconomicLicense[]>([])
+
+  const handleShowNewEconomicLicenseModal = () => {
+    setShowEditModal(true)
+  }
+
+  const handleShowModalToEditEconomicLicense = (licenseId: number) => {
+    console.log(`Edit economic license with ID: ${licenseId}`);
+    // Add your logic to edit the economic license here
+
+    setSelectedEconomicLicense(economicLicenses.find(license => license.id === licenseId));
+    setShowEditModal(true);
+  };
+
+  const handleNewEconomicLicense = async (license: EconomicLicense) => {
+    try {
+      console.log({license})
+
+      const economicLicenseToCreate = {
+        ...license,
+        businessId,
+        openAt: dayjs(license.openAt).format('HH:mm:ss'),
+        closeAt: dayjs(license.closedAt).format('HH:mm:ss'),
+        createdByUserId: userAuth.user.id,
+        checkedByUserId: userAuth.user.id,
+      }
+
+      console.log({economicLicenseToCreate})
+
+      let createdEconomicLicense = await economicLicenseApi.create(economicLicenseToCreate, {
+        token: userAuth?.token
+      })
+
+      loadEconomicLicenses(businessId)
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
+  const handleEditEconomicLicense = async (licenseId: number, license: EconomicLicense) => {
+    try {
+      console.log({licenseId, license})
+      // implement your edit logic here
+      let economicLicenseToEdit = {
+        ...license,
+        openAt: dayjs(license.openAt).format('HH:mm:ss'),
+        closeAt: dayjs(license.closedAt).format('HH:mm:ss'),
+
+      }
+
+      let editedEconomicLicense = await economicLicenseApi.update(licenseId, economicLicenseToEdit, {
+        token: userAuth?.token
+      })
+
+      loadEconomicLicenses(businessId)
+      setShowEditModal(false)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleDeleteEconomicLicense = async (licenseId: number) => {
+    try {
+      console.log(`Delete economic license with ID: ${licenseId}`);
+      // Add your logic to delete the economic license here
+      await economicLicenseApi.deleteById(licenseId, {
+        token: userAuth?.token
+      })
+
+      loadEconomicLicenses(businessId)
+    } catch (error) {
+      console.error(`Failed to delete economic license with ID: ${licenseId}`, error);
+    }
+  };
+
+  const handleCancelModal = () => {
+    setSelectedEconomicLicense(null);
+    setShowEditModal(false);
+  };
+
+  const loadEconomicLicenses = async (businessId) => {
+    try {
+      let economicLicenses = await economicLicenseApi.findAll({
+        filters: {
+          businessId
+        },
+        token: userAuth?.token
+      })
+      setEconomicLicenses(economicLicenses)
+
+    } catch (err) {
+      console.log({ err })
+    }
+  }
+
+  useEffect(() => {
+    loadEconomicLicenses(businessId)
+  }, [businessId])
+
+  return <div>
+
+    {/* Deactivated while i work on the gross income feature */}
+    
+    {/* <Typography.Title level={3}>
+        Licencia De Actividad Economica
+    </Typography.Title> */}
+    <Flex vertical gap={16}>
+        {/* Disabled for now in order to facilitate the process to add business data */}
+        {/* { licenseStatus?.isValid 
+        ? (
+            <Flex vertical>
+                <Paragraph>El Contribuyente es apto para una licencia de actividad economica</Paragraph>
+                <Button
+                    onClick={() => handleNewEconomicLicense()}
+                >Otorgar Licencia</Button>
+            </Flex>
+        ) : (
+            <>
+                <List 
+                    bordered
+                    header={<strong>El contribuyente no es apto para la licencia de actividad económica por las siguientes razones:</strong>}
+                    dataSource={licenseStatus?.error?.fields}
+                    renderItem={
+                        (field) => <List.Item>{field.message}</List.Item>
+                    }
+                />
+            </>
+        )} */}
+
+      <Flex justify="end">
+        <Button 
+          icon={<PlusOutlined />}	
+          onClick={handleShowNewEconomicLicenseModal}
+        >
+          Agregar Licencia
+        </Button>
+      </Flex>
+      <EconomicLicensesTable 
+        economicLicenses={economicLicenses}
+
+        onEdit={handleShowModalToEditEconomicLicense}
+        onDelete={handleDeleteEconomicLicense}
+        
+      />
+    </Flex>    
+
+    <EconomicLicenseEditModal
+      economicLicense={selectedEconomicLicense}
+
+      open={showEditModal}
+      onCancel={handleCancelModal}
+      onNew={handleNewEconomicLicense}
+      onEdit={handleEditEconomicLicense}
+      
+    />
+  </div>
+}
+
 // a component to display the economic licenses table
-function EconomicLicensesTable({ economicLicenses }): JSX.Element {
+function EconomicLicensesTable({ economicLicenses, onEdit, onDelete }): JSX.Element {
   const navigate = useNavigate()
   console.log({ economicLicenses })
 
-  /**
-   * possible states:
-   * por pagar
-   *  if invoice is not paid
-   * por activar
-   *  if invoice is paid and issueDate is not set
-   * activo
-   *  issueDate is set and expirationDate is not reached
-   * por renovar
-   *  if expirationDate has less than 3 months of expired
-   * vencido
-   *  if expirationDate has more than 3 months of expired
-   */
-
   const columns = [
-    {
-      title: 'Estado',
-      dataIndex: '',
-      render: (text: any, record: any) => {
-        return (
-          <Badge
-            status={record.invoice?.isPaid ? "success" : "error"}
-            text={
-              (() => {
-                const now = new Date();
-                if (!record.invoice?.isPaid) {
-                  return "Por pagar";
-                } else if (!record.issuedDate) {
-                  return "Por activar";
-                } else if (record.expirationDate && new Date(record.expirationDate) > now) {
-                  return "Activo";
-                } else if (record.expirationDate) {
-                  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-                  return new Date(record.expirationDate) > threeMonthsAgo ? "Por renovar" : "Vencido";
-                }
-                return "Estado desconocido";
-              })()
-            }
-          />
-        );
-      }
-    },
+    // {
+    //   title: 'Estado',
+    //   dataIndex: '',
+    //   render: (text: any, record: any) => {
+    //     return (
+    //       <Badge
+    //         status={record.invoice?.isPaid ? "success" : "error"}
+    //         text={
+    //           (() => {
+    //             const now = new Date();
+    //             if (!record.invoice?.isPaid) {
+    //               return "Por pagar";
+    //             } else if (!record.issuedDate) {
+    //               return "Por activar";
+    //             } else if (record.expirationDate && new Date(record.expirationDate) > now) {
+    //               return "Activo";
+    //             } else if (record.expirationDate) {
+    //               const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+    //               return new Date(record.expirationDate) > threeMonthsAgo ? "Por renovar" : "Vencido";
+    //             }
+    //             return "Estado desconocido";
+    //           })()
+    //         }
+    //       />
+    //     );
+    //   }
+    // },
     {
       title: 'Fecha de emisión',
       dataIndex: 'issuedDate',
+      sorter: (a: any, b: any) => dayjs(a.issuedDate).unix() - dayjs(b.issuedDate).unix(),
+      sortDirections: ['ascend', 'descend', 'ascend'],
       render: (issuedDate: any) => {
-        return issuedDate ? new Date(issuedDate).toLocaleDateString() : "-"
-      }
+        return issuedDate ? dayjs(issuedDate).locale('es').format('DD/MM/YYYY') : "-"
+      },
+      showSorterTooltip: false,
     },
     {
       title: 'Fecha de vencimiento',
       dataIndex: 'expirationDate',
+      sorter: (a: any, b: any) => dayjs(a.expirationDate).unix() - dayjs(b.expirationDate).unix(),
+      sortDirections: ['ascend', 'descend', 'ascend'],
       render: (expirationDate: any) => {
-        return expirationDate ? new Date(expirationDate).toLocaleDateString() : "-"
-      }
+        return expirationDate ? dayjs(expirationDate).locale('es').format('DD/MM/YYYY') : "-"
+      },
+      showSorterTooltip: false,
     },
     {
       title: 'Acciones',
       dataIndex: '',
       render: (record: any) => {
         return (
-          <Flex>
-            <Button onClick={() => navigate(`/business/${record.businessId}/licenses/${record.id}/edit`)}>Actualizar</Button>
+          <Flex gap={16}>
+            <Button onClick={() => onEdit(record.id)}>Editar</Button>
+            <Popconfirm
+              title="¿Estás seguro de eliminar la licencia?"
+              onConfirm={() => onDelete(record.id)}
+              okText="Sí"
+              cancelText="No"
+            >
+              <Button danger>
+                Eliminar
+              </Button>
+            </Popconfirm>
           </Flex>
         )
       }
     }
   ]
   return (
-    <Table dataSource={economicLicenses} columns={columns} />
+    <Table 
+      dataSource={economicLicenses} 
+      columns={columns}
+      rowKey={(r) => r.id} />
   )
 }
+
+
+interface EconomicLicenseEditModalProps {
+  economicLicense: EconomicLicense | null;
+  open: boolean;
+  onCancel: () => void;
+  onNew: (license: EconomicLicense) => void;
+  onEdit: (id: number, license: EconomicLicense) => void;
+}
+
+const EconomicLicenseEditModal: React.FC<EconomicLicenseEditModalProps> = ({
+  economicLicense,
+  open,
+  onCancel,
+  onNew,
+  onEdit,
+}) => {
+  const [form] = Form.useForm();
+
+  const handleSubmit = () => {
+    form.validateFields().then(values => {
+      if (economicLicense) {
+        onEdit(economicLicense.id, {
+          ...values
+        });
+      } else {
+        onNew({
+          ...values
+        });
+      }
+      
+      resetForm()
+    });
+  };
+
+  function resetForm() {
+    console.log("resetting form")
+    form.setFieldsValue({
+      issuedDate: null,
+      expirationDate: null,
+      openAt: dayjs().set('hour', 7).set('minute', 0).set('second', 0),
+      closeAt: dayjs().set('hour', 19).set('minute', 0).set('second', 0),
+    })
+  }
+
+  function handleCancelModal() {
+    resetForm();
+    onCancel();
+  }
+
+  useEffect(()=>{
+    console.log({economicLicense})
+    if (economicLicense) {
+      form.setFieldsValue({
+
+        ...economicLicense,
+
+        issuedDate: dayjs(economicLicense.issuedDate),
+        expirationDate: dayjs(economicLicense.expirationDate),
+        openAt: dayjs(economicLicense.openAt),
+        closeAt: dayjs(economicLicense.closeAt),
+      });
+    } else {
+      resetForm()
+    }
+  }, [economicLicense])
+
+  return (
+    <Modal
+      title={`${economicLicense ? 'Editando ' : 'Nueva '} Licencia de Actividad Económica`}
+      open={open}
+      onCancel={handleCancelModal}
+      footer={[
+        <Button key="back" onClick={handleCancelModal}>
+          Cancelar
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit}>
+          {economicLicense ? 'Guardar' : 'Crear'}
+        </Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" initialValues={economicLicense}>
+        <Flex gap={16}>
+          <Form.Item name="issuedDate" label="Inicia" style={{ flex: 1 }} rules={[{ required: true, message: "Introduzca la fecha de inicio" }]}> 
+            <DatePicker />
+          </Form.Item>
+          <Form.Item name="expirationDate" label="Expira" style={{ flex: 1 }} rules={[{ required: true, message: "Introduzca la fecha de vencimiento" }]}> 
+            <DatePicker />
+          </Form.Item>
+        </Flex>
+        <Flex gap={16}>
+          <Form.Item name="openAt" label="Abre a las" style={{ flex: 1 }} rules={[{ required: true, message: "Introduzca la hora de apertura" }]}> 
+            <TimePicker/>
+          </Form.Item>
+          <Form.Item name="closeAt" label="Cierra a las" style={{ flex: 1 }} rules={[{ required: true, message: "Introduzca la hora de cierre" }]}> 
+            <TimePicker/>
+          </Form.Item>
+        </Flex>
+      </Form>
+    </Modal>
+  );
+};
