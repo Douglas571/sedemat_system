@@ -354,7 +354,7 @@ function InactivityLettersDisplay({ businessId, branchOffices }: { businessId: n
       title: 'Inicia',
       dataIndex: 'startAt',
       key: 'startAt',
-      render: (date: dayjs.Dayjs) => dayjs(date).format('DD/MM/YYYY'),
+      render: (date: dayjs.Dayjs) => dayjs(date).format('DD [de] MMMM [del] YYYY'),
       sorter: (a, b) => {
         
         if (!a.startAt || !b.startAt) return 0
@@ -368,7 +368,7 @@ function InactivityLettersDisplay({ businessId, branchOffices }: { businessId: n
       title: 'Finaliza',
       dataIndex: 'endAt',
       key: 'endAt',
-      render: (date: dayjs.Dayjs) => date ? dayjs(date).format('DD/MM/YYYY') : '--',
+      render: (date: dayjs.Dayjs) => date ? dayjs(date).format('DD [de] MMMM [del] YYYY') : '--',
       sorter: (a, b) => {
         // TODO: Understand why this is working
         if (a.endAt === null) return 1
