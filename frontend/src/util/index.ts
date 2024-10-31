@@ -307,7 +307,7 @@ export function numbersToWords(
       }
     }
 
-    let status = 'Sin Cálculos'
+    let status = 'Sin Declaración'
     let badgeStatus = 'default'
 
     if (grossIncome?.declarationImage) {
