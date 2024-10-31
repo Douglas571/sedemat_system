@@ -89,6 +89,10 @@ const BasicComponent: React.FC = () => {
       title: 'Sucursal',
       dataIndex: 'branchOfficeNickname',
       key: 'branchOfficeNickName',
+      width: 130,
+      sorter: (a, b) => a.branchOfficeNickname.localeCompare(b.branchOfficeNickname),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      showSorterTooltip: false
     },
     {
       title: 'Clasificación (Por Puntualidad)',
@@ -254,7 +258,8 @@ const BasicComponent: React.FC = () => {
           </Flex>}
         >
 
-            <Flex style={{ marginBottom: '18px' }}>    
+          <Flex vertical gap={34}>
+            <Flex>    
               <div>
                 <Doughnut
                   data={chartData}
@@ -262,6 +267,14 @@ const BasicComponent: React.FC = () => {
                     offset: 10,
                     spacing: 5,
                     hoverOffset: 40,
+                    layout: {
+                      padding: {
+                        left: 34,
+                        right: 34,
+                        top: 0,
+                        bottom: 0
+                      }
+                    },
                     plugins: {
                       title: {
                         display: true,
@@ -292,7 +305,7 @@ const BasicComponent: React.FC = () => {
 
                   height={"400px"}
                   width={"400px"}
-                  margin={50}
+                  // margin={50}
 
                 />
               </div>
@@ -307,6 +320,7 @@ const BasicComponent: React.FC = () => {
                 overflow: 'scroll'
               }}
             />
+          </Flex>
         </Card> 
     );
 };
