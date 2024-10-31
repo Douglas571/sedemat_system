@@ -401,8 +401,6 @@ function getGrossIncomeReport({
     startToCountSince = INITIAL_DATE
   }
 
-  let initialYear = startToCountSince.year()
-  let finalYear = CURRENT_DATE.year()
 
   const inactivityPeriodsList = [] 
   inactivityPeriods.forEach(p => {
@@ -453,7 +451,7 @@ function getGrossIncomeReport({
   // if the initial period as a day greater or equal to 25, skip this month (add 1 month to startToCountSince)
 
 
-  while (startToCountSince.isSameOrBefore(CURRENT_DATE, 'month')) {
+  while (startToCountSince.isBefore(CURRENT_DATE, 'month')) {
 
     // console.log({initialYear, finalYear})
 
