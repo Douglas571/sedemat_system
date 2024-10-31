@@ -161,7 +161,7 @@ const BasicComponent: React.FC = () => {
           .sort((a, b) => dayjs(a).isBefore(dayjs(b) ? 1 : -1))
           .map(month => dayjs(month).format('MMMM-YY').toUpperCase()).join(', ')}>
           <Flex justify="center" align="center">
-            {value} Meses
+            {value}
           </Flex>
         </Tooltip>
       }
@@ -247,7 +247,7 @@ const BasicComponent: React.FC = () => {
         <Card 
           style={{  }}
           title={<Flex align='center' justify='space-between'>
-            <Title level={1}>Reporte de Contribuyentes</Title>
+            <Title level={1}>Reporte Sobre Declaraciones De Ingresos</Title>
             <Button icon={<FileExcelOutlined />} onClick={() => reportsService.downloadBusinessesGrossIncomeStatusReport({ token: userAuth.token, format: 'excel' })}>
               Descargar Excel
             </Button>
