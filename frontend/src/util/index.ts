@@ -35,7 +35,7 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
     }
 
     // Return 10 if mts2 is greater than or equal to 50
-    if (mts2 >= 50) {
+    if (mts2 > 50) {
         return 10;
     }
 
