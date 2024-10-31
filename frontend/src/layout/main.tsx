@@ -97,7 +97,10 @@ const App: React.FC = () => {
 				},
 			]
 		},
-		{
+	]
+
+	if (userAuth.user?.roleId === 3) { // LEGAL ADVISOR
+		items.push({
 			key: '/reports',
 			icon: '',
 			label: 'Reportes',
@@ -105,33 +108,34 @@ const App: React.FC = () => {
 				{
 					key: '/reports/gross-income-status',
 					icon: '',
-					label: 'Cálculos'
+					label: 'Declaraciones de Ingresos'
 				},
 			]
-		},
-		{
-			key: '/config',
-			icon: '',
-			label: 'Configuración',
-			children: [
-				{
-					key: '/economic-activities',
-					icon: '',
-					label: 'Actividades Económicas'
-				},
-				{
-					key: '/currency-exchange-rates',
-					icon: '',
-					label: 'Tasas de Cambio'
-				},
-				{
-					key: '/bank-accounts',
-					icon: '',
-					label: 'Cuentas de Banco'
-				}
-			]
-		}
-	]
+		})
+	}
+
+	items.push({
+		key: '/config',
+		icon: '',
+		label: 'Configuración',
+		children: [
+			{
+				key: '/economic-activities',
+				icon: '',
+				label: 'Actividades Económicas'
+			},
+			{
+				key: '/currency-exchange-rates',
+				icon: '',
+				label: 'Tasas de Cambio'
+			},
+			{
+				key: '/bank-accounts',
+				icon: '',
+				label: 'Cuentas de Banco'
+			}
+		]
+	})
 
 	if (userAuth.user?.role.name === 'Administrador') {
 		const configItem = items.find(i => i?.key === '/config')
