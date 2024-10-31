@@ -77,6 +77,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
     'Meses sin declaración',
     'Meses pendientes de liquidar',
     'Último mes liquidado',
+    'Meses Faltantes',
     
   ];
 
@@ -94,6 +95,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
       row.monthsWithoutDeclarationCount,
       row.monthsPendingToBeSettledCount,
       row.lastMonthSettled ? `${monthMapper[row.lastMonthSettled.month()]}-${row.lastMonthSettled.year()}` : '--',
+      row.lackingMonths ? row.lackingMonths.map(m => `${monthMapper[m.month()]}-${m.year()}`).join(', ') : '--',
     ]
     worksheet.addRow(formattedRow)
   });
@@ -252,9 +254,18 @@ function getBusinessesGrossIncomeReport(businesses) {
       dni: business.dni,
     }
 
+    // get the sing up period
     let initialPeriod = business.economicLicenses.sort((a, b) => dayjs(a.issuedDate) - dayjs(b.issuedDate)).shift()?.issuedDate
 
-    businessReport.initialPeriod = dayjs(initialPeriod)
+    // TODO: Change initial period for registration date
+    if (initialPeriod) {
+      initialPeriod = dayjs(initialPeriod).add(1, 'month')
+    } else {
+      // if they don't have an initial period, they are not registered in the sedemat
+      return undefined
+    }
+
+    businessReport.initialPeriod = initialPeriod
 
     if (business.economicLicenses.length > 0) {
       console.log({business: business.businessName, initialPeriod: dayjs(initialPeriod).format('YYYY-MM')})
@@ -287,19 +298,12 @@ function getBusinessesGrossIncomeReport(businesses) {
           branchOfficeReport.lastMonthSettled = dayjs(lastPeriodSettled)
         }
 
-        if (initialPeriod) {
-          branchOfficeReport.initialPeriod = dayjs(initialPeriod)
-          console.log({
-            business: business.businessName,
-            initialPeriod: dayjs(initialPeriod).format('YYYY-MM'),})
-        }
-
         branchOfficeReport = {
           ...branchOffice,
           ...branchOfficeReport,
           ...getGrossIncomeReport({
             lastMonthSettled: branchOfficeReport.lastMonthSettled,
-            initialPeriod: branchOfficeReport.initialPeriod, 
+            initialPeriod: initialPeriod, 
             grossIncomes: branchOfficeReport.grossIncomes,
             inactivityPeriods: business.inactivityPeriods.filter( g => g.branchOfficeId === branchOffice.id),
             economicLicenses: business.economicLicenses,
@@ -322,7 +326,7 @@ function getBusinessesGrossIncomeReport(businesses) {
         ...business,
         ...businessReport,
         ...getGrossIncomeReport({
-          initialPeriod: businessReport.initialPeriod,
+          initialPeriod: initialPeriod,
           lastMonthSettled: businessReport.lastMonthSettled, 
           grossIncomes: business.grossIncomes,
           inactivityPeriods: business.inactivityPeriods,
@@ -411,7 +415,18 @@ function getGrossIncomeReport({
       // if not, substract 1 month to endAt and repeat 
     
     let startAt = dayjs(p.startAt)
-    let endAt = dayjs(p.endAt)
+    let endAt = p.endAt ? dayjs(p.endAt) : dayjs()
+
+    // if start date day is less than 25, add 1 month 
+    if (startAt.get('date') > 5) {
+      startAt = startAt.add(1, 'month')
+    }
+    // if the end date day is less or equal to 5, substract 1 month
+    if (endAt.get('date') < 5) {
+      endAt = endAt.subtract(1, 'month')
+    }
+
+
     while (startAt.isSameOrBefore(endAt, 'month')) {
 
       inactivityPeriodsList.push({
@@ -435,7 +450,8 @@ function getGrossIncomeReport({
   // get the oldest economic license in the list 
   // 
   
-  
+  // if the initial period as a day greater or equal to 25, skip this month (add 1 month to startToCountSince)
+
 
   while (startToCountSince.isSameOrBefore(CURRENT_DATE, 'month')) {
 
