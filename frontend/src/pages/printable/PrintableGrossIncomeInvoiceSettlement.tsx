@@ -158,39 +158,6 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
   const paidAt = grossIncomeInvoice?.paidAt
 
-  // const paidAt = useMemo(() => {
-  //   let minDate
-  //   let maxDate
-
-  //   if (payments.length === 0) return dayjs()
-
-  //   if (payments.length === 1) return dayjs(payments[0].paymentDate)
-
-  //   payments.forEach( p => {
-  //     console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
-  
-  //     let curr = dayjs(p.paymentDate)
-  
-  //     // if min and max empty, them them current 
-  //     if (!minDate && !maxDate) {
-  //       minDate = curr
-  //       maxDate = curr
-  //     }
-  
-  //     // if current is greater than max date, 
-  //     if (curr > maxDate) {
-  //       maxDate = curr 
-  //     }
-  //       // max date = current date
-  //     // if current is less than min date, set min date = current date 
-  //     if (minDate > curr) {
-  //       minDate = curr 
-  //     }
-  //   })
-
-  //   return maxDate
-  // }, [payments])
-
   const MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
   const badDebtTax = getBadDebtTax({
@@ -221,34 +188,19 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
   const DATE_SEPARATOR = ' - '
   const paymentDate: string = useMemo(() => {
-    let minDate = new Date()
-    let maxDate = new Date()
 
     if (payments.length === 0) return ''
 
-    if (payments.length === 1) return dayjs(payments[0].paymentDate).format('DD/MM/YYYY')
+    const paymentDates = payments.reduce((acc: dayjs.Dayjs[], curr: Payment) => {
+      const currDate = dayjs(curr.paymentDate)
+      return [
+        ...acc,
+        currDate,
+      ]
+    }, [] as dayjs.Dayjs[])
 
-    payments.forEach( p => {
-      console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
-  
-      let curr = new Date(p.paymentDate)
-  
-      // if min and max empty, them them current 
-      if (!minDate && !maxDate) {
-        minDate = curr
-        maxDate = curr
-      }
-  
-      // if current is greater than max date, 
-      if (curr > maxDate) {
-        maxDate = curr 
-      }
-        // max date = current date
-      // if current is less than min date, set min date = current date 
-      if (minDate > curr) {
-        minDate = curr 
-      }
-    })
+    const minDate = paymentDates.reduce((min: dayjs.Dayjs, curr: dayjs.Dayjs) => curr < min ? curr : min, paymentDates[0])
+    const maxDate = paymentDates.reduce((max: dayjs.Dayjs, curr: dayjs.Dayjs) => curr > max ? curr : max, paymentDates[0])
 
     if (dayjs(maxDate).format('DD/MM/YYYY') === dayjs(minDate).format('DD/MM/YYYY')) {
       return dayjs(maxDate).format('DD/MM/YYYY')
