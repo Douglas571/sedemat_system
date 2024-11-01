@@ -17,6 +17,8 @@ import { formatBolivares } from '../util/currency';
 
 import * as paymentService from '../util/paymentsApi'
 
+import * as util from '../util'
+
 import useAuthentication from 'hooks/useAuthentication';
 
 import dayjs from 'dayjs';
@@ -409,7 +411,7 @@ function Payments(): JSX.Element {
                     <Button onClick={() => navigate(`/payments/${record.id}`)}>Editar</Button>
 
                     {
-                        record.image && <Button onClick={() => showBoucher(record.image)}>Boucher</Button>
+                        <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
                     }
                 </Space>
             )},

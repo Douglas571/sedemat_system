@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
     Card, 
     Typography, 
@@ -1150,6 +1150,7 @@ function PaymentsAllocatedTable(
                     <Popconfirm title="¿Estás seguro de que quieres eliminar este pago asociado?" onConfirm={() => handleDelete(record.id)}>
                         <Button icon={<DeleteOutlined />} danger disabled={disabled}>Remover</Button>
                     </Popconfirm>
+                    <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
                 </Flex>
             ),
         },
