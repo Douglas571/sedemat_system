@@ -345,7 +345,7 @@ function PaymentsEdit(): JSX.Element {
 			console.log("sending files")
 
 			if (fileList.length == 0) {
-				throw Error("Selecciona un boucher")
+				throw Error("Selecciona un voucher")
 			}
 
 			const formData = new FormData()
@@ -508,7 +508,7 @@ function PaymentsEdit(): JSX.Element {
 							name='boucher'
 							{...uploadProps}
 						>
-							<Button>Seleccionar Boucher</Button>
+							<Button>Seleccionar Voucher</Button>
 						</Upload>
 						<br />
 					</div>
