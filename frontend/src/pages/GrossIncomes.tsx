@@ -38,7 +38,11 @@ const GrossIncomeTable = () => {
 
       let grossIncomesWithStatus: IGrossIncomeWithStatus[] = grossIncomes.map((grossIncome: IGrossIncome) => {
 
-        let {status, badgeStatus} = util.getGrossIncomeState({grossIncome})
+        let {status, badgeStatus} = util.getGrossIncomeState({
+          grossIncome,
+          invoice: grossIncome?.grossIncomeInvoice,
+          payments: grossIncome?.grossIncomeInvoice?.payments
+        })
         let branchOffice = grossIncome?.branchOffice?.nickname ?? '--'
 
 

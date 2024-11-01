@@ -1,5 +1,5 @@
 // services/grossIncomeService.js
-const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity } = require('../database/models');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment } = require('../database/models');
 const dayjs = require('dayjs');
 const currency = require('currency.js');
 
@@ -83,6 +83,10 @@ class GrossIncomeService {
                         {
                             model: Settlement,
                             as: 'settlement'
+                        },
+                        {
+                            model: Payment,
+                            as: 'payments'
                         }
                     ]
                 }
