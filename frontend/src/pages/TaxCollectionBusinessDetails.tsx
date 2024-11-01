@@ -384,26 +384,12 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             render: (paidAt: string, invoice: IGrossIncomeInvoice) => {
                 // console.log({invoice})
 
-                let text = 'Pendiente'
-                let badgeStatus = 'error'
-
-                if (invoice?.paidAt) {
-                    text = 'Por Liquidar'
-                    badgeStatus = 'warning'
-                }
-
-                if (invoice?.settlement) {
-                    text = 'Liquidado'
-                    badgeStatus = 'success'
-                }
-
-                // console.log({text, badgeStatus})
-
+                const { state, badgeStatus } = util.getGrossIncomeInvoiceState({ invoice })
+                
                 return (
-
                     <Badge
                         status={badgeStatus}
-                        text={text}
+                        text={state}
                     />
                 )
             },

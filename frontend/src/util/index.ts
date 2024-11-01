@@ -342,3 +342,33 @@ export function numbersToWords(
 
     return { status, badgeStatus }
   }
+
+  export function getGrossIncomeInvoiceState({
+    invoice,
+  }: {
+    invoice: IGrossIncomeInvoice
+  }) {
+    let state = 'Pendiente'
+    let badgeStatus = 'error'
+
+    if (invoice?.paidAt) {
+        if (invoice?.payments.some(p => !p.isVerified)) {
+            state = 'Por Consolidar'
+        } else {
+            state = 'Por Liquidar'
+        }
+
+        badgeStatus = 'warning'
+    }
+
+    if (invoice?.settlement) {
+        state = 'Liquidado'
+        badgeStatus = 'success'
+    }
+
+    // console.log({text, badgeStatus})
+
+    return {
+      state, badgeStatus
+    }
+  }
