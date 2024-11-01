@@ -8,6 +8,7 @@ class GrossIncomeInvoiceController {
             const grossIncomeInvoices = await grossIncomeInvoiceService.getAllGrossIncomeInvoices();
             res.status(200).json(grossIncomeInvoices);
         } catch (error) {
+            console.log({error})
             res.status(500).json({ error: error.message });
         }
     }

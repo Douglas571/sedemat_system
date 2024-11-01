@@ -142,7 +142,10 @@ class GrossIncomeInvoiceService {
                 {
                     model: Settlement,
                     as: 'settlement',
-                    
+                },
+                {
+                    model: Payment,
+                    as: 'payments',
                 }
             ]
         });

@@ -316,7 +316,7 @@ class GrossIncomeService {
                 {
                     model: Alicuota,
                     as: 'alicuota'
-                }
+                },
             ]
         });
     }
