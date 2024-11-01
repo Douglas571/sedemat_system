@@ -358,17 +358,18 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
             title: 'Fecha de Pago',
             dataIndex: 'paidAt',
             key: 'date',
             render: (paidAt: string) => paidAt
                 ? <Typography.Text>{dayjs(paidAt).format('DD/MM/YYYY')}</Typography.Text>
                 : <Typography.Text> -- </Typography.Text>
+        },
+        {
+            title: 'Fecha de Liquidación',
+            dataIndex: ['settlement', 'settledAt'],
+            key: 'settledAt',
+            render: (value: string) => value ? dayjs(value).format('DD/MM/YYYY'): '--',
         },
         {
             title: 'Monto Total',
