@@ -271,10 +271,16 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (invoiceId: any, record: any) => {
                 const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
 
-                let { status, badgeStatus } = util.getGrossIncomeState({grossIncome: {
-                    ...record,
-                    grossIncomeInvoice: invoice
-                }})
+
+
+                let { status, badgeStatus } = util.getGrossIncomeState
+                ({
+                    grossIncome: {
+                        ...record
+                    }, 
+                    invoice: invoice,
+                    payments: invoice?.payments,
+                })
                 return (
 
                     <Badge

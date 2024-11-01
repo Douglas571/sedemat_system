@@ -291,12 +291,20 @@ export function numbersToWords(
   }
 
 
-  export function getGrossIncomeState({grossIncome}: {grossIncome: IGrossIncome}): 
+  export function getGrossIncomeState({
+    grossIncome, 
+    invoice, 
+    payments
+  }: {
+    grossIncome: IGrossIncome, 
+    invoice?: IGrossIncomeInvoice,
+    payments?: IPayment[]
+  }): 
   {
     status: string
     badgeStatus: string
   } {
-    let invoice = grossIncome?.grossIncomeInvoice
+    
 
     console.log({grossIncome, invoice})
 
@@ -316,7 +324,14 @@ export function numbersToWords(
     }
 
     if (invoice?.paidAt) {
-        status = 'Por Liquidar'
+      console.log('Pendiente de Consolidar')
+      console.log({payments})
+        if (payments?.some( p => !p?.isVerified)) {
+          status = 'Por Consolidar'
+        } else {
+          status = 'Por Liquidar'
+        }
+        
         badgeStatus = 'warning'
     }
 

@@ -65,7 +65,7 @@ export async function updatePayment(paymentData: Payment, token: string): Promis
 }
 
 interface PaymentFilters {
-    grossIncomeInvoiceId?: number
+    grossIncomeInvoiceId?: number,
 }
 
 // a function to fetch all payments
