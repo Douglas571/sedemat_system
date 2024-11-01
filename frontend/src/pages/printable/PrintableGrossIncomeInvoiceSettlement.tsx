@@ -117,7 +117,7 @@ const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
 
     const month2 = _.upperFirst(dayjs(date).format('MMMM'));
 
-    return `impuesto sobre actividad economica correspondiente al mes de ${month2} del ${year}`;
+    return `impuesto sobre actividad economica correspondiente al mes de ${month2} del año ${year}`;
   }
 
   grossIncomes.forEach(g => {
@@ -134,17 +134,19 @@ const formatGrossIncomeDescription = (grossIncomes: IGrossIncome[]): string => {
       monthMap[year].push(month2);
     }
   });
-  console.log("i am here")
 
   const formattedParts = Object.entries(monthMap).map(([year, months]) => {
 
+    if (months.length === 1) {
+      return `al mes de ${months[0]} del año ${year}`;
+    }
     
     console.log({year, months})
     const lastMonth = months.pop();
-    return `${months.join(', ')}${months.length ? ' y ' : ''}${lastMonth} del ${year}`;
+    return `los meses de ${months.join(', ')}${months.length ? ' y ' : ''}${lastMonth} del año ${year}`;
   });
 
-  return `Impuesto sobre actividad economica correspondiente a los meses de ${formattedParts.join(', así como ')}`;
+  return `Impuesto sobre actividad economica correspondiente a ${formattedParts.join(', así como ')}`;
 }
 
 const GrossIncomeInvoiceSettlement: React.FC = () => {
