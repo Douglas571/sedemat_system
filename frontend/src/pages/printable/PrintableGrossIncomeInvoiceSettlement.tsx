@@ -156,38 +156,40 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
   const [currencyExchangeRate, setCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
   const [payments, setPayments] = useState<Payment[]>([])
 
-  const paidAt = useMemo(() => {
-    let minDate
-    let maxDate
+  const paidAt = grossIncomeInvoice?.paidAt
 
-    if (payments.length === 0) return dayjs()
+  // const paidAt = useMemo(() => {
+  //   let minDate
+  //   let maxDate
 
-    if (payments.length === 1) return dayjs(payments[0].paymentDate)
+  //   if (payments.length === 0) return dayjs()
 
-    payments.forEach( p => {
-      console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
+  //   if (payments.length === 1) return dayjs(payments[0].paymentDate)
+
+  //   payments.forEach( p => {
+  //     console.log({paymentDate: dayjs(p.paymentDate).format('DD/MM/YYYY - hh:mm:ss')})
   
-      let curr = dayjs(p.paymentDate)
+  //     let curr = dayjs(p.paymentDate)
   
-      // if min and max empty, them them current 
-      if (!minDate && !maxDate) {
-        minDate = curr
-        maxDate = curr
-      }
+  //     // if min and max empty, them them current 
+  //     if (!minDate && !maxDate) {
+  //       minDate = curr
+  //       maxDate = curr
+  //     }
   
-      // if current is greater than max date, 
-      if (curr > maxDate) {
-        maxDate = curr 
-      }
-        // max date = current date
-      // if current is less than min date, set min date = current date 
-      if (minDate > curr) {
-        minDate = curr 
-      }
-    })
+  //     // if current is greater than max date, 
+  //     if (curr > maxDate) {
+  //       maxDate = curr 
+  //     }
+  //       // max date = current date
+  //     // if current is less than min date, set min date = current date 
+  //     if (minDate > curr) {
+  //       minDate = curr 
+  //     }
+  //   })
 
-    return maxDate
-  }, [payments])
+  //   return maxDate
+  // }, [payments])
 
   const MMVToBs = currencyExchangeRate ? util.getMMVExchangeRate(currencyExchangeRate) : 0
 
@@ -310,13 +312,19 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
     return <Flex><Typography.Text>Cargando...</Typography.Text></Flex>
   }
 
-  let tableItems = [
-    {
+  let tableItems: {
+    code: string;
+    description: string;
+    amountBs: string;
+  }[] = []
+
+  if (formTax > 0) {
+    tableItems.push({
       code: '301090101',
       description: 'INGRESO POR FORMULARIOS Y GACETAS MUNICIPALES',
       amountBs: formatBolivares(formTax), // Assuming amount is not specified
-    },
-  ];
+    });
+  }
 
   if (penaltiesTotalInBs > 0) {
     tableItems.push({
