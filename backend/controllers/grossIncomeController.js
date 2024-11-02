@@ -3,18 +3,25 @@ const path = require('path');
 const multer = require('multer');
 const fse = require('fs-extra');
 const crypto = require('crypto');
+const os = require('os');
 
 const grossIncomeService = require('../services/grossIncomeService');
 
 const { z } = require("zod");
 
+const utilImages = require('../utils/images');
+
 // Set up the path for seneat_declarations
+const tempDir = os.tmpdir()
+const serverDir = '/uploads/seneat-declarations'
 const DECLARATIONS_PATH = path.resolve(__dirname, '../uploads/seneat-declarations');
+
 fse.ensureDirSync(DECLARATIONS_PATH);
+fse.ensureDirSync(tempDir);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, DECLARATIONS_PATH);
+        cb(null, tempDir);
     },
     filename: (req, file, cb) => {
         const randomCode = crypto.randomInt(100000, 999999);
@@ -85,18 +92,38 @@ class GrossIncomeController {
 
   // POST /gross-incomes/declaration-image
   async uploadDeclarationImage(req, res) {
-    upload.single('image')(req, res, (err) => {
+    const IMAGE_PERCENT_QUALITY = 50;
+
+    upload.single('image')(req, res, async (err) => {
       if (err) {
           console.log({err});
           return res.status(500).json({ message: 'Error in uploading file', error: err.message });
       }
 
       if (!req.file) {
-          return res.status(400).json({ message: 'No file uploaded' });
-      }
+        return res.status(400).json({ message: 'No file uploaded' });
+      } 
 
-      const fileUrl = `/uploads/seneat-declarations/${req.file.filename}`;
-      res.status(200).json({ url: fileUrl });
+      try {
+        // compress the image, if ok, return the address to that image
+        
+        let baseFileName = req.file.filename.split('.')[0];
+
+        const newFilename = await utilImages.compress({
+          filePath: path.resolve(tempDir, req.file.filename),
+          destination: DECLARATIONS_PATH,
+          baseFileName,
+          quality: IMAGE_PERCENT_QUALITY,
+          // resize: true,
+        })
+
+        let fileUrl = `${serverDir}/${newFilename}`
+
+        res.status(200).json({ url: fileUrl });
+      } catch (error) {
+        console.log({error});
+        res.status(500).json({ error: error.message });
+      }
     });
   }
 
