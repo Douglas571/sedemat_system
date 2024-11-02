@@ -32,10 +32,10 @@ export default function ContactsView(): JSX.Element {
         // put the data
     }
 
-    async function handleDelete(id: number) {
+    async function handleDelete() {
         try {
-            await api.deletePerson(id)
-            loadData()
+            await api.deletePerson(Number(contactId))
+            navigate('/contacts')
         } catch(error) {
             console.error({error})
         }
@@ -88,18 +88,17 @@ export default function ContactsView(): JSX.Element {
                                     <EditOutlined /> Editar
                                 </Button>
                                 <Popconfirm
-                                    title="Eliminar Pago"
+                                    title="Eliminar Contacto"
                                     description="¿Estás seguro de que deseas eliminar el contacto?"
                                     onConfirm={() => {
-                                        console.log("the contact will be deleted")
-                                        handleDelete(record.id)
+                                        handleDelete()
                                     }}
                                     //onCancel={cancel}
                                     okText="Si"
                                     cancelText="No"
                                 >
 
-                                    <Button danger onClick={() => handleDelete(contact.id)}>
+                                    <Button danger>
                                         <DeleteOutlined /> Eliminar
                                     </Button>
                                 </Popconfirm>
