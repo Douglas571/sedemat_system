@@ -117,7 +117,7 @@ class GrossIncomeController {
           // resize: true,
         })
 
-        let fileUrl = `${serverDir}/${newFilename}`
+        let fileUrl = path.join(serverDir, newFilename)
 
         res.status(200).json({ url: fileUrl });
       } catch (error) {
