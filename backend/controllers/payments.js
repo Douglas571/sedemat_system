@@ -1,19 +1,19 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const os = require('os');
+const fse = require('fs-extra');
 
 const router = express.Router();
 const passport = require('passport');
 
-
 const logger = require('../utils/logger')
 
-
-
-
-
 const paymentService = require('../services/payments')
+const imageUtils = require('../utils/images')
 
+fse.ensureDirSync(path.join(__dirname, '../uploads/payments'));
+let serverPathToPayments = 'uploads/payments'
 
 router.get('/', async (req, res) => {
     try {
@@ -121,10 +121,11 @@ router.delete('/:id',
     }
 });
 
+const TEMP = os.tmpdir()
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // console.log("executing the destination fuction")
-        cb(null, 'uploads/'); // Specify the destination directory for uploaded images
+        cb(null, TEMP); // Specify the destination directory for uploaded images
     },
     filename: (req, file, cb) => {
         // console.log('creating file name')
@@ -135,7 +136,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Set file size limit (e.g., 5MB)
+    limits: { fileSize: 10 * 1024 * 1024 }, // Set file size limit (e.g., 5MB)
     fileFilter: (req, file, cb) => {
         
         // Only accept image files
@@ -157,7 +158,7 @@ const upload = multer({
 }).single('image');
 
 router.post('/upload', function(req, res) {
-    upload(req, res, function(err) {
+    upload(req, res, async function(err) {
         
         if (err) {
             console.log("there was an error")
@@ -172,9 +173,27 @@ router.post('/upload', function(req, res) {
             return res.status(400).json({ error: 'Please upload an image' });
         }
 
-        res.status(200).json({ message: 'Image uploaded successfully', file: req.file,
-            path: req.file.destination + req.file.filename
-        });
+        try {
+
+            let newFilename = await imageUtils.compress({
+                filePath: path.resolve(TEMP, req.file.filename),
+                destination: path.resolve(__dirname, '../uploads/payments'),
+                baseFileName: Date.now()
+                // resize: true,
+            })
+
+            res.status(200).json({ 
+                message: 'Image uploaded successfully', 
+                file: req.file,
+                path: path.join(serverPathToPayments, newFilename)
+            });
+        } catch (error) {
+            console.log({error})
+            res.status(500).json({ error: {
+                name: error.name,
+                message: error.message
+            } });
+        }
     })
 })
 
