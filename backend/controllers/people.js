@@ -6,9 +6,11 @@ const personService = require('../services/people');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
-const fs = require('fs');
+const os = require('os');
 const fse = require('fs-extra')
 const logger = require('../utils/logger');
+
+const imageUtils = require('../utils/images');
 
 router.post('/', async (req, res) => {
     try {
@@ -56,12 +58,17 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Set up multer for file upload
+const TEMP = os.tmpdir()
 const PFP_PATH = path.resolve(__dirname, '../uploads/pfp')
+const DNI_PATH = path.resolve(__dirname, '../uploads/dni')
+const RIF_PATH = path.resolve(__dirname, '../uploads/rif')
+fse.ensureDirSync(DNI_PATH)
+fse.ensureDirSync(RIF_PATH)
 fse.ensureDirSync(PFP_PATH)
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, PFP_PATH);
+        cb(null, TEMP);
     },
     filename: (req, file, cb) => {
         const randomCode = crypto.randomInt(100000, 999999);
@@ -72,7 +79,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 const uploadProfilePicture = (req, res) => {
-    upload.single('image')(req, res, (err) => {
+    upload.single('image')(req, res, async (err) => {
     if (err) {
             console.log({err})
         return res.status(500).json({ message: 'Error in uploading file', error: err.message });
@@ -82,27 +89,24 @@ const uploadProfilePicture = (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const fileUrl = `/uploads/pfp/${req.file.filename}`;
+        const compressedFilename = await imageUtils.compress({
+            filePath: path.resolve(TEMP, req.file.filename),
+            destination: PFP_PATH,
+            baseFileName: crypto.randomInt(100000, 999999),
+            // resize: true,
+        });
+
+        const fileUrl = path.join(`/uploads/pfp/`, compressedFilename);
         res.status(200).json({ url: fileUrl });
     });
 };
 
 router.post('/pfp', uploadProfilePicture)
 
-
-
-// controllers/routers that handle uploads of dni, rif, and return the url to access the images
-
-// ensure folder for dni and rif
-const DNI_PATH = path.resolve(__dirname, '../uploads/dni')
-const RIF_PATH = path.resolve(__dirname, '../uploads/rif')
-fse.ensureDirSync(DNI_PATH)
-fse.ensureDirSync(RIF_PATH)
-
 // configure the storage
 const dni_storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, DNI_PATH);
+        cb(null, TEMP);
     },
     filename: (req, file, cb) => {
         const randomCode = crypto.randomInt(100000, 999999);
@@ -112,7 +116,7 @@ const dni_storage = multer.diskStorage({
 });
 const rif_storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, RIF_PATH);
+        cb(null, TEMP);
     },
     filename: (req, file, cb) => {
         const randomCode = crypto.randomInt(100000, 999999);
@@ -125,7 +129,7 @@ const rif_upload = multer({ storage: rif_storage })
 
 // take the image, and return the address to that folder
 const uploadDniPicture = (req, res) => {
-    dni_upload.single('image')(req, res, (err) => {
+    dni_upload.single('image')(req, res, async (err) => {
         if (err) {
             console.log({err})
             return res.status(500).json({ message: 'Error in uploading file', error: err.message });
@@ -135,7 +139,14 @@ const uploadDniPicture = (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const fileUrl = `/uploads/dni/${req.file.filename}`;
+        const compressedFilename = await imageUtils.compress({
+            filePath: path.resolve(TEMP, req.file.filename),
+            destination: DNI_PATH,
+            baseFileName: crypto.randomInt(100000, 999999),
+            // resize: true,
+        })
+
+        const fileUrl = path.join(`/uploads/dni/`, compressedFilename);
         res.status(200).json({ url: fileUrl });
     });
 };
@@ -143,7 +154,7 @@ const uploadDniPicture = (req, res) => {
 router.post('/dni', uploadDniPicture)
 
 const uploadRifPicture = (req, res) => {
-    rif_upload.single('image')(req, res, (err) => {
+    rif_upload.single('image')(req, res, async (err) => {
         if (err) {
             console.log({err})
             return res.status(500).json({ message: 'Error in uploading file', error: err.message });
@@ -155,7 +166,14 @@ const uploadRifPicture = (req, res) => {
         }});
         }
 
-        const fileUrl = `/uploads/rif/${req.file.filename}`;
+        const compressedFilename = await imageUtils.compress({
+            filePath: path.resolve(TEMP, req.file.filename),
+            destination: RIF_PATH,
+            baseFileName: crypto.randomInt(100000, 999999),
+            // resize: true,
+        })
+
+        const fileUrl = path.join('/uploads/rif', compressedFilename);
         res.status(200).json({ url: fileUrl });
     });
 };
