@@ -114,7 +114,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     return (
         <Flex vertical gap="large">
 
-            <Card title={<Title level={2}>Recaudación de Impuestos</Title>}>
+            <Card title={<Title style={{ whiteSpace: 'normal' }} level={2}>Recaudación de Impuestos</Title>}>
 
                 <Flex vertical gap="large">
                     <Descriptions bordered title="Información de la Empresa">

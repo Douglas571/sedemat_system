@@ -82,7 +82,9 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
 
             render: (value: string, record: Business) => {
                 return <Typography.Text><Link to={`/tax-collection/${record.id}`}>{value}</Link></Typography.Text>
-            }
+            },
+
+            width: '300px',
         },
         {
             title: 'Rif o Cédula',
@@ -104,6 +106,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
                 return record.dni.includes(value)
             },
             sorter: (a:Business, b:Business) => a.dni.localeCompare(b.dni),
+            width: '200px',
         },
         
         {
@@ -143,5 +146,8 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
         // }
     ];
 
-    return <Table dataSource={business} columns={columns} />
+    return <Table 
+        dataSource={business} 
+        columns={columns} 
+        style={{ overflow: 'auto'}}/>
 }
