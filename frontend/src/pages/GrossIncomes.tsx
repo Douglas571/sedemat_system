@@ -198,7 +198,11 @@ const GrossIncomeTable = () => {
 
   return (<>
     <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
-      <Table columns={columns} dataSource={grossIncomes} />
+      <Table 
+        rowKey="id"
+        style={{ overflow: 'auto' }}
+        columns={columns} 
+        dataSource={grossIncomes} />
     </Card>
   
   </>);

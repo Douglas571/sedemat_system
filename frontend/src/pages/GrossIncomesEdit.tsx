@@ -604,7 +604,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                         <Checkbox>¿Cobrar Aseo Urbano?</Checkbox>
                                     </Form.Item>
 
-                                    <Flex gap={16}>
+                                    <Flex gap={16} wrap>
 
                                         <Form.Item
                                             name="branchOfficeDimensionsMts2"
