@@ -51,7 +51,7 @@ const GrossIncomeDetails: React.FC = () => {
 
     return (
         <Card title={(
-            <Flex justify='space-between' align='center' gap={16}>
+            <Flex justify='space-between' align='center' gap={16} wrap>
                 <Title level={2}>Ingresos Brutos Declarados</Title>
                 <Flex gap={10}>
                     <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${grossIncomeId}/edit`)}>Editar</Button>
@@ -79,7 +79,12 @@ const GrossIncomeDetails: React.FC = () => {
 
             />
 
+            <br/>
+
             <GrossIncomeInfo grossIncome={grossIncome} />
+
+            <br/>
+            
             <DeclarationImage imageUrl={completeUrl(grossIncome?.declarationImage)} />
         </Card>
     );
@@ -95,9 +100,15 @@ const BusinessInfo: React.FC<{
 
 
     return (
-        <Descriptions title="Información del Negocio" bordered>
+        <Descriptions 
+            title="Información del Negocio" 
+            bordered
+            size='small'
+            
+            layout='vertical'
+        >
             <Descriptions.Item label="Nombre del Negocio">{business.businessName}</Descriptions.Item>
-            <Descriptions.Item label="RIF">{business.dni}</Descriptions.Item>
+            <Descriptions.Item label="RIF"><div style={{ minWidth: '100px' }}>{business.dni}</div></Descriptions.Item>
             <Descriptions.Item label="Actividad Económica">{economicActivityTitle}</Descriptions.Item>
             <Descriptions.Item label="Alicuota">{formatPercents(grossIncome.alicuotaTaxPercent)}</Descriptions.Item>
             <Descriptions.Item label="Mínimo Tributario">{grossIncome.alicuotaMinTaxMMVBCV} MMVBCV</Descriptions.Item>
@@ -113,7 +124,13 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
     const hasBranchOffice = grossIncome?.branchOffice?.nickname;
 
     return (
-        <Descriptions title="Detalles del Ingreso Bruto" bordered>
+        <Descriptions 
+            title="Detalles del Ingreso Bruto" 
+            bordered
+            size='small'
+
+            layout='vertical'
+        >
             <Descriptions.Item label="Año">{dayjs(grossIncome.period).year()}</Descriptions.Item>
             <Descriptions.Item label="Mes">{dayjs(grossIncome.period).format('MMMM')}</Descriptions.Item>
             <Descriptions.Item label="Monto Declarado">{formatBolivares(grossIncome.amountBs)}</Descriptions.Item>
