@@ -215,6 +215,23 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         return <p>No hay ingresos brutos</p>
     }
 
+    let grossIncomesWithStatus: IGrossIncomeWithStatus[] = grossIncomes.map((grossIncome: IGrossIncome) => {
+
+        let invoice = grossIncomeInvoices.find(i => i.id === grossIncome.grossIncomeInvoiceId)
+
+        let {status, badgeStatus} = util.getGrossIncomeState({
+            grossIncome,
+            invoice,
+            payments: invoice?.payments
+        })
+
+        return {
+            ...grossIncome,
+            status,
+            badgeStatus
+        }
+    })
+
     const navigate = useNavigate();
 
     const handleGrossIncomeDelete = async (grossIncomeId: number) => {
@@ -234,6 +251,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                 return period.year() + ' - ' + monthMapper[period.month()];
             },
             sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? 1 : -1,
+            defaultSortOrder: 'descend'
         },
         {
             title: 'Ingreso Bruto',
@@ -268,27 +286,25 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             title: 'Estado',
             dataIndex: 'grossIncomeInvoiceId',
             key: 'status',
-            render: (invoiceId: any, record: any) => {
-                const invoice = grossIncomeInvoices?.find(i => i.id === invoiceId)
+            render: (invoiceId: any, record: IGrossIncome) => {
 
-
-
-                let { status, badgeStatus } = util.getGrossIncomeState
-                ({
-                    grossIncome: {
-                        ...record
-                    }, 
-                    invoice: invoice,
-                    payments: invoice?.payments,
-                })
                 return (
 
                     <Badge
-                        status={badgeStatus}
-                        text={status}
+                        status={record.badgeStatus}
+                        text={record.status}
                     />
                 )
             },
+
+            filters: [... new Set(grossIncomesWithStatus.map((grossIncome: IGrossIncomeWithStatus) => grossIncome.status))].map(status => ({text: status, value: status})),
+
+            onFilter: (value: string, record: IGrossIncomeWithStatus) => {
+                return record.status === value
+            },
+
+            showSorterTooltip: false,
+            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.status.localeCompare(b.status),
         },
         {
             title: 'Acciones',
@@ -340,7 +356,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
 
             <Table
                 style={{ overflow: 'scroll' }}
-                dataSource={grossIncomes}
+                dataSource={grossIncomesWithStatus}
                 columns={columns}
                 rowKey="id"
                 pagination={false}
