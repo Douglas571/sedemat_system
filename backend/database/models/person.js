@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     dni: {
         type: DataTypes.STRING, // Assuming DNI is a string; if it's a number, use DataTypes.INTEGER
         unique: true,
-        allowNull: false,
+        allowNull: true,
     },
 
     rif: {
