@@ -8,7 +8,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     // Step 1: Read Economic Activities CSV
     const economicActivitiesFilePath = path.resolve(__dirname, 'economicActivities.csv');
-    const businessDataFilePath = path.resolve(__dirname, 'businessDataOctober2024.csv');
+    const businessDataFilePath = path.resolve(__dirname, 'businesses2024.csv');
 
     const economicActivities = [];
     const businesses = [];
@@ -55,15 +55,16 @@ module.exports = {
 
             // Only insert businesses with valid EconomicActivityCode mappings
 
+            console.log({row, economicActivityId})
 
             if (economicActivityId && !ids.includes(row.id)) {
-
               businesses.push({
                 id: row.id,
                 businessName: row.businessName,
                 dni: row.dni,                
                 
                 economicActivityId, // Mapped to the actual economicActivityId
+                fiscalId: row.fiscalId === '' ? null : row.fiscalId,
 
                 // zona: row.ZONA,
                 // branchOfficeBusinessId: row.branchOfficeBusinessId,
@@ -85,7 +86,7 @@ module.exports = {
             
             branchOffices.push({
               nickname: row.sede.length > 0 ? row.sede.toUpperCase() : 'PRINCIPAL',
-              businessId: row.id,
+              businessId: row.branchOfficeBusinessId,
               address: row.DIRECCION.toUpperCase(),
               zone: row.ZONA.toUpperCase(),
               dimensions: 30,

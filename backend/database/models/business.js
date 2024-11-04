@@ -67,6 +67,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "businessId",
         as: 'inactivityPeriods'
       })
+
+      Business.belongsTo(models.User, {
+        foreignKey: 'fiscalId',
+        as: 'fiscal'
+      })
     }
   }
   Business.init({
@@ -130,6 +135,15 @@ module.exports = (sequelize, DataTypes) => {
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+
+    fiscalId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     },
 
     createdAt: {
