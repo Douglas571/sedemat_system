@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Form, Input, Button, message, Typography, Select, Flex, Image, Table, Space, Popconfirm} from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
@@ -66,9 +66,9 @@ export default function Contacts(): JSX.Element {
         filterMode: 'menu',
         filterSearch: true,
         
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
+        // filterIcon: (filtered: boolean) => (
+        //     <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        // ),
         onFilter: (value: string, record: Person) =>
             record[dataIndex]
                 .toString()
@@ -78,6 +78,16 @@ export default function Contacts(): JSX.Element {
         render: (text: string, record: Person) =>
             (<Link to={`/contacts/${record.id}`}>{text}</Link>)
     });
+
+    const fullNameFilters = useMemo(() => contacts.map(c => ({
+        text: c.fullName,
+        value: c.fullName
+    })), [contacts])
+
+    const dniFilters = useMemo(() => [...new Set(contacts.filter(c => c.dni))].map(c => ({
+        text: c.dni,
+        value: c.dni
+    })), [contacts])
 
 
     const columns = [
@@ -91,16 +101,10 @@ export default function Contacts(): JSX.Element {
 
             
 
-            filters: contacts.map((c: Person) => {
-
-                return {
-                    text: c.fullName,
-                    value: c.fullName
-                }
-            }),
+            filters: fullNameFilters,
 
             ...getColumnSearchProps('fullName'),
-
+            width: 300,
             
         },
         {
@@ -109,17 +113,12 @@ export default function Contacts(): JSX.Element {
             key: 'dni',
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
 
-            filters: contacts.map((c: Person) => {
-
-                return {
-                    text: c.dni,
-                    value: c.dni
-                }
-            }),
+            filters: dniFilters,
 
             sorter: (a: Person, b: Person) => a.dni?.localeCompare(b.dni),
 
             ...getColumnSearchProps('dni'),
+            width: 300
         },
         {
             title: 'Teléfono',
@@ -129,6 +128,7 @@ export default function Contacts(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
             sorter: (a: Person, b: Person) => a.phone?.localeCompare(b.phone),
+            width: 300
         },
         {
             title: 'Correo',
@@ -138,6 +138,7 @@ export default function Contacts(): JSX.Element {
             sortDirections: ['ascend', 'descend', 'ascend'],
             // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
             sorter: (a: Person, b: Person) => a.email?.localeCompare(b.email),
+            width: 300
         },
         {
             title: 'Acciones',
@@ -158,7 +159,8 @@ export default function Contacts(): JSX.Element {
                     >
                     <Button danger>Eliminar</Button>
                 </Popconfirm>
-            </Flex>
+            </Flex>,
+            width: 300
         }
 
     ]
@@ -174,6 +176,8 @@ export default function Contacts(): JSX.Element {
             </Flex>
             
             <Table 
+                rowKey="id"
+                virtual
                 dataSource={contacts.map(r => ({...r, key: r.id}))}
                 columns={columns}
             />
