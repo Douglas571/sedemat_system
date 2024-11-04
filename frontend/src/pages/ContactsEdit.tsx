@@ -287,7 +287,7 @@ export default function ContactsView(): JSX.Element {
                     <Form.Item
                         rules={[
                             {
-                                required: true,
+                                required: false,
                                 message: "La cédula es requerida"
                             },
                             {
