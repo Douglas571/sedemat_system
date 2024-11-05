@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message } from 'antd'
+import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message, Form, Card } from 'antd'
 import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
 
 
@@ -26,7 +26,24 @@ type Business = {
 
 function BusinessView(): JSX.Element {
 
+    const [ form ] = Form.useForm();
+
+    const search = Form.useWatch('search', form);
+
     const [business, setBusiness] = React.useState([])
+
+    const filteredBusinesses = useMemo(() => {
+        return business.filter( b => {
+
+            if (!search || search === '') {
+                return true
+            }
+
+            return b.businessName.toLowerCase().includes(search.toLowerCase()) || b.dni.toLowerCase().includes(search.toLowerCase())
+        })
+    }, [business, search])
+
+    console.log({filteredBusinesses})
 
     const { userAuth } = useAuthentication()
 
@@ -89,12 +106,12 @@ function BusinessView(): JSX.Element {
             sorter: (a: Business, b: Business) => a.businessName.localeCompare(b.businessName),
             //...getColumnSearchProps('businessName'),
             
-            filters: businessNames,
-            filterMode: 'menu',
-            filterSearch: true,
-            onFilter: (value: string, record: Business) => {
-                return record.businessName.includes(value)
-            },
+            // filters: businessNames,
+            // filterMode: 'menu',
+            // filterSearch: true,
+            // onFilter: (value: string, record: Business) => {
+            //     return record.businessName.includes(value)
+            // },
 
             render: (value: string, record: Business) => {
                 return <Typography.Text><Link to={`/business/${record.id}`}>{value}</Link></Typography.Text>
@@ -112,12 +129,12 @@ function BusinessView(): JSX.Element {
             sorter: (a: Business, b: Business) => a.dni.localeCompare(b.dni),
             // ...getColumnSearchProps('dni'),
 
-            filters: businessDNIs,
-            filterMode: 'menu',
-            filterSearch: true,
-            onFilter: (value: string, record: Business) => {
-                return record.dni.includes(value)
-            },
+            // filters: businessDNIs,
+            // filterMode: 'menu',
+            // filterSearch: true,
+            // onFilter: (value: string, record: Business) => {
+            //     return record.dni.includes(value)
+            // },
 
             width: 200,
         },
@@ -187,7 +204,7 @@ function BusinessView(): JSX.Element {
     ];
 
     return (
-        <div>
+        <Card>
             <Flex gap="middle" align='center' justify='space-between'>
                 <Typography.Title level={1}>
                     Registro de Contribuyentes
@@ -198,14 +215,19 @@ function BusinessView(): JSX.Element {
                 </Button>
             </Flex>
                 
+            <Form form={form}>
+                <Form.Item name='search'>
+                    <Input placeholder='Buscar por razón social' prefix={<SearchOutlined />} />
+                </Form.Item>
+            </Form>
 
             <Table
                 style={{ overflow: 'scroll' }}
-                dataSource={business}
+                dataSource={filteredBusinesses}
                 columns={columns}
                 rowKey={b => b.id}
             />
-        </div>
+        </Card>
     )
 }
 
