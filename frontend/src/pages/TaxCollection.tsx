@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 
-import { Flex, Table, Typography, Button, Input, Space, Popconfirm, InputRef } from 'antd';
+import { Flex, Table, Typography, Button, Space, Popconfirm, InputRef, Form, Input, Card } from 'antd';
 import { useNavigate, Link } from 'react-router-dom';
 import * as api from '../util/api'
 import { Business } from '../util/types'
@@ -9,6 +9,20 @@ import { Business } from '../util/types'
 const TaxCollection: React.FC = () => {
 
     const [business, setBusiness] = useState<Business[]>([])
+
+    const [ form ] = Form.useForm();
+    const search = Form.useWatch('search', form);
+
+    const filteredBusinesses = useMemo(() => {
+        return business.filter( b => {
+
+            if (!search || search === '') {
+                return true
+            }
+
+            return b.businessName.toLowerCase().includes(search.toLowerCase()) || b.dni.toLowerCase().includes(search.toLowerCase())
+        })
+    }, [business, search])
 
     useEffect(() => {
         loadBusinesses()
@@ -21,10 +35,17 @@ const TaxCollection: React.FC = () => {
     }
 
   return (
-    <Flex vertical gap="large">
-      <Typography.Title level={1}>Recaudación</Typography.Title>
-      <SortableBusinessTable business={business} />
-    </Flex>
+    <Card>
+        <Flex vertical gap="large">
+        <Typography.Title level={1}>Recaudación</Typography.Title>
+        <Form form={form}>
+                    <Form.Item name='search'>
+                        <Input placeholder='Buscar por razón social o rif' prefix={<SearchOutlined />} />
+                    </Form.Item>
+                </Form>
+        <SortableBusinessTable business={filteredBusinesses} />
+        </Flex>
+    </Card>
   );
 };
 
@@ -44,20 +65,6 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
         }))
     }, [business])
 
-    const businessNames = useMemo(() => {
-        return business.map( b => ({
-            text: b.businessName,
-            value: b.businessName
-        }))
-    }, [business])
-
-    const businessDNIs = useMemo(() => {
-        return business.map( b => ({
-            text: b.dni,
-            value: b.dni
-        }))
-    }, [business])
-
     const columns = [
         {
             title: 'Razón Social',
@@ -66,19 +73,6 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a:Business, b:Business) => a.businessName.localeCompare(b.businessName),
-
-            filterIcon: (filtered: boolean) => (
-                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-            ),
-            filters: business.map(b => ({
-                text: b.businessName,
-                value: b.businessName
-            })),
-            filterMode: 'menu',
-            filterSearch: true,
-            onFilter: (value: string, record: Business) => {
-                return record.businessName.includes(value)
-            },
 
             render: (value: string, record: Business) => {
                 return <Typography.Text><Link to={`/tax-collection/${record.id}`}>{value}</Link></Typography.Text>
@@ -92,19 +86,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            filterIcon: (filtered: boolean) => (
-                <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-            ),
-            filters: business.map(b => ({
-                text: b.dni,
-                value: b.dni
-            })),
-            filterMode: 'menu',
-            filterSearch: true,
-            onFilter: (value: string, record: Business) => {
-                console.log({value, record})
-                return record.dni.includes(value)
-            },
+            
             sorter: (a:Business, b:Business) => a.dni.localeCompare(b.dni),
             width: '200px',
         },
