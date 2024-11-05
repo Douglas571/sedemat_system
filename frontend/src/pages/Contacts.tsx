@@ -58,7 +58,7 @@ export default function Contacts(): JSX.Element {
             message.error('Error al eliminar el contacto')
         }
     }
-    
+
     const columns = [
         {
             title: 'Nombre y Apellido',
@@ -148,7 +148,7 @@ export default function Contacts(): JSX.Element {
             
             <Form form={form}>
                 <Form.Item name='search'>
-                    <Input placeholder='Buscar por razón social' prefix={<SearchOutlined />} />
+                    <Input placeholder='Buscar por nombre o cédula' prefix={<SearchOutlined />} />
                 </Form.Item>
             </Form>
 
