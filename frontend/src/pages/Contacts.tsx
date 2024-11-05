@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Form, Input, Button, message, Typography, Select, Flex, Image, Table, Space, Popconfirm} from 'antd'
+import { Form, Input, Button, message, Typography, Select, Flex, Image, Table, Space, Popconfirm, Card} from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { Person } from 'util/api'
 import * as api from 'util/api'
@@ -13,6 +13,26 @@ export default function Contacts(): JSX.Element {
 
     const [contacts, setContacts] = useState<Person[]>([])
     const navigate = useNavigate()
+
+    const [ form ] = Form.useForm();
+
+    const search = Form.useWatch('search', form);
+
+    const filteredContacts = useMemo(() => {
+        return contacts.filter( c => {
+
+            if (!search || search === '') {
+                return true
+            }
+
+            let fullName = `${c.firstName} ${c.lastName}`
+
+            return fullName?.toLowerCase().includes(search.toLowerCase()) 
+            || (c.dni ? c.dni.toLowerCase()?.includes(search.toLowerCase()) : false)
+            
+            || (c.dni ? c.dni.replaceAll('.', '').toLowerCase()?.includes(search.replaceAll('.', '').toLowerCase()) : false)
+        })
+    }, [contacts, search])
 
     useEffect(() => {
         loadData()
@@ -38,72 +58,21 @@ export default function Contacts(): JSX.Element {
             message.error('Error al eliminar el contacto')
         }
     }
-
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef<InputRef>(null);
-
-
-    const handleSearch = (
-        selectedKeys: string[],
-        confirm: FilterDropdownProps['confirm'],
-        dataIndex: DataIndex,
-    ) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-
-    const handleReset = (clearFilters: () => void) => {
-        clearFilters();
-        setSearchText('');
-    };
-
-    const getColumnSearchProps = (dataIndex: string): TableColumnType<DataType> => ({
-
-        sortDirections: ['ascend', 'descend', 'ascend'],
-        showSorterTooltip: false,
-        filterMode: 'menu',
-        filterSearch: true,
-        
-        // filterIcon: (filtered: boolean) => (
-        //     <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        // ),
-        onFilter: (value: string, record: Person) =>
-            record[dataIndex]
-                .toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
-        
-        render: (text: string, record: Person) =>
-            (<Link to={`/contacts/${record.id}`}>{text}</Link>)
-    });
-
-    const fullNameFilters = useMemo(() => contacts.map(c => ({
-        text: c.fullName,
-        value: c.fullName
-    })), [contacts])
-
-    const dniFilters = useMemo(() => [...new Set(contacts.filter(c => c.dni))].map(c => ({
-        text: c.dni,
-        value: c.dni
-    })), [contacts])
-
-
+    
     const columns = [
         {
             title: 'Nombre y Apellido',
             dataIndex: 'fullName',
             key: 'fullName',
             
+            render: (text: string, record: Person) =>
+                (<Link to={`/contacts/${record.id}`}>{text}</Link>),
             
             sorter: (a: Person, b: Person) => a.firstName?.localeCompare(b.firstName),
 
-            
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            showSorterTooltip: false,
 
-            filters: fullNameFilters,
-
-            ...getColumnSearchProps('fullName'),
             width: 300,
             
         },
@@ -111,13 +80,15 @@ export default function Contacts(): JSX.Element {
             title: 'Cédula',
             dataIndex: 'dni',
             key: 'dni',
-            // render: (text: string, record: Contact) => <Link to={`/contacts/${record.id}`}>{text}</Link>,
 
-            filters: dniFilters,
+            render: (text: string, record: Person) =>
+                (<Link to={`/contacts/${record.id}`}>{text}</Link>),
 
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            showSorterTooltip: false,
             sorter: (a: Person, b: Person) => a.dni?.localeCompare(b.dni),
 
-            ...getColumnSearchProps('dni'),
+            
             width: 300
         },
         {
@@ -165,7 +136,7 @@ export default function Contacts(): JSX.Element {
 
     ]
     return (
-        <>
+        <Card>
             <Flex gap={'middle'} align='center' justify='space-between'>
                 <Typography.Title>
                     Contactos
@@ -175,12 +146,18 @@ export default function Contacts(): JSX.Element {
                 </Button>
             </Flex>
             
+            <Form form={form}>
+                <Form.Item name='search'>
+                    <Input placeholder='Buscar por razón social' prefix={<SearchOutlined />} />
+                </Form.Item>
+            </Form>
+
             <Table 
                 rowKey="id"
                 virtual
-                dataSource={contacts.map(r => ({...r, key: r.id}))}
+                dataSource={filteredContacts}
                 columns={columns}
             />
-        </>
+        </Card>
     )
 }

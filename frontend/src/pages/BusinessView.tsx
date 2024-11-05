@@ -43,8 +43,6 @@ function BusinessView(): JSX.Element {
         })
     }, [business, search])
 
-    console.log({filteredBusinesses})
-
     const { userAuth } = useAuthentication()
 
     const navigate = useNavigate();
@@ -60,21 +58,6 @@ function BusinessView(): JSX.Element {
             value: title
         }))
     }, [business])
-
-    const businessNames = useMemo(() => {
-        return business.map( b => ({
-            text: b.businessName,
-            value: b.businessName
-        }))
-    }, [business])
-
-    const businessDNIs = useMemo(() => {
-        return business.map( b => ({
-            text: b.dni,
-            value: b.dni
-        }))
-    }, [business])
-
 
     async function loadBusiness() {
         console.log("before fetching business")
@@ -217,7 +200,7 @@ function BusinessView(): JSX.Element {
                 
             <Form form={form}>
                 <Form.Item name='search'>
-                    <Input placeholder='Buscar por razón social' prefix={<SearchOutlined />} />
+                    <Input placeholder='Buscar por razón social o rif' prefix={<SearchOutlined />} />
                 </Form.Item>
             </Form>
 
