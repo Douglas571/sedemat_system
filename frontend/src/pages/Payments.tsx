@@ -1,7 +1,7 @@
+import React, { useEffect, useState, useMemo } from 'react';
 import { ConsoleSqlOutlined, PlusOutlined } from '@ant-design/icons';
 import type { PopconfirmProps } from 'antd';
-import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge, Form, Input } from 'antd';
 
 import axios from 'axios';
 
@@ -57,6 +57,21 @@ function Payments(): JSX.Element {
     let { userAuth } = useAuthentication()
 
     const navigate = useNavigate()
+
+    const [contacts, setContacts] = useState<Person[]>([])
+
+    const [ form ] = Form.useForm();
+
+    const search = Form.useWatch('search', form);
+
+    const filteredPayments = useMemo(() => {
+        return dataSource.filter((payment) => {
+            if (!search || search === '') {
+                return true;
+            }
+            return payment?.business?.businessName.toLowerCase().includes(search.toLowerCase()) || payment?.business?.dni.replaceAll('.', '').toLowerCase().includes(search.replaceAll('.', '').toLowerCase()) || payment.reference?.toLowerCase().includes(search.toLowerCase());
+        })
+    }, [dataSource, search]);
 
     const fetchPayments = async () => {
         // console.log("Cargando pagos...")
@@ -196,8 +211,6 @@ function Payments(): JSX.Element {
 
             sortDirections: ['ascend', 'descend', 'ascend'],
             showSorterTooltip: false,
-            filterMode: 'menu',
-            filterSearch: true,
 
             render: (text: string, record: Payment) => {
                 // console.log({record, text})
@@ -216,22 +229,6 @@ function Payments(): JSX.Element {
                     return a.person.firstName.localeCompare(b.person.firstName)
                 }
             },
-
-            filters: [...new Set(dataSource.map((payment) => {
-                if(payment.businessId) return payment.business.businessName
-                else return `${payment?.person?.firstName} ${payment?.person?.lastName}`
-            }))].map(t => {
-                // console.log(t)
-                return { text: t, value: t }
-            }),
-
-            onFilter: (value: string, record: Payment) =>
-                record ? record.business['businessName']
-                    .toString()
-                    .toLowerCase()
-                    .includes((value as string).toLowerCase()) : false,
-            
-            ...filterIconProp,
         },
         {
             title: 'Rif o Cédula',
@@ -239,13 +236,6 @@ function Payments(): JSX.Element {
             key: 'dni',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-
-            filterSearch: true,
-            onFilter: (value: string, record: Payment) =>
-                record ? record?.business['dni']
-                    .toString()
-                    .toLowerCase()
-                    .includes((value as string).toLowerCase()) : false,
 
             sorter: (a, b) => {
                 if (a.businessId) {
@@ -255,13 +245,6 @@ function Payments(): JSX.Element {
                 }
             },
 
-            filters: [...new Set(dataSource.map((payment) => {
-                if(payment.businessId) return payment.business.dni
-                else return payment?.person?.dni
-            }))].map(t => {
-                return { text: t, value: t }
-            }),
-
             render: (text: string, record: Payment) => {
                 if (record.businessId) {
                     return record?.business?.dni
@@ -269,9 +252,6 @@ function Payments(): JSX.Element {
                     return record?.person?.dni
                 }
             },
-
-            ...filterIconProp,
-
 
         },
         {
@@ -281,23 +261,11 @@ function Payments(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
 
-            filterSearch: true,
-            onFilter: (value: string, record: Payment) => {
-                if (!record?.reference) return false
-                
-                return record.reference.toLowerCase() === (value as string).toLowerCase()
-            },
-
             sorter: (a, b) => a.reference.localeCompare(b.reference),
             render: (text: string, record: Payment) => {
                 return <Link to={`/payments/${record.id}`}>{text}</Link>
             },
 
-            filters: dataSource.map((payment) => {
-                return { text: payment.reference, value: payment.reference }
-            }),
-            
-            ...filterIconProp
         },
         {
             title: 'Monto',
@@ -429,8 +397,13 @@ function Payments(): JSX.Element {
                     </Button>
                 </Flex>
             }>
+                <Form form={form}>
+                    <Form.Item name='search'>
+                        <Input placeholder='Buscar por razón social, rif, cédula, o referencia de pago' prefix={<SearchOutlined />} />
+                    </Form.Item>
+                </Form>
                 <Table
-                    dataSource={dataSource}
+                    dataSource={filteredPayments}
                     columns={columns}
                     style={{ overflow: 'scroll' }}
                 />
