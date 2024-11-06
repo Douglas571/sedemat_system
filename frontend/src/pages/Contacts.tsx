@@ -7,8 +7,6 @@ import * as api from 'util/api'
 
 import { SearchOutlined } from '@ant-design/icons';
 
-import Highlighter from 'react-highlight-words';
-
 export default function Contacts(): JSX.Element {
 
     const [contacts, setContacts] = useState<Person[]>([])

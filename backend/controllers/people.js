@@ -89,7 +89,7 @@ const uploadProfilePicture = (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const compressedFilename = await imageUtils.compress({
+        const compressedFilename = await imageUtils.compressWithoutNormalise({
             filePath: path.resolve(TEMP, req.file.filename),
             destination: PFP_PATH,
             baseFileName: crypto.randomInt(100000, 999999),
@@ -139,7 +139,7 @@ const uploadDniPicture = (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const compressedFilename = await imageUtils.compress({
+        const compressedFilename = await imageUtils.compressHorizontal({
             filePath: path.resolve(TEMP, req.file.filename),
             destination: DNI_PATH,
             baseFileName: crypto.randomInt(100000, 999999),
@@ -166,7 +166,7 @@ const uploadRifPicture = (req, res) => {
         }});
         }
 
-        const compressedFilename = await imageUtils.compress({
+        const compressedFilename = await imageUtils.compressHorizontal({
             filePath: path.resolve(TEMP, req.file.filename),
             destination: RIF_PATH,
             baseFileName: crypto.randomInt(100000, 999999),
