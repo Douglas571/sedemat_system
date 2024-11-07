@@ -8,7 +8,7 @@ import * as api from '../util/api';
 
 import { IGrossIncome, Business } from '../util/types';
 import { completeUrl } from '../util';
-import { formatBolivares, formatPercents } from '../util/currency';
+import { CurrencyHandler, formatBolivares, formatPercents } from '../util/currency';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -131,8 +131,7 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
 
             layout='vertical'
         >
-            <Descriptions.Item label="Año">{dayjs(grossIncome.period).year()}</Descriptions.Item>
-            <Descriptions.Item label="Mes">{dayjs(grossIncome.period).format('MMMM')}</Descriptions.Item>
+            <Descriptions.Item label="Periodo">{dayjs(grossIncome.period).format('MMMM YYYY').toUpperCase()}</Descriptions.Item>
             <Descriptions.Item label="Monto Declarado">{formatBolivares(grossIncome.amountBs)}</Descriptions.Item>
 
             {
@@ -143,6 +142,10 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
                 </>   
                 )
             }
+            <Descriptions.Item label="Impuesto">{formatBolivares(grossIncome.taxInBs)}</Descriptions.Item>
+            <Descriptions.Item label="Aseo">{formatBolivares(grossIncome.wasteCollectionTaxInBs)}</Descriptions.Item>
+            <Descriptions.Item label="Min. Tributario">{formatBolivares(grossIncome.minTaxInBs)}</Descriptions.Item>
+            <Descriptions.Item label="Total a Pagar">{formatBolivares(grossIncome.totalTaxInBs)}</Descriptions.Item>
         </Descriptions>
     );
 };
