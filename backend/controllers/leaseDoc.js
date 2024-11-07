@@ -1,6 +1,8 @@
 const { LeaseDoc, DocImage } = require("../database/models");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
+const imagesUtils = require("../utils/images");
 
 // Controller function to create a lease document with images
 exports.createLeaseDoc = async (req, res) => {
@@ -12,17 +14,33 @@ exports.createLeaseDoc = async (req, res) => {
 
         const docImages = [];
 
-        // Save uploaded images and link them to the lease document
-        if (req.files && req.files.length > 0) {
-            req.files.forEach((file, index) => {
-                const imageUrl = `/uploads/lease/${file.filename}`;
-                docImages.push({
-                    leaseDocId: leaseDoc.id,
-                    pageNumber: index + 1,
-                    url: imageUrl,
-                });
+        for (let idx in req.files) {
+            let file = req.files[idx];
+
+            let newFilename = await imagesUtils.compressHorizontal({
+                filePath: file.path, 
+                destination: path.resolve(__dirname, '../uploads/lease'),
+                baseFileName: crypto.randomInt(100000, 999999),    
+            })
+            
+            docImages.push({
+                leaseDocId: leaseDoc.id,
+                pageNumber: Number(idx) + 1,
+                url: `/uploads/lease/${newFilename}`,
             });
         }
+
+        // Save uploaded images and link them to the lease document
+        // if (req.files && req.files.length > 0) {
+        //     req.files.forEach((file, index) => {
+        //         const imageUrl = `/uploads/lease/${file.filename}`;
+        //         docImages.push({
+        //             leaseDocId: leaseDoc.id,
+        //             pageNumber: index + 1,
+        //             url: imageUrl,
+        //         });
+        //     });
+        // }
 
         console.log("here")
         console.log({docImages})

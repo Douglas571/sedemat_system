@@ -7,7 +7,11 @@ const path = require("path")
 const fse = require('fs-extra')
 const multer = require('multer');
 const crypto = require('crypto');
+const os = require('os');
 
+const imagesUtils = require('../utils/images')
+
+const TEMP = os.tmpdir()
 const ZONATIONS_PATH = path.resolve(__dirname, '../uploads/zonations')
 fse.ensureDirSync(ZONATIONS_PATH)
 
@@ -15,7 +19,7 @@ fse.ensureDirSync(ZONATIONS_PATH)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // it will save files into zonations path
-        cb(null, ZONATIONS_PATH);
+        cb(null, TEMP);
     },
     filename: (req, file, cb) => {
 
@@ -42,7 +46,12 @@ exports.createZonation = async (req, res) => {
             //     docImages: JSON.stringify(docImages, null, 2),
             //     files: req.files
             // })
-            
+
+            let newFilename = await imagesUtils.compressHorizontal({
+                filePath: req.files[0].path, 
+                destination: ZONATIONS_PATH, 
+                baseFileName: Date.now()
+            })            
 
             // save the zonation instace 
             const zonation = (await Zonation.create({branchOfficeId})).toJSON()
@@ -53,7 +62,7 @@ exports.createZonation = async (req, res) => {
                 return {
                     zonationId,
                     path: image.path,
-                    url: `/uploads/zonations/${image.filename}`,
+                    url: `/uploads/zonations/${newFilename}`,
                     pageNumber: index + 1
                 }
             })

@@ -1,6 +1,8 @@
 const { BuildingDoc, DocImage } = require('../database/models');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
+const imagesUtils = require('../utils/images');
 
 // Controller function to create a building document with images
 exports.createBuildingDoc = async (req, res) => {
@@ -11,16 +13,20 @@ exports.createBuildingDoc = async (req, res) => {
         const buildingDoc = await BuildingDoc.create({ branchOfficeId, expirationDate });
 
         const docImages = [];
+        
+        for (let idx in req.files) {
+            let file = req.files[idx];
 
-        // Save uploaded images and link them to the building document
-        if (req.files && req.files.length > 0) {
-            req.files.forEach((file, index) => {
-                const imageUrl = `/uploads/building/${file.filename}`;
-                docImages.push({
-                    buildingDocId: buildingDoc.id,
-                    pageNumber: index + 1,
-                    url: imageUrl,
-                });
+            let newFilename = await imagesUtils.compressHorizontal({
+                filePath: file.path, 
+                destination: path.resolve(__dirname, '../uploads/building'),
+                baseFileName: crypto.randomInt(100000, 999999),    
+            })
+
+            docImages.push({
+                buildingDocId: buildingDoc.id,
+                pageNumber: Number(idx) + 1,
+                url: `/uploads/building/${newFilename}`,
             });
         }
 

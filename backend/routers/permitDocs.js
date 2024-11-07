@@ -5,13 +5,16 @@ const permitDocsController = require('../controllers/permitDocs');
 
 const fse = require('fs-extra')
 
+const os = require('os')
+const TEMP = os.tmpdir()
+
 const router = express.Router();
 fse.ensureDirSync(path.join(__dirname, '../uploads/permit-docs'));
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../uploads/permit-docs'));
+        cb(null, TEMP);
     },
     filename: function (req, file, cb) {
         

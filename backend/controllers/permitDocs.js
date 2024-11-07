@@ -1,5 +1,9 @@
 const { PermitDoc, DocImage } = require('../database/models');
 
+const imagesUtils = require('../utils/images');
+const crypto = require('crypto');
+const path = require('path');
+
 // Controller to create a PermitDoc
 exports.createPermitDoc = async (req, res) => {
     try {
@@ -15,18 +19,21 @@ exports.createPermitDoc = async (req, res) => {
 
         const docImages = [];
 
-        // Handle uploaded images
-        if (req.files && req.files.length > 0) {
-            req.files.forEach((file, index) => {
-                const imageUrl = `/uploads/permit-docs/${file.filename}`;
-                docImages.push({
-                    permitDocId: permitDoc.id,
-                    pageNumber: index + 1,
-                    url: imageUrl,
-                });
-            });
+        for (let idx in req.files) {
+            let file = req.files[idx];
 
-            // Bulk insert images
+            let newFilename = await imagesUtils.compressHorizontal({
+                filePath: file.path, 
+                destination: path.resolve(__dirname, '../uploads/permit-docs'),
+                baseFileName: crypto.randomInt(100000, 999999),    
+            })
+            
+            docImages.push({
+                permitDocId: permitDoc.id,
+                pageNumber: Number(idx) + 1,
+                url: `/uploads/permit-docs/${newFilename}`,
+            });
+            
             await DocImage.bulkCreate(docImages);
         }
 

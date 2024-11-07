@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 const path = require('path');
 
-async function compress({filePath, destination, baseFileName, quality = 50, resize = false}) {
+async function compress({filePath, destination, baseFileName, quality = 50, resize = false, normalize = false}) {
   let image = sharp(filePath);
   let metadata = await image.metadata();
 
@@ -15,9 +15,13 @@ async function compress({filePath, destination, baseFileName, quality = 50, resi
     console.log("resizing image")
     image = await image.resize(1600, 1900, { fit: 'inside' })
   }
+
+  if (normalize) {
+    image = await image.normalize()
+  }
+
   let result = await image
     .greyscale()
-    .normalise()
     .toFile(path.resolve(destination, webpFilename ));
   
   return filename = webpFilename
@@ -60,9 +64,11 @@ async function compressHorizontal({filePath, destination, baseFileName, quality 
     console.log("resizing image")
     image = await image.resize(1900, 1600, { fit: 'inside' })
   }
+
+  console.log("compressing image")
   let result = await image
     .greyscale()
-    .toFile(path.resolve(destination, webpFilename ));
+    .toFile(path.resolve(destination, webpFilename));
   
   return filename = webpFilename
 }
