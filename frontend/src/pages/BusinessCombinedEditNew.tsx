@@ -432,7 +432,7 @@ function BusinessContactInformationForm({ people }): JSX.Element {
                 <Form.Item
                     name={"owner"}
                     label={"Propietario"}
-                    style={{ width: '100%' }}
+                    style={{ width: '80%' }}
                     // ! Disabled for now
                     // rules={[{ required: true, message: "Seleccione un propietario" }]}
                 >
@@ -440,7 +440,12 @@ function BusinessContactInformationForm({ people }): JSX.Element {
                         showSearch
                         options={peopleOptions}
                     />
+                    
                 </Form.Item>
+                <Button danger onClick={() => {
+                    // take accountant and clear the content
+                    form.setFieldsValue({ owner: '' })
+                }}><DeleteOutlined/> Remover</Button>
             </Flex>
 
             <Flex gap='middle'>
