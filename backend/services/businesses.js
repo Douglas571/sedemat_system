@@ -1,5 +1,12 @@
 // const EconomicActivity = require('../models/economicActivity')
-const {Person, Business, EconomicActivity, CertificateOfIncorporation} = require("../database/models");
+const {
+    Person, 
+    Business, 
+    EconomicActivity, 
+    CertificateOfIncorporation,
+    User,
+    Role
+} = require("../database/models");
 
 const ROLES = require('../utils/auth/roles')
 
@@ -53,6 +60,20 @@ exports.getBusinessById = async (id) => {
                 model: CertificateOfIncorporation,
                 as: "certificateOfIncorporations",
                 include: 'docImages'
+            },
+            {
+                model: User,
+                as: "fiscal",
+                include: [
+                    {
+                        model: Person,
+                        as: "person"
+                    },
+                    {
+                        model: Role,
+                        as: "role"
+                    }
+                ]
             }
         ]
     });
