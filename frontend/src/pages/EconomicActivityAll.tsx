@@ -163,7 +163,7 @@ const EconomicActivitiesTable = () => {
                 <Button icon={<PlusOutlined />} onClick={() => navigate('/economic-activities/new')}>Agregar</Button>
             </Flex>
         }>
-            <Table columns={columns} dataSource={economicActivities} />
+            <Table virtual columns={columns} dataSource={economicActivities} />
         </Card>
     );
 };

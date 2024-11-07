@@ -94,7 +94,7 @@ const Users: React.FC = () => {
                     <Button  onClick={() => navigate('/users/new')} icon={<PlusOutlined />}>Agregar</Button>
                 </Flex>}
             >
-                <Table dataSource={users} columns={columns} />
+                <Table virtual dataSource={users} columns={columns} />
             </Card>
         </Flex>
     );

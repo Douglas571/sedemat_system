@@ -162,6 +162,7 @@ const GrossIncomeTable = () => {
 
       showSorterTooltip: false,
       sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.status.localeCompare(b.status),
+      
     },
     {
       title: 'Total',
@@ -199,6 +200,7 @@ const GrossIncomeTable = () => {
   return (<>
     <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
       <Table 
+        virtual
         rowKey="id"
         style={{ overflow: 'auto' }}
         columns={columns} 
