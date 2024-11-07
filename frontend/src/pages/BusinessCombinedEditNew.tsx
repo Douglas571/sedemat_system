@@ -3,6 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
+import userService from '../services/UserService'
+
+import ROLES from "../util/roles";
+
 import { Business, BranchOffice, Person, EconomicActivity } from '../util/types'
 import {
     Button,
@@ -48,6 +52,9 @@ export default function BusinessForm(): JSX.Element {
     const [messageApi, contextHolder] = message.useMessage()
     const navigate = useNavigate()
 
+    const [users, setUsers] = useState<IUser[]>([])
+    const fiscalOptions = users.filter( user => user.roleId === ROLES.FISCAL).map(user => ({value: user.id, label: `${user.username}`}))
+
     const { userAuth } = useAuthentication()
 
 
@@ -66,7 +73,13 @@ export default function BusinessForm(): JSX.Element {
 
         loadEconomicActivities()
         loadPeople()
+        loadUsers()
     }, [])
+
+    async function loadUsers() {
+        let fetchedUsers = await userService.findAll();
+        setUsers(fetchedUsers)
+    }
 
     async function loadBusinessData(businessId: string) {
         let businessData = await api.fetchBusinessById(Number(businessId))
@@ -294,37 +307,29 @@ export default function BusinessForm(): JSX.Element {
                         onFinish={onFinish}>
                         <BusinessBasicInformarionForm
                             economicActivities={economicActivities}
+                            fiscalsOptions={fiscalOptions}
                         />
-
-                        
-
                         <BusinessContactInformationForm
                             people={people}
                         />
-
                         <BusinessContactPreferenceForm
-
                         />
-
                         <Form.Item>
                             <Button
                                 data-test='submit-button'
                                 type='primary' htmlType='submit'>Guardar</Button>
                         </Form.Item>
-
                         {/* <Button onClick={() => showFormData()}>
                             Show form data
                         </Button> */}
                     </Form>
                 </Flex>
             </Card>
-
         </>
-
     )
 }
 
-function BusinessBasicInformarionForm({ economicActivities }): JSX.Element {
+function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[] }): JSX.Element {
     return (
         <>
             <Flex gap='middle'>
@@ -400,6 +405,12 @@ function BusinessBasicInformarionForm({ economicActivities }): JSX.Element {
 
             <Form.Item name="isActive" label="Activo">
                 <Switch checkedChildren="SI" unCheckedChildren="NO" />
+            </Form.Item>
+
+            <Form.Item name={"fiscalId"} label={"Fiscal"}>
+                <Select
+                    options={fiscalsOptions}
+                />
             </Form.Item>
 
             <Divider />

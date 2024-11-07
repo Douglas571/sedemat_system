@@ -1214,6 +1214,11 @@ function GeneralInformationDescription({ business }): JSX.Element {
       ,
       span: 2
     },
+    {
+      key: '5',
+      label: "Fiscal Asignado",
+      children: business?.fiscal?.person ? business?.fiscal?.person.firstName + " " + business?.fiscal?.person.lastName : business?.fiscal?.username,
+    }
   ]
 
   const coi = business.certificateOfIncorporations?.length > 0 && business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1]
