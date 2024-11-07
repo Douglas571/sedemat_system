@@ -182,13 +182,13 @@ const GrossIncomeTable = () => {
         
         return (
           <Flex gap={16}>
-            <Button type="default" onClick={() => navigate(`/tax-collection/${grossIncome.businessId}/gross-incomes/${grossIncome.id}`)}>
+            <Link to={`/tax-collection/${grossIncome.businessId}/gross-incomes/${grossIncome.id}`}>
               Detalles
-            </Button>
+            </Link>
             {grossIncome.grossIncomeInvoiceId && (
-              <Button type="default" onClick={() => navigate(`/tax-collection/${grossIncome.businessId}/gross-incomes-invoice/${grossIncome.grossIncomeInvoiceId}`)} >
+              <Link to={`/tax-collection/${grossIncome.businessId}/gross-incomes-invoice/${grossIncome.grossIncomeInvoiceId}`} >
                 Factura
-              </Button>
+              </Link>
             )}
           </Flex>
         )
