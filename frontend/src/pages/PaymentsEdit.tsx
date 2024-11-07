@@ -58,6 +58,8 @@ const methods = methodNames.map(method => ({
 
 function PaymentsEdit(): JSX.Element {
 
+	const [loading, setLoading] = useState(false);
+
 	let { userAuth } = useAuthentication()
 
 	const [messageApi, contextHolder] = message.useMessage()
@@ -207,7 +209,7 @@ function PaymentsEdit(): JSX.Element {
 
 	const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
 		try {
-
+			setLoading(true)
 			// get the image 
 			// send the image to the server
 			// get the id of the image
@@ -304,6 +306,8 @@ function PaymentsEdit(): JSX.Element {
 
 			// other unexpected errors
 			message.error(error.message)
+		} finally {
+			setLoading(false)
 		}
 
 
@@ -514,7 +518,11 @@ function PaymentsEdit(): JSX.Element {
 					</div>
 
 					<Form.Item>
-						<Button type='primary' htmlType='submit'>
+						<Button 
+							loading={loading} 
+							disabled={loading} 
+							type='primary' 
+							htmlType='submit'>
 							Guardar
 						</Button>
 					</Form.Item>

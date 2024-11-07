@@ -34,6 +34,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [business, setBusiness] = useState<Business>();
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
 
+    const [loading, setLoading] = useState(false);
+
     
 
     // a variable for storing all currency exchange rates 
@@ -334,6 +336,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         console.log('Form values:', values);
 
         try {
+            setLoading(true);
             let declarationImageUrl = null;
 
             // ! disabled for now
@@ -400,6 +403,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         } catch (error) {
             console.error('Error al registrar ingreso bruto:', error);
             messageApi.error(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -654,7 +659,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     }
                     
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">
+                        <Button 
+                            loading={loading}
+                            disabled={loading}
+                            type="primary" 
+                            htmlType="submit">
                             Guardar
                         </Button>
                     </Form.Item>

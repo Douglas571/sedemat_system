@@ -225,7 +225,7 @@ function BusinessViewDetails(): JSX.Element {
     <Card
       title={
         <Flex align='center' wrap style={{ marginBottom: '20px' }} justify='space-between'>
-          <Title style={{ marginRight: '20px' }}>
+          <Title style={{ marginRight: '20px' }} style={{ textWrap: 'wrap' }}>
             {`${business?.businessName} - ${ business.isActive ? "Activo" : "Inactivo"}` || "Cargando..."}
           </Title>
           <Flex gap={'middle'}>

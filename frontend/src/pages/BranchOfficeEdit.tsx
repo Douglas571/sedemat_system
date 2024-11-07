@@ -31,6 +31,7 @@ export default function BranchOfficeForm(): JSX.Element {
 
     const [zonations, setZonations] = useState<Map<number, ZonationRaw>>(new Map())
 
+    const [loading, setLoading] = useState(false);
     
 
     const { businessId, branchOfficeId } = useParams()
@@ -66,6 +67,7 @@ export default function BranchOfficeForm(): JSX.Element {
     
     const onFinish: FormProps<FormFields>['onFinish'] = async (values) => {
         try {    
+            setLoading(true)
             // set up the branch office data
             console.log(JSON.stringify(values, null, 2) );
             
@@ -153,6 +155,8 @@ export default function BranchOfficeForm(): JSX.Element {
             navigate(`/business/${businessId}`)
         } catch (error) {
             console.error('Error:', error);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -247,53 +251,57 @@ export default function BranchOfficeForm(): JSX.Element {
                 <Input data-test={`branch-office-address`}/>
             </Form.Item>
 
-            <Flex gap={"small"}>
-                <Form.Item 
-                    label="Dimensiones (m2)" 
-                    name='dimensions'
-                >
-                    <InputNumber
-                        min={0}
-                        data-test={`branch-office-dimensions`}
-                        onChange={(dimensions) => {handleDimensionsChange(dimensions)}}
-                    />
-                </Form.Item>
+            <Flex gap={"small"} wrap>
+                <Flex>
+                    <Form.Item 
+                        label="Dimensiones (m2)" 
+                        name='dimensions'
+                    >
+                        <InputNumber
+                            min={0}
+                            data-test={`branch-office-dimensions`}
+                            onChange={(dimensions) => {handleDimensionsChange(dimensions)}}
+                        />
+                    </Form.Item>
 
-                <Form.Item 
-                    label="Tipo" 
-                    name='type'
-                    style={{width: "100px"}} 
-                >
-                    <Select
-                        data-test="branch-office-${index}-zone"
-                        showSearch
-                        options={[
-                            {label: "I", value: "I"},
-                            {lable: "II", value: "II"},
-                            {label: "III", value: "III"},
-                        ]}
-                    />
-                </Form.Item>
+                    <Form.Item 
+                        label="Tipo" 
+                        name='type'
+                        style={{width: "100px"}} 
+                    >
+                        <Select
+                            data-test="branch-office-${index}-zone"
+                            showSearch
+                            options={[
+                                {label: "I", value: "I"},
+                                {lable: "II", value: "II"},
+                                {label: "III", value: "III"},
+                            ]}
+                        />
+                    </Form.Item>
+                </Flex>
 
-                <Form.Item name="isActive" label="Activo">
-                    <Switch checkedChildren="SI" unCheckedChildren="NO"/>
-                </Form.Item>
-                
-                <Form.Item label="Es Alquilado" name='isRented'>
-                    <Switch 
-                        checkedChildren="SI"
-                        unCheckedChildren="NO"/>
-                </Form.Item>
+                <Flex align="center">
+                    <Form.Item name="isActive" label="Activo">
+                        <Switch checkedChildren="SI" unCheckedChildren="NO"/>
+                    </Form.Item>
+                    
+                    <Form.Item label="Es Alquilado" name='isRented'>
+                        <Switch 
+                            checkedChildren="SI"
+                            unCheckedChildren="NO"/>
+                    </Form.Item>
 
-                <Form.Item
-                    name="chargeWasteCollection"
-                    label="Cobrar Aseo Urbano"
-                    valuePropName="checked"
-                >
-                    <Switch
-                        checkedChildren="SI"
-                        unCheckedChildren="NO"/>
-                </Form.Item>
+                    <Form.Item
+                        name="chargeWasteCollection"
+                        label="Cobrar Aseo Urbano"
+                        valuePropName="checked"
+                    >
+                        <Switch
+                            checkedChildren="SI"
+                            unCheckedChildren="NO"/>
+                    </Form.Item>
+                </Flex>
             </Flex>
 
             
@@ -311,7 +319,11 @@ export default function BranchOfficeForm(): JSX.Element {
             <Form.Item>
                 <Button 
                     data-test='submit-button'
-                    type='primary' htmlType='submit'>Guardar</Button>
+                    type='primary' 
+                    htmlType='submit'
+                    loading={loading}
+                    disabled={loading}
+                >Guardar</Button>
             </Form.Item>
         </Form>
         

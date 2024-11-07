@@ -46,6 +46,7 @@ const CurrencyExchangeRatesPage: React.FC = () => {
 
   const handleCurrencyUpdateFromBCV = async () => {
     try {
+      setLoading(true);
       // Call the service to fetch the latest rates from BCV
       const updatedRates = await CurrencyExchangeRatesService.fetchFromBCV();
 
@@ -63,6 +64,8 @@ const CurrencyExchangeRatesPage: React.FC = () => {
     } catch (error) {
       console.error('Error updating currency exchange rates:', error);
       message.error('Ocurrió un error al actualizar las tasas de cambio');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -165,7 +168,10 @@ const CurrencyExchangeRatesPage: React.FC = () => {
         <Flex wrap justify='space-between' align='center' style={{ marginBottom: '10px'}}>
           <Typography.Title level={1}>Tasas de Cambio</Typography.Title>
           <Flex gap={20} wrap>
-            <Button onClick={handleCurrencyUpdateFromBCV} icon={<ReloadOutlined />}>
+            <Button onClick={handleCurrencyUpdateFromBCV}
+              loading={loading}
+              disabled={loading}
+              icon={<ReloadOutlined />}>
               Actualizar
             </Button>
           </Flex>

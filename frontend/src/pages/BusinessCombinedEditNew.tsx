@@ -57,6 +57,8 @@ export default function BusinessForm(): JSX.Element {
 
     const { userAuth } = useAuthentication()
 
+    const [loading, setLoading] = useState(false);
+
 
     const [form] = Form.useForm()
 
@@ -169,6 +171,7 @@ export default function BusinessForm(): JSX.Element {
 
     const onFinish: FormProps<FormFields>['onFinish'] = async (values: FormFields) => {
         try {
+            setLoading(true)
             console.log(JSON.stringify(values, null, 2));
             console.log({ branchOffices })
 
@@ -278,6 +281,8 @@ export default function BusinessForm(): JSX.Element {
                 type: 'error',
                 content: msg,
             });
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -316,6 +321,8 @@ export default function BusinessForm(): JSX.Element {
                         />
                         <Form.Item>
                             <Button
+                                loading={loading}
+                                disabled={loading}
                                 data-test='submit-button'
                                 type='primary' htmlType='submit'>Guardar</Button>
                         </Form.Item>

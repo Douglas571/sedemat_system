@@ -28,6 +28,8 @@ export default function ContactsView(): JSX.Element {
     const [form] = Form.useForm()
     const navigate = useNavigate()
 
+    const [loading, setLoading] = useState(false);
+
 
     const isEditing = contactId ? true : false
 
@@ -82,6 +84,7 @@ export default function ContactsView(): JSX.Element {
         console.log({fileList})
         
         try {
+            setLoading(true)
             // url to set in update or register new
             let pfpUrl: string
 
@@ -148,6 +151,8 @@ export default function ContactsView(): JSX.Element {
             console.log({error})
 
             message.error(error.message);
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -399,6 +404,8 @@ export default function ContactsView(): JSX.Element {
                 
                 <Form.Item>
                     <Button 
+                        loading={loading}
+                        disabled={loading}
                         data-test='submit-button'
                         type='primary' htmlType='submit'>Guardar
                     </Button>
