@@ -14,6 +14,9 @@ const fs = require('fs');
 
 const logger = require('./utils/logger')
 
+// ! TODO: Research why this is a bad idea 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 
 // ensure that the uploads folder exists
 const ensureDirectoryExists = (dirPath) => {
