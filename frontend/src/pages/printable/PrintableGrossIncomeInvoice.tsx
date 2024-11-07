@@ -3,7 +3,7 @@ import zamoraFlagUrl from '/images/zamora_flag.png'
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'
-import { Card, Typography, Table, Descriptions, List, Flex} from 'antd';
+import { Card, Typography, Table, Descriptions, List, Flex, Watermark} from 'antd';
 const { Title, Text } = Typography;
 
 import dayjs_es from 'dayjs/locale/es';
@@ -130,6 +130,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
     return (
+      <Watermark content={grossIncomeInvoice?.settlement?.id ? "LIQUIDADO": ''} gap={[150, 150]} font={{ color: 'rgba(255, 102, 102, 0.7)', fontSize: 50}}>
         <Flex vertical
           className='printable'
         >
@@ -416,7 +417,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             </table>
 
         </Flex>
-    );
+    </Watermark>
+  );
 };
 
 export default GrossIncomeInvoiceDetails;
