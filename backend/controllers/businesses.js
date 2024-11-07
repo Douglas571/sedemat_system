@@ -7,6 +7,9 @@ const path = require('path');
 const fse = require('fs-extra');
 const multer = require('multer');
 const crypto = require('crypto');
+const os = require('os');
+
+const imagesUtils = require('../utils/images');
 
 const passport = require('passport');
 
@@ -153,6 +156,7 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), async (r
 
 
 // create a multer storage to save the certificate of incorporation 
+const TEMP = os.tmpdir()
 const CERTIFICATES_OF_INCORPORATION_PATH = path.resolve(__dirname, '../uploads/certificates-of-incorporation')
 fse.ensureDirSync(CERTIFICATES_OF_INCORPORATION_PATH)
 
@@ -160,7 +164,7 @@ fse.ensureDirSync(CERTIFICATES_OF_INCORPORATION_PATH)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // it will save files into zonations path
-        cb(null, CERTIFICATES_OF_INCORPORATION_PATH);
+        cb(null, TEMP);
     },
     filename: (req, file, cb) => {
 
@@ -189,18 +193,29 @@ async function saveCertificateOfIncorporation(req, res) {
 
             const certificateOfIncorporationId = certificateOfIncorporation.id
             
-            
             // register every image 
-            const newDocImages = docImages.map( (image, index) => {
-                return {
+            const newDocImages = [];
+
+            for (const [index, image] of docImages.entries()) {
+
+                let newFilename = await imagesUtils.compressHorizontal({
+                    filePath: image.path,
+                    baseFileName: crypto.randomInt(100000, 999999),
+                    destination: CERTIFICATES_OF_INCORPORATION_PATH
+                })
+                newDocImages.push({
                     certificateOfIncorporationId,
-                    path: image.path,
-                    url: `/uploads/certificates-of-incorporation/${image.filename}`,
+                    path: path.join(CERTIFICATES_OF_INCORPORATION_PATH, newFilename),
+                    url: `/uploads/certificates-of-incorporation/${newFilename}`,
                     pageNumber: index + 1
-                }
-            })
+                })
+            }
+
+            console.log({newDocImages})
 
             let registeringImagesPromises = newDocImages.map( async (docImage) => {
+
+
                 const registeredDocImage = await DocImage.create(docImage)
                 return registeredDocImage.toJSON()
             })
