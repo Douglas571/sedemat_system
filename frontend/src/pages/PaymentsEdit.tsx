@@ -442,12 +442,19 @@ function PaymentsEdit(): JSX.Element {
 
 					<Flex wrap>
 						<Form.Item<FieldType>
-							rules={[{ required: true, message: 'Introduzca una referencia' }]}
+							rules={[
+								{ required: true, message: 'Introduzca una referencia' },
+								{
+									pattern: /^[0-9]*$/,
+									message: 'Sólo se permiten números',
+								}
+							]}
 							label='Referencia'
 							name='reference'
 							style={{ marginRight: '20px' }}
+							
 						>
-							<InputNumber maxLength={6} min={0}/>
+							<Input maxLength={6}/>
 						</Form.Item>
 
 						<Form.Item<FieldType>
