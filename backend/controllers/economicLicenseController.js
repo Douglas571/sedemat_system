@@ -7,7 +7,6 @@ class EconomicLicenseController {
         try {
             const economicLicenseData = req.body;
             economicLicenseData.businessId = req.params.businessId;
-            console.log({economicLicenseData});
             const newLicense = await economicLicenseService.requestNewEconomicLicense(economicLicenseData);
             res.status(201).json(newLicense);
         } catch (error) {

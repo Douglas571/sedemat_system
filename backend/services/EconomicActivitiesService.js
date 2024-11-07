@@ -3,16 +3,14 @@ const { EconomicActivity, Alicuota } = require('../database/models');
 
 function getCurrentAlicuota (economicActivity) {
     // TODO: Implement this with createdAt or updatedAt
-    console.log({economicActivity})
 
     if (!economicActivity?.alicuotaHistory) {
-        console.log("there is no alicuotas")
         return null;
     }
 
     let currentAlicuota = economicActivity.alicuotaHistory.sort((a, b) => b.id - a.id)[0]
 
-    console.log({currentAlicuota})
+    // console.log({currentAlicuota})
 
     return currentAlicuota
 }
@@ -57,8 +55,6 @@ class EconomicActivityService {
             ]
         });
 
-        console.log({economicActivity})
-
         economicActivity = {
             ...economicActivity.toJSON(),
             currentAlicuota: getCurrentAlicuota(economicActivity)
@@ -76,8 +72,6 @@ class EconomicActivityService {
             minTaxMMV: data.firstMinTaxMMV,
             economicActivityId: newEconomicActivity.id
         });
-
-        console.log({newEconomicActivity, newAlicuota})
 
         return {
             ...newEconomicActivity.toJSON(),

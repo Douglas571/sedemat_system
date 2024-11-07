@@ -57,6 +57,8 @@ function BusinessViewDetails(): JSX.Element {
 
   const [licenseStatus, setLicenseStatus] = useState()
 
+  console.log({ business })
+
   let [shouldUpdatePreferredChanel, setShouldUpdatePreferredChanel] = React.useState<boolean>(false)
 
   useEffect(() => {
@@ -1210,6 +1212,8 @@ function GeneralInformationDescription({ business }): JSX.Element {
   ]
 
   const coi = business.certificateOfIncorporations?.length > 0 && business.certificateOfIncorporations[business.certificateOfIncorporations.length - 1]
+
+  console.log({coi})
 
   return (
     <Flex vertical>

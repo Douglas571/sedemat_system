@@ -25,7 +25,7 @@ function parseError(error) {
 class EconomicActivityController {
     // GET /economic-activities
     async getAll(req, res) {
-        console.log("FETCHING ECONOMIC ACTIVITIES CONTROLLER")
+        
         try {
             const economicActivities = await economicActivityService.getAllEconomicActivities();
             res.status(200).json(economicActivities);
@@ -59,7 +59,7 @@ class EconomicActivityController {
         data.alicuota = req.body.firstAlicuota || 0
         data.minimumTax = req.body.firstMinTaxMMV || 0
 
-        console.log({newEconomicActivity: data, ali: data.alicuota})
+        // console.log({newEconomicActivity: data, ali: data.alicuota})
         try {
             const newEconomicActivity = await economicActivityService.createEconomicActivity(data, user);
             res.status(201).json(newEconomicActivity);

@@ -59,10 +59,6 @@ exports.requestNewEconomicLicense = async(licenseData) => {
         isSuspended: false,
         // Add other fields from licenseData as needed
     });
-
-
-    console.log({EconomicLicense});
-    console.log({newLicense});
         
     // return the new license
     return newLicense;

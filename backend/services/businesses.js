@@ -115,7 +115,7 @@ exports.deleteBusiness = async (id, user) => {
 
 
 exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
-    console.log({businessId})
+    // console.log({businessId})
     const business = await Business.findByPk(businessId, {
         include: [
             {
@@ -224,7 +224,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         })
     }
     // this owner has a picture
-    console.log({p: owner?.profilePictureUrl})
+    // console.log({p: owner?.profilePictureUrl})
     if (!owner?.profilePictureUrl) {
         result.isValid = false
         error.fields.push({
@@ -322,7 +322,7 @@ exports.isEligibleForTheEconomicActivityLicense = async (businessId) => {
         }
 
     //     has a valid firefighter permit doc 
-        console.log({a: branchOffice.fireFighterDocs})
+        // console.log({a: branchOffice.fireFighterDocs})
         if (!branchOffice.fireFighterDocs?.length) {
             result.isValid = false
             error.fields.push({
