@@ -30,18 +30,6 @@ exports.createLeaseDoc = async (req, res) => {
             });
         }
 
-        // Save uploaded images and link them to the lease document
-        // if (req.files && req.files.length > 0) {
-        //     req.files.forEach((file, index) => {
-        //         const imageUrl = `/uploads/lease/${file.filename}`;
-        //         docImages.push({
-        //             leaseDocId: leaseDoc.id,
-        //             pageNumber: index + 1,
-        //             url: imageUrl,
-        //         });
-        //     });
-        // }
-
         console.log("here")
         console.log({docImages})
 
