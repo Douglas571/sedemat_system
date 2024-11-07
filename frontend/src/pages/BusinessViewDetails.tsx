@@ -428,7 +428,12 @@ function InactivityLettersDisplay({ businessId, branchOffices }: { businessId: n
           Agregar Carta
         </Button>
       </Flex>
-      <Table columns={columns} dataSource={periods}/>
+      <Table 
+        columns={columns} 
+        dataSource={periods}
+        virtual
+        // style={{ overflow: 'auto' }}
+      />
       <InactivityLetterEditModal 
         open={showEditForm}
         onCancel={handleCancelModal}
@@ -666,6 +671,7 @@ function BranchOfficesDisplay({ branchOffices, onEdit, onDelete, onNew }): JSX.E
                 <Descriptions
                   title={`Datos Generales`}
                   bordered
+                  layout='vertical'
                   items={[
                     {
                       label: 'Zona',
@@ -995,7 +1001,7 @@ function CommunicationDisplay({
         }}
       />
 
-      <Flex gap='middle' wrap>
+      <Flex gap='middle' wrap style={{ overflow: 'auto' }}>
         {
           business.owner && (
             <ContactDisplay
@@ -1094,13 +1100,14 @@ function ContactPreferenceDescription({ preference }): JSX.Element {
     },
     {
       key: '4',
-      label: 'Recordad',
+      label: 'Recordar',
       children: reminderInterval
     },
   ]
 
   return (
     <Descriptions
+      layout='vertical'
       title="Preferencias de Comunicación"
       bordered
       items={contactPreferenceDescriptions}
@@ -1152,8 +1159,6 @@ function PermitRender({ data, title }) {
             )
           })
         }
-
-
       </Paragraph>
     </>
   )
@@ -1221,6 +1226,7 @@ function GeneralInformationDescription({ business }): JSX.Element {
         title="Información General"
         bordered
         items={generalInformationDescriptions}
+        layout='vertical'
       />
 
       {/* coi */}

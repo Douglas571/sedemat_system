@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message, Form, Card } from 'antd'
-import { EditFilled, DeleteFilled, SearchOutlined } from '@ant-design/icons';
+import { EditFilled, DeleteFilled, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 
 
 import { useNavigate, Link } from "react-router-dom";
@@ -188,15 +188,17 @@ function BusinessView(): JSX.Element {
 
     return (
         <Card>
-            <Flex gap="middle" align='center' justify='space-between'>
+            <Flex gap="middle" align='center' justify='space-between' wrap>
                 <Typography.Title level={1}>
                     Registro de Contribuyentes
                     
                 </Typography.Title>
-                <Button onClick={onNewTaxPayer}>
+                <Button icon={<PlusOutlined />} onClick={onNewTaxPayer}>
                     Nuevo
                 </Button>
             </Flex>
+
+            <br/>
                 
             <Form form={form}>
                 <Form.Item name='search'>
@@ -209,6 +211,8 @@ function BusinessView(): JSX.Element {
                 dataSource={filteredBusinesses}
                 columns={columns}
                 rowKey={b => b.id}
+
+                virtual
             />
         </Card>
     )
