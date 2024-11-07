@@ -31,6 +31,20 @@ exports.getAllBusinesses = async () => {
             {
                 model: EconomicActivity,
                 as: 'economicActivity'
+            },
+            {
+                model: User,
+                as: "fiscal",
+                include: [
+                    {
+                        model: Person,
+                        as: "person"
+                    },
+                    {
+                        model: Role,
+                        as: "role"
+                    }
+                ]
             }
         ]
     });

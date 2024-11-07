@@ -108,6 +108,35 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
 
             width: 400,
         },
+        {
+            title: "Fiscal",
+            dataIndex: 'fiscalId',
+            key: 'fiscalId',
+
+            filters: [... new Set(business.map( b => b?.fiscal?.username))].map( (username: string) => {
+                let name = username ? username : "Sin Fiscal"
+
+                return { text: name, value: name }
+            }),
+
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            
+            sorter: (a: Business, b: Business) => a?.fiscal?.username.localeCompare(b?.fiscal?.username.toLowerCase()),
+
+            onFilter(value: string, record: Business) {
+                if (value === 'Sin Fiscal') {
+                    return !record?.fiscalId
+                }
+
+                return record?.fiscal?.username.includes(value)
+            },
+
+            render (value: string, record: Business) {
+                return <Typography.Text>{record.fiscalId ? record?.fiscal?.username : '--'}</Typography.Text>
+            }
+
+        },
         // {
         //     title: '',
         //     key: 'actions',
