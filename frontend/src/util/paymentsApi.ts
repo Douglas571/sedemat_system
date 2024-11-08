@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import { Payment } from "./types"
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -98,4 +99,29 @@ export async function deletePayment(id: number, token: string): Promise<void> {
     }
 
     console.log({ response })
+}
+
+export async function updateVerifiedStatus(id: number, data: any, token: string): Promise<Payment> {
+    try {
+        const response = await axios.put(`${HOST}/v1/payments/${id}/is-verified`, data, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+
+        return response.data
+    } catch (err) {
+        let error = err?.response?.data?.error
+        let status = err?.response?.status
+
+        if (status === 404) {
+            throw new Error("Pago no encontrado")
+        }
+        
+        if (status === 401) {
+            throw new Error("Usuario no autorizado")
+        }
+
+        throw new Error("Error del servidor")
+    }
 }

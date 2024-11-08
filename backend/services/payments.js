@@ -1,9 +1,21 @@
 const { Payment: PaymentModel, Person, Business, Bank } = require('../database/models')
 
+const ROLES = require('../utils/auth/roles');
+
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
 
 
 const logger = require('../utils/logger')
+
+function checkThatIsSettlementOfficer(user) {
+    // if user is not an admin, director, fiscal, or collector 
+    if (!user || [ROLES.LIQUIDATOR].indexOf(user.roleId) === -1) {
+        let error = new Error('User not authorized');
+        error.name = 'UserNotAuthorized';
+        error.statusCode = 401;
+        throw error;
+    }
+}
 
 exports.findAll = async ({filters}) => {
     logger.info('Looking into DB');
@@ -108,6 +120,13 @@ exports.updatePayment = async (id, paymentData, user) => {
 
         // the only way to add payments to invoice is through the dedicated method
         paymentData.grossIncomeInvoiceId = undefined;
+
+        // updating verified status is not allowed here
+        paymentData.verifiedAt = undefined
+        paymentData.verifiedByUserId = undefined
+        paymentData.receivedAt = undefined
+        paymentData.checkedAt = undefined
+        paymentData.checkedByUserId = undefined     
         
         if (prevPayment.grossIncomeInvoiceId) {
             let grossIncomeInvoice = await grossIncomeInvoiceService.getGrossIncomeInvoiceById(prevPayment.grossIncomeInvoiceId)
@@ -118,41 +137,6 @@ exports.updatePayment = async (id, paymentData, user) => {
                 throw err
             }
         }
-
-        // if paymentData only contains verifiedAt and verifiedByUserId, you can edit
-
-        console.log({paymentData})
-
-        // we count the number of properties to warrant that it is only updating the check at date. Usually, it's less than 4, it also include the id, but i will remove it later
-        if (Object.keys(paymentData).length < 5 && (paymentData.checkedAt !== prevPayment.checkedAt || paymentData.receivedAt !== prevPayment.receivedAt)) {
-
-            // unmarking the payment as verified
-            if (paymentData.checkedAt === null) {
-                return await PaymentModel.update({
-                    receivedAt: null,
-                    checkedAt: null,
-                    // we preserve the checkedByUserId to know that i was unmarked by that user
-                    checkedByUserId: user.id
-                }, {
-                    where: { id }
-                })
-            }
-
-            // the user is updating the payment verification data
-            return await PaymentModel.update({
-                receivedAt: paymentData.receivedAt,
-                checkedAt: paymentData.checkedAt,
-                checkedByUserId: user.id
-            }, {
-                where: { id }
-            })
-        }
-
-        // user is updating something else than the payment verification data
-        paymentData.verifiedAt = undefined
-        paymentData.verifiedByUserId = undefined
-        paymentData.receivedAt = undefined
-        paymentData.checkedByUserId = undefined        
 
         const newPaymentData = {
             ...paymentData,
@@ -180,6 +164,48 @@ exports.updatePayment = async (id, paymentData, user) => {
     }
 };
 
+exports.updateVerifiedStatus = async (id, data, user) => {
+    // verify that the user is a settlement officer (ROLE.LIQUIDATOR)
+    checkThatIsSettlementOfficer(user)
+
+    // get the payment by primary key 
+    const paymentData = await PaymentModel.findByPk(id);
+
+    if (!paymentData) {
+        console.error(`Payment with ID ${id} not found`);
+        let err = new Error(`Payment with ID ${id} not found`);
+        err.name = "PaymentNotFoundError"
+        throw err
+    }
+
+    const {
+        checkedAt,
+        receivedAt
+    } = data;
+
+    // return the updated payment
+
+    if (checkedAt === null) {
+        return await PaymentModel.update({
+            receivedAt: null,
+            checkedAt: null,
+            // we preserve the checkedByUserId to know that i was unmarked by that user
+            checkedByUserId: user.id
+        }, {
+            where: { id }
+        })
+    }
+
+    // the user is updating the payment verification data
+    return await PaymentModel.update({
+        receivedAt: receivedAt,
+        checkedAt: checkedAt,
+        checkedByUserId: user.id
+    }, {
+        where: { id }
+    })
+}
+
 exports.deletePayment = async (id) => {
     logger.info(`Deleting payment with ID ${id}`);
     const payment = await PaymentModel.findByPk(id);
@@ -187,6 +213,7 @@ exports.deletePayment = async (id) => {
     if (payment.grossIncomeInvoiceId) {
         let err = new Error('Payment is already associated with an invoice');
         err.name = "AssociatedWithInvoiceError"
+        err.statusCode = 404
         throw err
     }
 

@@ -123,7 +123,9 @@ function Payments(): JSX.Element {
 
             console.log({ isVerified, checkedAt, receivedAt })
             
-            let paymentUpdated = await paymentService.updatePayment({id: Number(id), checkedAt, receivedAt}, userAuth.token)
+            // let paymentUpdated = await paymentService.updatePayment({id: Number(id), checkedAt, receivedAt}, userAuth.token)
+
+            let paymentUpdatedStatus = await paymentService.updateVerifiedStatus(Number(id), {checkedAt, receivedAt}, userAuth.token)
 
             fetchPayments()
         } catch (error) {

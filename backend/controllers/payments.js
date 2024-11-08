@@ -98,6 +98,20 @@ router.put('/:id',
     }
 });
 
+router.put('/:id/is-verified', 
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+
+    try {
+        const updatedPayment = await paymentService.updateVerifiedStatus(req.params.id, req.body, req.user);
+
+        res.json(updatedPayment);
+    } catch (error) {
+        console.log({error})
+        res.status(error.statusCode ?? 500).json({ error });
+    }
+});
+
 router.delete('/:id', 
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
