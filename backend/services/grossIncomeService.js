@@ -120,6 +120,10 @@ class GrossIncomeService {
 
     // Create a new GrossIncome record
     async createGrossIncome(newGrossIncome) {
+
+        // only update gross income invoice id in the invoice service 
+        newGrossIncome.grossIncomeInvoiceId = undefined
+
         newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
 
         console.log({newGrossIncome})
@@ -173,6 +177,9 @@ class GrossIncomeService {
 
     // Update an existing GrossIncome record by ID
     async updateGrossIncome(id, data) {
+
+        // only update gross income invoice id in the invoice service 
+        data.grossIncomeInvoiceId = undefined
 
         const grossIncome = await this.getGrossIncomeById(id, {
             include: [
