@@ -115,8 +115,8 @@ function Payments(): JSX.Element {
         try {            
             // TODO: Implement a controle to set this information manually
 
-            let checkedAt = dayjs().utc()
-            let receivedAt = dayjs().utc()
+            let checkedAt: dayjs.Dayjs | null = dayjs().utc()
+            let receivedAt: dayjs.Dayjs | null = dayjs().utc()
 
             if (isVerified) {
                 checkedAt = null

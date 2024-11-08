@@ -24,7 +24,7 @@ import {
 } from 'antd';
 
 const { Title, Text } = Typography;
-import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined} from '@ant-design/icons';
+
 
 import dayjs from 'dayjs'
 import dayjs_es from 'dayjs/locale/es';
@@ -33,9 +33,12 @@ dayjs.locale(dayjs_es);
 
 import _ from 'lodash';
 
+import ROLES from '../util/roles';
+
 
 import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
-import { EditOutlined } from '@ant-design/icons';
+
+import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled} from '@ant-design/icons';
 
 
 import * as grossIncomeApi from '../util/grossIncomeApi'
@@ -52,7 +55,6 @@ import settlementService from 'services/SettlementService';
 import { CurrencyHandler, formatBolivares, formatPercents, percentHandler } from 'util/currency';
 import useAuthentication from 'hooks/useAuthentication';
 
-import { ROLES } from 'util/constants'
 import GrossIncomeInvoice from './GrossIncomeInvoiceEdit';
 import create from '@ant-design/icons/lib/components/IconFont';
 
@@ -572,6 +574,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 paidAt={grossIncomeInvoice?.paidAt}
 
                 disabled={isSettled}
+                onUpdate={() => loadData()}
             />
 
             <br/>
@@ -1076,13 +1079,20 @@ function PenaltyEditModal({
 }
 
 function PaymentsAllocatedTable(
-    {paidAt, paymentsAllocated, payments, onDelete, onAdd, disabled} : 
-    {paidAt: Date, paymentsAllocated: Payment[], payments: Payment[], onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean}
+    {paidAt, paymentsAllocated, payments, onDelete, onAdd, disabled, onUpdate} : 
+    {
+        paidAt: Date, 
+        paymentsAllocated: Payment[], 
+        payments: Payment[], 
+        onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean,
+        onUpdate: () => void
+    }
 ) {
 
     // console.log({paymentsAllocated})
     const { grossIncomeInvoiceId } = useParams()
     const navigate = useNavigate()
+    const {userAuth} = useAuthentication()
 
     const [showPaymentAssociationModal, setShowPaymentAssociationModal] = useState(false)
 
@@ -1112,6 +1122,31 @@ function PaymentsAllocatedTable(
         
         setShowPaymentAssociationModal(false)
         onAdd(id)
+    }
+
+    async function updateVerifiedStatus(id: string, isVerified: boolean) {
+        try {            
+            // TODO: Implement a controle to set this information manually
+
+            let checkedAt: dayjs.Dayjs | null = dayjs().utc()
+            let receivedAt: dayjs.Dayjs | null = dayjs().utc()
+
+            if (isVerified) {
+                checkedAt = null
+                receivedAt = null
+            }
+
+            console.log({ isVerified, checkedAt, receivedAt })
+            
+            // let paymentUpdated = await paymentService.updatePayment({id: Number(id), checkedAt, receivedAt}, userAuth.token)
+
+            let paymentUpdatedStatus = await paymentsApi.updateVerifiedStatus(Number(id), {checkedAt, receivedAt}, userAuth.token)
+
+            onUpdate()
+        } catch (error) {
+            console.log({ error })
+            message.error(error.message)
+        }
     }
 
     const columns = [
@@ -1147,6 +1182,12 @@ function PaymentsAllocatedTable(
             key: "actions",
             render: (text: any, record: any) => (
                 <Flex gap={16}>
+                    
+                    { userAuth?.user?.roleId === ROLES.LIQUIDATOR && (<Button
+                        onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
+                        shape="circle"
+                    >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
+
                     <Button 
                         disabled={disabled}
                         onClick={() => navigate(`/payments/${record.id}`)}>

@@ -101,7 +101,7 @@ export async function deletePayment(id: number, token: string): Promise<void> {
     console.log({ response })
 }
 
-export async function updateVerifiedStatus(id: number, data: any, token: string): Promise<Payment> {
+export async function updateVerifiedStatus(id: number, data: any, token: string = ''): Promise<Payment | undefined > {
     try {
         const response = await axios.put(`${HOST}/v1/payments/${id}/is-verified`, data, {
             headers: {
@@ -110,7 +110,7 @@ export async function updateVerifiedStatus(id: number, data: any, token: string)
         })
 
         return response.data
-    } catch (err) {
+    } catch (err: any) {
         let error = err?.response?.data?.error
         let status = err?.response?.status
 
