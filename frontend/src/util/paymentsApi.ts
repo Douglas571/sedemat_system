@@ -114,6 +114,12 @@ export async function updateVerifiedStatus(id: number, data: any, token: string)
         let error = err?.response?.data?.error
         let status = err?.response?.status
 
+        if (status === 400) {
+            if (error.name === "InvoiceAlreadySettledError") {
+                throw new Error("Este pago está asociado a una factura liquidada")
+            }
+        }
+
         if (status === 404) {
             throw new Error("Pago no encontrado")
         }
@@ -122,6 +128,8 @@ export async function updateVerifiedStatus(id: number, data: any, token: string)
             throw new Error("Usuario no autorizado")
         }
 
-        throw new Error("Error del servidor")
+        if (status === 500) {
+            throw new Error("Error del servidor")
+        }        
     }
 }

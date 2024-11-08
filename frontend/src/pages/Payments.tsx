@@ -23,6 +23,8 @@ import useAuthentication from 'hooks/useAuthentication';
 
 import dayjs from 'dayjs';
 
+import ROLES from '../util/roles';
+
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
@@ -359,10 +361,11 @@ function Payments(): JSX.Element {
                 return (
                 <Space size="middle">
 
-                    <Button
+                    { userAuth?.user?.roleId === ROLES.LIQUIDATOR && (<Button
                         onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
                         shape="circle"
-                    >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>
+                    >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
+                    
 
                     <Popconfirm
                         title="Eliminar Pago"

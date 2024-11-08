@@ -1,4 +1,4 @@
-const { Payment: PaymentModel, Person, Business, Bank } = require('../database/models')
+const { Payment: PaymentModel, Person, Business, Bank, GrossIncomeInvoice, Settlement } = require('../database/models')
 
 const ROLES = require('../utils/auth/roles');
 
@@ -134,6 +134,7 @@ exports.updatePayment = async (id, paymentData, user) => {
             if (grossIncomeInvoice.settlement) {
                 let err = new Error('Payment is already associated with a settled invoice');
                 err.name = "InvoiceAlreadySettledError"
+                err.statusCode = 400
                 throw err
             }
         }
@@ -169,12 +170,32 @@ exports.updateVerifiedStatus = async (id, data, user) => {
     checkThatIsSettlementOfficer(user)
 
     // get the payment by primary key 
-    const paymentData = await PaymentModel.findByPk(id);
+    const paymentData = await PaymentModel.findByPk(id, {
+        include: [
+            {
+                model: GrossIncomeInvoice,
+                as: 'grossIncomeInvoice',
+                include: [
+                    {
+                        model: Settlement,
+                        as: 'settlement'
+                    }
+                ]
+            }
+        ],
+    });
 
     if (!paymentData) {
         console.error(`Payment with ID ${id} not found`);
         let err = new Error(`Payment with ID ${id} not found`);
         err.name = "PaymentNotFoundError"
+        throw err
+    }
+
+    if (paymentData?.grossIncomeInvoice?.settlement) {
+        let err = new Error('Payment is associated with a settled invoice');
+        err.name = "InvoiceAlreadySettledError"
+        err.statusCode = 400
         throw err
     }
 
@@ -212,8 +233,8 @@ exports.deletePayment = async (id) => {
 
     if (payment.grossIncomeInvoiceId) {
         let err = new Error('Payment is already associated with an invoice');
-        err.name = "AssociatedWithInvoiceError"
-        err.statusCode = 404
+        err.name = "InvoiceAlreadySettledError"
+        err.statusCode = 400
         throw err
     }
 
