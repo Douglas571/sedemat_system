@@ -49,3 +49,49 @@ module.exports.getBusinessesGrossIncomeReport = async (req, res) => {
 
   }
 }
+
+module.exports.getGrossIncomesSummary = async (req, res) => {
+  
+  const { month, year, format } = req.query;
+
+  try {
+
+    if (format === 'json' || !format) {
+      const result = await businessReportsService.getGrossIncomesSummaryJSON({month, year, user: req.user});
+
+      return res.json(result);
+    } else if (format === 'excel') {
+    
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+      res.setHeader('Content-Disposition', `attachment; filename=resumen-${dayjs().format('MMMM-YYYY')}.xlsx`);
+
+      await businessReportsService.getGrossIncomesSummaryExcel({month, year,user: req.user, stream: res});      
+
+    } else {
+      return res.status(400).json({ error: {
+        message: 'Invalid format, please specify json or excel',
+        name: "InvalidFormat"
+      }});
+    }
+    
+
+    
+  } catch (err) {
+
+    console.log({err});
+
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({ error: {
+        message: err.message,
+        name: err.name,
+        statusCode: err.statusCode
+      }});
+    }
+
+    return res.status(500).json({ error: {
+      message: err.message,
+      name: err.name
+    }});
+  }
+}

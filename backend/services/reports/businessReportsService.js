@@ -6,10 +6,13 @@ const {
   BranchOffice, 
   GrossIncomeInvoice, 
   Penalty,
+  Payment,
   Settlement,
   EconomicLicense,
   InactivityPeriod
 } = require('../../database/models');
+
+const { Op } = require('sequelize');
 
 
 
@@ -47,6 +50,17 @@ function canDownloadGrossIncomeReport(user) {
     throw error;
   }
 }
+
+function shouldBeTaxCollector(user) {
+  // if user is not an admin, director, fiscal, or collector
+  if (!user || [ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+    let error = new Error('User not authorized');
+    error.name = 'UserNotAuthorized';
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
 
 module.exports.getBusinessesGrossIncomeReportJSON = async function({user}) {
 
@@ -507,6 +521,123 @@ function getGrossIncomeReport({
   report.classification = getBusinessClassification(report.monthsPendingToBePaidCount)
 
   return report
+}
+
+
+/**
+ * Returns a JSON report of the businesses that must pay ISLR for the given month and year.
+ * @param {Object} opts - An object with the following properties:
+ *   - {number} month - The month for which you want the report (1-12)
+ *   - {number} year - The year for which you want the report
+ *   - {User} user - The user requesting the report
+ * @returns {Promise<Object[]>} - A promise that resolves to an array of objects with the following properties:
+ *   - {string} message - A message with the result of the report
+ */
+module.exports.getGrossIncomesSummaryJSON = async ({
+  month, year, user
+}) => {
+  console.log({month, year, user})
+  shouldBeTaxCollector(user)
+
+  console.log([dayjs(`${year}-${month}-01`), dayjs(`${year}-${month}-01`).endOf('month')])
+  
+  let grossIncomes = await getGrossIncomesSummary({ month, year })
+
+  return grossIncomes
+}
+
+module.exports.getGrossIncomesSummaryExcel = async ({
+  month, year, user, stream
+}) => {
+  shouldBeTaxCollector(user)
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Reporte de ingresos brutos');
+
+  const headerRow = [
+    'CONTRIBUYENTE',
+    'RIF',
+    'SEDE',
+    'INGRESOS',
+    'ALICUOTA',
+    'INPUESTO',
+    'PAGO'
+  ];
+
+  worksheet.addRow(headerRow); 
+
+  const reportRows = await getGrossIncomesSummary({month, year});
+
+  console.log({reportRows})
+
+  reportRows.forEach(row => {
+    let formattedRow = [
+      row.business.businessName,
+      row.business.dni,
+      row?.branchOffice?.nickname,
+      row.amountBs,
+      row.alicuotaTaxPercent,
+      row.totalTaxInBs,
+      row.isPaid ? 'SI' : 'NO'
+
+    ]
+    worksheet.addRow(formattedRow)
+  });
+
+  workbook.xlsx.write(stream)
+    .then(function() {
+        console.log("Excel file with the report sent to client")
+    });
+
+  return workbook.xlsx
+}
+
+async function getGrossIncomesSummary({ month, year }) {
+  let grossIncomes = await GrossIncome.findAll({
+    where: {
+      period: {
+        [Op.between]: [dayjs(`${year}-${month}-01`).format('YYYY-MM-DD'), dayjs(`${year}-${month}-01`).endOf('month').format('YYYY-MM-DD')],
+      },
+      
+      declaredAt: {
+        [Op.between]: [dayjs(`${year}-${month}-01`).add(1, 'month').format('YYYY-MM-DD'), dayjs(`${year}-${month}-01`).add(1, 'month').endOf('month').format('YYYY-MM-DD')],
+      }
+    },
+    include: [
+      {
+        model: GrossIncomeInvoice,
+        as: 'grossIncomeInvoice',
+        include: [
+          {
+            model: Payment,
+            as: 'payments',
+          },
+          {
+            model: Settlement,
+            as: 'settlement',
+          },
+        ]
+      },
+      {
+        model: BranchOffice,
+        as: 'branchOffice'
+      },
+      {
+        model: Business,
+        as: 'business'
+      }
+    ]
+  })
+
+  let formattedGrossIncomes = grossIncomes.map(g => {
+
+    return {
+      ...g.toJSON(),
+      isPaid: g?.grossIncomeInvoice?.paidAt ?? false,
+    }
+  })
+  
+  return formattedGrossIncomes
 }
 
 exports.getGrossIncomeReport = getGrossIncomeReport

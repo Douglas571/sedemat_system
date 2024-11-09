@@ -10,5 +10,11 @@ router.get(
   businessReportsController.getBusinessesGrossIncomeReport
 );
 
+router.get(
+  '/gross-incomes/summary',
+  passport.authenticate('jwt', { session: false }),
+  businessReportsController.getGrossIncomesSummary
+);
+
 module.exports = router;
 
