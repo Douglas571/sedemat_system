@@ -152,7 +152,13 @@ function BusinessView(): JSX.Element {
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
             
-            sorter: (a: Business, b: Business) => a?.fiscal?.username.localeCompare(b?.fiscal?.username.toLowerCase()),
+            sorter: (a: Business, b: Business) => {
+
+                let aName = a.fiscalId ? a?.fiscal?.username : "--"
+                let bName = b.fiscalId ? b?.fiscal?.username : "--"
+
+                return aName.localeCompare(bName)
+            },
 
             onFilter(value: string, record: Business) {
                 if (value === 'Sin Fiscal') {
