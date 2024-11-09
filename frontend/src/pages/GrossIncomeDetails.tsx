@@ -123,6 +123,9 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
 
     const hasBranchOffice = grossIncome?.branchOffice?.nickname;
 
+    let createdByUserPersonFullName = grossIncome?.createdByUser?.person?.firstName + ' ' + grossIncome?.createdByUser?.person?.lastName
+    let updatedByUserPersonFullName = grossIncome?.updatedByUser?.person?.firstName + ' ' + grossIncome?.updatedByUser?.person?.lastName
+
     return (
         <Descriptions 
             title="Detalles del Ingreso Bruto" 
@@ -131,6 +134,14 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
 
             layout='vertical'
         >
+
+            <Descriptions.Item label="Creado por">{createdByUserPersonFullName}</Descriptions.Item>
+            {
+                grossIncome.updatedByUserId && (
+                    <Descriptions.Item label="Actualizado por">{updatedByUserPersonFullName}</Descriptions.Item>
+                )
+            }
+            <Descriptions.Item label="Declarado el">{dayjs(grossIncome.declaredAt).format('DD [de] MMMM [de] YYYY')}</Descriptions.Item>
             <Descriptions.Item label="Periodo">{dayjs(grossIncome.period).format('MMMM YYYY').toUpperCase()}</Descriptions.Item>
             <Descriptions.Item label="Monto Declarado">{formatBolivares(grossIncome.amountBs)}</Descriptions.Item>
 
@@ -146,6 +157,8 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
             <Descriptions.Item label="Aseo">{formatBolivares(grossIncome.wasteCollectionTaxInBs)}</Descriptions.Item>
             <Descriptions.Item label="Min. Tributario">{formatBolivares(grossIncome.minTaxInBs)}</Descriptions.Item>
             <Descriptions.Item label="Total a Pagar">{formatBolivares(grossIncome.totalTaxInBs)}</Descriptions.Item>
+
+            
         </Descriptions>
     );
 };

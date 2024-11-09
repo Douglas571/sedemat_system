@@ -21,6 +21,8 @@ import type { BranchOffice, Business, IGrossIncome, EconomicActivity, CurrencyEx
 import { completeUrl } from './BusinessShared';
 import { percentHandler } from 'util/currency';
 
+import useAuthentication from 'hooks/useAuthentication';
+
 const { Title } = Typography;
 // const { Option } = Select;
 
@@ -33,6 +35,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [grossIncome, setGrossIncome] = useState<IGrossIncome>();
     const [business, setBusiness] = useState<Business>();
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
+
+    const { userAuth } = useAuthentication();
 
     const [searchParams] = useSearchParams();
 
@@ -114,6 +118,10 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         loadLastCurrencyExchangeRateHistory()
 
         loadData()
+
+        form.setFieldsValue({
+            declaredAt: dayjs(),
+        })
     }, []);
 
     useEffect(() => {
@@ -180,6 +188,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             // console.log('grossIncome', grossIncome)
             form.setFieldsValue({
                 ...grossIncome,
+                declaredAt: dayjs(grossIncome.declaredAt),
                 period: dayjs(grossIncome.period),
                 // TODO: Modify the branch office name 
                 branchOffice: grossIncome.branchOfficeId,
@@ -400,6 +409,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             newGrossIncome.alicuotaId = values.alicuotaId
             newGrossIncome.currencyExchangeRatesId = values.currencyExchangeRatesId
 
+            if (isEditing) {
+                newGrossIncome.updatedByUserId = userAuth.user.id
+            } else {
+                newGrossIncome.createdByUserId = userAuth.user.id
+            }
+
             console.log('newGrossIncome', newGrossIncome)
 
             // if is editing, update the gross income
@@ -481,6 +496,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     </Form.Item> }
 
                     <Flex wrap gap={16} align='center'>
+                        <Form.Item 
+                            layout='horizontal'
+                            label="Fecha de declaración" name="declaredAt"
+                        >
+                            <DatePicker picker="date"/>
+                        </Form.Item>
                         <Form.Item
                             layout='horizontal'
                             name="period"
@@ -507,7 +528,6 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
                         <Form.Item
                             name="declarationImage"
-                            label="Declaración"
                             // ! disabled for now
                             // rules={[{ required: true, message: 'Por favor suba la declaración' }]}
                         >

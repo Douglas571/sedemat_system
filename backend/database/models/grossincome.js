@@ -40,6 +40,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'businessId',
         as: 'business'
       })
+
+      GrossIncome.belongsTo(models.User, {
+        foreignKey: 'createdByUserId',
+        as: 'createdByUser'
+      })
+
+      GrossIncome.belongsTo(models.User, {
+        foreignKey: 'updatedByUserId',
+        as: 'updatedByUser'
+      })
     }
   }
   GrossIncome.init({
@@ -135,6 +145,28 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(10, 2),
       defaultValue: 0
     },
+
+    declaredAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    createdByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+    updatedByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+
   }, {
     sequelize,
     modelName: 'GrossIncome',
