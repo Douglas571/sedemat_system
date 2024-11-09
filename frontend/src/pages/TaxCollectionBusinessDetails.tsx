@@ -232,6 +232,43 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         }
     })
 
+
+    // ! TODO: Delete this code, and implement this in the backend as a report business, this is a prove of concept for now
+    let grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
+
+        acc.set(grossIncome.branchOfficeId, [...(acc.get(grossIncome.branchOfficeId) ?? []), grossIncome])
+
+        return acc
+
+    }, new Map<string, IGrossIncomeWithStatus[]>())
+
+    for (const [key, value] of grossIncomesByBranchOffice) {
+        let { branchOffice } = value[0]
+        let periods = value.sort((a, b) => a.period.isBefore(b.period) ? 1 : -1).map( grossIncome => dayjs(grossIncome.period))
+
+        let periodsStrings = periods.map(period => period.format('YYYY-MM'))
+
+        let firstPeriod = periods.pop()
+        let currentPeriod = firstPeriod
+
+        while(currentPeriod.isBefore(dayjs(), 'month')) {
+            !periodsStrings.includes(currentPeriod.format('YYYY-MM')) && grossIncomesWithStatus.push({
+                id: Math.random().toString(16).slice(2),
+                period: currentPeriod,
+                amountBs: null,
+                branchOfficeId: branchOffice.id,
+                branchOffice: branchOffice,
+                chargeWasteCollection: branchOffice.chargeWasteCollection,
+                badgeStatus: 'default',
+                status: 'Sin Declaración',
+            })
+            
+            currentPeriod = currentPeriod.add(1, 'month')
+        }
+    }
+
+    
+
     const navigate = useNavigate();
 
     const handleGrossIncomeDelete = async (grossIncomeId: number) => {
@@ -258,6 +295,10 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             dataIndex: 'amountBs',
             key: 'amountBs',
             render: (value: number) => formatBolivares(value),
+
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.amountBs - b.amountBs,
         },
         {
             title: 'Sede',
@@ -265,11 +306,30 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             key: 'branchOffice',
             // TODO: Create a dedicated page for branch offices
             render: (value: any, record: any) => <Link to={`/business/${record.businessId}`}>{value?.nickname}</Link>,
+
+            filters: [... new Set(grossIncomesWithStatus.map((grossIncome: IGrossIncomeWithStatus) => grossIncome.branchOffice.nickname))].map((branchOffice: string) => ({text: branchOffice, value: branchOffice})),
+
+            onFilter(value: string, record: IGrossIncomeWithStatus) {
+                return record.branchOffice.nickname === value
+            },
+
+            
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.branchOffice.nickname.localeCompare(b.branchOffice.nickname),
         },
         {
             title: 'Cobrar Aseo',
             dataIndex: 'chargeWasteCollection',
-            render: (text: string) => text ? 'SI' : 'NO'
+            render: (text: string) => text ? 'SI' : 'NO',
+
+            filters: [{text: 'SI', value: 'true'}, {text: 'NO', value: 'false'}],
+
+            onFilter: (value: string, record: IGrossIncomeWithStatus) => String(record.chargeWasteCollection) === value,
+            
+            showSorterTooltip: false,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.chargeWasteCollection ? 1 : -1,
         },
         // {
         //     title: 'Factura',
@@ -314,27 +374,42 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
 
                 return (
                 <Flex gap="small">
-                    <Button 
-                        onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
-                        disabled={invoice?.settlement}    
-                    >Editar</Button>
-                    
-                    <Popconfirm
-                        title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
-                        onConfirm={() => handleGrossIncomeDelete(record.id)}
-                        okText="Sí"
-                        cancelText="No"
-                    >
-                        <Button 
-                            danger
-                            disabled={invoice?.settlement}
-                        >Eliminar</Button>
-                    </Popconfirm>
 
-                    <Button 
-                        onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}`)}
-                        
-                    >Detalles</Button>
+                    { record.amountBs === null
+                        ? (
+                            <>
+                                <Button onClick={() => navigate(`gross-incomes/new?branchOfficeId=${record.branchOfficeId}&period=${record.period.format('YYYY-MM')}`)}>
+                                    Registrar
+                                </Button>
+                            </>
+                        )
+                        : (
+                            <>
+                                <Button 
+                                    onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
+                                    disabled={invoice?.settlement}    
+                                >Editar</Button>
+                                
+                                <Popconfirm
+                                    title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
+                                    onConfirm={() => handleGrossIncomeDelete(record.id)}
+                                    okText="Sí"
+                                    cancelText="No"
+                                >
+                                    <Button 
+                                        danger
+                                        disabled={invoice?.settlement}
+                                    >Eliminar</Button>
+                                </Popconfirm>
+            
+                                <Button 
+                                    onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}`)}
+                                    
+                                >Detalles</Button>
+                            </>
+                        )   
+                    }
+                    
                     {/* <Button onClick={() => null}>Ver Factura</Button> */}
                 </Flex>
             )},
@@ -358,7 +433,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                 style={{ overflow: 'scroll' }}
                 dataSource={grossIncomesWithStatus}
                 columns={columns}
-                rowKey="id"
+                rowKey={(record) => record.id}
                 pagination={false}
             />
 
