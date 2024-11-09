@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import { UploadOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -34,9 +34,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [business, setBusiness] = useState<Business>();
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>();
 
-    const [loading, setLoading] = useState(false);
+    const [searchParams] = useSearchParams();
 
-    
+    const [loading, setLoading] = useState(false);
 
     // a variable for storing all currency exchange rates 
     const [alicuotaHistory, setAlicuotaHistory] = useState<IAlicuota[]>([]);
@@ -136,6 +136,19 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         // update default values for branch office select 
         if (!isEditing && branchOffices?.length > 0) {
             const firstOffice = branchOffices[0];
+
+            const searchParamBranchOfficeId = searchParams.get('branchOfficeId');
+            const periodString = searchParams.get('period');
+
+            if (searchParamBranchOfficeId && periodString) {
+                form.setFieldsValue({
+                    branchOffice: Number(searchParamBranchOfficeId),
+                    chargeWasteCollection: branchOffices.find(office => office.id === Number(searchParamBranchOfficeId))?.chargeWasteCollection,
+                    period: dayjs(periodString, 'YYYY-MM')
+                })
+
+                return;
+            }
     
             if (firstOffice) {
                 console.log('firstOffice', firstOffice)
