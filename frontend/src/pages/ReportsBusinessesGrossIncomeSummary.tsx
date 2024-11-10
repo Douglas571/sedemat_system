@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Form, Button, DatePicker, Typography } from 'antd';
 import { FileExcelOutlined } from '@ant-design/icons';
 
@@ -23,7 +23,11 @@ const DownloadPage = () => {
       alert(error)  
     }
     
-    };
+  };
+
+  useEffect(() => {
+    form.setFieldsValue({ period: dayjs().subtract(1, 'month') })
+  }, [])
 
   return (
     <Card title={
