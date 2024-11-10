@@ -154,7 +154,7 @@ function BusinessViewDetails(): JSX.Element {
   async function handleDeleteBranchOffice(id: number) {
     try {
       console.log(`Deleting branch office #${id}`)
-      await api.deleteBranchOffice(id)
+      await api.deleteBranchOffice(id, userAuth.token ?? '')
 
       loadBusinessData()
     } catch (error) {

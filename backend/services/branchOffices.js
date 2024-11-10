@@ -9,8 +9,21 @@ const {BranchOffice,
 } = require('../database/models')
 const logger = require('../utils/logger')
 
+const ROLES = require('../utils/auth/roles')
+
+const { UserNotAuthorizedError } = require('../utils/errors');
+
+function checkIfCanCreateUpdateDeleteBranchOffice(user) {
+    if (!user || [ROLES.COLLECTOR, ROLES.DIRECTOR, ROLES.LEGAL_ADVISOR, ROLES.FISCAL].indexOf(user.roleId) === -1) {
+        throw new UserNotAuthorizedError("Only collectors, directors, legal advisors, and fiscals can modify or delete branch offices.");
+    }
+}
+
 // Create a new Branch Office
-exports.createBranchOffice = async (branchOfficeData) => {
+exports.createBranchOffice = async (branchOfficeData, user) => {
+    
+    checkIfCanCreateUpdateDeleteBranchOffice(user)
+
     try {
         const newBranchOffice = await BranchOffice.create(branchOfficeData);
         return newBranchOffice;
@@ -90,7 +103,10 @@ exports.getBranchOfficeById = async (id) => {
 };
 
 // Update a Branch Office
-exports.updateBranchOffice = async (id, updateData) => {
+exports.updateBranchOffice = async (id, updateData, user) => {
+
+    checkIfCanCreateUpdateDeleteBranchOffice(user)
+
     const branchOffice = await BranchOffice.findByPk(id);
     if (!branchOffice) {
         throw new Error('Branch office not found.');
@@ -99,7 +115,10 @@ exports.updateBranchOffice = async (id, updateData) => {
 };
 
 // Delete a Branch Office
-exports.deleteBranchOffice = async (id) => {
+exports.deleteBranchOffice = async (id, user) => {
+
+    checkIfCanCreateUpdateDeleteBranchOffice(user)
+
     const branchOffice = await BranchOffice.findByPk(id);
     if (!branchOffice) {
         throw new Error('Branch office not found.');

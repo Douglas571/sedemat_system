@@ -180,13 +180,15 @@ export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
 }
 
 // Branch Offices (Comercial Establishments)
-export async function registerBranchOffice(branchOffice: BranchOffice): Promise<BranchOffice> {
+export async function registerBranchOffice(branchOffice: BranchOffice, token: string): Promise<BranchOffice> {
+
     console.log({newOfficeInApi: branchOffice})
     const url = `${HOST}/v1/branch-offices`
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(branchOffice),
     });
@@ -223,11 +225,12 @@ export async function getBranchOfficeById(id: number): Promise<BranchOffice | un
     return branchOffice;
 }
 
-export async function updateBranchOffice(id: number, branchOffice: BranchOffice): Promise<BranchOffice> {
+export async function updateBranchOffice(id: number, branchOffice: BranchOffice, token: string): Promise<BranchOffice> {
     const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(branchOffice),
     });
@@ -241,12 +244,13 @@ export async function updateBranchOffice(id: number, branchOffice: BranchOffice)
     return updatedBranchOffice;
 }
 
-export async function deleteBranchOffice(id: number): Promise<void> {
+export async function deleteBranchOffice(id: number, token: string): Promise<void> {
     try {
         const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
         });
 

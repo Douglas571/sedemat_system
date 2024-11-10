@@ -12,6 +12,7 @@ import * as zonationsApi from 'util/zonations'
 import * as documentsApi from 'util/documents'
 import * as permitApi from 'util/permitdocs'
 import currencyExchangeRatesService from 'services/CurrencyExchangeRatesService'
+import useAuthentication from "hooks/useAuthentication"
 
 // add it to the app router 
 
@@ -37,6 +38,8 @@ export default function BranchOfficeForm(): JSX.Element {
     const { businessId, branchOfficeId } = useParams()
     const isEditing = !!branchOfficeId
     const navigate = useNavigate()
+
+    const {userAuth} = useAuthentication()
 
 
     function showFormData() {
@@ -87,9 +90,9 @@ export default function BranchOfficeForm(): JSX.Element {
 
             let newOfficeData
             if (isEditing && branchOfficeId) {
-                newOfficeData = await api.updateBranchOffice(Number(branchOfficeId), newOffice)
+                newOfficeData = await api.updateBranchOffice(Number(branchOfficeId), newOffice, userAuth.token)
             } else {
-                newOfficeData = await api.registerBranchOffice(newOffice)
+                newOfficeData = await api.registerBranchOffice(newOffice, userAuth.token)
             }
 
             console.log({newOfficeData})

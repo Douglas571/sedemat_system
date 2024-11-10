@@ -3,18 +3,27 @@ const router = express.Router();
 const branchOfficeService = require('../services/branchOffices');
 const logger = require('../utils/logger')
 
-// Create a new Branch Office
-router.post('/', async (req, res) => {
-    try {
+const passport = require('passport');
 
-        logger.info({ message: "Creating branch Office", branchOffice: req.body})
-        const newBranchOffice = await branchOfficeService.createBranchOffice(req.body);
-        res.status(201).json(newBranchOffice);
-    } catch (error) {
-        logger.error({ message: "Error creating branch office", error})
-        console.log({error})
-        res.status(500).json({ error: { msg: error.message, code: 1 } });
-    }
+// Create a new Branch Office
+router.post('/', 
+    passport.authenticate('jwt', { session: false }), 
+    async (req, res) => {
+        try {
+
+            let user = req.user
+
+            logger.info({ message: "Creating branch Office", branchOffice: req.body})
+            const newBranchOffice = await branchOfficeService.createBranchOffice(req.body, user);
+            res.status(201).json(newBranchOffice);
+        } catch (error) {
+            logger.error({ message: "Error creating branch office", error})
+            console.log({error})
+            res.status(error.statusCode ?? 500).json({ error: { 
+                msg: error.message, code: 1,
+                ...error} 
+            });
+        }
 });
 
 // Get all Branch Offices
@@ -47,23 +56,35 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update a Branch Office
-router.put('/:id', async (req, res) => {
-    try {
-        const updatedBranchOffice = await branchOfficeService.updateBranchOffice(req.params.id, req.body);
-        res.json(updatedBranchOffice);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+router.put('/:id', 
+    passport.authenticate('jwt', { session: false }), 
+    async (req, res) => {
+        try {
+
+            let user = req.user
+
+            console.log({updatingBranchOfficeUser: user})
+
+            const updatedBranchOffice = await branchOfficeService.updateBranchOffice(req.params.id, req.body, user);
+            res.json(updatedBranchOffice);
+        } catch (error) {
+            res.status(error.statusCode ?? 500).json({ error });
+        }
 });
 
 // Delete a Branch Office
-router.delete('/:id', async (req, res) => {
-    try {
-        await branchOfficeService.deleteBranchOffice(req.params.id);
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+router.delete('/:id', 
+    passport.authenticate('jwt', { session: false }), 
+    async (req, res) => {
+
+        let user = req.user
+
+        try {
+            await branchOfficeService.deleteBranchOffice(req.params.id, user);
+            res.status(204).send();
+        } catch (error) {
+            res.status(error.statusCode ?? 500).json({ error });
+        }
 });
 
 module.exports = router;
