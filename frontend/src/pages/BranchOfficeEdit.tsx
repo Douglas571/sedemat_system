@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox, Card } from "antd"
+import { Button, DatePicker, Divider, Flex, Form, Input, InputNumber, Select, Switch, Typography, Upload, Checkbox, Card, message } from "antd"
 import { UploadFile, FormProps } from "antd"
 
 import { ZONES } from "./BusinessShared"
@@ -40,6 +40,8 @@ export default function BranchOfficeForm(): JSX.Element {
     const navigate = useNavigate()
 
     const {userAuth} = useAuthentication()
+
+    const [messageApi, contextHolder] = message.useMessage()
 
 
     function showFormData() {
@@ -158,6 +160,7 @@ export default function BranchOfficeForm(): JSX.Element {
             navigate(`/business/${businessId}`)
         } catch (error) {
             console.error('Error:', error);
+            messageApi.error(error.message);
         } finally {
             setLoading(false)
         }
@@ -223,6 +226,7 @@ export default function BranchOfficeForm(): JSX.Element {
 
     return (
         <Card>
+            {contextHolder}
         <Form 
             form={form}
             onFinish={onFinish}

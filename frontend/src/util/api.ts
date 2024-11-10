@@ -182,27 +182,35 @@ export async function getEconomicActivities(): Promise<Array<EconomicActivity>>{
 // Branch Offices (Comercial Establishments)
 export async function registerBranchOffice(branchOffice: BranchOffice, token: string): Promise<BranchOffice> {
 
-    console.log({newOfficeInApi: branchOffice})
-    const url = `${HOST}/v1/branch-offices`
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(branchOffice),
-    });
-    console.log("after fetch")
+    try {
+        console.log({newOfficeInApi: branchOffice})
+        const url = `${HOST}/v1/branch-offices`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(branchOffice),
+        });
+        console.log("after fetch")
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to register branch office: ${errorData.error?.msg || response.statusText}`);
+        if (!response.ok) {
+            const data = await response.json();
+            throw data.error
+        }
+
+        console.log('Branch office registered successfully');
+
+        const data = await response.json()
+        return data
+    } catch(error) {
+        if (error.statusCode === 401) {
+            throw new Error("Usuario no autorizado")
+        }
+
+        throw new Error("Error del servidor")
     }
-
-    console.log('Branch office registered successfully');
-
-    const data = await response.json()
-    return data
 }
 
 export async function getBranchOfficeById(id: number): Promise<BranchOffice | undefined> {
@@ -226,22 +234,35 @@ export async function getBranchOfficeById(id: number): Promise<BranchOffice | un
 }
 
 export async function updateBranchOffice(id: number, branchOffice: BranchOffice, token: string): Promise<BranchOffice> {
-    const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(branchOffice),
-    });
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to update branch office: ${errorData.error?.msg || response.statusText}`);
+    try {
+        const response = await fetch(`${HOST}/v1/branch-offices/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(branchOffice),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData.error;
+        }
+
+        const updatedBranchOffice = await response.json();
+        return updatedBranchOffice;
+    } catch(error) {
+        if (error.statusCode === 401) {
+            throw new Error("Usuario no autorizado")
+        }
+
+        if (error.statusCode === 404) {
+            throw new Error("Sucursal no encontrada")
+        }
+
+        throw new Error("Error del servidor")
     }
-
-    const updatedBranchOffice = await response.json();
-    return updatedBranchOffice;
 }
 
 export async function deleteBranchOffice(id: number, token: string): Promise<void> {
@@ -255,11 +276,15 @@ export async function deleteBranchOffice(id: number, token: string): Promise<voi
         });
 
         if (!response.ok) {
-            throw new Error('Failed to delete branch office');
+            let data = await response.json();   
+            throw data.error
         }
-    } catch (error) {
-        console.error('Error deleting branch office:', error);
-        throw error;
+    } catch(error) {
+        if (error.statusCode === 401) {
+            throw new Error("Usuario no autorizado")
+        }
+
+        throw new Error("Error del servidor")
     }
 }
 
