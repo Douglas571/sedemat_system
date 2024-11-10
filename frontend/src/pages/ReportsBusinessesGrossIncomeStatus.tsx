@@ -18,10 +18,6 @@ Chart.register(CategoryScale);
 
 import { Doughnut, Pie } from 'react-chartjs-2';
 
-
-
-
-
 interface reportRow {
   businessId: number
   businessName: string,

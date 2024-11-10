@@ -9,7 +9,7 @@ import {
 	UserOutlined,
 	VideoCameraOutlined
 } from '@ant-design/icons'
-import type { MenuProps } from 'antd'
+import type { MenuProps, ItemType } from 'antd'
 import { Layout, Menu, theme, Typography, Flex, Divider } from 'antd'
 
 import {
@@ -22,6 +22,8 @@ import {
 } from 'react-router-dom'
 import { locale } from 'dayjs'
 import useAuthentication from 'hooks/useAuthentication'
+
+import ROLES from '../util/roles'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -99,19 +101,34 @@ const App: React.FC = () => {
 		},
 	]
 
-	if (userAuth.user?.roleId === 3) { // LEGAL ADVISOR
-		items.push({
-			key: '/reports',
+
+	let reportsItem: ItemType = {
+		key: '/reports',
+		icon: '',
+		label: 'Reportes',
+		children: []
+	}
+
+	let grossIncomeSummaryReportItem = {
+		key: '/reports/gross-income-summary',
+		icon: '',
+		label: 'Resumen de Declaraciones de Ingresos',
+	}
+
+	reportsItem.children?.push(grossIncomeSummaryReportItem)
+
+	if (userAuth.user?.roleId === ROLES.COLLECTOR) {
+		items.push(reportsItem)
+	}
+
+	if (userAuth.user?.roleId === ROLES.LEGAL_ADVISOR) { // LEGAL ADVISOR
+		reportsItem.children?.push({
+			key: '/reports/gross-income-status',
 			icon: '',
-			label: 'Reportes',
-			children: [
-				{
-					key: '/reports/gross-income-status',
-					icon: '',
-					label: 'Declaraciones de Ingresos'
-				},
-			]
+			label: 'Declaraciones de Ingresos'
 		})
+
+		items.push(reportsItem)
 	}
 
 	items.push({

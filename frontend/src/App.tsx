@@ -57,6 +57,7 @@ import MainLayout from 'layout/main'
 import Logout from 'pages/Logout';
 
 import ReportsBusinessesGrossIncomeStatus from 'pages/ReportsBusinessesGrossIncomeStatus';
+import ReportsBusinessesGrossIncomeSummary from 'pages/ReportsBusinessesGrossIncomeSummary';
 
 function App(): JSX.Element {
 	return (
@@ -123,6 +124,7 @@ function App(): JSX.Element {
 								<Route path='bank-accounts/:bankAccountId/edit' element={<BankAccountsEdit/>}/>
 
 								<Route path='reports/gross-income-status' element={<ReportsBusinessesGrossIncomeStatus/>}/>
+								<Route path='reports/gross-income-summary' element={<ReportsBusinessesGrossIncomeSummary/>}/>
 								
 								
 							</Route>

@@ -51,3 +51,37 @@ export async function downloadBusinessesGrossIncomeStatusReport({token}: {token:
     console.error({error})
   }
 }
+
+export async function downloadBusinessesGrossIncomeSummary({
+  token,
+  year,
+  month
+}: {
+  token: string,
+  year: number,
+  month: number
+}) {
+  try {
+    
+    let response = await axios.get(`${HOST}/v1/reports/businesses/gross-incomes/summary`, {
+      responseType: 'blob',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      params: {
+        format: 'excel',
+        year, 
+        month
+      }
+    })
+  
+    let data = await response.data
+
+    downloadFile(data, `reusmen-de-declaraciones-de-iva-${dayjs().format('DD-MM-YYYY')}.xlsx`)
+  
+    return data
+  } catch (error) {
+    console.error({error})
+  }
+}
