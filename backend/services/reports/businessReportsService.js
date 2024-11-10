@@ -51,9 +51,9 @@ function canDownloadGrossIncomeReport(user) {
   }
 }
 
-function shouldBeTaxCollector(user) {
+function canSeeBusinessGrossIncomeSummaryReport(user) {
   // if user is not an admin, director, fiscal, or collector
-  if (!user || [ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+  if (!user || [ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
     let error = new Error('User not authorized');
     error.name = 'UserNotAuthorized';
     error.statusCode = 401;
@@ -549,7 +549,7 @@ module.exports.getGrossIncomesSummaryJSON = async ({
 module.exports.getGrossIncomesSummaryExcel = async ({
   month, year, user, stream
 }) => {
-  shouldBeTaxCollector(user)
+  canSeeBusinessGrossIncomeSummaryReport(user)
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Reporte de ingresos brutos');
