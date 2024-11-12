@@ -1,5 +1,5 @@
 import React, { Children, useEffect, useState } from 'react'
-import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space } from 'antd'
+import { Badge, Card, Descriptions, Divider, FormProps, List, Modal, Space, Switch } from 'antd'
 import { 
   Form, 
   Input, 
@@ -33,6 +33,7 @@ import * as inactivityPeriodService from '../services/inactivityPeriodService'
 import { completeUrl } from './BusinessShared';
 
 import useAuthentication from '../hooks/useAuthentication';
+import { render } from '@testing-library/react';
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -1566,6 +1567,11 @@ function EconomicLicensesTable({ economicLicenses, onEdit, onDelete }): JSX.Elem
       showSorterTooltip: false,
     },
     {
+      title: "Renovación",
+      dataIndex: "isRegistration",
+      render: (value: boolean) => value ? "NO" : "SI"
+    },
+    {
       title: 'Acciones',
       dataIndex: '',
       render: (record: any) => {
@@ -1692,6 +1698,9 @@ const EconomicLicenseEditModal: React.FC<EconomicLicenseEditModalProps> = ({
             <TimePicker/>
           </Form.Item>
         </Flex>
+        <Form.Item name="isRegistration" label="Inscripción">
+          <Switch checkedChildren="SI" unCheckedChildren="NO" defaultChecked />
+        </Form.Item>
       </Form>
     </Modal>
   );

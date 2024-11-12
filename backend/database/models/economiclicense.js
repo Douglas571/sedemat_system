@@ -107,6 +107,12 @@ module.exports = (sequelize, DataTypes) => {
     expirationDate: {
       type: DataTypes.DATE,
       // allowNull: false,
+    },
+
+    isRegistration: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     }
 
   }, {
