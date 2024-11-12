@@ -238,9 +238,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         </Tooltip>
     }
 
-    const canEdit = [ROLES.ADMINISTRATOR, ROLES.RECAUDADOR].includes(user?.roleId)
+    const canEdit = [ROLES.ADMINISTRATOR, ROLES.COLLECTOR].includes(user?.roleId)
 
-    const cadEditPenalties = [ROLES.RECAUDADOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
+    console.log({canEdit, userRoleId: user?.roleId, ROLES})
+
+    const cadEditPenalties = [ROLES.COLLECTOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
 
     const unmarkAsSettledButton = <Popconfirm
         title="Desmarcando como liquidado"
