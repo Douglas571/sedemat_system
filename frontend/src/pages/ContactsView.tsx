@@ -113,7 +113,9 @@ export default function ContactsView(): JSX.Element {
                                 data-test="business-details-owner-pfp"
                                 width={200}
                                 height={250}
-                                src={completeUrl(contact?.profilePictureUrl)}
+                                src={contact?.profilePictureUrl ? 
+                                    completeUrl(contact?.profilePictureUrl)
+                                    : '/public/images/default_user.webp'}
                             />
                             <Typography.Paragraph>
 

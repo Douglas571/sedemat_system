@@ -92,8 +92,14 @@ export default function ContactsView(): JSX.Element {
             if (fileList.length > 0 && fileList[0].url) {
                 pfpUrl = fileList[0].url
             } else {
-                // if not, create new one
-                pfpUrl = await uploadPicture()
+
+                if (fileList.length > 0) {
+                    // if not, create new one
+                    pfpUrl = await uploadPicture()
+                } else {
+                    pfpUrl = ''
+                }
+                
             }
 
 
@@ -146,7 +152,7 @@ export default function ContactsView(): JSX.Element {
                 return
             }
 
-            navigate(`/contacts/${newPersonData.id}`)
+            navigate(-1)
         } catch (error) {
             console.log({error})
 
@@ -345,7 +351,7 @@ export default function ContactsView(): JSX.Element {
                 <Form.Item
                     rules={[
                         {
-                            required: true,
+                            required: false,
                             message: "El correo del propietario es requerido"
                         }
                     ]}

@@ -1055,7 +1055,9 @@ function ContactDisplay({ contact, role }): JSX.Element {
             <Image
               data-test="business-details-owner-pfp"
               width={150}
-              src={completeUrl(contact.profilePictureUrl)}
+              src={contact?.profilePictureUrl ? 
+                completeUrl(contact?.profilePictureUrl)
+                : '/public/images/default_user.webp'}
             />
             <Paragraph>
               Cédula: {contact.dni}<br />
