@@ -4,6 +4,8 @@ const ROLES = require('../utils/auth/roles');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
 
+const path = require('path');
+const fs = require('fs');
 
 const logger = require('../utils/logger')
 
@@ -14,6 +16,21 @@ function checkThatIsSettlementOfficer(user) {
         error.name = 'UserNotAuthorized';
         error.statusCode = 401;
         throw error;
+    }
+}
+
+const deletePaymentImage = (relativeImagePath) => {
+    if (relativeImagePath) {
+        // go back one level to get outside of service folder 
+        let imagePath = path.join(__dirname, '..', relativeImagePath)
+
+        // join the url and remove the old one 
+        console.log({imagePath})
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.log(err)
+            }
+        })
     }
 }
 
@@ -139,6 +156,10 @@ exports.updatePayment = async (id, paymentData, user) => {
             }
         }
 
+        if (paymentData.image && prevPayment.image !== paymentData.image) {
+            deletePaymentImage(prevPayment.image)
+        }
+
         const newPaymentData = {
             ...paymentData,
             // this is to warrant
@@ -242,6 +263,9 @@ exports.deletePayment = async (id) => {
         logger.error(`Payment with ID ${id} not found`);
         throw new Error(`Payment with ID ${id} not found`);
     }
+
+    deletePaymentImage(payment.image)
+
     await payment.destroy();
     logger.info('Payment deleted:', payment);
     return payment;
