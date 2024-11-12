@@ -10,6 +10,8 @@ const grossIncomeService = require('../services/grossIncomeService');
 const { z } = require("zod");
 
 const utilImages = require('../utils/images');
+const ROLES = require('../utils/auth/roles');
+const { UserNotAuthorizedError } = require('../utils/errors');
 
 // Set up the path for seneat_declarations
 const tempDir = os.tmpdir()
@@ -61,7 +63,9 @@ class GrossIncomeController {
   // POST /gross-incomes
   async create(req, res) {
     try {
-      const newGrossIncome = await grossIncomeService.createGrossIncome(req.body);
+      let user = req.user
+      
+      const newGrossIncome = await grossIncomeService.createGrossIncome(req.body, user);
       res.status(201).json(newGrossIncome);
     } catch (error) {
       console.log({error})
@@ -72,7 +76,10 @@ class GrossIncomeController {
   // PUT /gross-incomes/:id
   async update(req, res) {
     try {
-      const updatedGrossIncome = await grossIncomeService.updateGrossIncome(req.params.id, req.body);
+
+      const user = req.user
+
+      const updatedGrossIncome = await grossIncomeService.updateGrossIncome(req.params.id, req.body, user);
       res.status(200).json(updatedGrossIncome);
     } catch (error) {
       console.log({error})
@@ -83,7 +90,11 @@ class GrossIncomeController {
   // DELETE /gross-incomes/:id
   async delete(req, res) {
     try {
-      await grossIncomeService.deleteGrossIncome(req.params.id);
+      const user = req.user
+
+      console.log({user})
+
+      await grossIncomeService.deleteGrossIncome(req.params.id, user);
       res.status(204).send();
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -94,6 +105,14 @@ class GrossIncomeController {
   async uploadDeclarationImage(req, res) {
     const IMAGE_PERCENT_QUALITY = 50;
 
+    const user = req.user;
+
+    if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+      let error = new UserNotAuthorizedError("Only fiscals and collectors can upload declarations.");
+
+      return res.status(error.statusCode).json({ error });
+    }
+    
     upload.single('image')(req, res, async (err) => {
       if (err) {
           console.log({err});

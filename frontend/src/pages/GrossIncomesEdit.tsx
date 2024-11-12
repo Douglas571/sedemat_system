@@ -377,11 +377,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     const file = values.declarationImage.file
                     
                     try {
-                        declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file);
+                        declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file, userAuth.token ?? null);
                         
                     } catch (error) {
                         console.error('Error uploading declaration image:', error);
-                        message.error('Error al subir la imagen de declaración. Por favor, intente nuevamente.');
+                        message.error(error.message);
                         return false;
                     }
                 }
@@ -419,10 +419,10 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
             // if is editing, update the gross income
             if (isEditing) {
-                const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome);
+                const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome, userAuth.token ?? null);
                 message.success('Ingreso bruto actualizado exitosamente');
             } else {
-                const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome);
+                const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome, userAuth.token ?? null);
                 message.success('Ingreso bruto registrado exitosamente');
             }
 

@@ -17,21 +17,28 @@ router.get('/', grossIncomeController.getAll);
 router.get('/:id', grossIncomeController.getById);
 
 // POST a new gross income
-router.post('/', grossIncomeController.create);
+router.post('/',
+  passport.authenticate('jwt', { session: false }), 
+  grossIncomeController.create);
 
 // PUT (update) an existing gross income by ID
-router.put('/:id', grossIncomeController.update);
+router.put('/:id', 
+  passport.authenticate('jwt', { session: false }),
+  grossIncomeController.update);
 
 // DELETE a gross income by ID
-router.delete('/:id', grossIncomeController.delete);
-
+router.delete('/:id', 
+  passport.authenticate('jwt', { session: false }),
+  grossIncomeController.delete);
 
 // POST declaration image
-router.post('/declaration-image', grossIncomeController.uploadDeclarationImage);
+router.post('/declaration-image', 
+  passport.authenticate('jwt', { session: false }),grossIncomeController.uploadDeclarationImage);
 
 // GET all gross incomes by business ID
 router.get('/business/:businessId', grossIncomeController.getAllGrossIncomesByBusinessId);
 
+// @deprecated
 // GET all gross incomes by invoice ID
 router.get('/invoice/:invoiceId', grossIncomeController.getAllGrossIncomesByInvoiceId);
 

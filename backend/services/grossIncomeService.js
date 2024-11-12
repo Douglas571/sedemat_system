@@ -9,6 +9,16 @@ const currency = require('currency.js');
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 
 const ROLES = require('../utils/auth/roles');
+const { UserNotAuthorizedError } = require('../utils/errors');
+
+
+function canUpdateEditDeleteGrossIncomes(user) {
+    if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+        let error = new UserNotAuthorizedError("Only fiscals and collectors can upload declarations.");
+    
+        throw error
+    }
+}
 
 /**
  * Deletes the declaration image at the specified path
@@ -161,7 +171,9 @@ class GrossIncomeService {
     }
 
     // Create a new GrossIncome record
-    async createGrossIncome(newGrossIncome) {
+    async createGrossIncome(newGrossIncome, user) {
+
+        canUpdateEditDeleteGrossIncomes(user)
 
         // only update gross income invoice id in the invoice service 
         newGrossIncome.grossIncomeInvoiceId = undefined
@@ -218,7 +230,9 @@ class GrossIncomeService {
     }
 
     // Update an existing GrossIncome record by ID
-    async updateGrossIncome(id, data) {
+    async updateGrossIncome(id, data, user) {
+
+        canUpdateEditDeleteGrossIncomes(user)
 
         // only update gross income invoice id in the invoice service 
         data.grossIncomeInvoiceId = undefined
@@ -342,7 +356,10 @@ class GrossIncomeService {
     }
 
     // Delete a GrossIncome record by ID
-    async deleteGrossIncome(id) {
+    async deleteGrossIncome(id, user) {
+
+        canUpdateEditDeleteGrossIncomes(user)
+
         const grossIncome = await this.getGrossIncomeById(id);
 
         if (grossIncome.grossIncomeInvoiceId) {

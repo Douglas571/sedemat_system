@@ -5,12 +5,18 @@ const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
-export async function registerGrossIncome(grossIncome: IGrossIncome): Promise<IGrossIncome> {
+export async function registerGrossIncome(grossIncome: IGrossIncome, token: string | null): Promise<IGrossIncome> {
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales')
+    }
+
     try {
+
         const response = await fetch(`${HOST}/v1/gross-incomes`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(grossIncome)
         });
@@ -31,7 +37,11 @@ export async function registerGrossIncome(grossIncome: IGrossIncome): Promise<IG
     }
 }
 
-export async function uploadDeclarationImage(file: File): Promise<string> {
+export async function uploadDeclarationImage(file: File, token: string | null): Promise<string> {
+
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales')
+    }
 
     const formData = new FormData()
     console.log('file', file);
@@ -39,6 +49,9 @@ export async function uploadDeclarationImage(file: File): Promise<string> {
 
     const response = await fetch(`${HOST}/v1/gross-incomes/declaration-image`, {
         method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
         body: formData
     })
     
@@ -107,11 +120,22 @@ export async function getGrossIncomeById(grossIncomeId: number): Promise<IGrossI
 
 // UPDATE gross income
 
-export async function updateGrossIncome(grossIncome: IGrossIncome): Promise<IGrossIncome> {
+export async function updateGrossIncome(grossIncome: IGrossIncome, token: string | null
+): Promise<IGrossIncome> {
+
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales')
+    }
+
+    if (!grossIncome.id) {
+        throw new Error('Se require un id para actualizar la declaración de ingresos')
+    }
+
     const response = await fetch(`${HOST}/v1/gross-incomes/${grossIncome.id}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(grossIncome)
     })
@@ -126,9 +150,21 @@ export async function updateGrossIncome(grossIncome: IGrossIncome): Promise<IGro
 }
 
 // DELETE gross income
-export async function deleteGrossIncome(grossIncomeId: number): Promise<void> {
+export async function deleteGrossIncome(grossIncomeId: number, token: string): Promise<void> {
+
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales')
+    }
+
+    if (!grossIncomeId) {
+        throw new Error('Se require un id para eliminar la declaración de ingresos')
+    }
+
     const response = await fetch(`${HOST}/v1/gross-incomes/${grossIncomeId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
     })
 
     if (!response.ok) {

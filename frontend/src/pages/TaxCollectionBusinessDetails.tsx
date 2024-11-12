@@ -8,6 +8,7 @@ import { formatBolivares, CurrencyHandler, percentHandler } from '../util/curren
 import economicActivitiesService from '../services/EconomicActivitiesService';
 
 import * as util from '../util';
+import useAuthentication from '../hooks/useAuthentication';
 
 
 
@@ -20,6 +21,7 @@ const { Title, Text } = Typography;
 
 
 const TaxCollectionBusinessDetails: React.FC = () => {
+    const { userAuth } = useAuthentication();
 
     const [business, setBusiness] = useState<Business>();
     const { businessId } = useParams<{ businessId: string }>();
@@ -87,7 +89,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
     const handleGrossIncomeDelete = async (grossIncomeId: number) => {
         try {
-            await grossIncomeApi.deleteGrossIncome(grossIncomeId);
+            await grossIncomeApi.deleteGrossIncome(grossIncomeId, userAuth.token ?? null);
             message.success('Ingreso bruto eliminado exitosamente');
             // Refresh the gross incomes list
             const updatedGrossIncomes = grossIncomes.filter(income => income.id !== grossIncomeId);
