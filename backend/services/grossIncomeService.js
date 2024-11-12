@@ -1,4 +1,7 @@
 // services/grossIncomeService.js
+const path = require('path');
+const fs = require('fs');
+
 const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment, User, Person } = require('../database/models');
 const dayjs = require('dayjs');
 const currency = require('currency.js');
@@ -6,6 +9,25 @@ const currency = require('currency.js');
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 
 const ROLES = require('../utils/auth/roles');
+
+/**
+ * Deletes the declaration image at the specified path
+ * @param {string} imagePath path to the declaration image (relative to uploads folder)
+ */
+const deleteDeclarationImage = (relativeImagePath) => {
+    if (relativeImagePath) {
+        // go back one level to get outside of service folder 
+        let imagePath = path.join(__dirname, '..', relativeImagePath)
+
+        // join the url and remove the old one 
+        console.log({imagePath})
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.log(err)
+            }
+        })
+    }
+}
 
 const currencyHandler = (value) => currency(value, 
     { 
@@ -289,6 +311,13 @@ class GrossIncomeService {
         }
         // DELETE EVERYTHING ABOVE WHEN YOU HAVE TESTS
 
+        // delete old image 
+        // if new data declaration image is different from the old one
+        if (data.declarationImage && data.declarationImage !== grossIncome.declarationImage) {
+            deleteDeclarationImage(grossIncome.declarationImage)
+        }
+            
+
         // Recalculate tax fields
         const calcs = calculateTaxFields({grossIncome: data})
         console.log({calcs})
@@ -323,6 +352,9 @@ class GrossIncomeService {
         if (!grossIncome) {
             throw new Error('GrossIncome not found');
         }
+
+        deleteDeclarationImage(grossIncome.declarationImage)
+
         return await grossIncome.destroy();
     }
 
