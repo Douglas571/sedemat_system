@@ -242,7 +242,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     console.log({canEdit, userRoleId: user?.roleId, ROLES})
 
-    const cadEditPenalties = [ROLES.COLLECTOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
+    const cadEditPenalties = [ROLES.RECAUDADOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
 
     const unmarkAsSettledButton = <Popconfirm
         title="Desmarcando como liquidado"
@@ -1324,6 +1324,16 @@ function SettlementEditModal(
 
     const isEditing = !!settlement;
 
+    useEffect(() => {
+        if (isEditing) {
+            form.setFieldsValue(settlement);
+        } else {
+            form.setFieldsValue({
+                settledByUserPersonFullName: fullName
+            })
+        }
+    }, [settlement, form, isEditing]);
+
     if (!userPerson) {
         console.error("User don't have a contact data asigned");
         message.error('El usuario no tiene datos de contacto asignados');
@@ -1382,6 +1392,9 @@ function SettlementEditModal(
                     rules={[{ required: true, message: 'Por favor, ingrese la fecha' }]}
                 >
                     <DatePicker />
+                </Form.Item>
+                <Form.Item label="Liquidado Por" name="settledByUserPersonFullName">
+                    <Input/>
                 </Form.Item>
             </Form>
         </Modal>
