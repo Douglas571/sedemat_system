@@ -10,6 +10,7 @@ import { IGrossIncome, Business } from '../util/types';
 import { completeUrl } from '../util';
 import { CurrencyHandler, formatBolivares, formatPercents } from '../util/currency';
 import dayjs from 'dayjs';
+import useAuthentication from 'hooks/useAuthentication';
 
 const { Title, Text } = Typography;
 
@@ -18,6 +19,8 @@ const GrossIncomeDetails: React.FC = () => {
     const [grossIncome, setGrossIncome] = React.useState<IGrossIncome>();
     const [business, setBusiness] = React.useState<Business>();
     const navigate = useNavigate();
+
+    const {userAuth} = useAuthentication();
 
     useEffect(() => {
         loadGrossIncome();
@@ -39,7 +42,7 @@ const GrossIncomeDetails: React.FC = () => {
     async function handleDelete() {
         if (grossIncome?.id) {
             try {
-                await grossIncomeApi.deleteGrossIncome(grossIncome.id);
+                await grossIncomeApi.deleteGrossIncome(grossIncome.id, userAuth.token ?? null);
                 navigate(-1);
             } catch (error) {
                 message.error('Error al eliminar el ingreso bruto: ' + (error as Error).message);

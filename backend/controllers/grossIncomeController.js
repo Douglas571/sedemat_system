@@ -133,6 +133,7 @@ class GrossIncomeController {
           destination: DECLARATIONS_PATH,
           baseFileName,
           quality: IMAGE_PERCENT_QUALITY,
+          normalize: true,
           // resize: true,
         })
 
