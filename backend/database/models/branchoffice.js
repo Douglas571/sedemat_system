@@ -102,7 +102,7 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE',
     },
     zone: DataTypes.STRING,
-    dimensions: DataTypes.INTEGER,
+    dimensions: DataTypes.DECIMAL(10, 4),
     type: DataTypes.STRING, // it can be I, II, III
 
     isRented: {
