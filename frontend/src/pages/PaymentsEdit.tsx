@@ -378,7 +378,6 @@ function PaymentsEdit(): JSX.Element {
 
 		} catch (error) {
 			console.log({ error })
-			console.log("hubo un error con la imagen")
 
 			if (error.name === "FormatNotSupportedError") {
 				throw Error("El formato de imagen no es admitido, debe ser .jpeg, .jpg o .png")
@@ -408,7 +407,9 @@ function PaymentsEdit(): JSX.Element {
 				>
 
 					<Flex gap={20} wrap>
-						<Form.Item name='typeOfEntity' label='Origen'>
+						<Form.Item name='typeOfEntity' label='Origen'
+							style={{ minWidth: 100, flex: "20%" }}
+						>
 							<Select
 								options={originTypesOptions}
 							/>
@@ -418,7 +419,8 @@ function PaymentsEdit(): JSX.Element {
 								<>
 									<Form.Item name='business' label='Comercio'
 										rules={[{ required: true, message: 'El comercio es requerido' }]}
-										style={{ flex: '30%' }}>
+										style={{ minWidth: 250, flex: "50%" }}
+									>
 										<Select
 											options={businessOptions}
 											showSearch
@@ -429,7 +431,9 @@ function PaymentsEdit(): JSX.Element {
 							: (
 								<>
 									<Form.Item name='person' label='Persona'
-										style={{ flex: '60%' }}>
+										rules={[{ required: true, message: 'La persona es requerida' }]}
+										style={{ minWidth: 250, flex: "50%" }}
+									>
 										<Select
 											options={personOptions}
 											showSearch
@@ -440,7 +444,7 @@ function PaymentsEdit(): JSX.Element {
 						}
 					</Flex>
 
-					<Flex wrap>
+					<Flex wrap gap={20}>
 						<Form.Item<FieldType>
 							rules={[
 								{ required: true, message: 'Introduzca una referencia' },
@@ -451,7 +455,7 @@ function PaymentsEdit(): JSX.Element {
 							]}
 							label='Referencia'
 							name='reference'
-							style={{ marginRight: '20px' }}
+							style={{flex: 1, minWidth: 200  }}
 							
 						>
 							<Input maxLength={6}/>
@@ -461,7 +465,7 @@ function PaymentsEdit(): JSX.Element {
 							rules={[{ required: true, message: 'Introduzca el monto' }]}
 							label='Monto'
 							name='amount'
-							style={{ marginRight: '20px' }}
+							style={{flex: 1, minWidth: 250 }}
 						>
 							<InputNumber
 								addonAfter='Bs'
@@ -476,7 +480,7 @@ function PaymentsEdit(): JSX.Element {
 							rules={[{ required: true, message: 'Seleccione una referencia' }]}
 							label='Fecha de Pago'
 							name="paymentDate"
-							style={{ marginRight: '20px' }}
+							style={{flex: 1, minWidth: 250 }}
 						>
 							<DatePicker onChange={onChange} />
 						</Form.Item>
@@ -484,7 +488,7 @@ function PaymentsEdit(): JSX.Element {
 						<Form.Item<FieldType>
 							label='Cuentas'
 							name='accountId'
-							style={{ marginRight: '20px', minWidth: '150px' }}
+							style={{flex: 1, minWidth: 150 }}
 						>
 							<Select
 								optionFilterProp='label'
@@ -495,7 +499,7 @@ function PaymentsEdit(): JSX.Element {
 						</Form.Item>
 
 						<Form.Item label='Método' name='disabled' valuePropName='checked'
-							style={{ marginRight: '20px' }}
+							style={{flex: 1, minWidth: 250 }}
 						>
 							<Select
 								defaultValue={methods[0].value}
@@ -506,13 +510,6 @@ function PaymentsEdit(): JSX.Element {
 							/>
 						</Form.Item>
 					</Flex>
-
-
-
-
-
-
-
 
 					<div>
 						<Upload
