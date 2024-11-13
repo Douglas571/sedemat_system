@@ -225,10 +225,10 @@ function PaymentsEdit(): JSX.Element {
 				return ''
 			}
 
-			// if (fileList.length === 0) {
-			// 	message.error("Selecciona un boucher")
-			// 	return ''
-			// }
+			if (fileList.length === 0) {
+				message.error("Selecciona un boucher")
+				return ''
+			}
 
 			// if there is not image, upload the image
 			// console.log({fileList})
