@@ -386,6 +386,13 @@ function Payments(): JSX.Element {
                     {
                         <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
                     }
+
+                    {
+                        record?.grossIncomeInvoiceId && (
+                            <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}
+                        >Liquidación</Link>
+                        )
+                    }
                 </Space>
             )},
         },

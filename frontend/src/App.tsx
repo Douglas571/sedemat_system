@@ -106,6 +106,8 @@ function App(): JSX.Element {
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice />} />
 								<Route path='tax-collection/:businessId/gross-incomes-invoice/:grossIncomeInvoiceId/edit' element={<GrossIncomeInvoiceEdit />} />
 
+								<Route path='gross-income-invoices/:grossIncomeInvoiceId' element={<TaxCollectionBusinessGrossIncomesInvoice/>} />
+
 								<Route path='tax-collection/gross-incomes' element={<GrossIncomes/>} />
 
 

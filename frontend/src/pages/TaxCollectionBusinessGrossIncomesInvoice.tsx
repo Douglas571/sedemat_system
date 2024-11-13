@@ -62,9 +62,10 @@ import create from '@ant-design/icons/lib/components/IconFont';
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
-    const { businessId, grossIncomeInvoiceId } = useParams()
+    const { grossIncomeInvoiceId } = useParams()
     const navigate = useNavigate()
 
+    const [businessId, setBusinessId] = useState<number>()
 	const [business, setBusiness] = useState<Business>()
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>()
@@ -136,8 +137,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         return lastCurrencyExchangeRate
     }
 
-    const loadBusiness = async (): Promise<Business> => {
-        return api.fetchBusinessById(Number(businessId))
+    const loadBusiness = async (businessId: number): Promise<Business> => {
+        return api.fetchBusinessById(businessId)
     }
 
     const loadGrossIncomeInvoice = async (): Promise<IGrossIncomeInvoice> => {
@@ -155,10 +156,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
         const fetchedPayments = await loadPayments()
 
-        // load the business
-        const fetchedBusiness = await loadBusiness()
         // load the invoice 
         const fetchedInvoice = await loadGrossIncomeInvoice()
+
+        // load the business
+        const fetchedBusiness = await loadBusiness(fetchedInvoice.businessId)
+
+        setBusinessId(fetchedInvoice.businessId)
+        
         // load gross incomes 
         const fetchedGrossIncomes = await loadGrossIncomes(Number(grossIncomeInvoiceId))
 
