@@ -85,7 +85,7 @@ function BusinessView(): JSX.Element {
             dataIndex: 'businessName',
             key: 'businessName',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a: Business, b: Business) => a.businessName.localeCompare(b.businessName),
             //...getColumnSearchProps('businessName'),
             
@@ -108,7 +108,7 @@ function BusinessView(): JSX.Element {
             dataIndex: 'dni',
             key: 'dni',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a: Business, b: Business) => a.dni.localeCompare(b.dni),
             // ...getColumnSearchProps('dni'),
 
@@ -126,7 +126,7 @@ function BusinessView(): JSX.Element {
             dataIndex: ['economicActivity', 'title'],
             key: 'economicActivity',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a: Business, b: Business) => a.economicActivity.title.localeCompare(b.economicActivity.title),
             
             filterSearch: true,
@@ -150,7 +150,7 @@ function BusinessView(): JSX.Element {
             }),
 
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             
             sorter: (a: Business, b: Business) => {
 

@@ -71,7 +71,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             dataIndex: 'businessName',
             key: 'businessName',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a:Business, b:Business) => a.businessName.localeCompare(b.businessName),
 
             render: (value: string, record: Business) => {
@@ -85,7 +85,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             dataIndex: 'dni',
             key: 'dni',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             
             sorter: (a:Business, b:Business) => a.dni.localeCompare(b.dni),
             width: '200px',
@@ -96,7 +96,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             dataIndex: ['economicActivity', 'title'],
             key: 'economicActivity',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a: Business, b: Business) => a.economicActivity.title.localeCompare(b.economicActivity.title),
             
             filterSearch: true,
@@ -120,7 +120,7 @@ const SortableBusinessTable: React.FC<{business: Business[]}> = ({business}) => 
             }),
 
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             
             sorter: (a: Business, b: Business) => {
 

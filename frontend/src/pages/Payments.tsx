@@ -182,7 +182,7 @@ function Payments(): JSX.Element {
 
     const getColumnSearchProps = (dataIndex: string): TableColumnType<DataType> => ({
 
-        sortDirections: ['ascend', 'descend', 'ascend'],
+        // sortDirections: ['ascend', 'descend', 'ascend'],
         showSorterTooltip: false,
         filterMode: 'menu',
         filterSearch: true,
@@ -213,7 +213,7 @@ function Payments(): JSX.Element {
             dataIndex: '',
             key: 'businessName',
 
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             showSorterTooltip: false,
 
             render: (text: string, record: Payment) => {
@@ -239,7 +239,7 @@ function Payments(): JSX.Element {
             dataIndex: 'dni',
             key: 'dni',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
 
             sorter: (a, b) => {
                 if (a.businessId) {
@@ -263,7 +263,7 @@ function Payments(): JSX.Element {
             dataIndex: 'reference',
             key: 'reference',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
 
             sorter: (a, b) => a.reference.localeCompare(b.reference),
             render: (text: string, record: Payment) => {
@@ -276,7 +276,7 @@ function Payments(): JSX.Element {
             dataIndex: 'amount',
             key: 'amount',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.amount - b.amount,
             render(text: string, record: Payment) {
                 return formatBolivares(text)
@@ -290,7 +290,7 @@ function Payments(): JSX.Element {
                 return record.bank?.accountNumber.slice(-4)
             },
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.account.localeCompare(b.account),
 
             filters: [...new Set(dataSource.map((payment) => {
@@ -308,7 +308,7 @@ function Payments(): JSX.Element {
             dataIndex: 'paymentDate',
             key: 'paymentDate',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a.paymentDate.localeCompare(b.paymentDate),
         },
         {
@@ -316,7 +316,7 @@ function Payments(): JSX.Element {
             dataIndex: 'checkedAt',
             key: 'checkedAt',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
             sorter: (a, b) => a?.checkedAt?.localeCompare(b?.checkedAt),
 
             render: (text: string, record: Payment) => {
@@ -332,7 +332,7 @@ function Payments(): JSX.Element {
             dataIndex: 'status',
             key: 'status',
             showSorterTooltip: false,
-            sortDirections: ['ascend', 'descend', 'ascend'],
+            // sortDirections: ['ascend', 'descend', 'ascend'],
 
             render: (text: string, record: Payment) => {
                 return (<Badge status={record.isVerified ? 'success' : 'warning'} text={text} />)
