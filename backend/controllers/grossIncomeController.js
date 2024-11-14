@@ -69,7 +69,7 @@ class GrossIncomeController {
       res.status(201).json(newGrossIncome);
     } catch (error) {
       console.log({error})
-      res.status(400).json({ error });
+      res.status(error.statusCode ?? 500).json({ error });
     }
   }
 
@@ -83,7 +83,7 @@ class GrossIncomeController {
       res.status(200).json(updatedGrossIncome);
     } catch (error) {
       console.log({error})
-      res.status(400).json({ error: error.message });
+      res.status(error.statusCode ?? 500).json({ error: error.message });
     }
   }
 
@@ -97,7 +97,7 @@ class GrossIncomeController {
       await grossIncomeService.deleteGrossIncome(req.params.id, user);
       res.status(204).send();
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(error.statusCode ?? 500).json({ error });
     }
   }
 
