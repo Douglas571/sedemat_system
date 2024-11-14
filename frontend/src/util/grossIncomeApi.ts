@@ -33,6 +33,10 @@ export async function registerGrossIncome(grossIncome: IGrossIncome, token: stri
             throw new Error("Ya existe un registro de ingresos para este período")
         }
 
+        if (error.statusCode === 401) {
+            throw new Error("Solo recaudadores y fiscales pueden registrar declaraciones de ingresos")
+        }
+
         throw error
     }
 }
@@ -57,6 +61,11 @@ export async function uploadDeclarationImage(file: File, token: string | null): 
     
     if (!response.ok) {
         const errorData = await response.json()
+
+        if (response.status === 401) {
+            throw new Error("Solo recaudadores y fiscales pueden registrar declaraciones de ingresos")
+        }
+
         throw new Error(`Failed to upload declaration image: ${errorData.error || response.statusText}`)
     }
 
@@ -142,6 +151,11 @@ export async function updateGrossIncome(grossIncome: IGrossIncome, token: string
 
     if (!response.ok) {
         const errorData = await response.json()
+
+        if (response.status === 401) {
+            throw new Error("Solo recaudadores y fiscales pueden actualizar declaraciones de ingresos")
+        }
+
         throw new Error(`Failed to update gross income: ${errorData.error || response.statusText}`)
     }
 
@@ -169,6 +183,11 @@ export async function deleteGrossIncome(grossIncomeId: number, token: string): P
 
     if (!response.ok) {
         const errorData = await response.json()
+
+        if (response.status === 401) {
+            throw new Error("Solo recaudadores y fiscales pueden eliminar declaraciones de ingresos")
+        }
+
         throw new Error(`Failed to delete gross income: ${errorData.error || response.statusText}`)
     }   
 }
