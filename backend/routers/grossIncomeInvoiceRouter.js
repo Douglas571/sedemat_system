@@ -18,18 +18,19 @@ router.post('/', passport.authenticate('jwt', { session: false }), grossIncomeIn
 router.put('/:id', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.update);
 
 // DELETE a gross income invoice by ID
-router.delete('/:id', grossIncomeInvoiceController.delete);
+router.delete('/:id', passport.authenticate('jwt', { session: false }),  grossIncomeInvoiceController.delete);
 
 // GET all gross income invoices with associated gross incomes
 router.get('/with-gross-incomes', grossIncomeInvoiceController.getAllWithGrossIncomes);
 
+// @deprecated
 // POST update payment status of a gross income invoice
 router.post('/:id/payment-status', grossIncomeInvoiceController.updatePaymentStatus);
 
 // POST /gross-incomes/:id/payments/:paymentId
-router.post('/:id/payments/:paymentId', grossIncomeInvoiceController.addPaymentToGrossIncomeInvoice);
+router.post('/:id/payments/:paymentId', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.addPaymentToGrossIncomeInvoice);
 
 // DELETE /gross-incomes/:id/payments/:paymentId
-router.delete('/:id/payments/:paymentId', grossIncomeInvoiceController.removePaymentFromGrossIncomeInvoice);
+router.delete('/:id/payments/:paymentId', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.removePaymentFromGrossIncomeInvoice);
 
 module.exports = router;

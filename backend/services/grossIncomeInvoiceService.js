@@ -17,6 +17,15 @@ const {
 
 const currency = require('currency.js');
 
+const ROLES = require('../utils/auth/roles');
+const { UserNotAuthorizedError } = require('../utils/errors');
+
+const canCreateUpdateDeleteGrossIncomeInvoice = (user) => {
+    if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+        let error = new UserNotAuthorizedError('Only tax collectors and fiscal can modify gross incomes');
+        throw error
+    }
+}
 
 const currencyHandler = (value) => currency(value, 
     { 
@@ -284,7 +293,7 @@ class GrossIncomeInvoiceService {
     // Create a new GrossIncomeInvoice record
     async createGrossIncomeInvoice(data, user = {}) {
         // return await GrossIncomeInvoice.create(newGrossIncomeInvoice);
-        console.log("Executing gross income invoice create")
+        canCreateUpdateDeleteGrossIncomeInvoice(user)
 
         let newGrossIncomeInvoice = {
             ...data,
@@ -305,6 +314,9 @@ class GrossIncomeInvoiceService {
 
     // Update an existing GrossIncomeInvoice record by ID
     async updateGrossIncomeInvoice(id, data, user = {}) {
+
+        canCreateUpdateDeleteGrossIncomeInvoice(user)
+
         const grossIncomeInvoice = await this.getGrossIncomeInvoiceById(id, {
             include: [
                 {
@@ -368,7 +380,9 @@ class GrossIncomeInvoiceService {
     }
 
     // Delete a GrossIncomeInvoice record by ID
-    async deleteGrossIncomeInvoice(id) {
+    async deleteGrossIncomeInvoice(id, user) {
+
+        canCreateUpdateDeleteGrossIncomeInvoice(user)
 
         const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(id);
 
@@ -400,7 +414,10 @@ class GrossIncomeInvoiceService {
         });
     }
 
-    async addPayment(grossIncomeInvoiceId, paymentId) {
+    async addPayment(grossIncomeInvoiceId, paymentId, user) {
+
+        canCreateUpdateDeleteGrossIncomeInvoice(user)
+
         // lock for the payment and add the gross income id
         console.log({grossIncomeInvoiceId, paymentId})
         const payment = await Payment.findByPk(paymentId)
@@ -420,7 +437,10 @@ class GrossIncomeInvoiceService {
         return payment
     }
 
-    async removePayment(grossIncomeInvoiceId, paymentId) {
+    async removePayment(grossIncomeInvoiceId, paymentId, user) {
+
+        canCreateUpdateDeleteGrossIncomeInvoice(user)
+        
         console.log({paymentId})
 
 

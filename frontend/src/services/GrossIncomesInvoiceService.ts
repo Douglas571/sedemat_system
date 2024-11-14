@@ -50,8 +50,14 @@ class GrossIncomesInvoiceService {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Failed to create gross income invoice: ${error.message}`);
+        const data = await response.json();
+        
+        if (response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden crear facturas`);
+        }
+
+        throw new Error(`Error del servidor`);
+        
       }
       return await response.json();
     }
@@ -79,20 +85,34 @@ class GrossIncomesInvoiceService {
         if (name === "InvoiceAlreadyPaid") {
           throw new Error(`Esta factura ya ha sido pagada`);
         }
+
+        if (response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden crear facturas`);
+        }
         
-        throw new Error(`Failed to update gross income invoice: ${error.message}`);
+        throw new Error(`Error del servidor`);
       }
       return await response.json();
     }
   
     // Delete a gross income invoice by ID
-    async delete(id: number): Promise<void> {
+    async delete(id: number, token: string | null): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
       });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Failed to delete gross income invoice: ${error.message}`);
+        const data = await response.json();
+
+        console.log({data})
+        
+        if (response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden crear facturas`);
+        }
+        
+        throw new Error(`Error del servidor`);
       }
     }
 
@@ -112,31 +132,43 @@ class GrossIncomesInvoiceService {
       return lastInvoice;
     }
 
-    async addPayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
+    async addPayment(grossIncomeInvoiceId: number, paymentId: number, token: string | null): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(`Failed to associate payment: ${error.message}`);
+
+        if (response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden asociar pagos a las facturas`);
+        }
+        
+        throw new Error(`Error del servidor`);
       }
     }
 
-    async removePayment(grossIncomeInvoiceId: number, paymentId: number): Promise<void> {
+    async removePayment(grossIncomeInvoiceId: number, paymentId: number, token: string | null): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/payments/${paymentId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(`Failed to remove payment: ${error.message}`);
+        
+        if (response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden desasociar pagos de las facturas`);
+        }
+        
+        throw new Error(`Error del servidor`);
       }
     }
 

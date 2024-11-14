@@ -96,20 +96,22 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             setGrossIncomes(updatedGrossIncomes);
         } catch (error) {
             console.log({error})
-            message.error('Error al eliminar el ingreso bruto');
+            message.error(error.message);
         }
     };
 
     const handleDeleteGrossIncomeInvoice = async (grossIncomeInvoiceId: number) => {
         try {
-            await grossIncomeInvoiceService.delete(grossIncomeInvoiceId);
+            await grossIncomeInvoiceService.delete(grossIncomeInvoiceId, userAuth.token ?? null);
             message.success('Factura de Ingreso Bruto eliminada exitosamente');
+
             // Refresh the gross income invoices list
             const updatedGrossIncomeInvoices = grossIncomeInvoices?.filter(invoice => invoice.id !== grossIncomeInvoiceId) ?? [];
             setGrossIncomeInvoices(updatedGrossIncomeInvoices);
+
             loadGrossIncomes()
         } catch (error) {
-            message.error('Error al eliminar la factura de Ingreso Bruto');
+            message.error(error.message);
         }
     };
 

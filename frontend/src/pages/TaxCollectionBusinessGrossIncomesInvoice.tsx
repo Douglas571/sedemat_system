@@ -1106,10 +1106,10 @@ function PaymentsAllocatedTable(
     const handleDelete = async (id: number) => {
         // console.log({id})
         try {
-            const response = await GrossIncomesInvoiceService.removePayment(Number(grossIncomeInvoiceId), id)
+            const response = await GrossIncomesInvoiceService.removePayment(Number(grossIncomeInvoiceId), id, userAuth.token ?? null)
             // console.log({response})
         } catch (error) {
-            message.error('Error al eliminar el pago')
+            message.error(error.message)
             console.log({error})
         }
 
@@ -1120,7 +1120,7 @@ function PaymentsAllocatedTable(
         // console.log({associatedPaymentId: id})
 
         try {
-            const response = await GrossIncomesInvoiceService.addPayment(Number(grossIncomeInvoiceId), id)
+            const response = await GrossIncomesInvoiceService.addPayment(Number(grossIncomeInvoiceId), id, userAuth.token ?? null)
             // console.log({response})
         } catch (error) {
             message.error('Error al asociar el pago')

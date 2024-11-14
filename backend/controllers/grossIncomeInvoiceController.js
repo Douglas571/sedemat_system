@@ -37,7 +37,7 @@ class GrossIncomeInvoiceController {
             res.status(201).json(newGrossIncomeInvoice);
         } catch (error) {
             console.log({ error })
-            res.status(400).json({ error: error.message });
+            res.status(error.statusCode ?? 500).json({ error: error });
         }
     }
 
@@ -55,10 +55,7 @@ class GrossIncomeInvoiceController {
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error })
-            res.status(400).json({ error: {
-                message: error.message,
-                name: error.name
-            } });
+            res.status(error.statusCode ?? 500).json({ error });
         }
     }
 
@@ -68,7 +65,8 @@ class GrossIncomeInvoiceController {
             await grossIncomeInvoiceService.deleteGrossIncomeInvoice(req.params.id);
             res.status(204).send();
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            console.log({ error })
+            res.status(error.statusCode ?? 500).json({ error });
         }
     }
 
@@ -91,7 +89,7 @@ class GrossIncomeInvoiceController {
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error });
-            res.status(400).json({ error: error.message });
+            res.status(error.statusCode ?? 500).json({ error });
         }
     }
 
@@ -99,11 +97,11 @@ class GrossIncomeInvoiceController {
     async addPaymentToGrossIncomeInvoice(req, res) {
         try {
             const { id, paymentId } = req.params;
-            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.addPayment(id, paymentId);
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.addPayment(id, paymentId, req.user);
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error });
-            res.status(400).json({ error: error.message });
+            res.status(error.statusCode ?? 500).json({ error });
         }
     }
 
@@ -111,11 +109,11 @@ class GrossIncomeInvoiceController {
     async removePaymentFromGrossIncomeInvoice(req, res) {
         try {
             const { id, paymentId } = req.params;
-            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.removePayment(id, paymentId);
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.removePayment(id, paymentId, req.user);
             res.status(200).json(updatedGrossIncomeInvoice);
         } catch (error) {
             console.log({ error });
-            res.status(400).json({ error: error.message });
+            res.status(error.statusCode ?? 500).json({ error });
         }
     }
 }
