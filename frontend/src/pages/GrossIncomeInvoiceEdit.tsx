@@ -405,7 +405,7 @@ const GrossIncomeInvoice: React.FC = () => {
             if (isEditing) {
                 message.error(error.message)
             } else {
-                message.error(`Error al crear la factura`)
+                message.error(error.message)
             }
         }
     }
