@@ -75,6 +75,7 @@ function App(): JSX.Element {
 								<Route path='payments' element={<Payments />} />
 								<Route path='payments/new' element={<PaymentsEdit />} />
 								<Route path='payments/:id' element={<PaymentsEdit />} />
+								<Route path='payments/:id/edit' element={<PaymentsEdit />} />
 
 								<Route path='business' element={<BusinessView />} />
 								<Route path='business/new' element={<NewBusinessForm />}/>

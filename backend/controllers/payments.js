@@ -52,6 +52,19 @@ router.post('/',
     }
 });
 
+router.get('/not-associated',
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+            let payments = await paymentService.getPaymentNotAssociated(req.user);
+            res.json(payments);
+        } catch (error) {
+            console.log({error})
+            res.status(error.statusCode ?? 500).json({ error: {...error} });
+        }
+    }
+)
+
 router.get('/:id', async (req, res) => {
     try {
         const payment = await paymentService.findById(req.params.id);

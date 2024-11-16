@@ -133,3 +133,23 @@ export async function updateVerifiedStatus(id: number, data: any, token: string 
         }        
     }
 }
+
+
+export async function getNotAssociatedPayments(token: string): Promise<Payment[]> {
+    try {
+        let response = await axios.get(`${HOST}/v1/payments/not-associated`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return response.data
+    } catch (err: any) {
+        let error = err?.response?.data?.error
+        let status = err?.response?.status
+
+        console.log({ status, error })
+
+        throw new Error("Error del servidor")
+    }
+}

@@ -270,3 +270,35 @@ exports.deletePayment = async (id) => {
     logger.info('Payment deleted:', payment);
     return payment;
 };
+
+exports.getPaymentNotAssociated = async (user) => {
+    
+    let payments = await PaymentModel.findAll({
+        include: [
+            {
+                model: GrossIncomeInvoice,
+                as: 'grossIncomeInvoice',
+                include: [
+                    {
+                        model: Settlement,
+                        as: 'settlement'
+                    }
+                ]
+            },
+            {
+                model: Business,
+                as: 'business'
+            },
+            {
+                model: Person,
+                as: 'person'
+            }
+        ],
+        where: {
+            grossIncomeInvoiceId: null
+        }
+    });
+
+
+    return payments;
+};
