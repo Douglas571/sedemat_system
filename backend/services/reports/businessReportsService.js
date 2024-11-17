@@ -86,6 +86,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
   const headerRow = [
     'Contribuyente',
     'Sede',
+    'Categoría',
     'Clasificación',
 
     'Meses pendientes de pagar',
@@ -104,6 +105,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
     let formattedRow = [
       row.businessName,
       row.branchOfficeNickname,
+      row?.businessActivityCategoryName ?? '--',
       row.classification,
 
       row.monthsPendingToBePaidCount,
