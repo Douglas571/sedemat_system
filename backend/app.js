@@ -66,6 +66,8 @@ const penaltyRouter = require('./routers/penaltyRouter');
 
 const inactivityPeriodRouter = require('./routers/inactivityPeriodRoutes');
 
+const businessActivityCategoriesRouter = require('./routers/businessActivityCategoriesRouter');
+
 // REPORTS
 
 const reportBusinesses = require('./routers/reports/businessesReportsRouter');
@@ -118,6 +120,8 @@ app.use('/v1/penalties', penaltyRouter);
 app.use('/v1/inactivity-periods', inactivityPeriodRouter);
 
 app.use('/v1/bank-accounts', bankAccountRouter)
+
+app.use('/v1/business-activity-categories', businessActivityCategoriesRouter);
 
 app.use('/v1/users', userRouter)
 app.use('/v1/auth', authRouter);
