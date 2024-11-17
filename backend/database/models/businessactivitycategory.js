@@ -5,7 +5,10 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class BusinessActivityCategory extends Model {
     static associate(models) {
-      // Define associations here, if any
+      BusinessActivityCategory.hasMany(models.Business, { 
+        foreignKey: 'businessActivityCategoryId', 
+        as: 'businesses'
+      });
     }
   }
   BusinessActivityCategory.init(

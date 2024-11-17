@@ -28,4 +28,3 @@ const businessActivityCategoryService = {
 };
 
 module.exports = businessActivityCategoryService;
-

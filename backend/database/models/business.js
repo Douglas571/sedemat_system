@@ -72,6 +72,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'fiscalId',
         as: 'fiscal'
       })
+
+      Business.belongsTo(models.BusinessActivityCategory, {
+        foreignKey: 'businessActivityCategoryId',
+        as: 'businessActivityCategory'
+      })
     }
   }
   Business.init({
@@ -142,6 +147,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       references: {
         model: 'Users',
+        key: 'id'
+      }
+    },
+
+    businessActivityCategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'BusinessActivityCategory',
         key: 'id'
       }
     },
