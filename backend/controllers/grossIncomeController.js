@@ -39,7 +39,11 @@ class GrossIncomeController {
   // GET /gross-incomes
   async getAll(req, res) {
     try {
-      const grossIncomes = await grossIncomeService.getAllGrossIncomes();
+      const queries = req.query
+      // User is empty for now
+      const user = req.user
+      console.log({queries})
+      const grossIncomes = await grossIncomeService.getAllGrossIncomes(user, { ...queries });
       res.status(200).json(grossIncomes);
     } catch (error) {
       console.log({ error });

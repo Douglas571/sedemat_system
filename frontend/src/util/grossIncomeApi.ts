@@ -1,5 +1,6 @@
 import { IGrossIncome } from "../util/types"
 import dayjs from "dayjs"
+import axios from "axios"
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -82,6 +83,30 @@ export async function getAllGrossIncomes(): Promise<IGrossIncome[]> {
     }
     const grossIncomes = await response.json()
     return grossIncomes
+}
+
+export async function getGrossIncomesWithoutInvoice(token: string, filters?: any): Promise<IGrossIncome[]> {
+    try {
+        let response = await axios.get(`${HOST}/v1/gross-incomes`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            params: {
+                grossIncomeInvoiceId: 'null',
+                ...filters
+            }
+        })
+    
+        return response.data
+    } catch (error: any) {
+        console.error({error})
+
+        if (error.response.status === 401) {
+            throw new Error("Usuario no autorizado")        
+        }
+
+        throw new Error("Error del servidor")
+    }
 }
 
 // GET all gross incomes by business id

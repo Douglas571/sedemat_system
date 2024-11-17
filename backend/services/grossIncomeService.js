@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment, User, Person } = require('../database/models');
+const { Op } = require('sequelize');
+
 const dayjs = require('dayjs');
 const currency = require('currency.js');
 
@@ -93,8 +95,21 @@ function calculateTaxFields({grossIncome}) {
 
 class GrossIncomeService {
     // Fetch all GrossIncome records
-    async getAllGrossIncomes() {
+    async getAllGrossIncomes(user, filters) {
+
+        const where = {
+            ...filters
+        }
+
+        if (where.grossIncomeInvoiceId === 'null') {
+            where.grossIncomeInvoiceId = {
+                [Op.eq]: null
+            }
+        }
+
+        console.log({filters})
         return await GrossIncome.findAll({
+            where,
             include: [
                 {
                     model: Alicuota,

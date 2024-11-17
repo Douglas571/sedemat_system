@@ -5,9 +5,11 @@ import React, { useEffect } from "react"
 import { Link } from "react-router-dom"
 
 import dayjs from "dayjs"
+import _ from "lodash"
 
 
 import * as paymentService from "../util/paymentsApi"
+import * as grossIncomeService from "../util/grossIncomeApi"
 import useAuthentication from "../hooks/useAuthentication"
 
 import { formatBolivares } from "util/currency"
@@ -23,9 +25,9 @@ const UserHome: React.FC = () => {
 
 	return (
 		<div>
-            <Typography.Title>Bienvenido {user?.person?.id 
+            {/* <Typography.Title>Bienvenido {user?.person?.id 
                 ? `${user?.person?.firstName} ${user?.person?.lastName}` 
-                : user?.username || "Usuario"}</Typography.Title>
+                : user?.username || "Usuario"}</Typography.Title> */}
 
             <PendingWorkSection />
 		</div>
@@ -36,6 +38,7 @@ export default UserHome
 
 const PendingWorkSection = () => {
     return <Card>
+        <Typography.Title level={2}>Tareas pendientes</Typography.Title>
         <PendingPaymentsTable />
         <PendingGrossIncomesToBeAssociated/> 
     </Card>
@@ -44,13 +47,47 @@ const PendingWorkSection = () => {
 const PendingGrossIncomesToBeAssociated = () => {
 
     // TODO: In progress
+    let [grossIncomes, setGrossIncomes] = React.useState<IGrossIncome[]>([])
+    let { userAuth } = useAuthentication()
+    
+    const loadGrossIncomesToBeAssociated = async () => {
+        let fetchedGrossIncomes = await grossIncomeService.getGrossIncomesWithoutInvoice(userAuth.token || "")
+        setGrossIncomes([...fetchedGrossIncomes])
+    }
+
+    useEffect(() => {
+        loadGrossIncomesToBeAssociated()
+    }, [])
+    
+    const grossIncomesColumns: ColumnProps<IGrossIncome>[] = [
+        {
+            title: 'Periodo',
+            dataIndex: 'period',
+            render: (date: Date) => <Typography.Text>{_.startCase(dayjs(date).format('MMM-YYYY'))}</Typography.Text>
+        },
+        {
+            title: 'Contribuyente',
+            dataIndex: ['business', 'businessName'],
+            render: (businessName: string, grossIncome: IGrossIncome) => <Link to={`/tax-collection/${grossIncome.business.id}`}>{businessName}</Link>
+        },
+        {
+            title: 'RIF',
+            dataIndex: ['business', 'dni'],
+            render: (dni: number, grossIncome: IGrossIncome) => (
+                <Link to={`/tax-collection/${grossIncome.business.id}`}>{dni}</Link>
+            )
+        }
+        
+    ]
     
     return (
         <>
-            <Typography.Title level={4}>Declaraciones por asociar a una factura</Typography.Title>
+            <Typography.Title level={4}>Declaraciones pendientes por asociar a una factura</Typography.Title>
             <Table
-                dataSource={[]}
-                columns={[]}
+                rowKey='id'
+                dataSource={grossIncomes}
+                columns={grossIncomesColumns}
+                virtual
                 // pagination={false}
             />
         </>
@@ -128,11 +165,12 @@ const PendingPaymentsTable = () => {
 
     return (
         <>
-            <Typography.Title level={4}>Pagos por procesar</Typography.Title>
+            <Typography.Title level={4}>Pagos pendientes por asignar a una factura</Typography.Title>
             <Table
                 rowKey="id"
                 dataSource={payments}
                 columns={paymentColumns}
+                virtual
                 // pagination={true}
             />
         </>
