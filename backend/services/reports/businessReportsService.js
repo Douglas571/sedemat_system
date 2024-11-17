@@ -9,7 +9,8 @@ const {
   Payment,
   Settlement,
   EconomicLicense,
-  InactivityPeriod
+  InactivityPeriod,
+  BusinessActivityCategory
 } = require('../../database/models');
 
 const { Op } = require('sequelize');
@@ -177,6 +178,10 @@ async function getBusinessData() {
       {
         model: InactivityPeriod,
         as: 'inactivityPeriods',
+      },
+      {
+        model: BusinessActivityCategory,
+        as: 'businessActivityCategory'
       }
     ]
   })
@@ -222,6 +227,7 @@ function mapBusinessToRowReport(businessReport){
           businessId: business.id,
           businessName: business.businessName,
           businessDni: business.dni,
+          businessActivityCategoryName: business?.businessActivityCategory?.name ?? null,
           branchOfficeNickname: branchOffice.nickname,
           classification: branchOffice.classification, //branchOffice.classification,
           monthsWithoutDeclarationCount: branchOffice.monthsWithoutDeclarationCount,
@@ -241,6 +247,7 @@ function mapBusinessToRowReport(businessReport){
         businessId: business.id,
         businessName: business.businessName,
         businessDni: business.dni,
+        businessActivityCategoryName: business?.businessActivityCategory?.name ?? null,
         branchOfficeNickname: '--',
         classification: business.classification,
         monthsWithoutDeclarationCount: business.monthsWithoutDeclarationCount,
@@ -266,6 +273,7 @@ function getBusinessesGrossIncomeReport(businesses) {
       id: business.id,
       businessName: business.businessName,
       dni: business.dni,
+      ...business,
     }
 
     // get the sing up period

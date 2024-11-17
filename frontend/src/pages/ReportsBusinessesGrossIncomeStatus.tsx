@@ -103,7 +103,26 @@ const BasicComponent: React.FC = () => {
         }
 
         return category
-      }
+      },
+
+      
+
+      filters: [... new Set(
+        businessGrossIncomesStatus.map( b => {
+          console.log({b, category: b?.businessActivityCategoryName ?? '--'})
+
+          return b?.businessActivityCategoryName ?? '--'
+        }))].map(c => ({ value: c, text: c})),
+
+        
+        onFilter: (value, record) => {
+          if (value === '--') {
+            return !record.businessActivityCategoryName
+          }
+          
+          return record.businessActivityCategoryName === value
+
+        }
 
     },
     {
