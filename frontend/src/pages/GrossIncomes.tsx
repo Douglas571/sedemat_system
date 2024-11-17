@@ -200,13 +200,12 @@ const GrossIncomeTable = () => {
   return (<>
     <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
       <Table 
-        virtual
+        // virtual
         rowKey="id"
         style={{ overflow: 'auto' }}
         columns={columns} 
         dataSource={grossIncomes} />
     </Card>
-  
   </>);
 };
 
