@@ -219,7 +219,8 @@ function Payments(): JSX.Element {
             render: (text: string, record: Payment) => {
                 // console.log({record, text})
                 if (record.businessId) {
-                    return record.business.businessName
+                    return <Link to={`/tax-collection/${record.business.id}`}>
+                    {record.business.businessName}</Link>
                 } else {
                     return `${record?.person?.firstName} ${record?.person?.lastName}`
                 }
@@ -267,7 +268,8 @@ function Payments(): JSX.Element {
 
             sorter: (a, b) => a.reference.localeCompare(b.reference),
             render: (text: string, record: Payment) => {
-                return <Link to={`/payments/${record.id}`}>{text}</Link>
+                // return <Link to={`/payments/${record.id}`}>{text}</Link>
+                return text
             },
 
         },
@@ -417,7 +419,8 @@ function Payments(): JSX.Element {
                 <Table
                     dataSource={filteredPayments}
                     columns={columns}
-                    style={{ overflow: 'scroll' }}
+                    // style={{ overflow: 'scroll' }}
+                    virtual
                 />
             </Card>
         </div>
