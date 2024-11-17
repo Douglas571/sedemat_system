@@ -160,6 +160,9 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    pendingArchiveIndex: DataTypes.INTEGER,
+    settlementArchiveIndex: DataTypes.INTEGER,
+
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE

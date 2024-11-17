@@ -5,7 +5,8 @@ const {
     EconomicActivity, 
     CertificateOfIncorporation,
     User,
-    Role
+    Role,
+    BusinessActivityCategory
 } = require("../database/models");
 
 const ROLES = require('../utils/auth/roles')
@@ -45,6 +46,10 @@ exports.getAllBusinesses = async () => {
                         as: "role"
                     }
                 ]
+            },
+            {
+                model: BusinessActivityCategory,
+                as: 'businessActivityCategory'
             }
         ]
     });
@@ -88,6 +93,10 @@ exports.getBusinessById = async (id) => {
                         as: "role"
                     }
                 ]
+            },
+            {
+                model: BusinessActivityCategory,
+                as: 'businessActivityCategory'
             }
         ]
     });
