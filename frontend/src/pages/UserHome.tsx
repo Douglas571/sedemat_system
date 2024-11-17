@@ -71,6 +71,17 @@ const PendingGrossIncomesToBeAssociated = () => {
             render: (businessName: string, grossIncome: IGrossIncome) => <Link to={`/tax-collection/${grossIncome.business.id}`}>{businessName}</Link>
         },
         {
+            title: 'Sede',
+            dataIndex: ['branchOffice', 'nickname'],
+            render: (nickname: string, grossIncome: IGrossIncome) => {
+                if (nickname) {
+                    return <Link to={`/tax-collection/${grossIncome.business.id}`}>{nickname}</Link>
+                } else {
+                    return '--'
+                }
+            }
+        },
+        {
             title: 'RIF',
             dataIndex: ['business', 'dni'],
             render: (dni: number, grossIncome: IGrossIncome) => (
