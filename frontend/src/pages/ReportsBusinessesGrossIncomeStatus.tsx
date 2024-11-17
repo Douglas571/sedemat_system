@@ -91,6 +91,22 @@ const BasicComponent: React.FC = () => {
       showSorterTooltip: false
     },
     {
+      title: "Categoría",
+      dataIndex: 'businessActivityCategoryName',
+      key: 'businessActivityCategoryName',
+      showSorterTooltip: false,
+      sorter: (a, b) => a?.businessActivityCategoryName?.localeCompare(b?.businessActivityCategoryName),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      render: (category: string) => {
+        if (!category) {
+          return '--'
+        }
+
+        return category
+      }
+
+    },
+    {
       title: 'Clasificación (Por Puntualidad)',
       dataIndex: 'classification',
       key: 'classification',

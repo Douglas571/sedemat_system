@@ -90,6 +90,12 @@ export interface Zonation {
     docImages: string[]; // Assuming the API returns URLs or file names
 }
 
+export type IBusinessActivityCategory = {
+    id: number;
+    name: string;
+    description: string;
+  };
+
 export type BranchOffice = {
     id?: number;
     nickname: string;

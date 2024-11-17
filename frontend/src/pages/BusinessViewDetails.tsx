@@ -1220,8 +1220,26 @@ function GeneralInformationDescription({ business }): JSX.Element {
     },
     {
       key: '5',
+      label: 'Categoría',
+      children: business?.businessActivityCategory?.name,
+    }, 
+    {
+      key: '6',
       label: "Fiscal Asignado",
-      children: business?.fiscal?.person ? business?.fiscal?.person.firstName + " " + business?.fiscal?.person.lastName : business?.fiscal?.username,
+      children: business?.fiscal?.person 
+        ? business?.fiscal?.person.firstName + " " + business?.fiscal?.person.lastName 
+        : business?.fiscal?.username ?? "No registrado",
+      span: 2
+    },
+    {
+      key: '7',
+      label: 'Indice en el archivo de liquidaciones',
+      children: business.settlementsArchiveIndex ?? "No registrado",
+    },
+    {
+      key: '8',
+      label: 'Indice en el archivo de cuentas por cobrar',
+      children: business.pendingArchiveIndex ?? "No registrado",
     }
   ]
 

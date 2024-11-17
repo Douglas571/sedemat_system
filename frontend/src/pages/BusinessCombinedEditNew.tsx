@@ -4,10 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import * as api from '../util/api'
 import * as businessesApi from '../util/businessesApi'
 import userService from '../services/UserService'
+import BusinessActivityCategoryService from "services/BusinessActivityCategoriesService";
 
 import ROLES from "../util/roles";
 
-import { Business, BranchOffice, Person, EconomicActivity } from '../util/types'
+import { Business, BranchOffice, Person, EconomicActivity, IBusinessActivityCategory } from '../util/types'
 import {
     Button,
     DatePicker,
@@ -21,7 +22,8 @@ import {
     UploadProps,
     message,
     Card,
-    Switch
+    Switch,
+    InputNumber
 } from "antd";
 
 import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
@@ -49,11 +51,15 @@ export default function BusinessForm(): JSX.Element {
     const [economicActivities, setEconomicActivities] = useState<Array<EconomicActivity>>([]);
     const [people, setPeople] = useState<Person[]>([])
 
+    const [businessActivityCategories, setBusinessActivityCategories] = useState<IBusinessActivityCategory[]>([])
+
     const [messageApi, contextHolder] = message.useMessage()
     const navigate = useNavigate()
 
     const [users, setUsers] = useState<IUser[]>([])
     const fiscalOptions = users.filter( user => user.roleId === ROLES.FISCAL).map(user => ({value: user.id, label: `${user.username}`}))
+
+    const businessActivityCategoriesOptions = businessActivityCategories.map(businessActivityCategory => ({value: businessActivityCategory.id, label: businessActivityCategory.name}))
 
     const { userAuth } = useAuthentication()
 
@@ -74,9 +80,17 @@ export default function BusinessForm(): JSX.Element {
         }
 
         loadEconomicActivities()
+        loadBusinessActivityCategories()
         loadPeople()
         loadUsers()
     }, [])
+
+    async function loadBusinessActivityCategories() {
+        let fetchedBusinessActivityCategories = await BusinessActivityCategoryService.getAll(userAuth?.token ?? '')
+
+        console.log({fetchedBusinessActivityCategories})
+        setBusinessActivityCategories(fetchedBusinessActivityCategories)
+    }
 
     async function loadUsers() {
         let fetchedUsers = await userService.findAll();
@@ -313,6 +327,7 @@ export default function BusinessForm(): JSX.Element {
                         <BusinessBasicInformarionForm
                             economicActivities={economicActivities}
                             fiscalsOptions={fiscalOptions}
+                            businessActivityCategoriesOptions={businessActivityCategoriesOptions}
                         />
                         <BusinessContactInformationForm
                             people={people}
@@ -336,7 +351,7 @@ export default function BusinessForm(): JSX.Element {
     )
 }
 
-function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[] }): JSX.Element {
+function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[], businessActivityCategoriesOptions = [] }): JSX.Element {
     return (
         <>
             <Flex gap='middle'>
@@ -409,6 +424,25 @@ function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[] })
                     options={economicActivities.map(e => ({ label: e?.title, value: e?.title }))}
                 />
             </Form.Item>
+
+            <Flex gap={'middle'} wrap>
+
+                <Form.Item label="Categoría" name={'businessActivityCategoryId'}
+                    style={{ flex: 1 }}
+                >
+                    <Select 
+                        options={businessActivityCategoriesOptions}
+                    />
+                </Form.Item>
+
+                <Form.Item name='pendingArchiveIndex' label='Indice en el archivo de cuentas por cobrar'>
+                    <InputNumber min={0} style={{ width: '100%' }} />
+                </Form.Item>
+
+                <Form.Item name='settlementArchiveIndex' label='Indice en el archivo de liquidaciones'>
+                    <InputNumber min={0} style={{ width: '100%' }} />
+                </Form.Item>
+            </Flex>
 
             <Form.Item name="isActive" label="Activo">
                 <Switch checkedChildren="SI" unCheckedChildren="NO" />
