@@ -153,7 +153,7 @@ module.exports = (sequelize, DataTypes) => {
 
     businessActivityCategoryId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'BusinessActivityCategory',
         key: 'id'
