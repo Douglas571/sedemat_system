@@ -225,6 +225,11 @@ function mapBusinessToRowReport(businessReport){
     if (business?.branchOffices?.length > 0) {
       business.branchOffices.forEach(branchOffice => {
 
+        // ! if there is no pending to paid or be settled months, return 
+        if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
+          return
+        }
+
         reportRows.push({
           businessId: business.id,
           businessName: business.businessName,
@@ -243,6 +248,11 @@ function mapBusinessToRowReport(businessReport){
         })
       })        
     } else {
+
+      // ! if there is no pending to paid or be settled months, return 
+      if (business.monthsPendingToBePaid.length === 0 && business.monthsPendingToBeSettled.length === 0 && !business.lastMonthSettled) {
+        return 
+      }
 
       let monthsPendingToBePaidCount = business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount
       let classification = getBusinessClassification(monthsPendingToBePaidCount)
@@ -291,7 +301,7 @@ function getBusinessesGrossIncomeReport(businesses) {
     } else {
       // if they don't have an initial period, they are not registered in the sedemat
       // ! this will exclude all business that don't have an economic license 
-      return undefined
+      // return undefined
     }
 
     businessReport.initialPeriod = initialPeriod
