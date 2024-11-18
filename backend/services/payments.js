@@ -6,6 +6,7 @@ const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
 
 const path = require('path');
 const fs = require('fs');
+const fse = require('fs-extra')
 
 const logger = require('../utils/logger')
 
@@ -116,6 +117,15 @@ exports.createPayment = async (paymentData) => {
 
         if (process.env.NODE_ENV === 'test') {
             console.log({error})
+        }
+
+        // delete image
+        if (paymentData.image) {
+            let { name, ext } = path.parse(paymentData.image)
+            console.log("deleting: ", name + ext)
+
+            // ! go back one level to get out of service and enter uploads
+            fse.unlink(path.join(__dirname, '..', 'uploads', 'payments', name + ext))
         }
 
         logger.error('Error creating payment:', error.name);
