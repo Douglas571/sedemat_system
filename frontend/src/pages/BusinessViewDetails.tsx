@@ -1234,7 +1234,7 @@ function GeneralInformationDescription({ business }): JSX.Element {
     {
       key: '7',
       label: 'Indice en el archivo de liquidaciones',
-      children: business.settlementsArchiveIndex ?? "No registrado",
+      children: business.settlementArchiveIndex ?? "No registrado",
     },
     {
       key: '8',
@@ -1617,7 +1617,9 @@ function EconomicLicensesTable({ economicLicenses, onEdit, onDelete }): JSX.Elem
     <Table 
       dataSource={economicLicenses} 
       columns={columns}
-      rowKey={(r) => r.id} />
+      rowKey={(r) => r.id} 
+      style={{ overflow: "auto"}}
+    />
   )
 }
 
