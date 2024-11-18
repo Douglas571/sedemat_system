@@ -13,6 +13,7 @@ const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 const ROLES = require('../utils/auth/roles');
 const { UserNotAuthorizedError } = require('../utils/errors');
 
+const fse = require('fs-extra')
 
 function canUpdateEditDeleteGrossIncomes(user) {
     if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
@@ -188,67 +189,81 @@ class GrossIncomeService {
     // Create a new GrossIncome record
     async createGrossIncome(newGrossIncome, user) {
 
-        canUpdateEditDeleteGrossIncomes(user)
+        try {
 
-        // only update gross income invoice id in the invoice service 
-        newGrossIncome.grossIncomeInvoiceId = undefined
+        
+            canUpdateEditDeleteGrossIncomes(user)
 
-        newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
+            // only update gross income invoice id in the invoice service 
+            newGrossIncome.grossIncomeInvoiceId = undefined
 
-        console.log({newGrossIncome})
+            newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
 
-        // check if there is already a gross income with the same period and branchOfficeId
-        let existingGrossIncome
+            // check if there is already a gross income with the same period and branchOfficeId
+            let existingGrossIncome
 
-        if (newGrossIncome.branchOfficeId) {
-            existingGrossIncome = await GrossIncome.findOne({
-                where: {
+            if (newGrossIncome.branchOfficeId) {
+                existingGrossIncome = await GrossIncome.findOne({
+                    where: {
+                        period: newGrossIncome.period,
+                        branchOfficeId: newGrossIncome.branchOfficeId
+                    }
+                });
+            } else {
+                existingGrossIncome = await GrossIncome.findOne({
+                    where: {
+                        period: newGrossIncome.period,
+                        businessId: newGrossIncome.businessId
+                    }
+                })
+            }
+
+            // Calculate taxes fields
+            const calcs = calculateTaxFields({grossIncome: newGrossIncome})
+            console.log({calcs})
+
+            newGrossIncome = {
+                ...newGrossIncome,
+                ...calcs
+            }
+            
+            if (existingGrossIncome) {  
+                let error = new Error('Gross income already exists for the same period and branch office');
+                error.name = 'PeriodAlreadyExistsError';
+                throw error;
+            }
+
+            let wasteCollectionTax
+
+            if (newGrossIncome.chargeWasteCollection && newGrossIncome.branchOfficeId) {
+                wasteCollectionTax = await WasteCollectionTax.create({
                     period: newGrossIncome.period,
                     branchOfficeId: newGrossIncome.branchOfficeId
-                }
-            });
-        } else {
-            existingGrossIncome = await GrossIncome.findOne({
-                where: {
-                    period: newGrossIncome.period,
-                    businessId: newGrossIncome.businessId
-                }
-            })
+                });
+                newGrossIncome.wasteCollectionTaxId = wasteCollectionTax.id;
+            }
+
+            return await GrossIncome.create(newGrossIncome);
+
+        } catch (error) {
+            // delete image
+            if (newGrossIncome.declarationImage) {
+                let { name, ext } = path.parse(newGrossIncome.declarationImage)
+                console.log("deleting: ", name + ext)
+
+                // ! go back one level to get out of service and enter uploads
+                fse.unlink(path.join(__dirname, '..', 'uploads', 'seneat-declarations', name + ext))
+            }
+
+            throw error
         }
-
-        // Calculate taxes fields
-        const calcs = calculateTaxFields({grossIncome: newGrossIncome})
-        console.log({calcs})
-
-        newGrossIncome = {
-            ...newGrossIncome,
-            ...calcs
-        }
-        
-        if (existingGrossIncome) {  
-            let error = new Error('Gross income already exists for the same period and branch office');
-            error.name = 'PeriodAlreadyExistsError';
-            throw error;
-        }
-
-        let wasteCollectionTax
-
-        if (newGrossIncome.chargeWasteCollection && newGrossIncome.branchOfficeId) {
-            wasteCollectionTax = await WasteCollectionTax.create({
-                period: newGrossIncome.period,
-                branchOfficeId: newGrossIncome.branchOfficeId
-            });
-            newGrossIncome.wasteCollectionTaxId = wasteCollectionTax.id;
-        }
-
-        return await GrossIncome.create(newGrossIncome);
     }
 
     // Update an existing GrossIncome record by ID
     async updateGrossIncome(id, data, user) {
 
         canUpdateEditDeleteGrossIncomes(user)
-
+        
         // only update gross income invoice id in the invoice service 
         data.grossIncomeInvoiceId = undefined
 
@@ -338,7 +353,7 @@ class GrossIncomeService {
         if (wasteCollectionTax && (data.period !== wasteCollectionTax.period)){
             wasteCollectionTax.update({period: data.period})
         }
-        // DELETE EVERYTHING ABOVE WHEN YOU HAVE TESTS
+        // TODO: DELETE EVERYTHING ABOVE WHEN YOU HAVE TESTS
 
         // delete old image 
         // if new data declaration image is different from the old one
