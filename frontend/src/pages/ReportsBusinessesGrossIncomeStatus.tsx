@@ -28,7 +28,9 @@ interface reportRow {
   monthsPendingToBePaidCount: number
   monthsPendingToBeSettledCount: number
   lastMonthSettled: dayjs.Dayjs,
-  lackingMonths: dayjs.Dayjs[]
+  lackingMonths: dayjs.Dayjs[],
+  pendingMonths: dayjs.Dayjs[],
+  pendingToBeSettledMonths: dayjs.Dayjs[],
 }
 
 const BasicComponent: React.FC = () => {
@@ -47,6 +49,8 @@ const BasicComponent: React.FC = () => {
     let businessReport = await reportsService.getBusinessesGrossIncomeStatusReport({
       token: userAuth.token
     })
+
+    console.log({businessReport})
 
     let reportRows: reportRow[] = [...businessReport]
 
@@ -179,7 +183,18 @@ const BasicComponent: React.FC = () => {
       
       sorter: (a, b) => a.monthsPendingToBePaidCount - b.monthsPendingToBePaidCount,
       showSorterTooltip: false,
-      sortDirections: ['ascend', 'descend', 'ascend']
+      sortDirections: ['ascend', 'descend', 'ascend'],
+
+      render: (value, record) => {
+        return <Tooltip title={record
+          .pendingMonths
+          .sort((a, b) => dayjs(a).isBefore(dayjs(b) ? 1 : -1))
+          .map(month => dayjs(month).format('MMMM-YY').toUpperCase()).join(', ')}>
+          <Flex justify="center" align="center">
+            {value}
+          </Flex>
+        </Tooltip>
+      }
     },
     {
       title: 'Meses sin declaración',
@@ -188,7 +203,6 @@ const BasicComponent: React.FC = () => {
       sorter: (a, b) => a.monthsWithoutDeclarationCount - b.monthsWithoutDeclarationCount,
       showSorterTooltip: false,
       sortDirections: ['ascend', 'descend', 'ascend'],
-
 
       render: (value, record) => {
         return <Tooltip title={record
@@ -207,7 +221,17 @@ const BasicComponent: React.FC = () => {
       key: 'monthsPendingToBeSettledCount',
       sorter: (a, b) => a.monthsPendingToBeSettledCount - b.monthsPendingToBeSettledCount,
       showSorterTooltip: false,
-      sortDirections: ['ascend', 'descend', 'ascend']
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      render: (value, record) => {
+        return <Tooltip title={record
+          .pendingToBeSettledMonths
+          .sort((a, b) => dayjs(a).isBefore(dayjs(b) ? 1 : -1))
+          .map(month => dayjs(month).format('MMMM-YY').toUpperCase()).join(', ')}>
+          <Flex justify="center" align="center">
+            {value}
+          </Flex>
+        </Tooltip>
+      }
     },
 
     {
@@ -281,7 +305,7 @@ const BasicComponent: React.FC = () => {
     return (
         <Card 
           style={{  }}
-          title={<Flex align='center' justify='space-between'>
+          title={<Flex align='center' justify='space-between' wrap>
             <Title level={1}>Reporte Sobre Declaraciones De Ingresos</Title>
             <Button icon={<FileExcelOutlined />} onClick={() => reportsService.downloadBusinessesGrossIncomeStatusReport({ token: userAuth.token, format: 'excel' })}>
               Descargar Excel

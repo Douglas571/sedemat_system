@@ -237,7 +237,9 @@ function mapBusinessToRowReport(businessReport){
           
           monthsPendingToBeSettledCount: branchOffice.monthsPendingToBeSettledCount,
           lastMonthSettled: branchOffice.lastMonthSettled,
-          lackingMonths: branchOffice.lackingMonths
+          lackingMonths: branchOffice.lackingMonths,
+          pendingMonths: branchOffice.pendingMonths,
+          pendingToBeSettledMonths: branchOffice.pendingToBeSettledMonths
         })
       })        
     } else {
@@ -257,7 +259,9 @@ function mapBusinessToRowReport(businessReport){
         
         monthsPendingToBeSettledCount: business.monthsPendingToBeSettledCount,
         lastMonthSettled: business.lastMonthSettled,
-        lackingMonths: business.lackingMonths
+        lackingMonths: business.lackingMonths,
+        pendingMonths: business.pendingMonths,
+        pendingToBeSettledMonths: business.pendingToBeSettledMonths
       })
     }
   })
@@ -286,6 +290,7 @@ function getBusinessesGrossIncomeReport(businesses) {
       initialPeriod = dayjs(initialPeriod).add(1, 'month')
     } else {
       // if they don't have an initial period, they are not registered in the sedemat
+      // ! this will exclude all business that don't have an economic license 
       return undefined
     }
 
@@ -410,7 +415,9 @@ function getGrossIncomeReport({
 
     classification: 1,
 
-    lackingMonths: []
+    lackingMonths: [],
+    pendingMonths: [],
+    pendingToBeSettledMonths: []
   }
 
   const CURRENT_DATE = dayjs();
@@ -496,12 +503,14 @@ function getGrossIncomeReport({
       if (!grossIncome?.grossIncomeInvoice?.paidAt) {
         report.monthsPendingToBePaidCount += 1
         report.monthsPendingToBePaid.push(grossIncome)
+        report.pendingMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
       }
 
       // check if it's pending to be settled
       if (!grossIncome?.grossIncomeInvoice?.settlement && grossIncome?.grossIncomeInvoice?.paidAt) { 
         report.monthsPendingToBeSettledCount += 1
         report.monthsPendingToBeSettled.push(grossIncome)
+        report.pendingToBeSettledMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
       }
 
       // check if it's settled
@@ -514,9 +523,10 @@ function getGrossIncomeReport({
     } else {
       // branch office lack declaration for this period
       report.monthsWithoutDeclarationCount += 1
-      report.monthsPendingToBePaidCount += 1
-
       report.lackingMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
+
+      report.monthsPendingToBePaidCount += 1
+      report.pendingMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
 
       // if there is a gross income for this period
       if (grossIncome) {
