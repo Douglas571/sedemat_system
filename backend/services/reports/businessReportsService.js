@@ -590,9 +590,13 @@ module.exports.getGrossIncomesSummaryExcel = async ({
     'SEDE',
     'INGRESOS',
     'ALICUOTA',
-    'INPUESTO',
+    'IMPUESTO',
     'PAGO'
   ];
+
+  worksheet.addRow([`RESUMEN DE DECLARACIONES DE IVA ${dayjs(`${year}-${month}-01`).format('MMMM año YYYY').toUpperCase()}`])
+
+  worksheet.addRow(['']); 
 
   worksheet.addRow(headerRow); 
 
@@ -607,12 +611,26 @@ module.exports.getGrossIncomesSummaryExcel = async ({
       row?.branchOffice?.nickname,
       row.amountBs,
       row.alicuotaTaxPercent,
-      row.totalTaxInBs,
+      row.taxInBs <= row.minTaxInBs ? row.minTaxInBs : row.taxInBs,
       row.isPaid ? 'SI' : 'NO'
 
     ]
     worksheet.addRow(formattedRow)
   });
+
+  worksheet.addRow(['']);
+
+  worksheet.addRow([`RESUMEN DE ${dayjs(`${year}-${month}-01`).format('MMMM [DEL AÑO] YYYY').toUpperCase()}`]);
+
+  const totalGrossIncomesBs = reportRows.reduce((acc, row) => acc + row.amountBs, 0);
+  const totalTaxGeneratedBs = reportRows.reduce((acc, row) => acc + (row.taxInBs <= row.minTaxInBs ? row.minTaxInBs : row.taxInBs), 0);
+  const totalPaidContributors = reportRows.filter(row => row.isPaid).length;
+
+  worksheet.addRow(['DESCRIPCIÓN', 'CANTIDAD']);
+  worksheet.addRow(['TOTAL DE INGRESOS BRUTOS', totalGrossIncomesBs]);
+  worksheet.addRow(['NUMERO TOTAL DE CONTRIBUYENTES', reportRows.length]);
+  worksheet.addRow(['MONTO TOTAL DE IMPUESTOS GENERADOS', totalTaxGeneratedBs]);
+  worksheet.addRow(['NUMERO TOTAL DE CONTRIBUYENTES QUE PAGARON IMPUESTOS', totalPaidContributors]);
 
   workbook.xlsx.write(stream)
     .then(function() {
