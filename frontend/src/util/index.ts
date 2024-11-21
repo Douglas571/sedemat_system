@@ -319,13 +319,16 @@ export function numbersToWords(
     let badgeStatus = 'default'
 
     if (grossIncome?.declarationImage) {
-        status = 'Pendiente'
-        badgeStatus = 'error'
+        if (grossIncome.grossIncomeInvoiceId) {
+          status = 'Por Pagar'
+          badgeStatus = 'error'
+        } else {
+          status = 'Por Facturar'
+          badgeStatus = 'error'
+        }
     }
 
     if (invoice?.paidAt) {
-      console.log('Pendiente de Consolidar')
-      console.log({payments})
         if (payments?.some( p => !p?.isVerified)) {
           status = 'Por Consolidar'
         } else {
