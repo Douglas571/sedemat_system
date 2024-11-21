@@ -12,7 +12,7 @@ import useAuthentication from '../hooks/useAuthentication';
 
 
 
-import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message } from 'antd';
+import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
@@ -353,7 +353,6 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             render: (invoiceId: any, record: IGrossIncome) => {
 
                 return (
-
                     <Badge
                         status={record.badgeStatus}
                         text={record.status}
@@ -481,12 +480,20 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                 // console.log({invoice})
 
                 const { state, badgeStatus } = util.getGrossIncomeInvoiceState({ invoice })
+
+                const grossIncomes = invoice.grossIncomes
+                    .sort((a, b) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1)
+                    .map((g) => {
+                        return dayjs(g.period).format("MMMM-YY").toUpperCase()
+                }).join(", ")
                 
                 return (
-                    <Badge
-                        status={badgeStatus}
-                        text={state}
-                    />
+                    <Tooltip title={grossIncomes}>
+                        <Badge
+                            status={badgeStatus}
+                            text={state}
+                        />
+                    </Tooltip>
                 )
             },
         },
