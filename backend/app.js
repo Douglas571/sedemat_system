@@ -78,17 +78,18 @@ app.use(cors());
 
 app.use(passport.initialize());
 
+const responseTime = require('response-time')
+app.use(
+  responseTime(
+    (req, res, time) => {
+      const method = req.method;
+      const url = req.url;
+      const timestamp = new Date().toISOString();
 
-const requestLogger = (req, res, next) => {
-    const method = req.method;
-    const url = req.url;
-    const timestamp = new Date().toISOString();
-
-    console.log(`[${timestamp}] ${method} ${url}`);
-    
-    next();
-};
-app.use(requestLogger);
+      console.log(`[${timestamp}] ${method} ${url} - (${time} ms)`);
+    }
+  )
+);
 
 app.use("/v1/reports/businesses", reportBusinesses)
 
