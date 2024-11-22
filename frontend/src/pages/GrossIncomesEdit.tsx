@@ -26,7 +26,7 @@ import useAuthentication from 'hooks/useAuthentication';
 const { Title } = Typography;
 // const { Option } = Select;
 
-import { CurrencyHandler4 } from "../util/currency"
+import { CurrencyHandler } from "../util/currency"
 
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [messageApi, contextHolder] = message.useMessage();
@@ -93,13 +93,16 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     
     const TCMMVBCV = Form.useWatch('TCMMVBCV', form)
     const wasteCollectionTaxMMVBCV = Form.useWatch('wasteCollectionTaxMMVBCV', form)
-    // const wasteCollectionTaxBsExpected = Form.useWatch('wasteCollectionTaxBsExpected', form)
+    const wasteCollectionTaxBsExpected = Form.useWatch('wasteCollectionTaxBsExpected', form)
 
     const alicuotaMinTaxMMVBCV = Form.useWatch('alicuotaMinTaxMMVBCV', form)
-    // const alicuotaMinTaxBsExpected = Form.useWatch('alicuotaMinTaxBsExpected', form)
+    const alicuotaMinTaxBsExpected = Form.useWatch('alicuotaMinTaxBsExpected', form)
+
+    const amountBs = Form.useWatch('amountBs', form)
+    const alicuotaTaxPercent = Form.useWatch('alicuotaTaxPercent', form)
+    const chargeWasteCollection = Form.useWatch('chargeWasteCollection', form)
 
     useEffect(() => {
-        console.log({TCMMVBCV, wasteCollectionTaxMMVBCV})
         if (TCMMVBCV && wasteCollectionTaxMMVBCV) {
             form.setFieldsValue({
                 wasteCollectionTaxBsExpected: util.getWasteCollectionTaxInBs(null, TCMMVBCV, wasteCollectionTaxMMVBCV)
@@ -108,14 +111,22 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     }, [TCMMVBCV, wasteCollectionTaxMMVBCV])
 
     useEffect(() => {
-
-        console.log({TCMMVBCV, alicuotaMinTaxMMVBCV, RESULT: util.getMinTaxInBs(null, TCMMVBCV, alicuotaMinTaxMMVBCV)})
         if (TCMMVBCV && alicuotaMinTaxMMVBCV) {
             form.setFieldsValue({
                 alicuotaMinTaxBsExpected: util.getMinTaxInBs(null, TCMMVBCV, alicuotaMinTaxMMVBCV)
             })
         }
     }, [TCMMVBCV, alicuotaMinTaxMMVBCV])
+
+    useEffect(() => {
+
+        let taxBs = CurrencyHandler(amountBs).multiply(percentHandler(alicuotaTaxPercent).divide(100).value).value
+
+        form.setFieldsValue({
+            totalTaxBsExpected: CurrencyHandler(taxBs > alicuotaMinTaxBsExpected ? taxBs : alicuotaMinTaxBsExpected).add(chargeWasteCollection ? wasteCollectionTaxBsExpected : 0).value
+        })
+
+    }, [alicuotaMinTaxBsExpected, wasteCollectionTaxBsExpected, chargeWasteCollection])
 
     async function loadData() {
         if (businessId) {
@@ -630,6 +641,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             name="alicuotaMinTaxBsExpected"
                             label="Min. Tributario (Esperado)"
                             rules={[{ required: false, message: 'Por favor, ingrese el minimo tributario' }]}
+                            
                         >
                             <InputNumber
                                 style={{ width: '100%' }}
@@ -637,7 +649,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                 min={0}
                                 step={0.01}
                                 decimalSeparator=','
-                                // disabled
+                                disabled
                             />
                         </Form.Item>
 
@@ -728,10 +740,24 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                                 min={0}
                                                 step={0.01}
                                                 decimalSeparator=','
-                                                disabled={!chargeWasteCollectionTax}
+                                                disabled
                                             />
                                         </Form.Item>
                                     </Flex>
+
+                                    <Form.Item
+                                            name="totalTaxBsExpected"
+                                            label="Total a pagar (Esperado)"
+                                        >
+                                        <InputNumber
+                                            style={{ width: '100%' }}
+                                            addonAfter='Bs'
+                                            min={0}
+                                            step={0.01}
+                                            decimalSeparator=','
+                                            disabled
+                                        />
+                                    </Form.Item>
                                 </Flex>
                             </Flex>)
                     }
