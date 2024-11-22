@@ -9,6 +9,15 @@ export const CurrencyHandler = (value: number | string) => currency(value,
     }
 )
 
+export const CurrencyHandler4 = (value: number | string) => currency(value, 
+    { 
+        pattern: '#', 
+        precision: 4,
+        separator: '.',
+        decimal: ','
+    }
+)
+
 export const percentHandler = (value: number | string) => currency(value, {
     symbol: '%',
     pattern: '# !',

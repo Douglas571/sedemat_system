@@ -1,6 +1,6 @@
 import { CurrencyExchangeRate, IGrossIncome, Business } from "./types"
 
-import { CurrencyHandler, formatBolivares } from "./currency"
+import { CurrencyHandler, CurrencyHandler4, formatBolivares } from "./currency"
 import GrossIncomeInvoice from "pages/GrossIncomeInvoiceEdit"
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -84,20 +84,35 @@ export function getGrossIncomeTaxInBs({
  * @param {IGrossIncome} grossIncome - The gross income object containing relevant information.
  * @returns {number} The waste collection tax in Bolivares.
  */
-export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome) {
-    if (grossIncome.chargeWasteCollection) {
+export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome, TCMMVBCV?: number, wasteCollectionTaxMMVBCV?: number): number {	
+    if (grossIncome && grossIncome.chargeWasteCollection) {
       return CurrencyHandler(getWasteCollectionTaxInMMV(
         grossIncome.branchOfficeDimensionsMts2
       )).multiply(grossIncome.TCMMVBCV).value
     }
 
+    if (TCMMVBCV && wasteCollectionTaxMMVBCV) {
+      return CurrencyHandler(TCMMVBCV).multiply(wasteCollectionTaxMMVBCV).value
+    }
+
     return 0
 }
 
-export function getMinTaxInBs({grossIncome}: {grossIncome: IGrossIncome}) {
-  console.log("getMinTaxInBs: ", CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value)
-  return CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+export function getMinTaxInBs(data?: {grossIncome: IGrossIncome} | null, TCMMVBCV?: number, alicuotaMinTaxMMVBCV?: number) {  
+
+  let { grossIncome } = data ?? {}
+
+  if (TCMMVBCV && alicuotaMinTaxMMVBCV) {
+    return CurrencyHandler(TCMMVBCV).multiply(alicuotaMinTaxMMVBCV).value
+  }
+
+  if (grossIncome) {
+    return CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value  
+  }
+
+  return 0
 }
+
 /**
  * Calculates the subtotal in bolivares from the gross income object.
  * 

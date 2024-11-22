@@ -26,6 +26,8 @@ import useAuthentication from 'hooks/useAuthentication';
 const { Title } = Typography;
 // const { Option } = Select;
 
+import { CurrencyHandler4 } from "../util/currency"
+
 const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const [form] = Form.useForm();
@@ -88,19 +90,32 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const selectedAlicuota = alicuotaHistory?.find(alicuota => alicuota.id === selectedAlicuotaId)
 
     const chargeWasteCollectionTax = Form.useWatch('chargeWasteCollection', form)
+    
+    const TCMMVBCV = Form.useWatch('TCMMVBCV', form)
+    const wasteCollectionTaxMMVBCV = Form.useWatch('wasteCollectionTaxMMVBCV', form)
+    // const wasteCollectionTaxBsExpected = Form.useWatch('wasteCollectionTaxBsExpected', form)
 
-    // TODO
-    // i will load the alicuota history after getting the economic activity id 
+    const alicuotaMinTaxMMVBCV = Form.useWatch('alicuotaMinTaxMMVBCV', form)
+    // const alicuotaMinTaxBsExpected = Form.useWatch('alicuotaMinTaxBsExpected', form)
 
-    // i will load the currency exchange rate history at the beginnign of the page
+    useEffect(() => {
+        console.log({TCMMVBCV, wasteCollectionTaxMMVBCV})
+        if (TCMMVBCV && wasteCollectionTaxMMVBCV) {
+            form.setFieldsValue({
+                wasteCollectionTaxBsExpected: util.getWasteCollectionTaxInBs(null, TCMMVBCV, wasteCollectionTaxMMVBCV)
+            })
+        }
+    }, [TCMMVBCV, wasteCollectionTaxMMVBCV])
 
+    useEffect(() => {
 
-    /* load 
-        business, 
-        branch offices
-        gross incomes data if it exists
-        currency exchange rate
-    */
+        console.log({TCMMVBCV, alicuotaMinTaxMMVBCV, RESULT: util.getMinTaxInBs(null, TCMMVBCV, alicuotaMinTaxMMVBCV)})
+        if (TCMMVBCV && alicuotaMinTaxMMVBCV) {
+            form.setFieldsValue({
+                alicuotaMinTaxBsExpected: util.getMinTaxInBs(null, TCMMVBCV, alicuotaMinTaxMMVBCV)
+            })
+        }
+    }, [TCMMVBCV, alicuotaMinTaxMMVBCV])
 
     async function loadData() {
         if (businessId) {
@@ -558,7 +573,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                 style={{ width: '100%' }}
                                 addonAfter='Bs'
                                 min={0}
-                                step={0.01}
+                                step={0.0001}
                                 decimalSeparator=','
                             />
                         </Form.Item>
@@ -590,7 +605,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                 style={{ width: '100%' }}
                                 addonAfter='%'
                                 min={0}
-                                step={0.01}
+                                step={0.0001}
                                 decimalSeparator=','
                                 // disabled
                             />
@@ -604,6 +619,21 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             <InputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='MMVBCV'
+                                min={0}
+                                step={0.0001}
+                                decimalSeparator=','
+                                // disabled
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="alicuotaMinTaxBsExpected"
+                            label="Min. Tributario (Esperado)"
+                            rules={[{ required: false, message: 'Por favor, ingrese el minimo tributario' }]}
+                        >
+                            <InputNumber
+                                style={{ width: '100%' }}
+                                addonAfter='Bs'
                                 min={0}
                                 step={0.01}
                                 decimalSeparator=','
@@ -680,6 +710,21 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                             <InputNumber
                                                 style={{ width: '100%' }}
                                                 addonAfter='MMVBCV'
+                                                min={0}
+                                                step={0.0001}
+                                                decimalSeparator=','
+                                                disabled={!chargeWasteCollectionTax}
+                                            />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            name="wasteCollectionTaxBsExpected"
+                                            label="Impuesto Aseo (Esperado)"
+                                            rules={[{ required: false, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
+                                        >
+                                            <InputNumber
+                                                style={{ width: '100%' }}
+                                                addonAfter='Bs'
                                                 min={0}
                                                 step={0.01}
                                                 decimalSeparator=','
