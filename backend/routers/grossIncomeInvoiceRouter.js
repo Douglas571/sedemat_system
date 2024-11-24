@@ -10,6 +10,8 @@ router.get('/', grossIncomeInvoiceController.getAll);
 
 router.get('/to-be-fixed', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.getToBeFixed);
 
+router.get('/to-be-settled', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.getToBeSettled);
+
 // GET a single gross income invoice by ID
 router.get('/:id', grossIncomeInvoiceController.getById);
 

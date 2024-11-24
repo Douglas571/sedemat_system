@@ -23,6 +23,16 @@ class GrossIncomeInvoiceController {
         }
     }
 
+    async getToBeSettled(req, res) {
+        try {
+            const grossIncomeInvoices = await grossIncomeInvoiceService.getAllGrossIncomeInvoices(req.user, { toSettle: true });
+            res.status(200).json(grossIncomeInvoices);
+        } catch (error) {
+            console.log({error})
+            res.status(error.statusCode ?? 500).json({ error });
+        }
+    }
+
     // GET /gross-income-invoices/:id
     async getById(req, res) {
         try {

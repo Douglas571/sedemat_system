@@ -139,12 +139,23 @@ function canBeSettled({
     return false
 }
 
+const _ = require('lodash');
+
 class GrossIncomeInvoiceService {
-    // Fetch all GrossIncomeInvoice records
+    
+    
+    /**
+     * Fetch all GrossIncomeInvoice records. If the toSettle option is true, 
+     * only return the ones that are not settled and are paid (all payments are verified)
+     * @param {Object} user current user
+     * @param {Object} filters filters to be applied to the query.
+     * @param {boolean} filters.toSettle if true, only return the ones that are not settled and are paid (all payments are verified)
+     * @returns {Promise<Array<IGrossIncomeInvoice>>} an array of GrossIncomeInvoice objects
+     */
     async getAllGrossIncomeInvoices(user, filters = {}) {
         let invoices = await GrossIncomeInvoice.findAll({
             where: {
-                ...filters,
+                ..._.pick(filters, ['toFix'])
             },
             include: [
                 {
@@ -161,6 +172,19 @@ class GrossIncomeInvoiceService {
                 }
             ]
         });
+
+        if (filters.toSettle) {
+            invoices = invoices.filter(invoice => {
+                if (invoice.settlement) {
+                    return false
+                }
+
+                // if is paid and all payments are verified
+                if (invoice.paidAt && invoice.payments.every(payment => payment.isVerified)) {
+                    return true
+                }
+            });
+        }
 
         return invoices.map(invoice => invoice.toJSON());
     }

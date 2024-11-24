@@ -59,6 +59,8 @@ import Logout from 'pages/Logout';
 import ReportsBusinessesGrossIncomeStatus from 'pages/ReportsBusinessesGrossIncomeStatus';
 import ReportsBusinessesGrossIncomeSummary from 'pages/ReportsBusinessesGrossIncomeSummary';
 
+import PendingWorkSection from 'pages/PendingWorkSection'
+
 function App(): JSX.Element {
 	return (
 		<div>
@@ -72,6 +74,9 @@ function App(): JSX.Element {
 								{/* <Route index element={<Home />} /> */}
 
 								<Route index element={<UserHome />} />
+
+								<Route path='pending-works' element={<PendingWorkSection />} />
+
 								<Route path='payments' element={<Payments />} />
 								<Route path='payments/new' element={<PaymentsEdit />} />
 								<Route path='payments/:id' element={<PaymentsEdit />} />

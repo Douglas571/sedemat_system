@@ -61,6 +61,11 @@ const App: React.FC = () => {
 			label: 'Inicio',
 		},
 		{
+			key: '/pending-works',
+			icon: '',
+			label: 'Trabajos Pendientes',
+		},
+		{
 			key: '/register',
 			icon: '',
 			label: 'Registro',
