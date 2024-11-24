@@ -259,6 +259,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     }
 
 
+    // ! TODO: Refactor this whole thing around settling button
     let markAsSettledButton = <Button 
         onClick={() => setShowSettlementModal(true)} 
         disabled={ !canBeMarkedAsPaid }
@@ -286,6 +287,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     >
         <Button icon={<UndoOutlined />}>Desmarcar como liquidado</Button>
     </Popconfirm>
+
+    let canSettleInvoice = [ROLES.LIQUIDATOR].includes(user?.roleId)
+    
+    // ! TODO: Refactor this whole thing around settling button
     
     return (
         <Card title={
@@ -311,10 +316,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         >Editar</Button>
                     }
                     
-                    {
-                        grossIncomeInvoiceIsPaid 
-                        ? unmarkAsSettledButton
-                        : markAsSettledButton
+                    { canSettleInvoice &&
+                        (grossIncomeInvoiceIsPaid
+                            ? unmarkAsSettledButton
+                            : markAsSettledButton
+                        )
                     }
                     <Button icon={<PrinterOutlined />} onClick={() => navigate(`/printable/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}`)}>Imprimir Recibo</Button>
                     {

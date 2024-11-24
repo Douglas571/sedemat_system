@@ -11,6 +11,9 @@ import * as util from '../util';
 import useAuthentication from '../hooks/useAuthentication';
 
 
+import ROLES from '../util/roles';
+
+
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -405,10 +408,10 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                                     >Eliminar</Button>
                                 </Popconfirm>
             
-                                <Button 
-                                    onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}`)}
+                                <Link 
+                                    to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
                                     
-                                >Detalles</Button>
+                                >Detalles</Link>
                             </>
                         )   
                     }
@@ -449,6 +452,10 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
     const navigate = useNavigate();
 
     const { businessId } = useParams()
+
+    const { userAuth } = useAuthentication();
+
+    const canEditInvoices = [ROLES.COLLECTOR].includes(userAuth.user.roleId);
 
     const columns = [
         {
@@ -504,24 +511,33 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                 <Flex gap="small">
 
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
-                    <Button 
-                        onClick={() => 
-                            navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}
-                        disabled={record.settlement}
-                    >Editar</Button>
+                    {
+                            canEditInvoices && (
+                            <>
+                                <Button 
+                                    onClick={() => 
+                                        navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}/edit`)}
+                                    disabled={record.settlement}
+                                >Editar</Button>
+                                <Popconfirm
+                                    title="¿Está seguro de eliminar esta factura?"
+                                    onConfirm={() => onDelete(record.id)}
+                                    okText="Sí"
+                                    cancelText="No"
+                                >
+                                    <Button danger
+                                    disabled={record.settlement}
+                                    >Eliminar</Button>
+                                </Popconfirm>
+                            </>
 
-                    <Popconfirm
-                        title="¿Está seguro de eliminar esta factura?"
-                        onConfirm={() => onDelete(record.id)}
-                        okText="Sí"
-                        cancelText="No"
-                    >
-                        <Button danger
-                        disabled={record.settlement}
-                        >Eliminar</Button>
-                    </Popconfirm>
 
-                    <Button onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`)}>Detalles</Button>
+                        )
+                    }
+
+                    
+
+                    <Link to={`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`}>Detalles</Link>
 
                 </Flex>
             ),
