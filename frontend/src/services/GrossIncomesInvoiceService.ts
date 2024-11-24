@@ -1,5 +1,6 @@
 import dayjs from "dayjs"  
 import { ISettlementCreate, ISettlement, IGrossIncomeInvoice, IGrossIncomeInvoiceCreate } from "../util/types";
+import axios from "axios";
 
 
 const IP = process.env.BACKEND_IP || "localhost"
@@ -172,6 +173,9 @@ class GrossIncomesInvoiceService {
       }
     }
 
+    /**
+     * @deprecated don't use it
+     */
     async markAsPaid(grossIncomeInvoiceId: number, token: string): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
         method: 'PUT',
@@ -194,6 +198,9 @@ class GrossIncomesInvoiceService {
       return await response.json()
     }
 
+    /**
+     * @deprecated don't use it
+     */
     async unmarkAsPaid(grossIncomeInvoiceId: number, token: string): Promise<void> {
       const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}`, {
         method: 'PUT',
@@ -213,6 +220,26 @@ class GrossIncomesInvoiceService {
 
       return await response.json()
       
+    }
+
+    async updateToFixStatus(grossIncomeInvoiceId: number, token: string, data?: {toFix: boolean, toFixReason?: string}): Promise<void> {
+      try {
+        const response = await fetch(`${this.baseUrl}/${grossIncomeInvoiceId}/fix-status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        return await response.json()
+        
+      } catch (error: any) {
+        if (error.response.status === 401) {
+          throw new Error(`Solo recaudadores y fiscales pueden actualizar el estatus por corregir de las facturas`);
+        }
+      }
     }
 }
 

@@ -116,6 +116,21 @@ class GrossIncomeInvoiceController {
             res.status(error.statusCode ?? 500).json({ error });
         }
     }
+
+    
+    // PATCH /gross-income-invoices/:id/fix-status
+    async updateFixStatus(req, res) {
+        try {
+            const { id } = req.params;
+            const { toFix, toFixReason } = req.body;
+            const updatedGrossIncomeInvoice = await grossIncomeInvoiceService.updateFixStatus(id, req.user, { toFix, toFixReason });
+            console.log({updatedGrossIncomeInvoice})
+            res.status(200).json(updatedGrossIncomeInvoice);
+        } catch (error) {
+            console.log({ error });
+            res.status(error.statusCode ?? 500).json({ error });
+        }
+    }
 }
 
 module.exports = new GrossIncomeInvoiceController();

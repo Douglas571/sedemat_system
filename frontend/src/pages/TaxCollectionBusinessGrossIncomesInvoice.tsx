@@ -38,7 +38,7 @@ import ROLES from '../util/roles';
 
 import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
 
-import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled} from '@ant-design/icons';
+import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled, ToolOutlined} from '@ant-design/icons';
 
 
 import * as grossIncomeApi from '../util/grossIncomeApi'
@@ -73,6 +73,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [payments, setPayments] = useState<Payment[]>()
 
     const [showSettlementModal, setShowSettlementModal] = useState(false)
+
+    const [showToFixModal, setShowToFixModal] = useState(false)
 
     const paymentsAllocated = payments?.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
 
@@ -124,6 +126,34 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const canBeMarkedAsPaid = grossIncomeInvoice?.canBeSettled
     const isSettled = grossIncomeInvoiceIsPaid
 
+    const handleToggleToFix = async () => {
+        if (grossIncomeInvoice !== undefined && grossIncomeInvoice.toFix) {
+            let result = await GrossIncomesInvoiceService.updateToFixStatus(grossIncomeInvoice.id, token, { toFix: false })
+
+            loadData()
+
+        } else {
+            setShowToFixModal(true)
+        }
+    }
+
+    const handleEditToFix = async (data: { toFixReason: string }) => {
+        try {
+            console.log(JSON.stringify(data))
+            
+            if (grossIncomeInvoice) {
+                let result = await GrossIncomesInvoiceService.updateToFixStatus(grossIncomeInvoice.id, token, { ...data, toFix: true })
+
+                loadData()
+            }
+            
+        } catch (error: any) {
+            // show alerts
+
+        } finally {
+            setShowToFixModal(false)
+        }
+    }
 
     const loadPayments = async (): Promise<Payment[]> => {
         return paymentsApi.findAll()
@@ -261,9 +291,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     
     return (
         <Card title={
-            <Flex align='center' justify='space-between' wrap>
+            <Flex align='center' justify='space-between' gap={10} wrap>
                 <Typography.Title level={4}>Detalles de la Factura</Typography.Title>
-                <Flex gap={10} align='center' justify='end' wrap>                    
+                <Flex gap={10} align='center' justify='end' wrap>        
+                    {
+                        <Button 
+                            icon={<ToolOutlined />}
+                            onClick={handleToggleToFix}
+                        >
+                            { grossIncomeInvoice?.toFix
+                                ? 'Marcar como arreglado'
+                                : 'Marcar como pendiente'
+                            }
+                        </Button>
+                    }            
                     { canEdit 
                         && <Button 
                             icon={<EditOutlined />}
@@ -284,15 +325,22 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 </Flex>
             </Flex>
         }>
-                
-            {
-                grossIncomeInvoiceIsPaid ? (
-                    <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice?.settlement?.settledAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
-                )
-                : (
-                    <Alert message="Esta factura no ha sido liquidada" type="warning" showIcon />
-                )
-            }
+            <Flex vertical gap={10}>
+                {
+                    grossIncomeInvoice?.toFix
+                    && (
+                        <Alert message={`Arreglar: ${grossIncomeInvoice?.toFixReason}`} type="warning" showIcon />
+                    )
+                }
+                {
+                    grossIncomeInvoiceIsPaid ? (
+                        <Alert message={`Esta factura fue liquidada el día ${dayjs(grossIncomeInvoice?.settlement?.settledAt).format('DD/MM/YYYY')}`}	 type="success" showIcon />
+                    )
+                    : (
+                        <Alert message="Esta factura no ha sido liquidada" type="info" showIcon />
+                    )
+                }
+            </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>Descripción del Contribuyente</Title>
             <Descriptions bordered  size='small'>
@@ -606,6 +654,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 onEdit={handleEditSettlement}
                 onNew={handleNewSettlement}/>
                 
+            <ToFixEditModal
+                open={showToFixModal}
+                onCancel={() => setShowToFixModal(false)}
+                onOk={handleEditToFix}
+
+            />
         </Card>
     );
 };
@@ -1406,3 +1460,34 @@ function SettlementEditModal(
     );
 }
 
+function ToFixEditModal({ open, onOk, onCancel }: { open: boolean, onOk: (toFixData: { toFixReason: string }) => void, onCancel: () => void }) {
+
+    const [form] = Form.useForm();
+
+    const handleOk  = () => {
+        form.validateFields().then(values => {
+            onOk(values)
+            form.setFieldsValue({ toFixReason: '' })
+        })
+
+        
+    }
+
+    return <Modal
+        title='Razón para marcar como pendiente por arreglar'
+        open={open}
+        onCancel={onCancel}
+        onOk={() => {
+            handleOk()
+        }}
+    >
+        <Form form={form}>
+            <Form.Item 
+                // label="Razón" 
+                name='toFixReason'
+            >
+                <Input/>
+            </Form.Item>
+        </Form>
+    </Modal>
+}

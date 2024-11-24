@@ -30,6 +30,8 @@ router.post('/:id/payment-status', grossIncomeInvoiceController.updatePaymentSta
 // POST /gross-incomes/:id/payments/:paymentId
 router.post('/:id/payments/:paymentId', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.addPaymentToGrossIncomeInvoice);
 
+router.put('/:id/fix-status', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.updateFixStatus);
+
 // DELETE /gross-incomes/:id/payments/:paymentId
 router.delete('/:id/payments/:paymentId', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.removePaymentFromGrossIncomeInvoice);
 

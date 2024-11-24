@@ -553,6 +553,50 @@ class GrossIncomeInvoiceService {
 
         await invoice.save()
     }
+
+    async updateFixStatus(grossIncomeInvoiceId, user, data) { 
+        console.log({grossIncomeInvoiceId, user, data})
+
+        // check if the user is fiscal or collector 
+
+        // get gross income
+        const grossIncomeInvoice = await GrossIncomeInvoice.findByPk(grossIncomeInvoiceId, {
+            include: [{
+                model: Settlement,
+                as: 'settlement'
+            }]
+        })
+        
+        // check that gross income is not already settled 
+        if (grossIncomeInvoice.settlement) {
+            let error =new Error('Gross Income has a settled invoice associated')
+            error.statusCode = 404
+            error.name = 'ValidationError'
+            throw error
+        }
+
+
+        if (!grossIncomeInvoice) {
+            let error = new Error('GrossIncomeInvoice not found')
+            error.statusCode = 404
+            error.name = 'NotFoundError'
+            throw error
+        }
+
+        let newData = {
+            toFix: data.toFix,
+            toFixReason: data.toFixReason
+        }        
+
+        let invoice = await grossIncomeInvoice.update(newData, {
+            where: {
+                id: grossIncomeInvoiceId
+            }
+        })
+
+        return invoice?.toJSON()
+        
+    }
 }
 
 module.exports = new GrossIncomeInvoiceService();
