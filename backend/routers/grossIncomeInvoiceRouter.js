@@ -8,6 +8,8 @@ const passport = require('passport');
 // GET all gross income invoices
 router.get('/', grossIncomeInvoiceController.getAll);
 
+router.get('/to-be-fixed', passport.authenticate('jwt', { session: false }), grossIncomeInvoiceController.getToBeFixed);
+
 // GET a single gross income invoice by ID
 router.get('/:id', grossIncomeInvoiceController.getById);
 

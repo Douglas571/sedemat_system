@@ -10,11 +10,15 @@ import _ from "lodash"
 
 import * as paymentService from "../util/paymentsApi"
 import * as grossIncomeService from "../util/grossIncomeApi"
+import grossIncomeInvoiceService from "../services/GrossIncomesInvoiceService"
 import useAuthentication from "../hooks/useAuthentication"
+
+import ROLES from "../util/roles"
+
 
 import { formatBolivares } from "util/currency"
 import { completeUrl } from "util"
-import { Payment } from "../util/types"
+import { IGrossIncome, INewGrossIncome, Payment } from "../util/types"
 
 const UserHome: React.FC = () => {
 
@@ -30,6 +34,7 @@ const UserHome: React.FC = () => {
                 : user?.username || "Usuario"}</Typography.Title> */}
 
             <PendingWorkSection />
+
 		</div>
 	)
 }
@@ -37,10 +42,37 @@ const UserHome: React.FC = () => {
 export default UserHome
 
 const PendingWorkSection = () => {
+
+    let { userAuth } = useAuthentication()
+
     return <Card>
         <Typography.Title level={2}>Tareas pendientes</Typography.Title>
-        <PendingPaymentsTable />
-        <PendingGrossIncomesToBeAssociated/> 
+        
+
+        {
+            [ROLES.COLLECTOR, ROLES.FISCAL].includes(userAuth.user.roleId) && (
+                <>
+                    <PendingPaymentsTable />
+                </>
+            )          
+            
+        }
+        
+        {
+            [ROLES.COLLECTOR].includes(userAuth.user.roleId) && (
+                <>
+                <PendingGrossIncomesToBeAssociated/> 
+                </>
+            )          
+        }
+
+        {
+            [ROLES.COLLECTOR, ROLES.FISCAL].includes(userAuth.user.roleId) && (
+                <>
+                    <PendingInvoiceToFix/>
+                </>
+            )          
+        }
     </Card>
 }
 
@@ -181,6 +213,49 @@ const PendingPaymentsTable = () => {
                 rowKey="id"
                 dataSource={payments}
                 columns={paymentColumns}
+                virtual
+                // pagination={true}
+            />
+        </>
+    )
+}
+
+const PendingInvoiceToFix = () => {
+
+    const [grossIncomeInvoiceToFix, setGrossIncomeInvoiceToFix] = React.useState<IGrossIncomeInvoice[]>([])
+    const { userAuth } = useAuthentication()
+    
+
+    const loadPendingGrossIncomeInvoicesToFix = async () => {
+        let grossIncomeInvoices = await grossIncomeInvoiceService.getInvoicesToBeFixed(userAuth.token || "")
+        console.log({grossIncomeInvoices})
+        setGrossIncomeInvoiceToFix([...grossIncomeInvoices])
+    }
+
+    useEffect( () => {
+        loadPendingGrossIncomeInvoicesToFix()
+    }, [])
+
+    const grossIncomeInvoicesColumns: ColumnProps<IGrossIncomeInvoice>[] = [
+        {
+            title: 'Contribuyente',
+            dataIndex: 'businessName',
+            render: (businessName: string, record: IGrossIncomeInvoice) => <Link to={`/tax-collection/${record.businessId}`}>{businessName}</Link>
+        },
+        {
+            title: 'Razón',
+            dataIndex: 'toFixReason',
+            render: (reason: string, record: IGrossIncomeInvoice) => <Link to={`/tax-collection/${record.businessId}/gross-incomes-invoice/${record.id}`}>{reason}</Link>
+        },
+    ]
+
+    return (
+        <>
+            <Typography.Title level={4}>Facturas pendientes por corregir</Typography.Title>
+            <Table
+                rowKey="id"
+                dataSource={grossIncomeInvoiceToFix}
+                columns={grossIncomeInvoicesColumns}
                 virtual
                 // pagination={true}
             />

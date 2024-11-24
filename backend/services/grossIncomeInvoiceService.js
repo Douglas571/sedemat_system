@@ -141,8 +141,11 @@ function canBeSettled({
 
 class GrossIncomeInvoiceService {
     // Fetch all GrossIncomeInvoice records
-    async getAllGrossIncomeInvoices() {
+    async getAllGrossIncomeInvoices(user, filters = {}) {
         let invoices = await GrossIncomeInvoice.findAll({
+            where: {
+                ...filters,
+            },
             include: [
                 {
                     model: GrossIncome,

@@ -25,6 +25,20 @@ class GrossIncomesInvoiceService {
       }
       return await response.json();
     }
+
+    async getInvoicesToBeFixed(token: string) {
+
+      if (token){
+        let response = await axios.get(`${this.baseUrl}/to-be-fixed`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+        
+        return response.data
+      }
+    }
   
     // Get a single gross income invoice by ID
     async getById(id: number): Promise<IGrossIncomeInvoice> {
