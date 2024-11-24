@@ -377,21 +377,26 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         pagination={false}
                         rowKey={'id'}
                     >
-                        <Table.Column 
-                            title="Acciones" 
-                            dataIndex="actions" 
-                            key="actions" 
-                            width={100}
-                            render={(period: Date, record: IGrossIncome) => {
-                                return (
-                                    <Button
-                                        icon={<EditOutlined />}
-                                        disabled={!canEdit || isSettled}
-                                        onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
-                                    >Editar</Button>
-                                )
-                            }}
-                        />
+                        {
+                            canEdit && (
+                                <Table.Column 
+                                    title="Acciones" 
+                                    dataIndex="actions" 
+                                    key="actions" 
+                                    width={10}
+                                    render={(_: any, record: IGrossIncome) => {
+                                        return (
+                                            <Button
+                                                icon={<EditOutlined />}
+                                                disabled={!canEdit || isSettled}
+                                                onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
+                                            >Editar</Button>
+                                        )
+                                    }}
+                                />
+                            )
+                        }
+                        
                         <Table.Column 
                             title="Periodo" 
                             dataIndex="period" 
@@ -483,27 +488,31 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         pagination={false}
                         showHeader={false}
 
-                        rowKey={'id'}
+                        rowKey={() => 'formularyPrice'}
 
                         style={{ width: '100%'}}
                     >
-                        <Table.Column 
-                            title="Formulary edit" 
-                            key="formularyPriceEdit" 
-                            width={100}
-                            
-                            render={() => (
-                                <>
-                                    { canEdit 
-                                        && <Button 
-                                            icon={<EditOutlined />}
-                                            onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
-                                            disabled={isSettled}
-                                        >Editar</Button>
-                                    }
-                                </>
-                            )}
-                        />
+
+                        {
+                            canEdit && (
+                                <Table.Column 
+                                    title="Acciones" 
+                                    dataIndex="actions" 
+                                    key="actions" 
+                                    width={100}
+                                    render={(_: any, record: IGrossIncome) => {
+                                        return (
+                                            <Button
+                                                icon={<EditOutlined />}
+                                                disabled={!canEdit || isSettled}
+                                                onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
+                                            >Editar</Button>
+                                        )
+                                    }}
+                                />
+                            )
+                        }
+                       
                         <Table.Column 
                             title="Formulary Price" 
                             key="formularyPrice" 
@@ -534,6 +543,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                                 dataSource={grossIncomeInvoice?.penalties ?? []} 
                                 pagination={false}
                                 showHeader={false}
+                                rowKey={() => 'penalties'}
                             >
                                 <Table.Column 
                                     title="Formulary Price"
@@ -553,6 +563,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                                 dataSource={[{ total: 1 }]} 
                                 pagination={false}
                                 showHeader={false}
+                                rowKey={() => 'subtotal'}
                             >
                                 <Table.Column 
                                     title="Total" 
@@ -579,6 +590,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         dataSource={[{ total: 1 }]} 
                         pagination={false}
                         showHeader={false}
+                        rowKey={() => 'totalMMV'}
                     >
                         <Table.Column 
                             title="Total" 
@@ -601,6 +613,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         dataSource={[{ allocated: 1 }]} 
                         pagination={false}
                         showHeader={false}
+                        rowKey={() => 'allocated'}
                     >
                         <Table.Column 
                             title="Allocated" 
@@ -623,6 +636,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         dataSource={[{ total: 40 }]} 
                         pagination={false}
                         showHeader={false}
+                        rowKey={() => 'totalMMV'}
                     >
                         <Table.Column 
                             title="Total" 
@@ -640,6 +654,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     </Table>           
                 </div>
             </div>
+           
 
             <Divider />
 
@@ -860,6 +875,7 @@ function PenaltiesTable({
             title: 'Fecha',
             dataIndex: 'createdAt',
             key: 'date',
+            width: 200,
             render: (text: string) => dayjs(text).format('DD-MM-YYYY')
         },
         {
@@ -987,6 +1003,9 @@ function PenaltiesTable({
                 columns={columns} 
                 pagination={false}
                 style={{}}
+                rowKey={(record) => record.id}
+
+                style={{overflow: 'auto'}}
             />
 
             {/* add a component called PenaltyEditModal */}
@@ -1318,7 +1337,14 @@ function PaymentsAllocatedTable(
             { paidAt
             ? (<Alert message={`Esta factura fue pagada el día ${dayjs(paidAt).format('DD/MM/YYYY')}`} type="success" showIcon />)
             : (<Alert message="Esta factura no ha sido pagada" type="warning" showIcon />)}
-            <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} style={{ overflow: 'auto'}}/>
+            <Table 
+                size='small' 
+                dataSource={paymentsAllocated} 
+                pagination={false} 
+                columns={columns} 
+                style={{ overflow: 'auto'}}
+                rowKey={(record) => record.id}
+            />
 
             <PaymentAssociationModal
                 open={showPaymentAssociationModal} 
