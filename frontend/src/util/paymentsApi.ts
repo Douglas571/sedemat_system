@@ -77,8 +77,6 @@ export async function findAll(filters?: PaymentFilters) {
         queryParams = '?' + new URLSearchParams(Object.entries(filters).filter(([key, value]) => value !== undefined)).toString()
     }
 
-    console.log({ queryParams })
-
     const response = await fetch(`${HOST}/v1/payments${queryParams}`)
     const data = await response.json()
     return data

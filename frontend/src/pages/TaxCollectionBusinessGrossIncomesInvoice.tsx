@@ -273,9 +273,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         </Tooltip>
     }
 
-    const canEdit = [ROLES.ADMINISTRATOR, ROLES.COLLECTOR].includes(user?.roleId)
-
-    console.log({canEdit, userRoleId: user?.roleId, ROLES})
+    const canEdit = [ROLES.COLLECTOR].includes(user?.roleId)
 
     const cadEditPenalties = [ROLES.COLLECTOR].includes(user?.roleId) && !grossIncomeInvoice?.settlement?.id
 
@@ -377,6 +375,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         size='small'
                         dataSource={grossIncomes ? grossIncomes : []} 
                         pagination={false}
+                        rowKey={'id'}
                     >
                         <Table.Column 
                             title="Acciones" 
@@ -417,7 +416,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                             title="Alicuota"
                             key="amountBs" 
                             render={(_: any, grossIncome: IGrossIncome) => {
-                                console.log({grossIncome})
                                 let {alicuotaTaxPercent} = grossIncome
                                 return `${formatPercents(alicuotaTaxPercent)}`;
                             }}
@@ -484,6 +482,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                         dataSource={[{ formularyPrice: 1 }]} 
                         pagination={false}
                         showHeader={false}
+
+                        rowKey={'id'}
 
                         style={{ width: '100%'}}
                     >
@@ -826,7 +826,6 @@ function PenaltiesTable({
     //     },
     // ]
 
-    console.log({penalties})
 
     const [showPenaltyEditModal, setShowPenaltyEditModal] = useState(false)
     let [selectedPenaltyId, setSelectedPenaltyId] = useState<(null | number)>(null)
@@ -987,7 +986,7 @@ function PenaltiesTable({
                 dataSource={penalties} 
                 columns={columns} 
                 pagination={false}
-                virtual
+                style={{}}
             />
 
             {/* add a component called PenaltyEditModal */}
@@ -1087,8 +1086,6 @@ function PenaltyEditModal({
     async function loadPenaltyTypes() {
         let fetchedPenaltyTypes = await penaltyService.getAllPenaltyTypes()
         setPenaltyTypes(fetchedPenaltyTypes)
-
-        console.log({fetchedPenaltyTypes})
     }
 
     function resetForm() {
@@ -1281,8 +1278,9 @@ function PaymentsAllocatedTable(
         {
             title: "Acciones",
             key: "actions",
+            width: 200,
             render: (text: any, record: any) => (
-                <Flex gap={16}>
+                <Flex gap={16} align="center">
                     
                     { userAuth?.user?.roleId === ROLES.LIQUIDATOR && (<Button
                         onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
@@ -1320,7 +1318,7 @@ function PaymentsAllocatedTable(
             { paidAt
             ? (<Alert message={`Esta factura fue pagada el día ${dayjs(paidAt).format('DD/MM/YYYY')}`} type="success" showIcon />)
             : (<Alert message="Esta factura no ha sido pagada" type="warning" showIcon />)}
-            <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} virtual/>
+            <Table size='small' dataSource={paymentsAllocated} pagination={false} columns={columns} style={{ overflow: 'auto'}}/>
 
             <PaymentAssociationModal
                 open={showPaymentAssociationModal} 
@@ -1417,7 +1415,6 @@ function SettlementEditModal(
     const [loading, setLoading] = useState(false);
 
     const {userAuth} = useAuthentication()
-    console.log({userAuth})
     const userPerson = userAuth?.user?.person
     const fullName = userPerson?.firstName + ' ' + userPerson?.lastName
 
