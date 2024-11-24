@@ -143,12 +143,12 @@ const _ = require('lodash');
 
 class GrossIncomeInvoiceService {
     
-    
     /**
      * Fetch all GrossIncomeInvoice records. If the toSettle option is true, 
      * only return the ones that are not settled and are paid (all payments are verified)
      * @param {Object} user current user
      * @param {Object} filters filters to be applied to the query.
+     * @param {boolean} filters.toFix if true, only return the ones that are pending to be fixed
      * @param {boolean} filters.toSettle if true, only return the ones that are not settled and are paid (all payments are verified)
      * @returns {Promise<Array<IGrossIncomeInvoice>>} an array of GrossIncomeInvoice objects
      */
