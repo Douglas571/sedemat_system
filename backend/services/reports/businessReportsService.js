@@ -15,8 +15,6 @@ const {
 
 const { Op } = require('sequelize');
 
-
-
 const ExcelJS = require('exceljs');
 const stream = require('stream');
 
@@ -24,6 +22,7 @@ const dayjs = require('dayjs');
 var isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
 dayjs.extend(isSameOrBefore);
 
+require('dayjs/locale/es')
 
 const INITIAL_DATE = dayjs('2023-01-01');
 
@@ -594,7 +593,7 @@ module.exports.getGrossIncomesSummaryExcel = async ({
     'PAGO'
   ];
 
-  worksheet.addRow([`RESUMEN DE DECLARACIONES DE IVA ${dayjs(`${year}-${month}-01`).format('MMMM año YYYY').toUpperCase()}`])
+  worksheet.addRow([`RESUMEN DE DECLARACIONES DE IVA ${dayjs(`${year}-${month}-01`).locale('es').format('MMMM [del año] YYYY').toUpperCase()}`])
 
   worksheet.addRow(['']); 
 
@@ -620,7 +619,7 @@ module.exports.getGrossIncomesSummaryExcel = async ({
 
   worksheet.addRow(['']);
 
-  worksheet.addRow([`RESUMEN DE ${dayjs(`${year}-${month}-01`).format('MMMM [DEL AÑO] YYYY').toUpperCase()}`]);
+  worksheet.addRow([`RESUMEN DE ${dayjs(`${year}-${month}-01`).locale('es').format('MMMM [DEL AÑO] YYYY').toUpperCase()}`]);
 
   const totalGrossIncomesBs = reportRows.reduce((acc, row) => acc + row.amountBs, 0);
   const totalTaxGeneratedBs = reportRows.reduce((acc, row) => acc + (row.taxInBs <= row.minTaxInBs ? row.minTaxInBs : row.taxInBs), 0);
