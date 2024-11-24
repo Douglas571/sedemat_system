@@ -327,6 +327,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         }>
             <Flex vertical gap={10}>
                 {
+                    totalLessPaymentsAllocatedBs < 0
+                    && (
+                        <Alert message={`El contribuyente ha pagado ${formatBolivares(totalLessPaymentsAllocatedBs * -1)} demás`} type="error" showIcon />
+                    )
+                }
+                {
                     grossIncomeInvoice?.toFix
                     && (
                         <Alert message={`Arreglar: ${grossIncomeInvoice?.toFixReason}`} type="warning" showIcon />
@@ -364,241 +370,275 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             { /** TABLE OF GROSS INCOMES */}
             <div style={{ overflow: 'auto' }}>
-                <Title level={5} style={{ textAlign: 'center' }}>Estado de Cuenta</Title>
+                <div style={{ minWidth: 800}}>
+                    <Title level={5} style={{ textAlign: 'center' }}>Estado de Cuenta</Title>
 
-                <Table 
-                    size='small'
-                    dataSource={grossIncomes ? grossIncomes : []} 
-                    pagination={false}
-                >
-                    <Table.Column 
-                        title="Acciones" 
-                        dataIndex="actions" 
-                        key="actions" 
-                        render={(period: Date, record: IGrossIncome) => {
-                            return (
-                                <Button
-                                    icon={<EditOutlined />}
-                                    disabled={!canEdit || isSettled}
-                                    onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
-                                >Editar</Button>
-                            )
-                        }}
-                    />
-                    <Table.Column 
-                        title="Periodo" 
-                        dataIndex="period" 
-                        key="period" 
-                        render={(period: Date) => _.upperFirst(dayjs(period).format('MMM-YY'))}
-                    />
-                    <Table.Column 
-                        title="Ingreso" 
-                        dataIndex="amountBs" 
-                        key="amountBs" 
-                        render={(amountBs: number, record: IGrossIncome) => {
-                            if (!record.declarationImage) {
-                                return '--'
-                            }
+                    <Table 
+                        size='small'
+                        dataSource={grossIncomes ? grossIncomes : []} 
+                        pagination={false}
+                    >
+                        <Table.Column 
+                            title="Acciones" 
+                            dataIndex="actions" 
+                            key="actions" 
+                            width={100}
+                            render={(period: Date, record: IGrossIncome) => {
+                                return (
+                                    <Button
+                                        icon={<EditOutlined />}
+                                        disabled={!canEdit || isSettled}
+                                        onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
+                                    >Editar</Button>
+                                )
+                            }}
+                        />
+                        <Table.Column 
+                            title="Periodo" 
+                            dataIndex="period" 
+                            key="period" 
+                            width={100}
+                            render={(period: Date) => _.upperFirst(dayjs(period).format('MMM-YY'))}
+                        />
+                        <Table.Column 
+                            title="Ingreso" 
+                            dataIndex="amountBs" 
+                            key="amountBs" 
+                            width={100}
+                            render={(amountBs: number, record: IGrossIncome) => {
+                                if (!record.declarationImage) {
+                                    return '--'
+                                }
 
-                            return formatBolivares(amountBs)
-                        }}
-                    />
-                    <Table.Column 
-                        title="Alicuota"
-                        key="amountBs" 
-                        render={(_: any, grossIncome: IGrossIncome) => {
-                            console.log({grossIncome})
-                            let {alicuotaTaxPercent} = grossIncome
-                            return `${formatPercents(alicuotaTaxPercent)}`;
-                        }}
-                        width="8%"
-                        align="center"
-                    />
-                    <Table.Column 
-                        title="Impuesto" 
-                        dataIndex="amountBs" 
-                        key="tax" 
-                        render={(amountBs: number, record: IGrossIncome) => {
-                            const {taxInBs} = record
-                            return formatBolivares(taxInBs);
-                        }}
-                        width="15%"
-                    />
-                    <Table.Column 
-                        title="Min. Trib." 
-                        dataIndex={['business', 'economicActivity', 'minTax']} 
-                        key="minTax" 
-                        render={(minTax: number, grossIncome: IGrossIncome) => {
-                            // const cer = record.currencyExchangeRate
-                            // const {minTaxMMV} = record.alicuota
-                            // const {economicActivity} = business
-                            // const MMVExchangeRate = util.getMMVExchangeRate(cer)
-                            // const minTaxThreshold = minTaxMMV * MMVExchangeRate;
-                            // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
-                            // return formatBolivares(minTaxThreshold);
+                                return formatBolivares(amountBs)
+                            }}
+                        />
+                        <Table.Column 
+                            title="Alicuota"
+                            key="amountBs" 
+                            render={(_: any, grossIncome: IGrossIncome) => {
+                                console.log({grossIncome})
+                                let {alicuotaTaxPercent} = grossIncome
+                                return `${formatPercents(alicuotaTaxPercent)}`;
+                            }}
+                            width="8%"
+                            align="center"
+                        />
+                        <Table.Column 
+                            title="Impuesto" 
+                            dataIndex="amountBs" 
+                            key="tax" 
+                            render={(amountBs: number, record: IGrossIncome) => {
+                                const {taxInBs} = record
+                                return formatBolivares(taxInBs);
+                            }}
+                            width="15%"
+                        />
+                        <Table.Column 
+                            title="Min. Trib." 
+                            dataIndex={['business', 'economicActivity', 'minTax']} 
+                            key="minTax" 
+                            render={(minTax: number, grossIncome: IGrossIncome) => {
+                                // const cer = record.currencyExchangeRate
+                                // const {minTaxMMV} = record.alicuota
+                                // const {economicActivity} = business
+                                // const MMVExchangeRate = util.getMMVExchangeRate(cer)
+                                // const minTaxThreshold = minTaxMMV * MMVExchangeRate;
+                                // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
+                                // return formatBolivares(minTaxThreshold);
+                                
+                                let minTaxInBs = grossIncome.minTaxInBs
+
+                                return formatBolivares(minTaxInBs)
+                            }}
+                            width="15%"
+                        />
+                        <Table.Column 
+                            title="Aseo" 
+                            key="aseo"
+                            dataIndex='wasteCollectionTax'
+                            width="15%"
+                            render={(_: any, record: IGrossIncome) => {
+                                if (!record.chargeWasteCollection) {
+                                    return '--'
+                                }
+                                const tax = record.wasteCollectionTaxInBs
+                                return formatBolivares(tax)
+                            }}
+                        />
+                        <Table.Column 
+                            title="Subtotal" 
+                            key="subtotal" 
+                            render={(text: any, record: any) => {
+                                const tax = record.totalTaxInBs
+                                return formatBolivares(tax);
+                            }}
+                            width="15%"
+                            align="right"
+                        />
+                    </Table>
+
+                    {/* table for form price */}
+                    <Table 
+                        size='small'
+                        dataSource={[{ formularyPrice: 1 }]} 
+                        pagination={false}
+                        showHeader={false}
+
+                        style={{ width: '100%'}}
+                    >
+                        <Table.Column 
+                            title="Formulary edit" 
+                            key="formularyPriceEdit" 
+                            width={100}
                             
-                            let minTaxInBs = grossIncome.minTaxInBs
+                            render={() => (
+                                <>
+                                    { canEdit 
+                                        && <Button 
+                                            icon={<EditOutlined />}
+                                            onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
+                                            disabled={isSettled}
+                                        >Editar</Button>
+                                    }
+                                </>
+                            )}
+                        />
+                        <Table.Column 
+                            title="Formulary Price" 
+                            key="formularyPrice" 
+                            colSpan={6}
+                            textAlign="left"
+                            render={() => (
+                                <>
+                                    <Text>Formulario</Text>
+                                </>
+                            )}
+                        />
+                        <Table.Column 
+                            title="Formulary Price" 
+                            key="formularyPrice" 
+                            render={() => (
+                                <>
+                                    <Text style={{ float: 'right' }}>{formatBolivares(formPriceBs)}</Text>
+                                </>
+                            )}
+                        />
+                    </Table>
 
-                            return formatBolivares(minTaxInBs)
-                        }}
-                        width="15%"
-                    />
-                    <Table.Column 
-                        title="Aseo" 
-                        key="aseo"
-                        dataIndex='wasteCollectionTax'
-                        width="15%"
-                        render={(_: any, record: IGrossIncome) => {
-                            if (!record.chargeWasteCollection) {
-                                return '--'
-                            }
-                            const tax = record.wasteCollectionTaxInBs
-                            return formatBolivares(tax)
-                        }}
-                    />
-                    <Table.Column 
-                        title="Subtotal" 
-                        key="subtotal" 
-                        render={(text: any, record: any) => {
-                            const tax = record.totalTaxInBs
-                            return formatBolivares(tax);
-                        }}
-                        width="15%"
-                        align="right"
-                    />
-                </Table>
+                    {/* table for penalties */}
+                    { grossIncomeInvoice?.penalties?.length > 0 && 
+                        (<Flex vertical>
+                            <Table 
+                                size='small'
+                                dataSource={grossIncomeInvoice?.penalties ?? []} 
+                                pagination={false}
+                                showHeader={false}
+                            >
+                                <Table.Column 
+                                    title="Formulary Price"
+                                    key="formularyPrice" 
+                                    render={(_, record: IPenalty) => (
+                                        <>
+                                            <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
+                                            <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
+                                        </>
+                                    )}
+                                />
+                            </Table>
 
-                {/* table for form price */}
-                <Table 
-                    size='small'
-                    dataSource={[{ formularyPrice: 1 }]} 
-                    pagination={false}
-                    showHeader={false}
-                >
-                    <Table.Column 
-                        title="Formulary Price" 
-                        key="formularyPrice" 
-                        render={() => (
-                            <>
-                                <Text>Formulario</Text>
-                                <Text style={{ float: 'right' }}>{formatBolivares(formPriceBs)}</Text>
-                            </>
-                        )}
-                    />
-                </Table>
+                            {/* table for total before penalties */}
+                            <Table 
+                                size='small'
+                                dataSource={[{ total: 1 }]} 
+                                pagination={false}
+                                showHeader={false}
+                            >
+                                <Table.Column 
+                                    title="Total" 
+                                    key="total" 
+                                    render={(text: any) => <Text strong>Subtotal Bs (sin multas)</Text>}
+                                    align="right"
+                                />
+                                <Table.Column 
+                                    title="Total en Bs" 
+                                    key="total" 
+                                    align="right"
+                                    width="15%"
+                                    render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
+                                />
+                            </Table>
+                        </Flex>)
+                    }
 
-                {/* table for penalties */}
-                { grossIncomeInvoice?.penalties?.length > 0 && 
-                    (<Flex vertical>
-                        <Table 
-                            size='small'
-                            dataSource={grossIncomeInvoice?.penalties ?? []} 
-                            pagination={false}
-                            showHeader={false}
-                        >
-                            <Table.Column 
-                                title="Formulary Price"
-                                key="formularyPrice" 
-                                render={(_, record: IPenalty) => (
-                                    <>
-                                        <Text>Multa {record.penaltyType.name} ({CurrencyHandler(record.amountMMVBCV).format()} x {CurrencyHandler(grossIncomeInvoice?.TCMMVBCV ?? 0).format()})</Text>
-                                        <Text style={{ float: 'right' }}>{formatBolivares(CurrencyHandler(record.amountMMVBCV).multiply(grossIncomeInvoice?.TCMMVBCV ?? 0).value)}</Text>
-                                    </>
-                                )}
-                            />
-                        </Table>
+                    
+                    
+                    {/* table for total */}
+                    <Table 
+                        size='small'
+                        dataSource={[{ total: 1 }]} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Total" 
+                            key="total" 
+                            render={(text: any) => <Text strong>Total a Pagar en Bs</Text>}
+                            align="right"
+                        />
+                        <Table.Column 
+                            title="Total en Bs" 
+                            key="total" 
+                            align="right"
+                            width="15%"
+                            render={(text: any) => <Text strong>{formatBolivares(TOTAL)}</Text>}
+                        />
+                    </Table>
 
-                        {/* table for total before penalties */}
-                        <Table 
-                            size='small'
-                            dataSource={[{ total: 1 }]} 
-                            pagination={false}
-                            showHeader={false}
-                        >
-                            <Table.Column 
-                                title="Total" 
-                                key="total" 
-                                render={(text: any) => <Text strong>Subtotal Bs (sin multas)</Text>}
-                                align="right"
-                            />
-                            <Table.Column 
-                                title="Total en Bs" 
-                                key="total" 
-                                align="right"
-                                width="15%"
-                                render={(text: any) => <Text strong>{formatBolivares(totalBeforePenalties)}</Text>}
-                            />
-                        </Table>
-                    </Flex>)
-                }
+                    {/* table for total less payments allocated */}
+                    <Table 
+                        size='small'
+                        dataSource={[{ allocated: 1 }]} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Allocated" 
+                            key="allocated" 
+                            render={(text: any) => <Text strong>Menos Total Abonado</Text>}
+                            align="right"
+                        />
+                        <Table.Column 
+                            title="Payment Allocation" 
+                            key="allocated" 
+                            align="right"
+                            width="15%"
+                            render={(text: any) => <Text strong>{formatBolivares(totalLessPaymentsAllocatedBs)}</Text>}
+                        />
+                    </Table>
 
-                
-                
-                {/* table for total */}
-                <Table 
-                    size='small'
-                    dataSource={[{ total: 1 }]} 
-                    pagination={false}
-                    showHeader={false}
-                >
-                    <Table.Column 
-                        title="Total" 
-                        key="total" 
-                        render={(text: any) => <Text strong>Total a Pagar en Bs</Text>}
-                        align="right"
-                    />
-                    <Table.Column 
-                        title="Total en Bs" 
-                        key="total" 
-                        align="right"
-                        width="15%"
-                        render={(text: any) => <Text strong>{formatBolivares(TOTAL)}</Text>}
-                    />
-                </Table>
-
-                {/* table for total less payments allocated */}
-                <Table 
-                    size='small'
-                    dataSource={[{ allocated: 1 }]} 
-                    pagination={false}
-                    showHeader={false}
-                >
-                    <Table.Column 
-                        title="Allocated" 
-                        key="allocated" 
-                        render={(text: any) => <Text strong>Menos Total Abonado</Text>}
-                        align="right"
-                    />
-                    <Table.Column 
-                        title="Payment Allocation" 
-                        key="allocated" 
-                        align="right"
-                        width="15%"
-                        render={(text: any) => <Text strong>{formatBolivares(totalLessPaymentsAllocatedBs)}</Text>}
-                    />
-                </Table>
-
-                {/* table for total less payments allocated in MMV */}
-                <Table 
-                    size='small'
-                    dataSource={[{ total: 40 }]} 
-                    pagination={false}
-                    showHeader={false}
-                >
-                    <Table.Column 
-                        title="Total" 
-                        key="total" 
-                        render={(text: any) => <Text strong>Total en MMV</Text>}
-                        align="right"
-                    />
-                    <Table.Column 
-                        title="Total en Bs" 
-                        key="total" 
-                        align="right"
-                        width="15%"
-                        render={(text: any) => <Text strong>{CurrencyHandler(totalLessPaymentsAllocatedMMV).format()} MMV</Text>}
-                    />
-                </Table>           
+                    {/* table for total less payments allocated in MMV */}
+                    <Table 
+                        size='small'
+                        dataSource={[{ total: 40 }]} 
+                        pagination={false}
+                        showHeader={false}
+                    >
+                        <Table.Column 
+                            title="Total" 
+                            key="total" 
+                            render={(text: any) => <Text strong>Total en MMV</Text>}
+                            align="right"
+                        />
+                        <Table.Column 
+                            title="Total en Bs" 
+                            key="total" 
+                            align="right"
+                            width="15%"
+                            render={(text: any) => <Text strong>{CurrencyHandler(totalLessPaymentsAllocatedMMV).format()} MMV</Text>}
+                        />
+                    </Table>           
+                </div>
             </div>
 
             <Divider />

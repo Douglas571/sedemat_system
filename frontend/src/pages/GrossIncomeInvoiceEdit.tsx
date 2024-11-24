@@ -520,20 +520,39 @@ const GrossIncomeInvoice: React.FC = () => {
                                 <Flex>
                                     <Typography.Title level={4}>Sede</Typography.Title>
                                 </Flex>
+
                                 <Flex wrap gap={16}>
+                                    <Form.Item 
+                                        style={{ minWidth: 300 }}
+                                        name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
+                                        <Select
+                                            options={branchOffices?.map(branchOffice => ({
+                                                key: branchOffice.id,
+                                                value: branchOffice.id,
+                                                label: branchOffice.nickname
+                                            }))} 
+
+                                            disabled={isEditing}
+                                        />
+                                    </Form.Item>
+
                                     <Form.Item 
                                         name="branchOfficeName" label="Nombre" rules={[{ required: true }]}>  
                                         <Input />
                                     </Form.Item>
+
                                     <Form.Item name="branchOfficeAddress" label="Dirección" rules={[{ required: true }]}>  
                                         <Input />
                                     </Form.Item>
+
                                     <Form.Item name="branchOfficeDimensions" label="Dimensiones" rules={[{ required: true }]}>  
                                         <Input />
                                     </Form.Item>
+
                                     <Form.Item name="branchOfficeType" label="Tipo" rules={[{ required: true }]}>  
                                         <Input />
                                     </Form.Item>
+
                                 </Flex>
                             </Flex>
                         )
@@ -543,24 +562,6 @@ const GrossIncomeInvoice: React.FC = () => {
 
                 <Typography.Title level={4}>Información de la Factura</Typography.Title>
                 <Flex wrap gap={16}>
-
-                    {
-                        hasBranchOffices && (
-                            <Form.Item 
-                                style={{ minWidth: 300 }}
-                                name="branchOfficeId" label="Sucursal" rules={[{ required: true }]}>
-                                <Select
-                                    options={branchOffices?.map(branchOffice => ({
-                                        key: branchOffice.id,
-                                        value: branchOffice.id,
-                                        label: branchOffice.nickname
-                                    }))} 
-
-                                    disabled={isEditing}
-                                />
-                            </Form.Item>
-                        )
-                    }
 
                     <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
                         <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
@@ -658,23 +659,30 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Flex>
 
                 <Typography.Title level={4}>Seleccione los calculos de ingresos brutos que desea facturar</Typography.Title>
-                <Form.Item name="selectedItems" initialValue={[]}>
-                    <Table
-                        rowSelection={rowSelection}
-                        columns={columns}
-                        dataSource={grossIncomesToDisplay}
-                        rowKey='id'
-                        pagination={false}
-                    />
-                    <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
-                        <Table.Column title="label" render={() => <Typography.Text>Formulario</Typography.Text>}/>
-                        <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formatBolivares(formPrice)}</Typography.Text>}/>
-                    </Table>
-                    <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
-                        <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
-                        <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{formatBolivares(TOTAL)}</Typography.Text>}/>
-                    </Table>
-                </Form.Item>
+                
+                <div style={{overflow: 'auto'}}>
+                    <div style={{ width: 700 }}>
+                        <Form.Item name="selectedItems" initialValue={[]}>
+                            <Table
+                                rowSelection={rowSelection}
+                                columns={columns}
+                                dataSource={grossIncomesToDisplay}
+                                rowKey='id'
+                                pagination={false}
+                            />
+                            <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
+                                <Table.Column title="label" render={() => <Typography.Text>Formulario</Typography.Text>}/>
+                                <Table.Column width={'15%'} align='right' title="value" render={() => <Typography.Text>{formatBolivares(formPrice)}</Typography.Text>}/>
+                            </Table>
+                            <Table showHeader={false} pagination={false} dataSource={[{ total: 1 }]}>
+                                <Table.Column align='right' title="label" render={() => <Typography.Text>TOTAL</Typography.Text>}/>
+                                <Table.Column align='right' width={'15%'} title="value" render={() => <Typography.Text>{formatBolivares(TOTAL)}</Typography.Text>}/>
+                            </Table>
+                        </Form.Item>
+                    </div>
+                </div>
+
+                
                 <Form.Item>
                     <Button
                         type='primary'
