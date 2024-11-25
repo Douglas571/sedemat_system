@@ -71,14 +71,14 @@ const App: React.FC = () => {
 			label: 'Registro',
 			children: [
 				{
+					key: '/business/by-economic-activity',
+					icon: '',
+					label: 'Indice',
+				},
+				{
 					key: '/business',
 					icon: '',
 					label: 'Contribuyentes'
-				},
-				{
-					key: '/business/by-economic-activity',
-					icon: '',
-					label: 'Contribuyentes por actividad económica'
 				},
 				{
 					key: '/contacts',
