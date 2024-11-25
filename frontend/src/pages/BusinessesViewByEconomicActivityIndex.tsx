@@ -96,7 +96,8 @@ const BusinessesViewByEconomicActivityIndex: React.FC = () => {
   return <Card>
     <Typography.Title level={3}>Indice de empresas por actividad economica</Typography.Title>
     <Tree
-    
+      showLine
+      
       treeData={mappedTreeData}
     />
   </Card>
