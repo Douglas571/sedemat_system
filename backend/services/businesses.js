@@ -87,6 +87,17 @@ exports.economicActivityIndex = async () => {
 
                     // console.log({code3: economicActivity3.code, title3: economicActivity3.title, economicActivity3})
 
+                    let economicActivity4 = economicActivity3?.economicActivities?.find(economicActivity4 => economicActivity1.code.includes(economicActivity4.code))
+
+                    if (economicActivity4) {
+
+                        console.log({code4: economicActivity4.code, title4: economicActivity4.title})
+
+                        return economicActivity4.economicActivities = economicActivity4.economicActivities
+                            ? [...economicActivity4.economicActivities, economicActivity1]
+                            : [economicActivity1]
+                    }
+
                     return economicActivity3.economicActivities = economicActivity3.economicActivities
                         ? [...economicActivity3.economicActivities, economicActivity1]
                         : [economicActivity1]
@@ -108,6 +119,9 @@ exports.economicActivityIndex = async () => {
     })
 
     return economicSectors
+
+
+    // return economicActivitiesWithBusinesses
 }
 
 // Get business by ID
