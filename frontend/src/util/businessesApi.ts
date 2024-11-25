@@ -1,4 +1,5 @@
 import { CertificateOfIncorporation } from "./types";
+import axios from "axios";
 
 const IP = process.env.BACKEND_IP || "localhost"
 const PORT = "3000"
@@ -168,4 +169,13 @@ export async function createBusiness({
         // Handle error state in your application
         throw Error(error.message)
     }
+}
+
+export async function getBusinessEconomicActivityIndex(token: string) {
+    const response = await axios.get(`${HOST}/v1/businesses/economic-activity-index`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data
 }

@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'economicActivityId',
         as: 'alicuotaHistory'
       })
+
+      EconomicActivity.hasMany(models.Business, {
+        foreignKey: 'economicActivityId',
+        as: 'businesses'
+      })
     }
   }
   EconomicActivity.init({

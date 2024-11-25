@@ -55,6 +55,61 @@ exports.getAllBusinesses = async () => {
     });
 };
 
+exports.economicActivityIndex = async () => {
+    let economicActivitiesWithBusinesses = await EconomicActivity.findAll({
+        include: [
+            {
+                model: Business,
+                as: 'businesses'
+            }
+        ]
+    });
+
+    let economicSectors = require('../utils/economicActivitySectors')
+
+    economicActivitiesWithBusinesses.forEach(economicActivity1 => {
+        let sectorCode = Number(String(economicActivity1.code)[0]) - 1
+
+        let sector = economicSectors[sectorCode]
+        // console.log({sector})
+
+        if (sector.economicActivities.length > 0) {
+
+            // console.log({code: economicActivity1.code, title: economicActivity1.title})
+
+            let economicActivity2 = sector?.economicActivities?.find(economicActivity2 => economicActivity1.code.includes(economicActivity2.code))
+
+            if (economicActivity2) {
+
+                let economicActivity3 = economicActivity2?.economicActivities?.find(economicActivity3 => economicActivity1.code.includes(economicActivity3.code))
+
+                if (economicActivity3) {
+
+                    // console.log({code3: economicActivity3.code, title3: economicActivity3.title, economicActivity3})
+
+                    return economicActivity3.economicActivities = economicActivity3.economicActivities
+                        ? [...economicActivity3.economicActivities, economicActivity1]
+                        : [economicActivity1]
+                }
+
+                // console.log({code2: economicActivity2.code, title2: economicActivity2.title, economicActivity2})
+
+                return economicActivity2.economicActivities = economicActivity2.economicActivities 
+                    ? [...economicActivity2.economicActivities, economicActivity1]
+                    : [economicActivity1]
+
+            }
+                
+            return sector.economicActivities.push(economicActivity1)
+        } 
+
+        sector.economicActivities = [...sector.economicActivities, economicActivity1]
+
+    })
+
+    return economicSectors
+}
+
 // Get business by ID
 exports.getBusinessById = async (id) => {
     let business = await Business.findByPk(id, {

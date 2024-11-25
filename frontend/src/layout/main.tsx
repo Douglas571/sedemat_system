@@ -76,6 +76,11 @@ const App: React.FC = () => {
 					label: 'Contribuyentes'
 				},
 				{
+					key: '/business/by-economic-activity',
+					icon: '',
+					label: 'Contribuyentes por actividad económica'
+				},
+				{
 					key: '/contacts',
 					icon: '',
 					label: 'Contactos'

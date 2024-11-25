@@ -32,6 +32,12 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/economic-activity-index', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    let businesses = await businessService.economicActivityIndex(req.user);
+
+    res.json(businesses);
+})
+
 // Get business by ID
 router.get('/:id', async (req, res) => {
     try {

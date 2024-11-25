@@ -4,6 +4,7 @@ import 'index.css'
 import UserHome from 'pages/UserHome';
 
 import BusinessView from 'pages/BusinessView'
+import BusinessesViewByEconomicActivityIndex from 'pages/BusinessesViewByEconomicActivityIndex'
 import BusinessViewDetails from 'pages/BusinessViewDetails'
 
 import EconomicLicenseEdit from 'pages/EconomicLicenseEdit'
@@ -83,6 +84,8 @@ function App(): JSX.Element {
 								<Route path='payments/:id/edit' element={<PaymentsEdit />} />
 
 								<Route path='business' element={<BusinessView />} />
+								<Route path='business/by-economic-activity' element={<BusinessesViewByEconomicActivityIndex />} />
+								
 								<Route path='business/new' element={<NewBusinessForm />}/>
 								<Route path='business/edit/:businessId' element={<NewBusinessForm />}/>
 								<Route path='business/:businessId' element={<BusinessViewDetails />}/>
