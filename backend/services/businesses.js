@@ -77,17 +77,17 @@ exports.economicActivityIndex = async () => {
 
             // console.log({code: economicActivity1.code, title: economicActivity1.title})
 
-            let economicActivity2 = sector?.economicActivities?.find(economicActivity2 => economicActivity1.code.includes(economicActivity2.code))
+            let economicActivity2 = sector?.economicActivities?.find(economicActivity2 => economicActivity1.code.startsWith(economicActivity2.code))
 
             if (economicActivity2) {
 
-                let economicActivity3 = economicActivity2?.economicActivities?.find(economicActivity3 => economicActivity1.code.includes(economicActivity3.code))
+                let economicActivity3 = economicActivity2?.economicActivities?.find(economicActivity3 => economicActivity1.code.startsWith(economicActivity3.code))
 
                 if (economicActivity3) {
 
                     // console.log({code3: economicActivity3.code, title3: economicActivity3.title, economicActivity3})
 
-                    let economicActivity4 = economicActivity3?.economicActivities?.find(economicActivity4 => economicActivity1.code.includes(economicActivity4.code))
+                    let economicActivity4 = economicActivity3?.economicActivities?.find(economicActivity4 => economicActivity1.code.startsWith(economicActivity4.code))
 
                     if (economicActivity4) {
 
