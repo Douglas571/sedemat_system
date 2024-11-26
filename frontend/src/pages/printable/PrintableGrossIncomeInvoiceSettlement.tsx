@@ -65,9 +65,7 @@ const getBadDebtTax = ({
 
     let badDebts = grossIncomes.filter(g => isBadDebt({grossIncome: g, paidAt}))
 
-    let totalTaxes = badDebts.map( b => util.getGrossIncomeTaxInBs({
-      grossIncome: b
-    }))
+    let totalTaxes: number[] = badDebts.map( b => b.taxInBs > b.minTaxInBs ? b.taxInBs : b.minTaxInBs)
 
     console.log({badDebts, totalTaxes, MMVToBs, minTaxMMV})
 
