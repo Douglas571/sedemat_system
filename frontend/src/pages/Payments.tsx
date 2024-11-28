@@ -266,7 +266,7 @@ function Payments(): JSX.Element {
             showSorterTooltip: false,
             // sortDirections: ['ascend', 'descend', 'ascend'],
 
-            sorter: (a, b) => a.reference.localeCompare(b.reference),
+            sorter: (a, b) => Number(a.reference) - Number(b.reference),
             render: (text: string, record: Payment) => {
                 // return <Link to={`/payments/${record.id}`}>{text}</Link>
                 return text
