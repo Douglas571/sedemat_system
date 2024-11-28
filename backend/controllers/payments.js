@@ -18,7 +18,7 @@ let serverPathToPayments = 'uploads/payments'
 router.get('/', async (req, res) => {
     try {
         let filters = req.query
-        // validate filters 
+        // TODO: validate filters 
 
         const payments = await paymentService.findAll({filters});
         res.json(payments);

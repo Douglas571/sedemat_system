@@ -1,4 +1,5 @@
 const { Payment: PaymentModel, Person, Business, Bank, GrossIncomeInvoice, Settlement } = require('../database/models')
+const { Op } = require('sequelize');
 
 const ROLES = require('../utils/auth/roles');
 
@@ -38,6 +39,21 @@ const deletePaymentImage = (relativeImagePath) => {
 exports.findAll = async ({filters}) => {
     logger.info('Looking into DB');
 
+    let where = {}
+
+    if (filters.from && filters.to) {
+        where.paymentDate = {
+            [Op.between]: [filters.from, filters.to]
+        }
+    }
+
+    if (filters.notVerified === 'true') {
+        where.checkedAt = {
+            [Op.eq]: null
+        }
+    }
+
+    console.log({where, filters})
     try {
         const payments = await PaymentModel.findAll({
             include: [
@@ -54,7 +70,7 @@ exports.findAll = async ({filters}) => {
                     as: 'bank'
                 }
             ],
-            where: filters
+            where
         });
         
         return payments;
