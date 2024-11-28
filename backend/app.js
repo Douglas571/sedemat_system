@@ -83,7 +83,7 @@ app.use(
   responseTime(
     (req, res, time) => {
       const method = req.method;
-      const url = req.url;
+      const url = req.originalUrl;
       const timestamp = new Date().toISOString();
 
       console.log(`[${timestamp}] ${method} ${url} - (${time} ms)`);
