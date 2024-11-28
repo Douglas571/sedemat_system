@@ -311,7 +311,7 @@ function Payments(): JSX.Element {
             key: 'paymentDate',
             showSorterTooltip: false,
             // sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a.paymentDate.localeCompare(b.paymentDate),
+            sorter: (a, b) => dayjs(a.paymentDate).isBefore(b.paymentDate) ? -1 : 1,
         },
         {
             title: 'Fecha de Verificación',
@@ -319,9 +319,10 @@ function Payments(): JSX.Element {
             key: 'checkedAt',
             showSorterTooltip: false,
             // sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => a?.checkedAt?.localeCompare(b?.checkedAt),
+            sorter: (a, b) => dayjs(a.checkedAt).isBefore(b.checkedAt) ? -1 : 1,
 
             render: (text: string, record: Payment) => {
+                
                 if (text) {
                     return dayjs(text).format('DD/MM/YYYY')
                 } else {
