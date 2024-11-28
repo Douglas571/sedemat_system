@@ -275,11 +275,20 @@ const GrossIncomeInvoice: React.FC = () => {
     }
 
     async function handleUpdateTCMMVBCV() {
+
         if (lastCurrencyExchangeRate) {
+
+            let TCMMVBCV = util.getMMVExchangeRate(lastCurrencyExchangeRate)
             form.setFieldsValue({
-                TCMMVBCV: util.getMMVExchangeRate(lastCurrencyExchangeRate),
+                TCMMVBCV: TCMMVBCV,
                 TCMMVBCVValidDateRange: dayjs(lastCurrencyExchangeRate.createdAt).utc()
             })
+
+            if (!form.getFieldsValue().form) {
+                form.setFieldsValue({
+                    form: CurrencyHandler(TCMMVBCV).multiply(1.5).value
+                })
+            }
         }
     }
 
@@ -470,7 +479,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
             form.setFieldsValue({
                 TCMMVBCVValidDateRange: dayjs().utc(),
-                form: CurrencyHandler(1.6).multiply(40).value,
+                
                 note: 'LOS PAGOS DEBEN SER CANCELADOS A LA TASA DEL DÍA POR TCMMV-BCV',
 
                 economicActivityTitle: business?.economicActivity.title,
