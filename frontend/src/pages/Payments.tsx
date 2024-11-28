@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { ConsoleSqlOutlined, PlusOutlined } from '@ant-design/icons';
-import type { PopconfirmProps } from 'antd';
-import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge, Form, Input } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import type { TimeRangePickerProps } from 'antd';
 
-import axios from 'axios';
+import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge, Form, Input, DatePicker, Checkbox } from 'antd';
 
 import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
 
-import { SearchOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
-import { render } from '@testing-library/react';
-import { Link, useNavigate } from 'react-router-dom';
 
 import { Payment } from '../util/types';
 import { formatBolivares } from '../util/currency';
@@ -30,22 +28,35 @@ const PORT = "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 
-async function getPayments(): Promise<Array<Payment>> {
+
+const datePresetRanges: TimeRangePickerProps['presets'] = [
+    { label: 'Hoy', value: [dayjs(), dayjs()] },
+    { label: 'Esta Semana', value: [dayjs().startOf('week'), dayjs().endOf('week')] },
+    { label: 'Este Mes', value: [dayjs().startOf('month'), dayjs().endOf('month')] },
+    { label: 'Este Año', value: [dayjs().startOf('year'), dayjs().endOf('year')] },
+];
+
+
+async function getPayments(token?: string, filters?: any): Promise<Array<Payment>> {
 
     let payments: Array<Payment> = [];
 
-    try {
-        const response = await fetch(`${HOST}/v1/payments`);
-        if (!response.ok) {
-            throw new Error(`Error fetching payments: ${response.statusText}`);
-        }
-        const data = await response.json();
+    try { 
+        const response = await axios.get(`${HOST}/v1/payments`, {
+            params: {
+                ...filters
+            }
+        });
+
+        const data = await response.data;
         console.log('I got the data...');
         payments = data;
         // console.log({ data });
     } catch (error) {
+
         console.log("I got an error...");
         console.error('Fetch error:', error);
+
         throw error;
     }
 
@@ -77,8 +88,21 @@ function Payments(): JSX.Element {
 
     const fetchPayments = async () => {
         // console.log("Cargando pagos...")
+
+        let {dateRange, notVerified} = form.getFieldsValue()
+
+        let from  
+        let to 
+
+        if (dateRange) {
+            from = dayjs(dateRange[0]).format('YYYY-MM-DD')
+            to = dayjs(dateRange[1]).format('YYYY-MM-DD')
+        }
+
         try {
-            const payments = await getPayments();
+            const payments = await getPayments(undefined, {
+                from, to, notVerified
+            });
             // console.log({payments})
             const mappedData = payments.map(payment => {
                 const newPayment = {
@@ -416,6 +440,24 @@ function Payments(): JSX.Element {
                     <Form.Item name='search'>
                         <Input placeholder='Buscar por razón social, rif, cédula, o referencia de pago' prefix={<SearchOutlined />} />
                     </Form.Item>
+
+                    <Flex gap={10}>
+                        <Form.Item name='dateRange'>
+                            <DatePicker.RangePicker
+                                format="DD/MM/YYYY"
+                                presets={datePresetRanges}
+                            />
+                        </Form.Item>
+
+                        <Form.Item name='notVerified' valuePropName='checked'>
+                            <Checkbox>No Verificados</Checkbox>
+                        </Form.Item>
+
+                        <Button onClick={fetchPayments}>
+                            Buscar Pagos
+                        </Button>
+                    </Flex>
+                    
                 </Form>
                 <Table
                     dataSource={filteredPayments}
