@@ -5,7 +5,7 @@ import type { TimeRangePickerProps } from 'antd';
 
 import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge, Form, Input, DatePicker, Checkbox } from 'antd';
 
-import { CheckCircleFilled, CloseCircleFilled, DeleteFilled } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, DeleteFilled, FilterOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
 
@@ -453,8 +453,10 @@ function Payments(): JSX.Element {
                             <Checkbox>No Verificados</Checkbox>
                         </Form.Item>
 
-                        <Button onClick={fetchPayments}>
-                            Buscar Pagos
+                        <Button 
+                            icon={<FilterOutlined />}
+                            onClick={fetchPayments}>
+                            Filtrar
                         </Button>
                     </Flex>
                     

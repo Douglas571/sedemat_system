@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Card, Badge, Flex, Typography, Form, DatePicker} from 'antd';
+import { FilterOutlined } from '@ant-design/icons';
 import { ColumnProps } from 'antd/lib/table';
 import { IGrossIncome } from '../util/types';
 import * as grossIncomeService from '../util/grossIncomeApi';
@@ -227,7 +228,7 @@ const GrossIncomeTable = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button htmlType="submit">
+            <Button icon={<FilterOutlined/>} htmlType="submit">
                 Filtrar
             </Button>
           </Form.Item>
