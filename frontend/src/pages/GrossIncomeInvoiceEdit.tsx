@@ -61,8 +61,6 @@ const GrossIncomeInvoice: React.FC = () => {
     const [ bankAccounts, setBankAccounts ] = useState<IBankAccount[]>()
 
     const bankAccountsOptions = bankAccounts?.map(bankAccount => ({ label: `${bankAccount.name} - ${bankAccount.accountNumber.split('-')[4]}`, value: bankAccount.id }))
-
-    console.log({grossIncomeInvoice})
     
     // create the select options 
     const checkByUserOptions = users?.map(user => ({
@@ -309,13 +307,15 @@ const GrossIncomeInvoice: React.FC = () => {
                 businessDNI: business.dni
             })
         }
+    }
 
+    async function handleBranchOfficeUpdate() {
         if (selectedOffice) {
             form.setFieldsValue({
-                branchOfficeName: selectedOffice.nickname,
-                branchOfficeAddress: selectedOffice.address,
-                branchOfficeDimensions: selectedOffice.dimensions,
-                branchOfficeType: selectedOffice.type
+                branchOfficeName: selectedOffice?.nickname,
+                branchOfficeAddress: selectedOffice?.address,
+                branchOfficeDimensions: selectedOffice?.dimensions,
+                branchOfficeType: selectedOffice?.type
             })
         }
     }
@@ -377,14 +377,6 @@ const GrossIncomeInvoice: React.FC = () => {
                 TCMMVBCV: values.TCMMVBCV,
             }
 
-            // if (!isEditing) {
-
-            //     // asigne the business data only when creating the invoice 
-            //     // TODO: Add controls to change this information after creating the invoice 
-            //     newInvoice = Object.assign(newInvoice)
-
-            // }
-
             let registeredInvoice
 
             if (isEditing) {
@@ -420,6 +412,10 @@ const GrossIncomeInvoice: React.FC = () => {
     }
 
     useEffect(() => {
+        loadData()
+    }, [])
+
+    useEffect(() => {
 
         // filter by office 
         let toDisplay: IGrossIncome = grossIncomes
@@ -441,9 +437,11 @@ const GrossIncomeInvoice: React.FC = () => {
 
     }, [grossIncomes, selectedOfficeId])
 
-    useEffect(() => {
-        loadData()
-    }, [])
+    useEffect( () => {
+
+        handleBranchOfficeUpdate()
+
+    }, [selectedOffice])
 
     useEffect(() => {        
         if (grossIncomeInvoice) {
@@ -481,6 +479,7 @@ const GrossIncomeInvoice: React.FC = () => {
             })
 
             handleBusinessDataUpdate()
+            handleBranchOfficeUpdate()
         }
 
     }, [grossIncomeInvoice, branchOffices])

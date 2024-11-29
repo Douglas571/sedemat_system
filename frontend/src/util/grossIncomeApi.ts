@@ -75,13 +75,16 @@ export async function uploadDeclarationImage(file: File, token: string | null): 
 }
 
 // GET all gross incomes
-export async function getAllGrossIncomes(): Promise<IGrossIncome[]> {
-    const response = await fetch(`${HOST}/v1/gross-incomes`)
-    if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Failed to get gross incomes: ${errorData.error || response.statusText}`)
-    }
-    const grossIncomes = await response.json()
+export async function getAllGrossIncomes(token?: string, filters?: any): Promise<IGrossIncome[]> {
+    console.log({filters})
+    
+    const response = await axios(`${HOST}/v1/gross-incomes`, {
+        params: {
+            ...filters
+        }
+    })
+
+    const grossIncomes = await response.data
     return grossIncomes
 }
 

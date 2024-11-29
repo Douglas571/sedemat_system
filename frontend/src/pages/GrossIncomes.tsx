@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, Badge, Flex, Typography } from 'antd';
+import { Table, Button, Card, Badge, Flex, Typography, Form, DatePicker} from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { IGrossIncome } from '../util/types';
 import * as grossIncomeService from '../util/grossIncomeApi';
@@ -19,6 +19,14 @@ interface IGrossIncomeWithStatus extends IGrossIncome {
   badgeStatus: string
 }
 
+const datePresetRanges: TimeRangePickerProps['presets'] = [
+  { label: 'Hoy', value: [dayjs(), dayjs()] },
+  { label: 'Esta Semana', value: [dayjs().startOf('week'), dayjs().endOf('week')] },
+  { label: 'Este Mes', value: [dayjs().startOf('month'), dayjs().endOf('month')] },
+  { label: 'Este Año', value: [dayjs().startOf('year'), dayjs().endOf('year')] },
+];
+
+
 const GrossIncomeTable = () => {
   
   const [grossIncomes, setGrossIncomes] = useState<IGrossIncomeWithStatus[]>([]);
@@ -28,37 +36,43 @@ const GrossIncomeTable = () => {
 
   const navigate = useNavigate();
 
+  const fetchGrossIncomes = async (rawFilters?: any) => {
+   
+    let filter = {
+      period: rawFilters?.period?.format('YYYY-MM-[03]'),
+    }
+    
+    if (rawFilters?.declaredAt?.length == 2) {
+      filter.declaredAtStart = rawFilters.declaredAt[0].format('YYYY-MM-DD');
+      filter.declaredAtEnd = rawFilters.declaredAt[1].format('YYYY-MM-DD');
+    }
+    
+    let grossIncomes = await grossIncomeService.getAllGrossIncomes(null, filter);
+
+    let grossIncomesWithStatus: IGrossIncomeWithStatus[] = grossIncomes.map((grossIncome: IGrossIncome) => {
+
+      let {status, badgeStatus} = util.getGrossIncomeState({
+        grossIncome,
+        invoice: grossIncome?.grossIncomeInvoice,
+        payments: grossIncome?.grossIncomeInvoice?.payments
+      })
+      let branchOffice = grossIncome?.branchOffice?.nickname ?? '--'
+
+
+      return ({
+      ...grossIncome,
+      period: dayjs(grossIncome.period).format('YYYY-MM'),
+
+      status, 
+      badgeStatus,
+      branchOfficeNickName: branchOffice
+
+    })});
+
+    setGrossIncomes(grossIncomesWithStatus);
+  };
+
   useEffect(() => {
-    const fetchGrossIncomes = async () => {
-      const filter = {
-        initialDate: initialDate ? initialDate.toISOString() : undefined,
-        finalDate: finalDate ? finalDate.toISOString() : undefined,
-    };
-      let grossIncomes = await grossIncomeService.getAllGrossIncomes();
-
-      let grossIncomesWithStatus: IGrossIncomeWithStatus[] = grossIncomes.map((grossIncome: IGrossIncome) => {
-
-        let {status, badgeStatus} = util.getGrossIncomeState({
-          grossIncome,
-          invoice: grossIncome?.grossIncomeInvoice,
-          payments: grossIncome?.grossIncomeInvoice?.payments
-        })
-        let branchOffice = grossIncome?.branchOffice?.nickname ?? '--'
-
-
-        return ({
-        ...grossIncome,
-        period: dayjs(grossIncome.period).format('YYYY-MM'),
-
-        status, 
-        badgeStatus,
-        branchOfficeNickName: branchOffice
-
-      })});
-
-      setGrossIncomes(grossIncomesWithStatus);
-    };
-
     fetchGrossIncomes();
   }, []);
 
@@ -199,6 +213,30 @@ const GrossIncomeTable = () => {
 
   return (<>
     <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
+      <Form
+        layout="inline"
+        onFinish={fetchGrossIncomes}
+      >
+        <Flex wrap gap={10}>
+          <Form.Item label="Periodo" name="period">
+            <DatePicker.MonthPicker />
+          </Form.Item>
+
+          <Form.Item label="Fecha Declarada" name="declaredAt">
+            <DatePicker.RangePicker presets={datePresetRanges}/>
+          </Form.Item>
+
+          <Form.Item>
+            <Button htmlType="submit">
+                Filtrar
+            </Button>
+          </Form.Item>
+
+        </Flex>
+      </Form>
+
+      <br/>
+      
       <Table 
         // virtual
         rowKey="id"

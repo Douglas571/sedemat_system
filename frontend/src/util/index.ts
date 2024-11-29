@@ -320,8 +320,7 @@ export function numbersToWords(
     badgeStatus: string
   } {
     
-
-    console.log({grossIncome, invoice})
+    // console.log({grossIncome, invoice})
 
     if (grossIncome.grossIncomeInvoiceId && !invoice) {
       return {
