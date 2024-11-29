@@ -14,6 +14,7 @@ const ROLES = require('../utils/auth/roles');
 const { UserNotAuthorizedError } = require('../utils/errors');
 
 const fse = require('fs-extra')
+const _ = require('lodash')
 
 function canUpdateEditDeleteGrossIncomes(user) {
     if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
@@ -98,7 +99,9 @@ class GrossIncomeService {
     // Fetch all GrossIncome records
     async getAllGrossIncomes(user, filters) {
 
-        const where = {}
+        const where = {
+            ..._.pick(filters, ['grossIncomeInvoiceId'])
+        }
 
         if (filters.period) {
             where.period = {
