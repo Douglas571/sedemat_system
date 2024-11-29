@@ -388,7 +388,7 @@ function Payments(): JSX.Element {
                 return (
                 <Space size="middle">
 
-                    { userAuth?.user?.roleId === ROLES.LIQUIDATOR && (<Button
+                    { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
                         onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
                         shape="circle"
                     >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }

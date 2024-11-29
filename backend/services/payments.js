@@ -21,6 +21,15 @@ function checkThatIsSettlementOfficer(user) {
     }
 }
 
+function checkUserIsCoordinator(user) {
+    if (!user || [ROLES.COORDINATOR].indexOf(user.roleId) === -1) {
+        let error = new Error('User not authorized');
+        error.name = 'UserNotAuthorized';
+        error.statusCode = 401;
+        throw error;
+    }
+}
+
 const deletePaymentImage = (relativeImagePath) => {
     if (relativeImagePath) {
         // go back one level to get outside of service folder 
@@ -215,6 +224,8 @@ exports.updatePayment = async (id, paymentData, user) => {
 exports.updateVerifiedStatus = async (id, data, user) => {
     // verify that the user is a settlement officer (ROLE.LIQUIDATOR)
     checkThatIsSettlementOfficer(user)
+
+    checkUserIsCoordinator(user)
 
     // get the payment by primary key 
     const paymentData = await PaymentModel.findByPk(id, {

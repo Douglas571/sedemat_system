@@ -1307,7 +1307,7 @@ function PaymentsAllocatedTable(
             render: (text: any, record: any) => (
                 <Flex gap={16} align="center">
                     
-                    { userAuth?.user?.roleId === ROLES.LIQUIDATOR && (<Button
+                    { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
                         onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
                         shape="circle"
                     >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
