@@ -98,8 +98,27 @@ class GrossIncomeService {
     // Fetch all GrossIncome records
     async getAllGrossIncomes(user, filters) {
 
-        const where = {
-            ...filters
+        const where = {}
+
+        if (filters.period) {
+            where.period = {
+                [Op.between]: [
+                    dayjs(filters.period).startOf('month').toDate(),
+                    dayjs(filters.period).endOf('month').toDate()
+                ]
+            }
+        }
+
+        if (filters.declaredAtStart) {
+            where.declaredAt = {
+                [Op.gte]: filters.declaredAtStart
+            }
+        }
+
+        if (filters.declaredAtEnd) {
+            where.declaredAt = {
+                [Op.lte]: filters.declaredAtEnd
+            }
         }
 
         if (where.grossIncomeInvoiceId === 'null') {
@@ -108,7 +127,6 @@ class GrossIncomeService {
             }
         }
 
-        console.log({filters})
         return await GrossIncome.findAll({
             where,
             include: [

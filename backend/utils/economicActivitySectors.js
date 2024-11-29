@@ -1,12 +1,12 @@
 module.exports = [
   {
     code: "1",
-    title: "Primario",
+    title: "Sector Primario",
     economicActivities: []
   },
   {
     code: "2",
-    title: "Secundario",
+    title: "Sector Secundario",
     economicActivities: [
       { code: "2.1", title: "Industria y/o manufactura" },
       { code: "2.2", title: "Construcción" },
@@ -15,7 +15,7 @@ module.exports = [
   },
   {
     code: "3",
-    title: "Terciario",
+    title: "Sector Terciario",
     economicActivities: [
       { code: "3.1", 
         title: "Comercio al por mayor", 
