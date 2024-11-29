@@ -436,7 +436,14 @@ function Payments(): JSX.Element {
                     </Button>
                 </Flex>
             }>
-                <Form form={form}>
+                <Form form={form}
+                    initialValues={
+                        {
+                            search: '',
+                            dateRange: datePresetRanges[2].value, // this month
+                            notVerified: false
+                        }
+                    }>
                     <Form.Item name='search'>
                         <Input placeholder='Buscar por razón social, rif, cédula, o referencia de pago' prefix={<SearchOutlined />} />
                     </Form.Item>

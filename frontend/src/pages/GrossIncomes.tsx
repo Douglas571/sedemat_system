@@ -37,7 +37,13 @@ const GrossIncomeTable = () => {
 
   const navigate = useNavigate();
 
+  const [form] = Form.useForm();
+
   const fetchGrossIncomes = async (rawFilters?: any) => {
+
+    if (!rawFilters) {
+      rawFilters = form.getFieldsValue()
+    }
    
     let filter = {
       period: rawFilters?.period?.format('YYYY-MM-[03]'),
@@ -217,6 +223,13 @@ const GrossIncomeTable = () => {
       <Form
         layout="inline"
         onFinish={fetchGrossIncomes}
+
+        form={form}
+
+        initialValues={{
+          period: dayjs().subtract(1, 'month'),
+          declaredAt: datePresetRanges[2].value,
+        }}
       >
         <Flex wrap gap={10}>
           <Form.Item label="Periodo" name="period">

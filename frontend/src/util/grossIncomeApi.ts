@@ -76,7 +76,6 @@ export async function uploadDeclarationImage(file: File, token: string | null): 
 
 // GET all gross incomes
 export async function getAllGrossIncomes(token?: string, filters?: any): Promise<IGrossIncome[]> {
-    console.log({filters})
     
     const response = await axios(`${HOST}/v1/gross-incomes`, {
         params: {
