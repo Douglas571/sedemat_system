@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message, Form, Card } from 'antd'
+import { Button, Flex, Input, InputRef, Popconfirm, Space, Table, Typography, message, Form, Card, Statistic,
+    StatisticProps } from 'antd'
 import { EditFilled, DeleteFilled, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import CountUp from 'react-countup';
 
 
 import { useNavigate, Link } from "react-router-dom";
@@ -221,6 +223,16 @@ function BusinessView(): JSX.Element {
         // }
     ];
 
+    const formatter: StatisticProps['formatter'] = (value) => (
+        <CountUp 
+          end={value} 
+          separator="," 
+          duratino={0.3}
+          decimals={2}
+          decimal=","
+        />
+      );
+
     return (
         <Card>
             <Flex gap="middle" align='center' justify='space-between' wrap>
@@ -231,6 +243,31 @@ function BusinessView(): JSX.Element {
                 <Button icon={<PlusOutlined />} onClick={onNewTaxPayer}>
                     Nuevo
                 </Button>
+            </Flex>
+
+            <br/>
+
+            <Flex wrap gap={10}>
+            <Card 
+                key={0} 
+                // bordered={false} 
+                style={{
+                    minWidth: '150px',
+                    minHeight: '150px',
+                    flexGrow: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+
+                    maxWidth: '200px',
+                }}
+                >
+                <Statistic
+                    title={'Num. de Contribuyentes'}
+                    value={business.length}
+                    precision={0}
+                />
+                </Card>
             </Flex>
 
             <br/>
