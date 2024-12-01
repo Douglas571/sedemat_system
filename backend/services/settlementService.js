@@ -1,5 +1,6 @@
 // services/SettlementService.js
 const { Settlement, User, Person } = require('../database/models');
+const dayjs = require('dayjs');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 
@@ -43,6 +44,19 @@ class SettlementService {
         }
       }
 
+      let existentSettlements = await Settlement.findAll({
+        where: {
+          code: data.code
+        }
+      })
+
+      if (existentSettlements && existentSettlements.some( settlement => dayjs(settlement.settledAt).isSame(dayjs(data.settledAt), 'year'))) {
+        let error = new Error('A settlement with this code and date already exists');
+        error.name = "DuplicatedSettlementCode";
+        error.statusCode = 400
+        throw error
+      }
+
       let returnedSettlement = await Settlement.create(data);
 
       return returnedSettlement
@@ -83,7 +97,29 @@ class SettlementService {
     checkIfUserIsLiquidator(user)
 
     const settlement = await Settlement.findByPk(id);
-    if (!settlement) throw new Error('Settlement not found');
+    if (!settlement) {
+      let error = new Error('Settlement not found');
+      error.name = "SettlementNotFound";
+      error.statusCode = 404
+      throw error
+    }
+
+
+    
+    let existentSettlements = await Settlement.findAll({
+      where: {
+        code: settlement.code,
+        id: {[Op.ne]: id}
+      }
+    })
+
+    if (existentSettlements && existentSettlements.some( settlement => dayjs(settlement.settledAt).isSame(dayjs(data.settledAt), 'year'))) {
+      let error = new Error('A settlement with this code and date already exists');
+      error.name = "DuplicatedSettlementCode";
+      error.statusCode = 400
+      throw error
+    }
+
     return settlement.update(data);
   }
 
