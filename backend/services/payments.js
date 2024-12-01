@@ -1,6 +1,8 @@
 const { Payment: PaymentModel, Person, Business, Bank, GrossIncomeInvoice, Settlement } = require('../database/models')
 const { Op } = require('sequelize');
 
+const _ = require('lodash')
+
 const ROLES = require('../utils/auth/roles');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService')
@@ -48,7 +50,9 @@ const deletePaymentImage = (relativeImagePath) => {
 exports.findAll = async ({filters}) => {
     logger.info('Looking into DB');
 
-    let where = {}
+    let where = {
+        ..._.pick(filters, ['grossIncomeInvoiceId'])
+    }
 
     if (filters.from && filters.to) {
         where.paymentDate = {
