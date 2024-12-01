@@ -42,7 +42,7 @@ const BusinessesViewByEconomicActivityIndex: React.FC = () => {
 
     if (treeNode.businessName) {
       return {
-        title: <Link to={`/business/${treeNode.id}`}>{treeNode.dni} - {treeNode.businessName} </Link>,
+        title: <Link to={`/business/${treeNode.id}`}>{treeNode.businessName} - {treeNode.dni} </Link>,
         value: treeNode.businessName,
         key: treeNode.dni,
       }
