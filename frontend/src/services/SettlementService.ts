@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 
+import axios from "axios";
+
 import { ISettlement } from "../util/types";
 
 const IP = process.env.BACKEND_IP || "localhost";
@@ -16,17 +18,21 @@ class SettlementService {
     }
 
     // Get all settlements
-    async findAll(token: string = ''): Promise<ISettlement[]> {
-        const response = await fetch(`${this.baseUrl}/`, {
+    async findAll(token: string = '', filters?: {
+        settlementDateStart?: string,
+        settlementDateEnd?: string
+    }): Promise<ISettlement[]> {
+        const response = await axios.get(`${this.baseUrl}/`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
+            params: filters
         });
 
-        if (!response.ok) {
+        if (response.status !== 200) {
             throw new Error('Failed to fetch settlements');
         }
-        return await response.json();
+        return response.data;
     }
 
     // Get a single settlement by ID

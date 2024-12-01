@@ -49,9 +49,11 @@ class SettlementController {
 
   async getAll(req, res) {
     try {
-      const settlements = await settlementService.getAllSettlements();
+      const filters = req.query;
+      const settlements = await settlementService.getAllSettlements(req.user, filters);
       res.status(200).json(settlements);
     } catch (error) {
+      console.log({error})
       res.status(500).json({ error: error });
     }
   }

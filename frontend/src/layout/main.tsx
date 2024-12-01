@@ -107,6 +107,11 @@ const App: React.FC = () => {
 					icon: '',
 					label: 'Pagos'
 				},
+				{
+					key: '/settlements',
+					icon: '',
+					label: 'Liquidaciones'
+				}
 			]
 		},
 	]

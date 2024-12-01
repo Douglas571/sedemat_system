@@ -62,6 +62,8 @@ import ReportsBusinessesGrossIncomeSummary from 'pages/ReportsBusinessesGrossInc
 
 import PendingWorkSection from 'pages/PendingWorkSection'
 
+import Settlements from 'pages/Settlements'
+
 function App(): JSX.Element {
 	return (
 		<div>
@@ -137,6 +139,7 @@ function App(): JSX.Element {
 								<Route path='reports/gross-income-status' element={<ReportsBusinessesGrossIncomeStatus/>}/>
 								<Route path='reports/gross-income-summary' element={<ReportsBusinessesGrossIncomeSummary/>}/>
 								
+								<Route path='settlements' element={<Settlements />} />
 								
 							</Route>
 							

@@ -1,5 +1,6 @@
 // services/SettlementService.js
-const { Settlement, User, Person } = require('../database/models');
+const { Settlement, User, Person, GrossIncomeInvoice, Business } = require('../database/models');
+const { Op } = require("sequelize")
 const dayjs = require('dayjs');
 
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
@@ -132,8 +133,26 @@ class SettlementService {
     return await settlement.destroy();
   }
 
-  async getAllSettlements() {
-    return Settlement.findAll();
+  async getAllSettlements(user, filters) {
+
+    let where = {};
+
+    if (filters.settlementDateStart && filters.settlementDateEnd) { 
+      where.settledAt = {
+        [Op.between]: [filters.settlementDateStart, filters.settlementDateEnd]
+      }
+
+    }
+
+    return Settlement.findAll({
+      include: [
+        {
+          model: GrossIncomeInvoice,
+          as: "grossIncomeInvoice",
+        }
+      ],
+      where
+    });
   }
 
 
