@@ -15,6 +15,8 @@ const logger = require('../utils/logger')
 
 const branchOfficeServices = require('./branchOffices');
 
+const _ = require('lodash')
+
 
 function checkIfCanCreateOrUpdateBusiness(user) {
     // if user is not an admin, director, fiscal, or collector 
@@ -55,6 +57,8 @@ exports.getAllBusinesses = async () => {
     });
 };
 
+
+
 exports.economicActivityIndex = async () => {
     let economicActivitiesWithBusinesses = await EconomicActivity.findAll({
         include: [
@@ -62,66 +66,35 @@ exports.economicActivityIndex = async () => {
                 model: Business,
                 as: 'businesses'
             }
-        ]
+        ],
     });
 
-    let economicSectors = require('../utils/economicActivitySectors')
+    let originalEconomicSectors = require('../utils/economicActivitySectors')
+    let economicSectors = _.cloneDeep(originalEconomicSectors)
 
-    economicActivitiesWithBusinesses.forEach(economicActivity1 => {
-        let sectorCode = Number(String(economicActivity1.code)[0]) - 1
-
-        let sector = economicSectors[sectorCode]
-        // console.log({sector})
-
-        if (sector.economicActivities.length > 0) {
-
-            // console.log({code: economicActivity1.code, title: economicActivity1.title})
-
-            let economicActivity2 = sector?.economicActivities?.find(economicActivity2 => economicActivity1.code.startsWith(economicActivity2.code))
-
-            if (economicActivity2) {
-
-                let economicActivity3 = economicActivity2?.economicActivities?.find(economicActivity3 => economicActivity1.code.startsWith(economicActivity3.code))
-
-                if (economicActivity3) {
-
-                    // console.log({code3: economicActivity3.code, title3: economicActivity3.title, economicActivity3})
-
-                    let economicActivity4 = economicActivity3?.economicActivities?.find(economicActivity4 => economicActivity1.code.startsWith(economicActivity4.code))
-
-                    if (economicActivity4) {
-
-                        console.log({code4: economicActivity4.code, title4: economicActivity4.title})
-
-                        return economicActivity4.economicActivities = economicActivity4.economicActivities
-                            ? [...economicActivity4.economicActivities, economicActivity1]
-                            : [economicActivity1]
-                    }
-
-                    return economicActivity3.economicActivities = economicActivity3.economicActivities
-                        ? [...economicActivity3.economicActivities, economicActivity1]
-                        : [economicActivity1]
-                }
-
-                // console.log({code2: economicActivity2.code, title2: economicActivity2.title, economicActivity2})
-
-                return economicActivity2.economicActivities = economicActivity2.economicActivities 
-                    ? [...economicActivity2.economicActivities, economicActivity1]
-                    : [economicActivity1]
-
-            }
-                
-            return sector.economicActivities.push(economicActivity1)
-        } 
-
-        sector.economicActivities = [...sector.economicActivities, economicActivity1]
-
+    economicActivitiesWithBusinesses.forEach(economicActivity => {
+        let code = economicActivity.code.charAt(0)
+        let treeNode = economicSectors.find( sector => sector.code === code)
+        mapInsertEconomicActivitiesInTree(economicActivity, treeNode)      
     })
 
     return economicSectors
 
+}
 
-    // return economicActivitiesWithBusinesses
+function mapInsertEconomicActivitiesInTree(economicActivity, treeNode) {
+    if (!treeNode.economicActivities) {
+        return treeNode.economicActivities = [economicActivity]
+    }
+
+    let code = economicActivity.code
+    let subEconomicActivity = treeNode.economicActivities.find( activity => code.startsWith(activity.code))
+    
+    if (subEconomicActivity) {
+        return mapInsertEconomicActivitiesInTree(economicActivity, subEconomicActivity)
+    }
+
+    treeNode.economicActivities = [...treeNode.economicActivities, economicActivity]
 }
 
 // Get business by ID
