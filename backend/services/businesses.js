@@ -59,6 +59,16 @@ exports.getAllBusinesses = async () => {
 
 
 
+/**
+ * Retrieves and organizes economic activities along with their associated businesses into a hierarchical tree structure.
+ *
+ * This function fetches all economic activities that have associated businesses, and then maps them
+ * into a predefined structure of economic sectors. Each economic activity is inserted into the correct
+ * sector based on its code.
+ *
+ * @returns {Array} A tree structure representing economic sectors with their respective economic activities and businesses.
+ */
+
 exports.economicActivityIndex = async () => {
     let economicActivitiesWithBusinesses = await EconomicActivity.findAll({
         include: [
@@ -81,6 +91,19 @@ exports.economicActivityIndex = async () => {
     return economicSectors
 
 }
+
+/**
+ * Inserts an economic activity into the appropriate position within a tree structure.
+ * 
+ * This function recursively navigates through a tree of economic activities and inserts
+ * the given economic activity into the correct position based on its code. If the tree 
+ * node does not have a matching sub-economic activity, it appends the economic activity 
+ * to the current node's economic activities.
+ * 
+ * @param {Object} economicActivity - The economic activity to be inserted. 
+ * @param {Object} treeNode - The current node in the economic activity tree being traversed.
+ * @return {void}
+ */
 
 function mapInsertEconomicActivitiesInTree(economicActivity, treeNode) {
     if (!treeNode.economicActivities) {
