@@ -93,25 +93,25 @@ const App: React.FC = () => {
 			label: 'Recaudación',
 			children: [
 				{
+					key: '/tax-collection',
+					icon: '',
+					label: 'Contribuyentes'
+				},
+				{
 					key: '/tax-collection/gross-incomes',
 					icon: '',
 					label: 'Declaraciones de Ingresos'
 				},
 				{
-					key: '/tax-collection',
+					key: '/settlements',
 					icon: '',
-					label: 'Contribuyentes'
+					label: 'Liquidaciones'
 				},
 				{
 					key: '/payments',
 					icon: '',
 					label: 'Pagos'
 				},
-				{
-					key: '/settlements',
-					icon: '',
-					label: 'Liquidaciones'
-				}
 			]
 		},
 	]
