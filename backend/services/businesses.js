@@ -23,6 +23,7 @@ function checkIfCanCreateOrUpdateBusiness(user) {
     if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
         let error = new Error('User not authorized');
         error.name = 'UserNotAuthorized';
+        error.statusCode = 401;
         throw error;
     }
 }

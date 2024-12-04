@@ -141,7 +141,7 @@ router.put('/:id', passport.authenticate('jwt', { session: false }), async (req,
             }})
 
         } else {
-            res.status(500).json({ error: "We have some problems" });
+            res.status(error.statusCode ?? 500).json({ error });
         }
         
     }

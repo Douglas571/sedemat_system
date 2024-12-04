@@ -119,7 +119,7 @@ export async function isBusinessEligibleForEconomicLicense(businessId: number): 
 
         // check if is unanutorized error
         if (error.name === 'UserNotAuthorized') {
-            errorToThrow = new Error('El usuario no autorizado para editar la información de la empresa')
+            errorToThrow = new Error('Sólo fiscales y recaudadores pueden modificar empresas')
             error.name = 'UserNotAuthorized'
             throw errorToThrow
             
@@ -157,8 +157,17 @@ export async function createBusiness({
     try {
         const response = await fetch(url, requestOptions);
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error.msg || 'Failed to post business data');
+            let {error} = await response.json()
+            let errorToThrow = new Error(error?.message || 'Failed to post business data')
+
+            // check if is unanutorized error
+            if (error.name === 'UserNotAuthorized') {
+                errorToThrow = new Error('Sólo fiscales y recaudadores pueden modificar empresas')
+                error.name = 'UserNotAuthorized'
+                throw errorToThrow
+            }
+            
+            throw errorToThrow
         }
         console.log('Business data posted successfully');
         // Optionally handle response data here

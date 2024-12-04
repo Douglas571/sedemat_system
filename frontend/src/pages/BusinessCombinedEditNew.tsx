@@ -293,7 +293,7 @@ export default function BusinessForm(): JSX.Element {
 
             messageApi.open({
                 type: 'error',
-                content: msg,
+                content: error.message,
             });
         } finally {
             setLoading(false)
