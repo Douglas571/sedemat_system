@@ -60,6 +60,8 @@ const GrossIncomeInvoice: React.FC = () => {
 
     const [ bankAccounts, setBankAccounts ] = useState<IBankAccount[]>()
 
+    const [isSending, setIsSending] = useState<boolean>(false)	
+
     const bankAccountsOptions = bankAccounts?.map(bankAccount => ({ label: `${bankAccount.name} - ${bankAccount.accountNumber.split('-')[4]}`, value: bankAccount.id }))
     
     // create the select options 
@@ -355,6 +357,8 @@ const GrossIncomeInvoice: React.FC = () => {
         }
 
         try {
+            setIsSending(true)
+            
             if (selectedRowKeys.length === 0) {
                 message.warning('Seleccione al menos un calculo de ingresos brutos')
                 return false 
@@ -402,12 +406,17 @@ const GrossIncomeInvoice: React.FC = () => {
             console.log({registeredInvoice})
             navigate(-1)
         } catch (error) {
+            setIsSending(false)
+
             console.log({error})
+            
             if (isEditing) {
-                message.error(error.message)
+                message.error('Error del servidor')
             } else {
-                message.error(error.message)
+                message.error('Error del servidor')
             }
+        } finally {
+            setIsSending(false)
         }
     }
 
@@ -685,6 +694,7 @@ const GrossIncomeInvoice: React.FC = () => {
                         type='primary'
                         htmlType="submit"
                         style={{ marginTop: '20px' }}
+                        loading={isSending}
                     >
                         {isEditing ? 'Actualizar' : 'Guardar'} factura
                     </Button>
