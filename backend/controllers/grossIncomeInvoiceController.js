@@ -82,7 +82,7 @@ class GrossIncomeInvoiceController {
     // DELETE /gross-income-invoices/:id
     async delete(req, res) {
         try {
-            await grossIncomeInvoiceService.deleteGrossIncomeInvoice(req.params.id);
+            await grossIncomeInvoiceService.deleteGrossIncomeInvoice(req.params.id, req.user);
             res.status(204).send();
         } catch (error) {
             console.log({ error })

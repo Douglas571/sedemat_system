@@ -221,7 +221,6 @@ const GrossIncomeTable = () => {
   return (<>
     <Card title={<Typography.Title level={1}>Ingresos Brutos Declarados</Typography.Title>}>
       <Form
-        layout="inline"
         onFinish={fetchGrossIncomes}
 
         form={form}
@@ -232,12 +231,15 @@ const GrossIncomeTable = () => {
         }}
       >
         <Flex wrap gap={10}>
-          <Form.Item label="Periodo" name="period">
+          <Form.Item name="period" label="Periodo" >
             <DatePicker.MonthPicker />
           </Form.Item>
 
-          <Form.Item label="Fecha Declarada" name="declaredAt">
-            <DatePicker.RangePicker presets={datePresetRanges}/>
+          <Form.Item name="declaredAt" label="Fecha de Declaración" >
+            <DatePicker.RangePicker 
+              format="DD/MM/YYYY"
+              presets={datePresetRanges}
+            />
           </Form.Item>
 
           <Form.Item>

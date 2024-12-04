@@ -448,8 +448,8 @@ function Payments(): JSX.Element {
                         <Input placeholder='Buscar por razón social, rif, cédula, o referencia de pago' prefix={<SearchOutlined />} />
                     </Form.Item>
 
-                    <Flex gap={10}>
-                        <Form.Item name='dateRange'>
+                    <Flex gap={10} wrap>
+                        <Form.Item name='dateRange' label='Fecha de Pago'>
                             <DatePicker.RangePicker
                                 format="DD/MM/YYYY"
                                 presets={datePresetRanges}

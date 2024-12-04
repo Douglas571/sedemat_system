@@ -23,8 +23,8 @@ function checkThatIsSettlementOfficer(user) {
     }
 }
 
-function checkUserIsCoordinator(user) {
-    if (!user || [ROLES.COORDINATOR].indexOf(user.roleId) === -1) {
+function checkUserCanVerifyPayments(user) {
+    if (!user || [ROLES.COORDINATOR, ROLES.LIQUIDATOR].indexOf(user.roleId) === -1) {
         let error = new Error('User not authorized');
         error.name = 'UserNotAuthorized';
         error.statusCode = 401;
@@ -227,9 +227,9 @@ exports.updatePayment = async (id, paymentData, user) => {
 
 exports.updateVerifiedStatus = async (id, data, user) => {
     // verify that the user is a settlement officer (ROLE.LIQUIDATOR)
-    checkThatIsSettlementOfficer(user)
+    // checkThatIsSettlementOfficer(user)
 
-    checkUserIsCoordinator(user)
+    checkUserCanVerifyPayments(user)
 
     // get the payment by primary key 
     const paymentData = await PaymentModel.findByPk(id, {
