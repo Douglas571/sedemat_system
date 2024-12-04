@@ -440,7 +440,7 @@ function Payments(): JSX.Element {
                     initialValues={
                         {
                             search: '',
-                            dateRange: datePresetRanges[2].value, // this month
+                            dateRange: [dayjs().get('date') < 5 ? dayjs().subtract(1, 'month').startOf('month') : dayjs().startOf('month'), dayjs()]	, // this month
                             notVerified: false
                         }
                     }>

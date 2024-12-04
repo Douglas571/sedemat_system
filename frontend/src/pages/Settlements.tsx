@@ -37,7 +37,7 @@ const SettlementPage: React.FC = () => {
     fetchSettlements();
 
     form.setFieldsValue({
-      settlementDate: [dayjs().startOf('month'), dayjs().endOf('month')]
+      settlementDate: [dayjs().get('date') < 5 ? dayjs().subtract(1, 'month').startOf('month') : dayjs().startOf('month'), dayjs()]
     })
   }, []);
 
