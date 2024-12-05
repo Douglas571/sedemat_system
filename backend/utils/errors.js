@@ -6,6 +6,52 @@ class UserNotAuthorizedError extends Error {
   }
 }
 
-module.exports = {
-  UserNotAuthorizedError
+class FileNotFoundError extends Error {
+  constructor(message) {
+    super(message ?? 'File not found');
+    this.name = 'FileNotFound';
+    this.statusCode = 404;
+  }
 }
+
+class InvalidFileError extends Error {
+  constructor(message) {
+    super(message ?? 'File is not valid');
+    this.name = 'InvalidFile';
+    this.statusCode = 400;
+  }
+
+}
+
+class UnsupportedFileTypeError extends Error {
+  constructor(message) {
+    super(message ?? 'File type is not supported');
+    this.name = 'UnsupportedFileType';
+    this.statusCode = 415;
+  }
+}
+
+class GrossIncomeNotFoundError extends Error {
+  constructor(message) {
+    super(message ?? 'Gross income not found');
+    this.name = 'GrossIncomeNotFound';
+    this.statusCode = 404;
+  }
+}
+
+class AssociationConflictError extends Error {
+  constructor(message) {
+    super(message ?? 'Association conflict');
+    this.name = 'AssociationConflict';
+    this.statusCode = 409;
+  }
+}
+
+export {
+  UserNotAuthorizedError,
+  FileNotFoundError,
+  InvalidFileError,
+  UnsupportedFileTypeError,
+  GrossIncomeNotFoundError,
+  AssociationConflictError
+};

@@ -72,6 +72,11 @@ const businessActivityCategoriesRouter = require('./routers/businessActivityCate
 
 const reportBusinesses = require('./routers/reports/businessesReportsRouter');
 
+// UTILITY ROUTERS 
+
+const filesRouter = require('./routers/filesRouter');
+
+
 const app = express ();
 app.use(express.json());
 app.use(cors());
@@ -126,6 +131,8 @@ app.use('/v1/business-activity-categories', businessActivityCategoriesRouter);
 
 app.use('/v1/users', userRouter)
 app.use('/v1/auth', authRouter);
+
+app.use('/v1/files', filesRouter);
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
