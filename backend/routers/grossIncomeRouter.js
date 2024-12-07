@@ -42,6 +42,17 @@ router.get('/business/:businessId', grossIncomeController.getAllGrossIncomesByBu
 // GET all gross incomes by invoice ID
 router.get('/invoice/:invoiceId', grossIncomeController.getAllGrossIncomesByInvoiceId);
 
+router.post('/:id/support-files', 
+  passport.authenticate('jwt', { session: false }),
+  grossIncomeController.addSupportFiles
+);
+
+router.delete('/:id/support-files', 
+  passport.authenticate('jwt', { session: false }), 
+  grossIncomeController.removeSupportFiles
+);
+
+
 
 
 module.exports = router;

@@ -38,9 +38,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING, // TODO: DataTypes.ENUM('gross incomes', 'payments'), // Restricts values to valid folders
       allowNull: false,
     },
-    references: {
-      model: 'Users',
-      key: 'id'
+    createdByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     },
     createdAt: {
       type: DataTypes.DATE,

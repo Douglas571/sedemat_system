@@ -3,6 +3,9 @@ const multer = require('multer');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const os = require('os');
+const path = require('path');
+
+const sharp = require('sharp');
 
 const FilesService = require('../services/filesService');
 const { InvalidFileError } = require('../utils/errors');
@@ -14,9 +17,11 @@ fse.ensureDirSync(tempDir);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log("executing the destination fuction")
     cb(null, tempDir);
   },
   filename: (req, file, cb) => {
+    console.log('creating file name')
     const extension = file.originalname.split('.').pop();
     const fileName = `${crypto.randomUUID()}.${extension}`;
     cb(null, fileName);
@@ -26,18 +31,28 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const uploadFile = async (req, res) => {
+  
   upload.single('file')(req, res, async (err) => {
-
     try {
 
       const file = req.file;
+      let destinyFilePath = ''
+      let dirPath = ''
 
-      if (!file || err) {
-        console.log({err});
-        return res.status(500).json({ message: 'Error in uploading file', error: err.message });
+      if (err) {
+        console.log({err})
+        return res.status(500).json({ message: 'Error in uploading file', error: err.message});
+      }
+
+      if (!file) {
+        console.log('No file uploaded')
+        return res.status(400).json({ error: {
+          message: 'No file uploaded'
+        }});
       }
 
       const { folder, description, shouldCompress } = req.body;
+      const isAnImage = file.mimetype.startsWith('image');
 
       // check if the folder is valid
       if (!['grossIncomes', 'payments'].includes(folder)) {
@@ -51,48 +66,63 @@ const uploadFile = async (req, res) => {
       }
 
       // ensure destination folder exists
-      let dirPath = path.resolve(uploadsDir, FOLDERS[folder]);
-      ensureDirectoryExists(dirPath);
+      dirPath = path.resolve(uploadsDir, FOLDERS[folder]);
+      destinyFilePath = path.resolve(dirPath, file.filename)
+      await fse.ensureDir(dirPath);
 
       // if is an image
-      if (file.mimetype.startsWith('image')) {
-        // if shouldCompress is true, compress image and move to destination folder
-        if (shouldCompress) {
-          const compressedFilename = await FilesService.compress({
-            filePath: file.path,
-            destination: dirPath,
-            baseFileName: file.originalname,
-          });
+      if (isAnImage) {
+        // console.log({isAnImage, file})
+        
+        let image = sharp(file.path);
+        const metadata = await image.metadata();
 
-          // TODO: Call the function to compress the image
-          const compressedFilePath = path.resolve(dirPath, compressedFilename);
-          await fse.move(file.path, compressedFilePath);
+        const newFilename = file.filename.split('.')[0] + '.webp';
+        destinyFilePath = path.resolve(dirPath, newFilename);
 
-          // update file path in database
-          await FilesService.update(id, { path: compressedFilePath });
-        } else {
-          // move image to destination folder
-          await fse.move(file.path, path.resolve(dirPath, file.originalname));
+        // get the width and height 
+        image = await image.webp({ quality: 50 })
+
+        // if is horizontal image 
+        if ((metadata.width > metadata.height) && metadata.width > 1900) {
+          // console.log("image is horizontal")
+          image = await image.resize(1900, 1600, { fit: 'inside' })
         }
+
+        // if is vertical image 
+        if ((metadata.width < metadata.height) && metadata.height > 1600) {
+          // console.log("image is vertical")
+          image = await image.resize(1600, 1900, { fit: 'inside' })
+        }
+
+        image = await image.greyscale()
+
+        image = await image.normalize()
+
+        await image.toFile(destinyFilePath);
+
       } else {
         // move other types of files to destination folder
-        await fse.move(file.path, path.resolve(dirPath, file.originalname));
+        console.log({file, destinyFilePath})
+        await fse.move(file.path, destinyFilePath);
       }
 
       const savedFile = await FilesService.create({
-        path: file.path,
-        type: file.mimetype.split('/')[1],
+        path: destinyFilePath,
+        type: isAnImage ? 'image' : 'pdf', // TODO: Add other file types,
         description,
         folder,
-        userId: req.user.id, // Assuming JWT middleware adds `user` to req
+        createdByUserId: req.user.id, // Assuming JWT middleware adds `user` to req
       });
 
       res.status(201).json(savedFile);
     } catch (error) {
+      console.log({error})
       res.status(error.statusCode ?? 500).json({ error });
     }
-  });
-  
+    
+  })
+
     
   
 };

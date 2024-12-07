@@ -12,7 +12,7 @@ const router = express.Router();
 // Routes
 
 router.use(passport.authenticate('jwt', { session: false }));
-router.post('/upload', upload.single('file'), FilesController.uploadFile);
+router.post('/upload', FilesController.uploadFile);
 router.get('/:id', FilesController.getFile);
 router.put('/:id', FilesController.updateFile);
 router.delete('/:id', FilesController.deleteFile);

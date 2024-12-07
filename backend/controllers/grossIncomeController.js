@@ -68,6 +68,8 @@ class GrossIncomeController {
   async create(req, res) {
     try {
       let user = req.user
+
+      console.log({body: req.body})
       
       const newGrossIncome = await grossIncomeService.createGrossIncome(req.body, user);
       res.status(201).json(newGrossIncome);
@@ -82,6 +84,7 @@ class GrossIncomeController {
     try {
 
       const user = req.user
+      console.log({body: req.body})
 
       const updatedGrossIncome = await grossIncomeService.updateGrossIncome(req.params.id, req.body, user);
       res.status(200).json(updatedGrossIncome);
@@ -201,6 +204,33 @@ class GrossIncomeController {
       res.status(error?.statusCode ?? 500).json({ error });
     }
 
+  }
+
+  
+  // POST /gross-incomes/:id/support-files
+  async addSupportFiles(req, res) {
+    try {
+      const user = req.user
+
+      const updatedGrossIncome = await grossIncomeService.addSupportFiles(req.params.id, req.body.supportFilesIds, user);
+      res.status(200).json(updatedGrossIncome);
+    } catch (error) {
+      console.log({error})
+      res.status(error.statusCode ?? 500).json({ error });
+    }
+  }
+
+  // DELETE /gross-incomes/:id/support-files
+  async removeSupportFiles(req, res) {
+    try {
+      const user = req.user
+
+      const updatedGrossIncome = await grossIncomeService.removeSupportFile(req.params.id, req.body.supportFilesIds, user);
+      res.status(200).json(updatedGrossIncome);
+    } catch (error) {
+      console.log({error})
+      res.status(error.statusCode ?? 500).json({ error });
+    }
   }
 }
 

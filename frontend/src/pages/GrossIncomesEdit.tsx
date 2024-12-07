@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { UploadOutlined, ReloadOutlined } from '@ant-design/icons';
+import { UploadOutlined, ReloadOutlined, InboxOutlined } from '@ant-design/icons';
 import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload } from 'antd';
+
+const Dragger = Upload.Dragger;
 
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { UploadProps } from 'antd';
@@ -14,6 +16,7 @@ import * as grossIncomeApi from '../util/grossIncomeApi';
 import alicuotaService from '../services/alicuotaService';
 import currencyExchangeRatesService from '../services/CurrencyExchangeRatesService';
 import economicActivitiesService from '../services/EconomicActivitiesService';
+import * as filesService from '../services/filesService';
 
 import * as util from '../util';
 
@@ -387,33 +390,69 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             setLoading(true);
             let declarationImageUrl = null;
 
+            // get the list of images to upload
+            // for each image, upload them to the server and get the id of the image
+            // once i get the image ids, asigne the ids to a given gross income 
+            let uploadingFilesPromises = fileList.map(async (file) => {
+                try {
+                    // upload the file
+                    let fileData = await filesService.uploadFile({
+                        file: file.originFileObj, folder: 'grossIncomes', token: userAuth.token ?? undefined
+                    })
+
+                    // return the id of the file 
+                    return { id: fileData.id, temporalId: file.uid }
+
+                } catch (error) {
+                    console.log({error})
+                    message.error(error.message);
+
+                    let errorResponse = new Error("Can't upload the file")
+                    errorResponse.fileTemporaryId = file.uid
+                    throw errorResponse
+                }
+            })
+
+            let resolvedPromises = await Promise.allSettled(uploadingFilesPromises)
+
+            
+
+            let supportFilesIds = resolvedPromises.map((promise) => {
+                if (promise.status === 'fulfilled') {
+                    return promise.value.id
+                } else {
+                    return -1
+                }
+            })
+
+            console.log({resolvedPromises, supportFilesIds})
+
+
             // ! disabled for now
             // if (!values.declarationImage) {
             //     message.error('Por favor suba la declaración');
             //     return false;
             // }
 
-            if (values.declarationImage) {
-                // if there is no new files, values.declarationImage will be undefined
-                if (values.declarationImage.uid === '-1') {
-                    console.log('no new files')
-                    declarationImageUrl = grossIncome?.declarationImage;
-                } else {
-                    // otherwise, values.declarationImage will be the file object, in this case, should update the image
-                    const file = values.declarationImage.file
+            // if (values.declarationImage) {
+            //     // if there is no new files, values.declarationImage will be undefined
+            //     if (values.declarationImage.uid === '-1') {
+            //         console.log('no new files')
+            //         declarationImageUrl = grossIncome?.declarationImage;
+            //     } else {
+            //         // otherwise, values.declarationImage will be the file object, in this case, should update the image
+            //         const file = values.declarationImage.file
                     
-                    try {
-                        declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file, userAuth.token ?? null);
+            //         try {
+            //             declarationImageUrl = await grossIncomeApi.uploadDeclarationImage(file, userAuth.token ?? null);
                         
-                    } catch (error) {
-                        console.error('Error uploading declaration image:', error);
-                        message.error(error.message);
-                        return false;
-                    }
-                }
-            }
-            
-
+            //         } catch (error) {
+            //             console.error('Error uploading declaration image:', error);
+            //             message.error(error.message);
+            //             return false;
+            //         }
+            //     }
+            // }
             
             const newGrossIncome: IGrossIncome = {
                 ...grossIncome, // to ensure that all initial properties are present
@@ -422,7 +461,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 period: values.period.format('YYYY-MM-DD'),
                 businessId: Number(businessId),
                 branchOfficeId: branchOfficeId,
-                declarationImage: declarationImageUrl,
+                declarationImage: '', //declarationImageUrl,
 
                 alicuotaTaxPercent: percentHandler(values.alicuotaTaxPercent).divide(100).value,
             };
@@ -444,12 +483,24 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             console.log('newGrossIncome', newGrossIncome)
 
             // if is editing, update the gross income
+
+            let returnedGrossIncomeId = 0
             if (isEditing) {
                 const updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncome, userAuth.token ?? null);
                 message.success('Ingreso bruto actualizado exitosamente');
+
+                returnedGrossIncomeId = updatedGrossIncome.id
             } else {
                 const registeredGrossIncome = await grossIncomeApi.registerGrossIncome(newGrossIncome, userAuth.token ?? null);
                 message.success('Ingreso bruto registrado exitosamente');
+
+                returnedGrossIncomeId = registeredGrossIncome.id
+            }
+
+            if (supportFilesIds) {
+                let response = await grossIncomeApi.addSupportFiles(returnedGrossIncomeId, supportFilesIds.filter( id => id !== undefined ), userAuth.token)
+
+                console.log({response})
             }
 
             navigate(-1);
@@ -463,19 +514,21 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     };
 
     const uploadProps: UploadProps = {
-        onPreview: async (file: UploadFile) => {
+        // onPreview: async (file: UploadFile) => {
             
-        },
+        // },
         onChange: ({ fileList: newFileList }) => {
             setFileList(newFileList)
         },
         beforeUpload: (file) => {
 			console.log("adding files")
 			setFileList([...fileList, file]);
-			return false;
+
+			return false && Upload.LIST_IGNORE;
 		},
-		fileList,
-        maxCount: 1
+        fileList,
+        // maxCount: 1
+
     }
 
     return (
@@ -552,16 +605,26 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                 />
                         </Form.Item>
 
+                        
+                    </Flex>
+
+                    <Flex gap={16} vertical>
                         <Form.Item
                             name="declarationImage"
                             // ! disabled for now
                             // rules={[{ required: true, message: 'Por favor suba la declaración' }]}
                         >
-                            <Upload
-                                {...uploadProps}
-                            >
-                                <Button icon={<UploadOutlined />}>Subir Declaración</Button>
-                            </Upload>
+                            <Dragger {...uploadProps}>
+                                <p className="ant-upload-drag-icon">
+                                <InboxOutlined />
+                                </p>
+                                <p className="ant-upload-text">Haga click o arrastre aquí los soportes de la declaración</p>
+                                {/* <p className="ant-upload-hint">
+                                Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+                                banned files.
+                                </p> */}
+                            </Dragger>
+                            
                         </Form.Item>
                     </Flex>
 

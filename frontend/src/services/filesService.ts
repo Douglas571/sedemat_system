@@ -1,7 +1,8 @@
 // filesServiceClient.ts
 import axios from 'axios';
 
-const BASE_URL = '/api/files';
+const HOST = process.env.REACT_APP_BACKEND_HOST || 'http://localhost:3000';
+const BASE_URL = `${HOST}/v1/files`;
 
 interface FileData {
   id?: number;
@@ -16,25 +17,33 @@ interface FileData {
 
 /**
  * Uploads a file to the server.
- * @param file - The file to upload (File instance).
- * @param folder - The folder where the file will be stored.
- * @param description - Optional description for the file.
- * @param purpose - Optional purpose of the file.
- * @param token - The authentication token.
- * @returns The uploaded file metadata.
+ * @param {File} file - The file to upload.
+ * @param {string} folder - The folder where the file will be stored.
+ * @param {string} [description] - Optional description for the file.
+ * @param {string} token - The authentication token.
+ * @returns {Promise<FileData>} The uploaded file metadata.
  */
 export async function uploadFile(
-  file: File,
-  folder: string,
-  description?: string,
-  purpose?: string,
-  token?: string
+  {
+    file,
+    folder,
+    description,
+    token,
+  }:
+  {
+    file: File,
+    folder: string,
+    description?: string,
+    token?: string
+  }
 ): Promise<FileData> {
+
+
+  console.log({file})
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);
   if (description) formData.append('description', description);
-  if (purpose) formData.append('purpose', purpose);
 
   const response = await axios.post(`${BASE_URL}/upload`, formData, {
     headers: {

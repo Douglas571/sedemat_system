@@ -644,6 +644,43 @@ class GrossIncomeService {
             grossIncomesCreated: grossIncomesToBeCreated?.length ?? 0
         }
     }
+
+    async addSupportFiles(grossIncomeId, supportFilesIds, user) {
+        try {
+            // Perform authorization check if needed
+            // Example: canUpdateEditDeleteGrossIncomes(user)
+
+            // TODO: complete these services 
+            // TODO: add the supportFilesToGrossIncome table
+
+            console.log({grossIncomeId, supportFilesIds, user})
+            
+            return {
+                grossIncomeId, supportFilesIds, user
+            }
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    async removeSupportFile(grossIncomeId, supportFileId, user) {
+        try {
+            // Perform authorization check if needed
+            // Example: canUpdateEditDeleteGrossIncomes(user)
+
+            console.log({grossIncomeId, supportFilesIds, user})
+
+            return {
+                grossIncomeId, supportFilesIds, user
+            }
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
 }
 
 module.exports = new GrossIncomeService();

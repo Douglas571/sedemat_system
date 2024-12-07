@@ -219,3 +219,39 @@ export async function deleteGrossIncome(grossIncomeId: number, token: string): P
     }   
 }
 
+// ASSOCIATE support files to a gross income
+export async function addSupportFiles(grossIncomeId: number, filesIds: number[], token?: string): Promise<void> {
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales');
+    }
+
+    const response = await axios.post(`${HOST}/v1/gross-incomes/${grossIncomeId}/support-files`, { 
+        supportFilesIds: filesIds
+     }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    return response.data
+}
+
+// DISASSOCIATE support files from a gross income
+export async function removeSupportFiles(grossIncomeId: number, filesIds: number[], token?: string): Promise<void> {
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales');
+    }
+
+    const response = await axios.delete(`${HOST}/v1/gross-incomes/${grossIncomeId}/support-files`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        data: { supportFilesIds: filesIds }
+    });
+
+    return response.data
+}
+
+

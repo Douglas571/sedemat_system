@@ -11,26 +11,26 @@ module.exports = {
       },
 
       path: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
       type: {
-        type: DataTypes.ENUM('image', 'pdf', 'excel', 'csv'),
+        type: Sequelize.ENUM('image', 'pdf', 'excel', 'csv'),
         allowNull: false,
       },
       description: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: true,
       },
 
       folder: {
-        type: DataTypes.STRING, // TODO: DataTypes.ENUM('gross incomes', 'payments'), // Restricts values to valid folders
+        type: Sequelize.STRING, // TODO: DataTypes.ENUM('gross incomes', 'payments'), // Restricts values to valid folders
         allowNull: false,
       },
 
-      userId: {
-        type: DataTypes.INTEGER,
+      createdByUserId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',

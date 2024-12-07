@@ -47,7 +47,7 @@ class AssociationConflictError extends Error {
   }
 }
 
-export {
+module.exports = {
   UserNotAuthorizedError,
   FileNotFoundError,
   InvalidFileError,
