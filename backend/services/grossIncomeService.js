@@ -411,7 +411,7 @@ class GrossIncomeService {
         data = {
             ...data,
             ...calcs,
-            // remove support files from data
+            // remove support files from data to avoid updating thems
             supportFiles: undefined
         }
         
