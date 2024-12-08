@@ -107,6 +107,9 @@ const uploadFile = async (req, res) => {
         await fse.move(file.path, destinyFilePath);
       }
 
+      // make it relative so it can be saved in db
+      destinyFilePath = destinyFilePath.split('backend')[1]
+
       const savedFile = await FilesService.create({
         path: destinyFilePath,
         type: isAnImage ? 'image' : 'pdf', // TODO: Add other file types,

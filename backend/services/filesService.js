@@ -21,7 +21,7 @@ const update = async (id, updateData) => {
 const remove = async (id) => {
   const file = await getById(id);
 
-  let path = file.path
+  let path = file.absolutePath;
 
   await file.destroy();
   // Delete the file from the filesystem
@@ -34,7 +34,7 @@ const bulkDelete = async (ids) => {
   const files = await File.findAll({ where: { id: ids } });
 
   await Promise.all(files.map(async (file) => {
-    const filePath = file.path;
+    const filePath = file.absolutePath;
     await file.destroy();
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
