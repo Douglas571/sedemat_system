@@ -92,65 +92,70 @@ const GrossIncomeDetails: React.FC = () => {
 
             <br/>
 
-            <Card>
-                <Flex gap='middle' vertical>
-                    {
-                        grossIncome?.supportFiles.length > 0 
-                        ? (<Flex vertical gap={10}>
-                                <Flex wrap gap={10}>
-                                    {
-                                        grossIncome.supportFiles.filter(sf => sf.type === 'image').map(sf => (
-                                            <Image 
-                                                src={sf.url} 
-                                                key={sf.id}
-                                                style={{
-                                                    maxWidth: '200px'
-                                                }}
-                                            />
-                                        ))
-                                    }
-                                </Flex>
-                                <Flex gap={10}>
-                                    {
-                                        grossIncome?.supportFiles.filter(sf => sf.type !== 'image').map( f => {
-                                            let icon = null
-                                            let iconProps = {
-                                                style: {
-                                                    fontSize: '1.5em'
+            {
+                // ! TODO: Delete this code duplication after migrating the existing images to their own support files 
+                grossIncome.declarationImage 
+                ? (<DeclarationImage imageUrl={completeUrl(grossIncome.declarationImage)}/>)
+                : (<Card>
+                    <Flex gap='middle' vertical>
+                        {
+                            grossIncome?.supportFiles.length > 0 
+                            ? (<Flex vertical gap={10}>
+                                    <Flex wrap gap={10}>
+                                        {
+                                            grossIncome.supportFiles.filter(sf => sf.type === 'image').map(sf => (
+                                                <Image 
+                                                    src={sf.url} 
+                                                    key={sf.id}
+                                                    style={{
+                                                        maxWidth: '200px'
+                                                    }}
+                                                />
+                                            ))
+                                        }
+                                    </Flex>
+                                    <Flex gap={10}>
+                                        {
+                                            grossIncome?.supportFiles.filter(sf => sf.type !== 'image').map( f => {
+                                                let icon = null
+                                                let iconProps = {
+                                                    style: {
+                                                        fontSize: '1.5em'
+                                                    }
                                                 }
-                                            }
-
-                                            if (f.url.endsWith('.pdf')) {
-                                                icon = <FilePdfOutlined {...iconProps}/>
-                                            }
-
-                                            if (f.url.endsWith('.xlsx') || f.url.endsWith('.xls') || f.url.endsWith('.xlsm')) {
-                                                icon = <FileExcelOutlined {...iconProps}/>
-                                            }
-
-                                            return (
-                                                <Card>
-                                                    <Flex gap={10}>
-                                                        {icon}
-                                                        <a href={f.url} target="_blank" rel="noopener noreferrer">
-                                                        {f.description ?? 'Archivo adjunto'}
-                                                    </a>
-                                                    </Flex>
-                                                </Card>
-                                            )
-                                                
-                                        })
-                                    }
-                                </Flex>
-
-
-                            </Flex>)
-                        : (
-                            <Empty description={"No hay declaración de ingresos"}/>
-                        )
-                    }
-                </Flex>
-            </Card>
+    
+                                                if (f.url.endsWith('.pdf')) {
+                                                    icon = <FilePdfOutlined {...iconProps}/>
+                                                }
+    
+                                                if (f.url.endsWith('.xlsx') || f.url.endsWith('.xls') || f.url.endsWith('.xlsm')) {
+                                                    icon = <FileExcelOutlined {...iconProps}/>
+                                                }
+    
+                                                return (
+                                                    <Card>
+                                                        <Flex gap={10}>
+                                                            {icon}
+                                                            <a href={f.url} target="_blank" rel="noopener noreferrer">
+                                                            {f.description ?? 'Archivo adjunto'}
+                                                        </a>
+                                                        </Flex>
+                                                    </Card>
+                                                )
+                                                    
+                                            })
+                                        }
+                                    </Flex>
+    
+    
+                                </Flex>)
+                            : (
+                                <Empty description={"No hay declaración de ingresos"}/>
+                            )
+                        }
+                    </Flex>
+                </Card>)
+            }
         </Card>
     );
 };
