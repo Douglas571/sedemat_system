@@ -332,7 +332,7 @@ export function numbersToWords(
     let status = 'Sin Declaración'
     let badgeStatus = 'default'
 
-    if (grossIncome?.declarationImage) {
+    if (grossIncome?.declarationImage || grossIncome?.supportFiles?.length > 0) {
         if (grossIncome.grossIncomeInvoiceId) {
           status = 'Por Pagar'
           badgeStatus = 'error'

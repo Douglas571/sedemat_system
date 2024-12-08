@@ -160,6 +160,10 @@ class GrossIncomeService {
                             as: 'payments'
                         }
                     ]
+                },
+                {
+                    model: File,
+                    as: 'supportFiles'
                 }
             ]
         });
