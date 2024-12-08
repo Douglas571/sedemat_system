@@ -67,9 +67,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.VIRTUAL,
       get() {
         let { IP, PORT } = process.env
-
-        console.log({file: this})
-        let uploadPath = this.path.split('backend')[1]
+        let uploadPath = this.path
         uploadPath = uploadPath.split(path.sep).join('/')
 
         console.log({base: `http://${IP}:${PORT}`, uploadPath})
@@ -79,6 +77,17 @@ module.exports = (sequelize, DataTypes) => {
         url.pathname = uploadPath
   
         return url.toString()
+      }
+    },
+
+    absolutePath: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        let absolutePath = path.join(__dirname, '..', '..', this.path)
+
+        console.log({absolutePath})
+
+        return absolutePath
       }
     }
     
