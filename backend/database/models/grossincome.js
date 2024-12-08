@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+
       // define association here
       GrossIncome.belongsTo(models.BranchOffice, {
         foreignKey: 'branchOfficeId',
@@ -49,6 +50,13 @@ module.exports = (sequelize, DataTypes) => {
       GrossIncome.belongsTo(models.User, {
         foreignKey: 'updatedByUserId',
         as: 'updatedByUser'
+      })
+
+      // A gross income can have many support files 
+      GrossIncome.belongsToMany(models.File, {
+        through: models.SupportFilesToGrossIncomes,
+        foreignKey: 'grossIncomeId',
+        as: 'supportFiles'
       })
     }
   }

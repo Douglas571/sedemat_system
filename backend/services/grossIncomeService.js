@@ -2,8 +2,8 @@
 const path = require('path');
 const fs = require('fs');
 
-const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment, User, Person } = require('../database/models');
-const { Op } = require('sequelize');
+const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment, User, Person, File, SupportFilesToGrossIncomes } = require('../database/models');
+const { Op, where } = require('sequelize');
 
 const dayjs = require('dayjs');
 const currency = require('currency.js');
@@ -15,6 +15,8 @@ const { UserNotAuthorizedError } = require('../utils/errors');
 
 const fse = require('fs-extra')
 const _ = require('lodash')
+
+const filesService = require('./filesService')
 
 function canUpdateEditDeleteGrossIncomes(user) {
     if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
@@ -165,7 +167,7 @@ class GrossIncomeService {
 
     // Fetch a single GrossIncome by ID
     async getGrossIncomeById(id) {
-        return await GrossIncome.findByPk(id, {
+        let grossIncome = await GrossIncome.findByPk(id, {
             include: [
                 {
                     model: BranchOffice,
@@ -202,9 +204,23 @@ class GrossIncomeService {
                             as: 'person'
                         }
                     ]
+                },
+                {
+                    model: File,
+                    as: 'supportFiles'
                 }
             ]
         });
+
+        grossIncome = grossIncome.toJSON()
+
+        grossIncome.supportFiles = grossIncome.supportFiles.map(file => {
+            return _.pick(file, ['id', 'url', 'type'])
+        })
+
+        console.log({grossIncome})
+
+        return grossIncome
     }
 
     // Create a new GrossIncome record
@@ -288,7 +304,7 @@ class GrossIncomeService {
         // only update gross income invoice id in the invoice service 
         data.grossIncomeInvoiceId = undefined
 
-        const grossIncome = await this.getGrossIncomeById(id, {
+        const grossIncome = await GrossIncome.findByPk(id, {
             include: [
                 {
                     model: BranchOffice,
@@ -297,10 +313,15 @@ class GrossIncomeService {
                 {
                     model: GrossIncomeInvoice,
                     as: 'grossIncomeInvoice'
+                },
+                {
+                    model: File,
+                    as: 'supportFiles'
                 }
             ]
         });
 
+        console.log({grossIncomeVerify: grossIncome})
         if (!grossIncome) {
             throw new Error('Gross Income not found');
         }
@@ -389,7 +410,9 @@ class GrossIncomeService {
 
         data = {
             ...data,
-            ...calcs
+            ...calcs,
+            // remove support files from data
+            supportFiles: undefined
         }
         
         let updatedGrossIncome = await grossIncome.update(data);
@@ -411,7 +434,11 @@ class GrossIncomeService {
 
         canUpdateEditDeleteGrossIncomes(user)
 
-        const grossIncome = await this.getGrossIncomeById(id);
+        const grossIncome = await GrossIncome.findByPk(id, {
+            include: [
+                { model: File, as: 'supportFiles' }
+            ]
+        });
 
         if (grossIncome.grossIncomeInvoiceId) {
             throw new Error('GrossIncome is already associated with an invoice');
@@ -421,7 +448,14 @@ class GrossIncomeService {
             throw new Error('GrossIncome not found');
         }
 
+        // get each support file
+        let supportFilesIds = grossIncome.supportFiles.map(file => file.id);
+
+        await filesService.bulkDelete(supportFilesIds)
+
         deleteDeclarationImage(grossIncome.declarationImage)
+
+
 
         return await grossIncome.destroy();
     }
@@ -448,6 +482,10 @@ class GrossIncomeService {
                     model: Alicuota,
                     as: 'alicuota'
                 },
+                {
+                    model: File, 
+                    as: 'supportFiles'
+                }
             ]
         });
     }
@@ -654,26 +692,50 @@ class GrossIncomeService {
             // TODO: add the supportFilesToGrossIncome table
 
             console.log({grossIncomeId, supportFilesIds, user})
+
+            // get the gross income with all the support files 
+            let grossIncome = await GrossIncome.findOne({
+                where: {
+                    id: grossIncomeId
+                },
+                include: {
+                    model: File,
+                    as: 'supportFiles'
+                }
+            })
+
+            console.log({grossIncome: JSON.stringify(grossIncome.toJSON(), null, 2)})
+
+            // for each support files ids, create a SupportFilesToGrossIncomes record
+            let pendingPromises = supportFilesIds.map( async (id) => {
+                let createdFileAssociation = await SupportFilesToGrossIncomes.create({
+                    grossIncomeId,
+                    fileId: id
+                })
+
+                return createdFileAssociation.id
+            })
+
+            let createdSupportFilesIds = await Promise.all(pendingPromises)
+
+            console.log({createdSupportFilesIds})
             
             return {
-                grossIncomeId, supportFilesIds, user
+                grossIncomeId, supportFilesIds, user, createdSupportFilesIds
             }
+
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
 
-    async removeSupportFile(grossIncomeId, supportFileId, user) {
+    async removeSupportFiles(grossIncomeId, supportFilesIds, user) {
         try {
             // Perform authorization check if needed
             // Example: canUpdateEditDeleteGrossIncomes(user)
 
-            console.log({grossIncomeId, supportFilesIds, user})
-
-            return {
-                grossIncomeId, supportFilesIds, user
-            }
+            await filesService.bulkDelete(supportFilesIds)
 
         } catch (error) {
             console.error(error);

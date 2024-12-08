@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { UploadOutlined, ReloadOutlined, InboxOutlined } from '@ant-design/icons';
-import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload } from 'antd';
+import { FilePdfOutlined, FileExcelOutlined, ReloadOutlined, InboxOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload, List, Image } from 'antd';
 
 const Dragger = Upload.Dragger;
 
@@ -79,6 +79,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     const isEditing = grossIncomeId !== undefined;
 
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [filesToDeleteIds, setFilesToDeleteIds] = useState<number[]>([]);
 
     const branchOfficeOptions = branchOffices?.map(office => ({
         key: office.id,
@@ -503,6 +504,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                 console.log({response})
             }
 
+            if (filesToDeleteIds) {
+                let response = await grossIncomeApi.removeSupportFiles(grossIncomeId, filesToDeleteIds, userAuth.token)
+
+                console.log({response})
+            }
+
             navigate(-1);
             
         } catch (error) {
@@ -530,6 +537,18 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         // maxCount: 1
 
     }
+
+    const handleDeleteSupportFile = async (fileId: number) => {
+        // if id is not in files to delete, add it
+
+        // is id in files to delete, remove it from files to delete
+
+        if (filesToDeleteIds.includes(fileId)) {
+            setFilesToDeleteIds(filesToDeleteIds.filter(id => id !== fileId))
+        } else {
+            setFilesToDeleteIds([...filesToDeleteIds, fileId])
+        }
+    };
 
     return (
         <>
@@ -607,28 +626,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
                         
                     </Flex>
-
-                    <Flex gap={16} vertical>
-                        <Form.Item
-                            name="declarationImage"
-                            // ! disabled for now
-                            // rules={[{ required: true, message: 'Por favor suba la declaración' }]}
-                        >
-                            <Dragger {...uploadProps}>
-                                <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                                </p>
-                                <p className="ant-upload-text">Haga click o arrastre aquí los soportes de la declaración</p>
-                                {/* <p className="ant-upload-hint">
-                                Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                                banned files.
-                                </p> */}
-                            </Dragger>
-                            
-                        </Form.Item>
-                    </Flex>
-
-                    
+                   
                     <Flex gap={16} align='center' justify='space-between'>
                         <Typography.Title level={4}>Tasa de Cambio</Typography.Title>
                         <Button onClick={() => updateTCMMVBCV()}>
@@ -824,6 +822,83 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                 </Flex>
                             </Flex>)
                     }
+
+                    <Flex gap={16} vertical>
+                        <Form.Item
+                            name="declarationImage"
+                            // ! disabled for now
+                            // rules={[{ required: true, message: 'Por favor suba la declaración' }]}
+                        >
+                            <Dragger {...uploadProps}>
+                                <p className="ant-upload-drag-icon">
+                                <InboxOutlined />
+                                </p>
+                                <p className="ant-upload-text">Haga click o arrastre aquí los soportes de la declaración</p>
+                                {/* <p className="ant-upload-hint">
+                                Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+                                banned files.
+                                </p> */}
+                            </Dragger>
+                            
+                        </Form.Item>
+                    </Flex>
+
+                    { grossIncome?.supportFiles.length > 0 && (<Flex vertical>
+                        
+                        <Title level={4}>Soportes Asociados</Title>
+
+                        <List
+                            dataSource={grossIncome?.supportFiles}
+                            renderItem={(supportFile) => {
+
+                                let icon = null
+                                let iconProps = {
+                                    style: {
+                                        fontSize: '1.5em'
+                                    }
+                                }
+
+                                let willBeDeleted = filesToDeleteIds.includes(supportFile.id)
+
+                                if (supportFile.type === 'image') {
+                                    icon = <Image 
+                                        width={40}
+                                        height={40}
+                                        src={supportFile.url}
+                                    />
+                                }
+
+                                if (supportFile.url.endsWith('.pdf')) {
+                                    icon = <FilePdfOutlined {...iconProps}/>
+                                }
+
+                                if (supportFile.url.endsWith('.xlsx') || supportFile.url.endsWith('.xls') || supportFile.url.endsWith('.xlsm')) {
+                                    icon = <FileExcelOutlined {...iconProps}/>
+                                }
+
+                                return (
+                                <List.Item
+                                    style={{
+                                        marginBottom: '5px',
+                                        padding: '5px',
+                                        borderRadius: '5px',
+                                        border: willBeDeleted ? '1px solid red' : ''}}
+                                    actions={[<Button type='link' icon={<DeleteOutlined />} onClick={() => {
+                                        handleDeleteSupportFile(supportFile.id)
+                                    }}></Button>]}
+                                >
+                                    <Flex align='center' gap={10}>
+                                        <Flex align='center' justify='center' style={{ minWidth: '40px'}}>
+                                            {icon}
+                                        </Flex>
+                                        <a href={supportFile.url} target="_blank" rel="noopener noreferrer">Archivo adjunto</a>
+                                    </Flex>
+                                </List.Item>
+                            )}}
+                        />
+                    </Flex>)}
+
+                    <br/>
                     
                     <Form.Item>
                         <Button 

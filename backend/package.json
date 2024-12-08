@@ -7,7 +7,7 @@
     "test": "mocha --exit",
     "test:watch": "mocha --watch -L",
     "start": "node index.js",
-    "start:dev": "nodemon index.js -L",
+    "start:dev": "npx env-cmd --file ./.env.dev nodemon index.js -L",
     "db:migrate": "npx sequelize db:migrate",
     "db:seed": "npx sequelize db:seed:all",
     "tz": "npx mocha test/zonations.test.js",

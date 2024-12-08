@@ -60,6 +60,7 @@ class GrossIncomeController {
       }
       res.status(200).json(grossIncome);
     } catch (error) {
+      console.log({error})
       res.status(500).json({ error: error.message });
     }
   }
@@ -104,6 +105,7 @@ class GrossIncomeController {
       await grossIncomeService.deleteGrossIncome(req.params.id, user);
       res.status(204).send();
     } catch (error) {
+      console.log({error})
       res.status(error.statusCode ?? 500).json({ error });
     }
   }
@@ -225,7 +227,7 @@ class GrossIncomeController {
     try {
       const user = req.user
 
-      const updatedGrossIncome = await grossIncomeService.removeSupportFile(req.params.id, req.body.supportFilesIds, user);
+      const updatedGrossIncome = await grossIncomeService.removeSupportFiles(req.params.id, req.body.supportFilesIds, user);
       res.status(200).json(updatedGrossIncome);
     } catch (error) {
       console.log({error})

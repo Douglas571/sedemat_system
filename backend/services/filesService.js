@@ -20,9 +20,27 @@ const update = async (id, updateData) => {
 
 const remove = async (id) => {
   const file = await getById(id);
+
+  let path = file.path
+
   await file.destroy();
   // Delete the file from the filesystem
-  fs.unlinkSync(path.resolve(file.path));
+  if (fs.existsSync(path)) {
+    fs.unlinkSync(path)
+  }
+};
+
+const bulkDelete = async (ids) => {
+  const files = await File.findAll({ where: { id: ids } });
+
+  await Promise.all(files.map(async (file) => {
+    const filePath = file.path;
+    await file.destroy();
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }));
+
 };
 
 const getAll = async () => {
@@ -40,4 +58,5 @@ module.exports = {
   delete: remove,
   getAll,
   listByPurpose,
+  bulkDelete
 };

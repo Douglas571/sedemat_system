@@ -1,3 +1,5 @@
+const path = require('path')
+
 'use strict';
 const {
   Model
@@ -9,9 +11,15 @@ module.exports = (sequelize, DataTypes) => {
 
       // a file can have one user
       File.belongsTo(models.User, {
-        foreignKey: 'userId',
-        as: 'user'
+        foreignKey: 'createdByUserId',
+        as: 'createdByUser'
       });
+
+      File.belongsToMany(models.GrossIncome, {
+        through: models.SupportFilesToGrossIncomes,
+        foreignKey: 'fileId',
+        as: 'grossIncome'
+      })
     }
   }
   File.init({
@@ -54,6 +62,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+
+    url: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        let { IP, PORT } = process.env
+
+        console.log({file: this})
+        let uploadPath = this.path.split('backend')[1]
+        uploadPath = uploadPath.split(path.sep).join('/')
+
+        console.log({base: `http://${IP}:${PORT}`, uploadPath})
+  
+        let url = new URL(`http://${IP}:${PORT}`)
+
+        url.pathname = uploadPath
+  
+        return url.toString()
+      }
+    }
+    
   }, {
     sequelize,
     modelName: 'File',
