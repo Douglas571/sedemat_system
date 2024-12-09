@@ -15,8 +15,6 @@ module.exports = {
     const files = [];
     const supportFilesToGrossIncomes = [];
 
-    grossIncomes = [...grossIncomes.slice(0, 109)]
-
     // Generate data for each GrossIncome record
     grossIncomes.forEach((grossIncome, index) => {
       const fileId = index + 1; // Generate a sequential ID for the File object
