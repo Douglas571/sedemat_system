@@ -86,13 +86,11 @@ export function getGrossIncomeTaxInBs({
  */
 export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome, TCMMVBCV?: number, wasteCollectionTaxMMVBCV?: number): number {	
     if (grossIncome && grossIncome.chargeWasteCollection) {
-      return CurrencyHandler(getWasteCollectionTaxInMMV(
-        grossIncome.branchOfficeDimensionsMts2
-      )).multiply(grossIncome.TCMMVBCV).value
+      return Number(Number(CurrencyHandler4(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value).toFixed(2))
     }
 
     if (TCMMVBCV && wasteCollectionTaxMMVBCV) {
-      return CurrencyHandler(TCMMVBCV).multiply(wasteCollectionTaxMMVBCV).value
+      return Number(Number(CurrencyHandler4(TCMMVBCV).multiply(wasteCollectionTaxMMVBCV).value).toFixed(2))
     }
 
     return 0
