@@ -1587,7 +1587,7 @@ function EconomicLicensesTable({ economicLicenses, onEdit, onDelete }): JSX.Elem
       showSorterTooltip: false,
     },
     {
-      title: "Renovación",
+      title: "Es Inscripción",
       dataIndex: "isRegistration",
       render: (value: boolean) => value ? "NO" : "SI"
     },
@@ -1720,7 +1720,7 @@ const EconomicLicenseEditModal: React.FC<EconomicLicenseEditModalProps> = ({
             <TimePicker/>
           </Form.Item>
         </Flex>
-        <Form.Item name="isRegistration" label="Inscripción">
+        <Form.Item name="isRegistration" label="Es Inscripción">
           <Switch checkedChildren="SI" unCheckedChildren="NO" defaultChecked />
         </Form.Item>
       </Form>
