@@ -225,7 +225,6 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
             settledByUserId: user?.id,
             grossIncomeInvoiceId: Number(grossIncomeInvoiceId)
         }
-
         let resultCreatedSettlement = await settlementService.create(createdSettlement, token)
 
         setShowSettlementModal(false)

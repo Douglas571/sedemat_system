@@ -73,6 +73,10 @@ class SettlementService {
                 throw new Error("El código de liquidación ya existe");
             }
 
+            if (error.name === "SettlementInvalidDateError") {
+                throw new Error("Fecha de liquidación invalida");
+            }
+
             throw error
         }
 

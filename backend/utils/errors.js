@@ -47,11 +47,21 @@ class AssociationConflictError extends Error {
   }
 }
 
+class SettlementInvalidDateError extends Error {
+  constructor(message) {
+    super(message ?? 'Settlement date is before than the last one');
+    this.name = 'SettlementInvalidDateError';
+    this.statusCode = 400;
+  }
+}
+
+
 module.exports = {
   UserNotAuthorizedError,
   FileNotFoundError,
   InvalidFileError,
   UnsupportedFileTypeError,
   GrossIncomeNotFoundError,
-  AssociationConflictError
+  AssociationConflictError,
+  SettlementInvalidDateError
 };

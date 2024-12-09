@@ -6,6 +6,7 @@ const dayjs = require('dayjs');
 const grossIncomeInvoiceService = require('./grossIncomeInvoiceService');
 
 const ROLES = require('../utils/auth/roles');
+const { SettlementInvalidDateError } = require('../utils/errors');
 
 function isUserLiquidator(user) {
   return user.roleId === ROLES.LIQUIDATOR
@@ -56,6 +57,44 @@ class SettlementService {
         error.name = "DuplicatedSettlementCode";
         error.statusCode = 400
         throw error
+      }
+
+      // get the last settlement sorted by settled at date 
+      let lastSettlement = await Settlement.findOne({
+        where: {
+          code: {
+            [Op.lt]: data.code
+          }
+        },
+        order: [
+          ['settledAt', 'DESC']
+        ]
+      })
+
+      let nextSettlement = await Settlement.findOne({
+        where: {
+          code: {
+            [Op.gt]: data.code
+          }
+        },
+        order: [
+          ['settledAt', 'DESC']
+        ]
+      })
+
+      // if there is no last settlement and this date is before that the last in terms of date, throw error
+      if (lastSettlement) {
+        if (dayjs(data.settledAt).isBefore(dayjs(lastSettlement.settledAt), 'date')) {
+          let error = new SettlementInvalidDateError()
+          throw error
+        }
+      }
+
+      if (nextSettlement) {
+        if (dayjs(data.settledAt).isAfter(dayjs(nextSettlement.settledAt), 'date')) {
+          let error = new SettlementInvalidDateError()
+          throw error
+        }
       }
 
       let returnedSettlement = await Settlement.create(data);
