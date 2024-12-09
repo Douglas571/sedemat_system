@@ -88,10 +88,10 @@ function calculateTaxFields({grossIncome}) {
     calcs.minTaxInBs = currencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
 
     if (grossIncome.chargeWasteCollection) {
-        calcs.wasteCollectionTaxInBs = currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
+        calcs.wasteCollectionTaxInBs = Number(Number(currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value).toFixed(2))
     }
 
-    calcs.totalTaxInBs = currencyHandler(Math.max(calcs.taxInBs, calcs.minTaxInBs)).add(calcs.wasteCollectionTaxInBs).value
+    calcs.totalTaxInBs = Number(Number(currencyHandler(Math.max(calcs.taxInBs, calcs.minTaxInBs)).add(calcs.wasteCollectionTaxInBs).value).toFixed(2))
 
     return calcs
 
