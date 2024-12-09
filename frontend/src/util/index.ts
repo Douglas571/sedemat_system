@@ -333,7 +333,7 @@ export function numbersToWords(
     let badgeStatus = 'default'
 
     // TODO: When migrated the existing images in declarationImage field, delete that. 
-    if (grossIncome?.declarationImage || grossIncome?.supportFiles?.length > 0) {
+    if (grossIncome?.supportFiles?.length > 0) {
         if (grossIncome.grossIncomeInvoiceId) {
           status = 'Por Pagar'
           badgeStatus = 'error'
