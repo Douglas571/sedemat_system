@@ -103,11 +103,13 @@ export function getMinTaxInBs(data?: {grossIncome: IGrossIncome} | null, TCMMVBC
   let { grossIncome } = data ?? {}
 
   if (TCMMVBCV && alicuotaMinTaxMMVBCV) {
-    return CurrencyHandler(TCMMVBCV).multiply(alicuotaMinTaxMMVBCV).value
+    // Convert to fixed with precision 2 (output string) and convert to number again 
+    return Number(Number(CurrencyHandler4(TCMMVBCV).multiply(alicuotaMinTaxMMVBCV).value).toFixed(2))
   }
 
   if (grossIncome) {
-    return CurrencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value  
+    return Number(Number(CurrencyHandler4(grossIncome.TCMMVBCV).multiply(grossIncome.alicuotaMinTaxMMVBCV).value).toFixed(2))
+    
   }
 
   return 0
