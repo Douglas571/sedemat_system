@@ -10,7 +10,8 @@ const {
   Settlement,
   EconomicLicense,
   InactivityPeriod,
-  BusinessActivityCategory
+  BusinessActivityCategory,
+  File,
 } = require('../../database/models');
 
 const { Op } = require('sequelize');
@@ -169,6 +170,10 @@ async function getBusinessData() {
                 as: 'settlement',
               }
             ]
+          }, 
+          {
+            model: File,
+            as: 'supportFiles'
           }
         ]
       },
@@ -224,8 +229,10 @@ function mapBusinessToRowReport(businessReport){
     if (business?.branchOffices?.length > 0) {
       business.branchOffices.forEach(branchOffice => {
 
-        // ! if there is no pending to paid or be settled months, return 
+        
+        // ! if there is no pending to paid or be settled months, return nothing
         if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
+          
           return
         }
 
@@ -348,6 +355,7 @@ function getBusinessesGrossIncomeReport(businesses) {
           }),
 
         }
+
         businessReport.branchOffices.push(branchOfficeReport)
 
       })
@@ -506,7 +514,7 @@ function getGrossIncomeReport({
 
     let grossIncome = grossIncomes.find( g => dayjs(g.period).year() === startToCountSince.year() && dayjs(g.period).month() === startToCountSince.month() )
 
-    if (grossIncome && grossIncome.declarationImage) {
+    if (grossIncome && grossIncome.supportFiles.length > 0) {
 
       // check if it's pending to be paid 
       if (!grossIncome?.grossIncomeInvoice?.paidAt) {

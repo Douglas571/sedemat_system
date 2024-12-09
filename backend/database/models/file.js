@@ -70,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
         let uploadPath = this.path
         uploadPath = uploadPath.split(path.sep).join('/')
 
-        console.log({base: `http://${IP}:${PORT}`, uploadPath})
+        // console.log({base: `http://${IP}:${PORT}`, uploadPath})
   
         let url = new URL(`http://${IP}:${PORT}`)
 
@@ -85,7 +85,7 @@ module.exports = (sequelize, DataTypes) => {
       get() {
         let absolutePath = path.join(__dirname, '..', '..', this.path)
 
-        console.log({absolutePath})
+        // console.log({absolutePath})
 
         return absolutePath
       }
