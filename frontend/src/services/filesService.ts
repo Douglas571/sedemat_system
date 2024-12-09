@@ -1,7 +1,9 @@
 // filesServiceClient.ts
 import axios from 'axios';
 
-const HOST = process.env.REACT_APP_BACKEND_HOST || 'http://localhost:3000';
+const IP = process.env.BACKEND_IP || "localhost"
+const PORT = "3000"
+const HOST = "http://" + IP + ":" + PORT
 const BASE_URL = `${HOST}/v1/files`;
 
 interface FileData {
@@ -38,8 +40,6 @@ export async function uploadFile(
   }
 ): Promise<FileData> {
 
-
-  console.log({file})
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);
