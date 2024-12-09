@@ -97,7 +97,7 @@ const getWasteCollectionTax = (props: { grossIncomes: IGrossIncome[] }): number 
 
   if (!grossIncomes) return 0
 
-  let tax = grossIncomes.map(g => util.getWasteCollectionTaxInBs(g)).reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0)
+  let tax = grossIncomes.map(g => g.wasteCollectionTaxInBs).reduce((acc: number, curr: number) => CurrencyHandler(acc).add(curr).value, 0)
 
   return tax 
 }
