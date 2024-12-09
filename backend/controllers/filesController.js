@@ -8,7 +8,8 @@ const path = require('path');
 const sharp = require('sharp');
 
 const FilesService = require('../services/filesService');
-const { InvalidFileError } = require('../utils/errors');
+const { InvalidFileError, UserNotAuthorizedError } = require('../utils/errors');
+const ROLES = require('../utils/auth/roles');
 
 const tempDir = os.tmpdir();
 const uploadsDir = path.resolve(__dirname, '../uploads');
@@ -31,9 +32,25 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const uploadFile = async (req, res) => {
-  
+
+  const FOLDERS = {
+    'grossIncomes': 'seneat-declarations',
+    'payments': 'payments',
+  }
+
   upload.single('file')(req, res, async (err) => {
     try {
+
+      let user = req.user
+
+      if (Object.keys(FOLDERS).indexOf(req.body.folder) === -1) {
+        throw new InvalidFileError('Invalid folder');
+      }
+
+      if (req.body.folder === 'grossIncomes' && [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+        throw new UserNotAuthorizedError("Only fiscals and collectors can upload gross income files.");
+      }
+  
 
       const file = req.file;
       let destinyFilePath = ''
@@ -41,14 +58,12 @@ const uploadFile = async (req, res) => {
 
       if (err) {
         console.log({err})
-        return res.status(500).json({ message: 'Error in uploading file', error: err.message});
+        throw new InvalidFileError(err.message);
       }
 
       if (!file) {
         console.log('No file uploaded')
-        return res.status(400).json({ error: {
-          message: 'No file uploaded'
-        }});
+        throw new InvalidFileError('No file uploaded');
       }
 
       const { folder, description, shouldCompress } = req.body;
@@ -58,11 +73,6 @@ const uploadFile = async (req, res) => {
       if (!['grossIncomes', 'payments'].includes(folder)) {
         let error = new InvalidFileError('Invalid folder');
         return res.status(error.statusCode ?? 500).json({error});
-      }
-
-      const FOLDERS = {
-        'grossIncomes': 'seneat-declarations',
-        'payments': 'payments',
       }
 
       // ensure destination folder exists

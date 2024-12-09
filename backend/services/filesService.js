@@ -3,6 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const { File } = require('../database/models'); // Adjust the path as necessary
 
+const { UserNotAuthorizedError } = require('../utils/errors');
+const ROLES = require('../utils/auth/roles');
+
+function canDeleteFiles(user) {
+  if ([ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+    throw new UserNotAuthorizedError('Only tax collectors and fiscal can delete files.');
+  }
+}
+
 const create = async (fileData) => {
   return await File.create(fileData);
 };
@@ -18,7 +27,10 @@ const update = async (id, updateData) => {
   return await file.update(updateData);
 };
 
-const remove = async (id) => {
+const remove = async (id, user) => {
+
+  canDeleteFiles(user);
+  
   const file = await getById(id);
 
   let path = file.absolutePath;
@@ -30,7 +42,10 @@ const remove = async (id) => {
   }
 };
 
-const bulkDelete = async (ids) => {
+const bulkDelete = async (ids, user) => {
+
+  canDeleteFiles(user);
+
   const files = await File.findAll({ where: { id: ids } });
 
   await Promise.all(files.map(async (file) => {

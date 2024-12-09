@@ -455,8 +455,9 @@ class GrossIncomeService {
         // get each support file
         let supportFilesIds = grossIncome.supportFiles.map(file => file.id);
 
-        await filesService.bulkDelete(supportFilesIds)
+        await filesService.bulkDelete(supportFilesIds, user)
 
+        // TODO: Analyze if this is needed or not
         deleteDeclarationImage(grossIncome.declarationImage)
 
 
@@ -690,10 +691,7 @@ class GrossIncomeService {
     async addSupportFiles(grossIncomeId, supportFilesIds, user) {
         try {
             // Perform authorization check if needed
-            // Example: canUpdateEditDeleteGrossIncomes(user)
-
-            // TODO: complete these services 
-            // TODO: add the supportFilesToGrossIncome table
+            canUpdateEditDeleteGrossIncomes(user)
 
             console.log({grossIncomeId, supportFilesIds, user})
 
@@ -737,9 +735,9 @@ class GrossIncomeService {
     async removeSupportFiles(grossIncomeId, supportFilesIds, user) {
         try {
             // Perform authorization check if needed
-            // Example: canUpdateEditDeleteGrossIncomes(user)
+            canUpdateEditDeleteGrossIncomes(user)
 
-            await filesService.bulkDelete(supportFilesIds)
+            await filesService.bulkDelete(supportFilesIds, user)
 
         } catch (error) {
             console.error(error);
