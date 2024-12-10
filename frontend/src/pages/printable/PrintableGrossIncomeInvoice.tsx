@@ -28,10 +28,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     // load business and gross income invoice id 
     const { businessId, grossIncomeInvoiceId } = useParams()
-    console.log({businessId, grossIncomeInvoiceId})
+    // console.log({businessId, grossIncomeInvoiceId})
 
     const { userAuth } = useAuthentication()
-    console.log({userAuth})
+    // console.log({userAuth})
 
 	const [business, setBusiness] = useState<Business>()
     const [grossIncomeInvoice, setGrossIncomeInvoice] = useState<IGrossIncomeInvoice>()
@@ -235,10 +235,11 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
               </thead>
 
               <tbody>
-                { grossIncomes && grossIncomes.map( grossIncome => {
+                { grossIncomeInvoice.grossIncomes && grossIncomeInvoice.grossIncomes.map( grossIncome => {
+
                   return (<tr>
                     <td>{_.upperFirst(dayjs(grossIncome.period).format('MMM-YY')).toUpperCase()}</td>
-                    <td>{grossIncome.declarationImage ? CurrencyHandler(grossIncome.amountBs).format() : '--'}</td>
+                    <td>{grossIncome?.supportFiles?.length > 0 ? CurrencyHandler(grossIncome.amountBs).format() : '--'}</td>
                     <td>{formatPercents(grossIncome.alicuotaTaxPercent)}</td>
                     <td>{CurrencyHandler(grossIncome.taxInBs).format()}</td>
                     <td>{CurrencyHandler(grossIncome.minTaxInBs).format()}</td>

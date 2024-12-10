@@ -378,7 +378,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                     <Table 
                         size='small'
-                        dataSource={grossIncomes ? grossIncomes : []} 
+                        dataSource={grossIncomeInvoice.grossIncomes ? grossIncomeInvoice.grossIncomes : []} 
                         pagination={false}
                         rowKey={'id'}
                     >
@@ -415,7 +415,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                             key="amountBs" 
                             width={100}
                             render={(amountBs: number, record: IGrossIncome) => {
-                                if (!record.declarationImage) {
+                                if (!record?.supportFiles?.length) {
                                     return '--'
                                 }
 
