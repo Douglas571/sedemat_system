@@ -20,7 +20,8 @@
 		"validate": "run-p lint test:ci test:e2e:headless",
 		"docker:build": "docker build -t my-react-app -f Dockerfile .",
 		"docker:run": "docker run -d -p 8080:80 my-react-app",
-		"start:prod": "npm run build && npx serve -s dist -p 8080"
+		"start:prod": "npm run build && npx serve -s dist -p 8080",
+		"cy:open": "npx cypress open"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^5.5.1",
@@ -30,6 +31,7 @@
 		"axios": "^1.7.7",
 		"chart.js": "^4.4.5",
 		"currency.js": "^2.0.4",
+		
 		"dayjs": "^1.11.12",
 		"js-file-download": "^0.4.12",
 		"lodash": "^4.17.21",
@@ -59,7 +61,8 @@
 		"autoprefixer": "10.4.19",
 		"commitizen": "4.3.0",
 		"css-mediaquery": "0.1.2",
-		"cz-conventional-changelog": "3.3.0",
+		"cypress": "^13.16.1",
+		
 		"eslint": "8.57.0",
 		"eslint-config-airbnb": "19.0.4",
 		"eslint-config-airbnb-base": "15.0.0",
@@ -107,10 +110,5 @@
 			"eslint --cache --fix",
 			"vitest related --run --coverage=false"
 		]
-	},
-	"pnpm": {
-		"overrides": {
-			"headers-polyfill": "3.1.2"
-		}
 	}
 }

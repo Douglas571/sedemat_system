@@ -251,8 +251,8 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 
     console.log({grossIncomes})
     let cerId = grossIncomes[0].currencyExchangeRatesId
-    let currencyExchangeRate = await CurrencyExchangeRatesService.getById(cerId)
-    setCurrencyExchangeRate(currencyExchangeRate)
+    // let currencyExchangeRate = await CurrencyExchangeRatesService.getById(cerId)
+    // setCurrencyExchangeRate(currencyExchangeRate)
 
   }
 
@@ -328,20 +328,27 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><p>COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</p></Flex>
-      <Flex justify='right'><p>PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</p></Flex>
+      <Flex justify='right'><p data-testid="settlement-code">COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</p></Flex>
+      <Flex justify='right'><p data-testid="settlement-date">PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</p></Flex>
 
       <table>
         <tbody>
           <tr>
             <th style={{width: 50}}>RAZON SOCIAL</th>
-            <td colSpan={2} style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessName.toUpperCase()} { grossIncomeInvoice.branchOfficeName && `(${grossIncomeInvoice.branchOfficeName})`.toUpperCase()}</td>
+            <td 
+              data-testid="business-name"
+              colSpan={2} style={{textAlign: "left", padding: 10}}
+            >{grossIncomeInvoice.businessName.toUpperCase()} { grossIncomeInvoice.branchOfficeName && `(${grossIncomeInvoice.branchOfficeName})`.toUpperCase()}</td>
             <th style={{width: 40}}>RIF</th>
-            <td style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
+            <td data-testid="business-rif" style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
           </tr>
           <tr>
             <th>DESCRIPCIÓN DEL PAGO</th>
-            <td colSpan={4} style={{textAlign: "left", padding: 10}}>
+            <td 
+              colSpan={4} 
+              style={{textAlign: "left", padding: 10}}
+              data-testid="description"
+            >
               <strong>PAGO POR: </strong> {description.toUpperCase()}
             </td>
           </tr>
@@ -350,7 +357,11 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
               MONTO
             </th>
             <td style={{textAlign: "left", padding: 10}}>{formatBolivares(totalBs)}</td>
-            <td colSpan={3} style={{textAlign: "left", padding: 10}}>
+            <td 
+              data-testid="amount-in-letters"           
+              colSpan={3} 
+              style={{textAlign: "left", padding: 10}}
+            >
               {util.numbersToWords(totalBs).toUpperCase()}
             </td>
           </tr>
@@ -374,7 +385,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
               <tr key={index}>
                 <td>{item.code}</td>
                 <td style={{textAlign: "left", paddingLeft: 10}}>{item.description}</td>
-                <td>{item.amountBs}</td>
+                <td data-testid={`settlement-item-amount-bs-${item.code}`}>{item.amountBs}</td>
               </tr>
             ))
           }
@@ -383,7 +394,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
         <tfoot>
           <tr>
             <td colSpan={2} style={{textAlign: "right", padding: 10}}>TOTAL</td>
-            <td>{formatBolivares(totalBs)}</td>
+            <td data-testid="total-bs">{formatBolivares(totalBs)}</td>
           </tr>
         </tfoot>
       </table>
@@ -394,29 +405,29 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
         <tbody>
           <tr>
             <th>BANCO</th>
-            <td>{displayBankName.toUpperCase()}</td>
+            <td data-testid="bank-name">{displayBankName.toUpperCase()}</td>
             <th>FIRMA Y SELLO</th>
           </tr>
           <tr>
             <th>CUENTA</th>
-            <td>{displayBankAccountNumber}</td>
+            <td data-testid="bank-account-number">{displayBankAccountNumber}</td>
             <td rowSpan={5}></td>
           </tr>
           <tr>
             <th>BENEFICIARIO</th>
-            <td>SEDEMAT</td>
+            <td data-testid="beneficiary">SEDEMAT</td>
           </tr>
           <tr>
             <th>FECHA</th>
-            <td>{paymentDate}</td>
+            <td data-testid="payment-date">{paymentDate}</td>
           </tr>
           <tr>
             <th>REFERENCIA</th>
-            <td>{references}</td>
+            <td data-testid="references">{references}</td>
           </tr>
           <tr>
             <th>LIQUIDADOR</th>
-            <td>{grossIncomeInvoice.settlement?.settledByUserPersonFullName.toUpperCase()}</td>
+            <td data-testid="settled-by-user-person-full-name">{grossIncomeInvoice.settlement?.settledByUserPersonFullName.toUpperCase()}</td>
           </tr>
         </tbody>
       </table>
@@ -425,3 +436,4 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
 };
 
 export default GrossIncomeInvoiceSettlement;
+
