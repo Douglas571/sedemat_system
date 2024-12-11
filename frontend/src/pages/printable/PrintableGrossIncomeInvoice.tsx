@@ -112,7 +112,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setLastCurrencyExchangeRate(fetchedLastCurrencyExchangeRate)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice(fetchedInvoice)
-        setGrossIncomes(fetchedGrossIncomes)
+        setGrossIncomes(fetchedInvoice.grossIncomes)
 
         let branchOfficeName = fetchedInvoice?.branchOfficeName
 
@@ -383,7 +383,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                   // Step 1: Group by year and collect missing months
                   const missingDeclarations = grossIncomes
-                    .filter(grossIncome => !grossIncome.declarationImage)
+                    .filter(grossIncome => !grossIncome?.supportFiles?.length)
                     .reduce((acc, grossIncome) => {
                       const year = dayjs(grossIncome.period).format('YYYY');
                       const month = dayjs(grossIncome.period).format('MMMM');
