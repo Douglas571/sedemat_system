@@ -21,3 +21,11 @@ sequelize db:seed --seed
 
 - IP
 - PORT
+
+## NOTES 
+
+- there is no proper way to populate all the basic data like categories or
+example date (aka Seeds), so you need to start from a preexisting data base.
+
+- the BusinessActivityCategory don't have methods neither controls to add
+entries, so you need to add them manually on the database.
