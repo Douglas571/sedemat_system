@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --exit",
-    "test:watch": "mocha --watch -L",
+    "test:watch": "mocha **/*.test.js --watch --exclude node_modules/** --exclude test/** --exit",
+
+
     "start": "node index.js",
     "start:dev": "npx env-cmd --file ./.env.dev nodemon index.js -L",
     "db:migrate": "npx sequelize db:migrate",

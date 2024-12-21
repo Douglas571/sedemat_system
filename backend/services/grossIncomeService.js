@@ -5,6 +5,8 @@ const fs = require('fs');
 const { GrossIncome, GrossIncomeInvoice, BranchOffice, CurrencyExchangeRates, WasteCollectionTax, Alicuota, Settlement, Business, EconomicActivity, Payment, User, Person, File, SupportFilesToGrossIncomes } = require('../database/models');
 const { Op, where } = require('sequelize');
 
+const {calculateTaxFields} = require('../utils/grossIncome')
+
 const dayjs = require('dayjs');
 const currency = require('currency.js');
 
@@ -45,16 +47,6 @@ const deleteDeclarationImage = (relativeImagePath) => {
     }
 }
 
-const currencyHandler = (value) => currency(value, 
-    { 
-        // symbol: 'Bs.', 
-        pattern: '#', 
-        precision: 4,
-        separator: '.',
-        decimal: ','
-    }
-)
-
 function getWasteCollectionTaxInMMV(mts2) {
     // Return 20 if mts2 is greater than or equal to 300
     if (mts2 >= 300) {
@@ -73,28 +65,6 @@ function getWasteCollectionTaxInMMV(mts2) {
 
     // Return 0 if none of the conditions are met
     return 0;
-}
-
-function calculateTaxFields({grossIncome}) {
-    let calcs = {
-        taxInBs: 0,
-        minTaxInBs: 0,
-        wasteCollectionTaxInBs: 0,
-        totalTaxInBs: 0
-    }
-
-    calcs.taxInBs = currencyHandler(grossIncome.amountBs).multiply(grossIncome.alicuotaTaxPercent).value
-
-    calcs.minTaxInBs = currencyHandler(grossIncome.alicuotaMinTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value
-
-    if (grossIncome.chargeWasteCollection) {
-        calcs.wasteCollectionTaxInBs = Number(Number(currencyHandler(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value).toFixed(2))
-    }
-
-    calcs.totalTaxInBs = Number(Number(currencyHandler(Math.max(calcs.taxInBs, calcs.minTaxInBs)).add(calcs.wasteCollectionTaxInBs).value).toFixed(2))
-
-    return calcs
-
 }
 
 class GrossIncomeService {
