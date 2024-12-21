@@ -84,7 +84,7 @@ export function getGrossIncomeTaxInBs({
  * @param {IGrossIncome} grossIncome - The gross income object containing relevant information.
  * @returns {number} The waste collection tax in Bolivares.
  */
-export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome, TCMMVBCV?: number, wasteCollectionTaxMMVBCV?: number): number {	
+export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome | null, TCMMVBCV?: number, wasteCollectionTaxMMVBCV?: number): number {	
     if (grossIncome && grossIncome.chargeWasteCollection) {
       return Number(Number(CurrencyHandler4(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value).toFixed(2))
     }
