@@ -72,6 +72,8 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [lastCurrencyExchangeRate, setLastCurrencyExchangeRate] = useState<CurrencyExchangeRate>()
     const [payments, setPayments] = useState<Payment[]>()
 
+    const [editingGrossIncome, setEditingGrossIncome] = useState<IGrossIncome | null >(null)
+
     const [showSettlementModal, setShowSettlementModal] = useState(false)
 
     const [showToFixModal, setShowToFixModal] = useState(false)
@@ -204,6 +206,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice({...fetchedInvoice})
         setGrossIncomes(fetchedGrossIncomes.sort((a, b) => dayjs(b.period).isBefore(dayjs(a.period)) ? 1 : -1))
+    }
+
+    function handleOpenModalToEditGrossIncome(grossIncomeId: number) {
+        
+        let editingGrossIncome = grossIncomes?.find(gi => gi.id === grossIncomeId)
+
+        if (editingGrossIncome) {
+            setEditingGrossIncome(editingGrossIncome)
+        }        
+    }
+
+    function handleEditingGrossIncome(newGrossIncomeData: IGrossIncome) {
+        setEditingGrossIncome(null)
+        console.log({newGrossIncomeData})
     }
 
     useEffect(() => {
@@ -394,7 +410,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                                             <Button
                                                 icon={<EditOutlined />}
                                                 disabled={!canEdit || isSettled}
-                                                onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)}
+                                                onClick={() => {
+                                                    //navigate(`/tax-collection/${businessId}/gross-incomes/${record.id}/edit`)
+                                                    handleOpenModalToEditGrossIncome(record.id)
+                                                }}
                                             >Editar</Button>
                                         )
                                     }}
@@ -720,6 +739,16 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 onOk={handleEditToFix}
 
             />
+
+            { editingGrossIncome !== null && grossIncomeInvoice && (
+                <EditGrossIncomeModal
+                    open={true}
+                    grossIncome={editingGrossIncome}
+                    grossIncomeInvoice={grossIncomeInvoice}
+                    onCancel={() => setEditingGrossIncome(null)}
+                    onFinish={(grossIncome) => handleEditingGrossIncome(grossIncome)}
+                />
+            )}
         </Card>
     );
 };
@@ -1558,4 +1587,76 @@ function ToFixEditModal({ open, onOk, onCancel }: { open: boolean, onOk: (toFixD
             </Form.Item>
         </Form>
     </Modal>
+}
+
+function EditGrossIncomeModal({
+    grossIncome,
+    grossIncomeInvoice,
+
+    open,
+    onCancel,
+    onFinish
+}: {
+    grossIncome: IGrossIncome,
+    grossIncomeInvoice: IGrossIncomeInvoice,
+
+    open: boolean
+    onCancel: () => void
+    onFinish: (grossIncome: IGrossIncome) => void
+}) {
+
+    let [form] = Form.useForm()
+
+
+    function handleOk() {
+
+        onFinish(grossIncome)
+    }
+
+    
+
+    return <>
+        <Modal
+            title='Editar Ingreso Bruto'
+            open={true}
+            onOk={handleOk}
+            onCancel={onCancel}
+        >
+            <Form
+                form={form}
+            >
+                <Form.Item label="Ingresos Brutos">
+                    <Input />
+                </Form.Item>
+
+                <Form.Item label="Tasa de Cambio MMV-BCV">
+                    <InputNumber addonAfter="Bs" />
+                </Form.Item>
+
+                <Form.Item label="Alicuota">
+                    <InputNumber addonAfter="%" />
+                </Form.Item>
+
+                <Form.Item label="Inpuesto">
+                    <InputNumber disabled addonAfter="Bs" />
+                </Form.Item>
+
+                <Form.Item label="Minimo Tributario">
+                    <InputNumber addonAfter="MMV-BCV" />
+                </Form.Item>
+
+                <Form.Item label="Aseo">
+                    <InputNumber addonAfter="MMV-BCV" />
+                </Form.Item>
+
+                <Form.Item label="Inpuesto Aseo">
+                    <InputNumber disabled addonAfter="Bs"/>
+                </Form.Item>
+
+                <Form.Item label="Total">
+                    <InputNumber disabled addonAfter="Bs" />
+                </Form.Item>
+            </Form>
+        </Modal>
+    </>
 }
