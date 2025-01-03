@@ -168,6 +168,10 @@ class GrossIncomeController {
   }
 
   // GET /gross-incomes/invoice/:invoiceId
+  /**
+   * @deprecated This endpoint will be removed in future versions. 
+   *  Use /gross-incomes?GrossIncomeInvoiceId=invoiceId instead
+   */
   async getAllGrossIncomesByInvoiceId(req, res) {
     try {
       const grossIncomes = await grossIncomeService.getAllGrossIncomesByInvoiceId(req.params.invoiceId);
