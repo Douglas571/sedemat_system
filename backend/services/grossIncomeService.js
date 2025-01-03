@@ -192,8 +192,6 @@ class GrossIncomeService {
             return _.pick(file, ['id', 'url', 'type'])
         })
 
-        console.log({grossIncome})
-
         return grossIncome
     }
 
@@ -231,7 +229,10 @@ class GrossIncomeService {
 
             // Calculate taxes fields
             const calcs = calculateTaxFields({grossIncome: newGrossIncome})
-            console.log({calcs})
+            
+            if (process.env.NODE_ENV === 'dev') {
+                console.log({calcs})
+            }
 
             newGrossIncome = {
                 ...newGrossIncome,
@@ -260,7 +261,6 @@ class GrossIncomeService {
             // delete image
             if (newGrossIncome.declarationImage) {
                 let { name, ext } = path.parse(newGrossIncome.declarationImage)
-                console.log("deleting: ", name + ext)
 
                 // ! go back one level to get out of service and enter uploads
                 fse.unlink(path.join(__dirname, '..', 'uploads', 'seneat-declarations', name + ext))
