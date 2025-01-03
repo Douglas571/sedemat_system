@@ -20,7 +20,8 @@ import {
     Alert,
     DatePicker,
     Badge,
-    Tooltip
+    Tooltip,
+    Switch
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -56,8 +57,9 @@ import { CurrencyHandler, formatBolivares, formatPercents, percentHandler } from
 import useAuthentication from 'hooks/useAuthentication';
 
 import GrossIncomeInvoice from './GrossIncomeInvoiceEdit';
-import create from '@ant-design/icons/lib/components/IconFont';
 
+import EditGrossIncomeModal from './components/GrossIncomeEditModal';
+import EditFormPriceModal from './components/GrossIncomeInvoiceFormPriceEditModal';
 
 const GrossIncomeInvoiceDetails: React.FC = () => {
 
@@ -75,6 +77,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [editingGrossIncome, setEditingGrossIncome] = useState<IGrossIncome | null >(null)
 
     const [showSettlementModal, setShowSettlementModal] = useState(false)
+    const [showEditFormPriceModal, setShowEditFormPriceModal] = useState(false)
 
     const [showToFixModal, setShowToFixModal] = useState(false)
 
@@ -179,7 +182,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     const loadGrossIncomes = async (grossIncomeInvoiceId: number): Promise<IGrossIncome[]> => {
         const fetchedGIs = await grossIncomeApi.getAllGrossIncomesByInvoiceId(grossIncomeInvoiceId)
-        return fetchedGIs
+        return fetchedGIs.sort((a, b) => dayjs(b.period).isBefore(dayjs(a.period)) ? 1 : -1)
     }
 
     const loadData = async () => {
@@ -205,7 +208,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice({...fetchedInvoice})
-        setGrossIncomes(fetchedGrossIncomes.sort((a, b) => dayjs(b.period).isBefore(dayjs(a.period)) ? 1 : -1))
+        setGrossIncomes(fetchedGrossIncomes)
     }
 
     function handleOpenModalToEditGrossIncome(grossIncomeId: number) {
@@ -217,9 +220,28 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         }        
     }
 
-    function handleEditingGrossIncome(newGrossIncomeData: IGrossIncome) {
+    async function handleEditingGrossIncome(newGrossIncomeData: IGrossIncome) {
         setEditingGrossIncome(null)
         console.log({newGrossIncomeData})
+
+        let updatedGrossIncome = await grossIncomeApi.updateGrossIncome(newGrossIncomeData, token)
+
+        loadData()
+    }
+
+    async function handleFormPriceEdit(formPriceBs: number) {
+        if (grossIncomeInvoice?.id) {
+            let newGrossIncomeInvoice = await GrossIncomesInvoiceService.update(
+                {
+                    ...grossIncomeInvoice,
+                    formPriceBs
+                }, 
+                token
+            )
+
+            loadData()
+        }
+        setShowEditFormPriceModal(false)
     }
 
     useEffect(() => {
@@ -394,7 +416,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                     <Table 
                         size='small'
-                        dataSource={grossIncomeInvoice.grossIncomes ? grossIncomeInvoice.grossIncomes : []} 
+                        dataSource={grossIncomes ?? []} 
                         pagination={false}
                         rowKey={'id'}
                     >
@@ -529,7 +551,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                                             <Button
                                                 icon={<EditOutlined />}
                                                 disabled={!canEdit || isSettled}
-                                                onClick={() => navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)}
+                                                onClick={() => {
+                                                    // navigate(`/tax-collection/${businessId}/gross-incomes-invoice/${grossIncomeInvoiceId}/edit`)
+                                                    setShowEditFormPriceModal(true)
+                                                }}
                                             >Editar</Button>
                                         )
                                     }}
@@ -740,15 +765,22 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
             />
 
-            { editingGrossIncome !== null && grossIncomeInvoice && (
+            {   editingGrossIncome !== null && grossIncomeInvoice &&
                 <EditGrossIncomeModal
-                    open={true}
+                    open={editingGrossIncome !== null}
                     grossIncome={editingGrossIncome}
                     grossIncomeInvoice={grossIncomeInvoice}
                     onCancel={() => setEditingGrossIncome(null)}
                     onFinish={(grossIncome) => handleEditingGrossIncome(grossIncome)}
                 />
-            )}
+            }
+
+            <EditFormPriceModal
+                open={showEditFormPriceModal}
+                onCancel={() => setShowEditFormPriceModal(false)}
+                onFinish={handleFormPriceEdit}
+                formPriceBs={formPriceBs}
+            />
         </Card>
     );
 };
@@ -1587,76 +1619,4 @@ function ToFixEditModal({ open, onOk, onCancel }: { open: boolean, onOk: (toFixD
             </Form.Item>
         </Form>
     </Modal>
-}
-
-function EditGrossIncomeModal({
-    grossIncome,
-    grossIncomeInvoice,
-
-    open,
-    onCancel,
-    onFinish
-}: {
-    grossIncome: IGrossIncome,
-    grossIncomeInvoice: IGrossIncomeInvoice,
-
-    open: boolean
-    onCancel: () => void
-    onFinish: (grossIncome: IGrossIncome) => void
-}) {
-
-    let [form] = Form.useForm()
-
-
-    function handleOk() {
-
-        onFinish(grossIncome)
-    }
-
-    
-
-    return <>
-        <Modal
-            title='Editar Ingreso Bruto'
-            open={true}
-            onOk={handleOk}
-            onCancel={onCancel}
-        >
-            <Form
-                form={form}
-            >
-                <Form.Item label="Ingresos Brutos">
-                    <Input />
-                </Form.Item>
-
-                <Form.Item label="Tasa de Cambio MMV-BCV">
-                    <InputNumber addonAfter="Bs" />
-                </Form.Item>
-
-                <Form.Item label="Alicuota">
-                    <InputNumber addonAfter="%" />
-                </Form.Item>
-
-                <Form.Item label="Inpuesto">
-                    <InputNumber disabled addonAfter="Bs" />
-                </Form.Item>
-
-                <Form.Item label="Minimo Tributario">
-                    <InputNumber addonAfter="MMV-BCV" />
-                </Form.Item>
-
-                <Form.Item label="Aseo">
-                    <InputNumber addonAfter="MMV-BCV" />
-                </Form.Item>
-
-                <Form.Item label="Inpuesto Aseo">
-                    <InputNumber disabled addonAfter="Bs"/>
-                </Form.Item>
-
-                <Form.Item label="Total">
-                    <InputNumber disabled addonAfter="Bs" />
-                </Form.Item>
-            </Form>
-        </Modal>
-    </>
 }

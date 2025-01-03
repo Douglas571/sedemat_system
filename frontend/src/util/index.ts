@@ -48,19 +48,30 @@ export function getWasteCollectionTaxInMMV(mts2: number): number {
     return 0;
 }
 
-// this will give you the total tax for a given gross income without waste collection tax
+
+/**
+ * Calculate the total tax for a given gross income without waste collection tax
+ * 
+ * @param {Object} params - The parameters for the calculation.
+ * @param {number} params.grossIncomeInBs - The gross income in Bolivares.
+ * @param {number} params.alicuota - The tax rate.
+ * @param {number} params.minTaxMMV - The minimum tax in MMV.
+ * @param {number} params.MMVToBs - The conversion rate from MMV to Bolivares.
+ * @param {IGrossIncome} [params.grossIncome] - Deprecated: The gross income object.
+ * @returns {number} The calculated gross income tax in Bolivares.
+ */
 export function getGrossIncomeTaxInBs({
     grossIncomeInBs,
     alicuota,
     minTaxMMV,
     MMVToBs, 
-    grossIncome
+    grossIncome // TODO: Remove this parameter and test the function
 }: {
     grossIncomeInBs: number,
     alicuota: number,
     minTaxMMV: number,
     MMVToBs: number,
-    grossIncome: IGrossIncome
+    grossIncome?: IGrossIncome // Deprecated
 }): number {
 
     // I want to simplify the function interface
@@ -84,7 +95,11 @@ export function getGrossIncomeTaxInBs({
  * @param {IGrossIncome} grossIncome - The gross income object containing relevant information.
  * @returns {number} The waste collection tax in Bolivares.
  */
-export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome | null, TCMMVBCV?: number, wasteCollectionTaxMMVBCV?: number): number {	
+export function getWasteCollectionTaxInBs(
+  grossIncome: IGrossIncome | null, 
+  TCMMVBCV?: number, 
+  wasteCollectionTaxMMVBCV?: number
+): number {	
     if (grossIncome && grossIncome.chargeWasteCollection) {
       return Number(Number(CurrencyHandler4(grossIncome.wasteCollectionTaxMMVBCV).multiply(grossIncome.TCMMVBCV).value).toFixed(2))
     }
@@ -96,7 +111,11 @@ export function getWasteCollectionTaxInBs(grossIncome: IGrossIncome | null, TCMM
     return 0
 }
 
-export function getMinTaxInBs(data?: {grossIncome: IGrossIncome} | null, TCMMVBCV?: number, alicuotaMinTaxMMVBCV?: number) {  
+export function getMinTaxInBs(
+  data?: {grossIncome: IGrossIncome} | null, 
+  TCMMVBCV?: number, 
+  alicuotaMinTaxMMVBCV?: number
+): number {  
 
   let { grossIncome } = data ?? {}
 
@@ -121,13 +140,13 @@ export function getMinTaxInBs(data?: {grossIncome: IGrossIncome} | null, TCMMVBC
  * @returns {number} The subtotal in Bolivares.
  */
 export function getSubTotalFromGrossIncome(grossIncome: IGrossIncome, business: Business): number {
-    if (!business) {
-        return 0 //throw new Error('Business not found')
-    }
+    // if (!business) {
+    //     return 0 //throw new Error('Business not found')
+    // }
 
-    if (!grossIncome.alicuota) {
-      return 0 // throw new Error('Alicuota not found')
-    }
+    // if (!grossIncome.alicuota) {
+    //   return 0 // throw new Error('Alicuota not found')
+    // }
 
     let { alicuotaTaxPercent, alicuotaMinTaxMMVBCV } = grossIncome
     let { TCMMVBCV} = grossIncome

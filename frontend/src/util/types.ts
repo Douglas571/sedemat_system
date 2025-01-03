@@ -232,9 +232,13 @@ export interface IGrossIncome {
     
     declarationImage: string;
 
-    currencyExchangeRate: CurrencyExchangeRate
-    currencyExchangeRatesId: number
+    minTaxInBs: number;
+    alicuotaMinTaxMMVBCV: number;
+
+    currencyExchangeRate: CurrencyExchangeRate;
+    currencyExchangeRatesId: number;
     
+    wasteCollectionTaxMMVBCV: number;
     wasteCollectionTax?: IWasteCollectionTax;
 
     grossIncomeInvoiceId?: number;
