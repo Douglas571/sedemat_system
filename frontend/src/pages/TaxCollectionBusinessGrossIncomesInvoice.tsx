@@ -1589,7 +1589,15 @@ function SettlementEditModal(
     );
 }
 
-function ToFixEditModal({ open, onOk, onCancel }: { open: boolean, onOk: (toFixData: { toFixReason: string }) => void, onCancel: () => void }) {
+function ToFixEditModal({ 
+    open, 
+    onOk, 
+    onCancel
+}: { 
+    open: boolean, 
+    onOk: (toFixData: { toFixReason: string }) => void, 
+    onCancel: () => void }
+) {
 
     const [form] = Form.useForm();
 
