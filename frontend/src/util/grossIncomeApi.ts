@@ -125,9 +125,13 @@ export async function getAllGrossIncomesByBusinessId(businessId: number): Promis
     }))
 }
 
-// GET all gross incomes by business id
-export async function getAllGrossIncomesByInvoiceId(businessId: number): Promise<IGrossIncome[]> {
-    const response = await fetch(`${HOST}/v1/gross-incomes/invoice/${businessId}`)
+// GET all gross incomes by invoice id
+export async function getAllGrossIncomesByInvoiceId(grossIncomeInvoiceId: number): Promise<IGrossIncome[]> {
+
+    let queryString = new URLSearchParams()
+    queryString.append('grossIncomeInvoiceId', grossIncomeInvoiceId.toString())
+    
+    const response = await fetch(`${HOST}/v1/gross-incomes?${queryString.toString()}`)
     if (!response.ok) {
         const errorData = await response.json()
         throw new Error(`Failed to get gross incomes: ${errorData.error || response.statusText}`)
