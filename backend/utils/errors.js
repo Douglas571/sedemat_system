@@ -55,6 +55,14 @@ class SettlementInvalidDateError extends Error {
   }
 }
 
+class InvalidFormatError extends Error {
+  constructor(message) {
+    super(message ?? 'Invalid file format');
+    this.name = 'InvalidFormat';
+    this.statusCode = 400;
+  }
+}
+
 
 module.exports = {
   UserNotAuthorizedError,
