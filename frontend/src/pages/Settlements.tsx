@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Flex,  Button, Card, Badge, Typography, Form, DatePicker } from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
+import { FilterOutlined, FileExcelOutlined } from '@ant-design/icons';
 import { ColumnProps } from 'antd/lib/table';
 import settlementService from '../services/SettlementService';
 import dayjs from 'dayjs';
@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 
 import { ISettlement } from "../util/types";
 import useAuthentication from 'hooks/useAuthentication';
+
+import * as reportsService from '../services/reportsService';
 
 const datePresetRanges: TimeRangePickerProps['presets'] = [
   { label: 'Hoy', value: [dayjs(), dayjs()] },
@@ -92,6 +94,19 @@ const SettlementPage: React.FC = () => {
     // },
   ];
 
+  async function handleDonwloadExcelFiles() {
+    const rawFilters = form.getFieldsValue();
+    const filters = {
+      settlementDateStart: rawFilters?.settlementDate?.[0]?.format('YYYY-MM-DD'),
+      settlementDateEnd: rawFilters?.settlementDate?.[1]?.format('YYYY-MM-DD'),
+    };
+
+    reportsService.downloadSettlementsReport({ 
+      filters,
+      token: userAuth.token, 
+      format: 'excel' })
+  }
+
   return (
     <Card title={<Typography.Title level={1}>Liquidaciones</Typography.Title>}>
       <Form form={form} layout="inline" onFinish={fetchSettlements}>
@@ -101,6 +116,12 @@ const SettlementPage: React.FC = () => {
         <Form.Item>
           <Button icon={<FilterOutlined />} htmlType="submit">
             Filtrar
+          </Button>
+          <Button 
+            icon={<FileExcelOutlined />} 
+            style={{ marginLeft: 8 }} 
+            onClick={handleDonwloadExcelFiles}>
+            Descargar
           </Button>
         </Form.Item>
       </Form>

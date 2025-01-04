@@ -85,3 +85,38 @@ export async function downloadBusinessesGrossIncomeSummary({
     console.error({error})
   }
 }
+
+export async function downloadSettlementsReport({
+  filters,
+  token,
+  format
+}: {
+  filters: {
+    startAt: string,
+    endAt: string,
+  },
+  token: string,
+  format: 'excel' | 'json'
+}): Promise<any> {
+  try {
+    
+    let response = await axios.get(`${HOST}/v1/reports/settlements`, {
+      responseType: 'blob',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      params: {
+        format: 'excel',
+        ...filters
+      },
+    })
+
+    let data = await response.data 
+    downloadFile(data, `reporte-liquidaciones-${dayjs().format('DD-MM-YYYY')}.xlsx`)
+    
+  } catch (error) {
+    console.error({error})
+  }
+  
+}
