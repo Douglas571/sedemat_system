@@ -99,7 +99,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
-    // Deprecated
+    // Deprecated: Use Settlement settledByUserId instead
     settledByUserId: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -109,7 +109,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
-    // Deprecated 
     totalBs: {
       type: DataTypes.FLOAT,
       allowNull: false,
