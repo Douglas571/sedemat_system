@@ -136,18 +136,10 @@ function PaymentsEdit(): JSX.Element {
 			// get the image from url 
 			console.log("before")
 
-			let res = await fetch(fileList[0].url)
-			let blob = await res.blob()
-			
-			let image = await Jimp.readFromArray()
+			const image = await Jimp.read(fileList[0].url)
 
-			// invert
 			image.invert()
 
-			console.log('after')
-			
-
-			// get the base64 and set the imagePreviewInvertedColorsUrl
 			setImagePreviewInvertedColorsUrl(await image.getBase64("image/png"))
 			
 		} else {
@@ -308,39 +300,29 @@ function PaymentsEdit(): JSX.Element {
 	const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
 		try {
 			setLoading(true)
-			// get the image 
-			// send the image to the server
-			// get the id of the image
-
-			//console.log({bankAccounts, accounts, values})
-			//return 
-
 			let boucherImageUrl = ''
+			let hasImage = fileList.length > 0
+			let shouldConserveImage = payment?.image && fileList[0]?.url?.includes(payment?.image) && !invertColors
 
 			if (!values.person && !values.business) { 
 				message.error("El pago no tiene una persona o comercio asociado")
 				return ''
 			}
 
-			// if there is not image, upload the image
-			// console.log({fileList})
-			if (fileList[0]?.url?.includes(payment?.image)) {
+			if (!hasImage) {
+				throw Error("Selecciona un voucher")
+			}
+			
+			if (shouldConserveImage) {
 				console.log("using existing image")
 				boucherImageUrl = payment?.image
-				
-			} else if (fileList.length > 0) {
+			} else {
 				console.log("uploading image")
 				boucherImageUrl = await handleUploadBoucher()
 			}
-			
-			console.log({boucherImageUrl})
 
 			// map all values to a ready to ship payment object
 			const bank = bankAccounts.find(b => b.id === values.accountId)
-
-			// if (!bank?.id) {
-			// 	throw Error('Banco inválido')
-			// }
 			
 			let newPaymentData: Payment = {
 				id: Number(id),
