@@ -1,7 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import type { DatePickerProps, FormProps } from 'antd'
-import { Upload, Switch, message, Button, DatePicker, Form, Input, InputNumber, Select, AutoComplete, Flex, Typography, Card } from 'antd'
-import FormItemLabel from 'antd/es/form/FormItemLabel'
+import { 
+	Upload, 
+	Switch, 
+	message, 
+	Button, 
+	DatePicker, 
+	Form, 
+	Input, 
+	InputNumber, 
+	Select, 
+	AutoComplete, 
+	Flex, 
+	Typography, 
+	Card,
+	Image,
+} from 'antd'
+
+import { Jimp } from "jimp";
 
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 
@@ -72,13 +88,95 @@ function PaymentsEdit(): JSX.Element {
 	const [businessOptions, setBusinessOptions] = React.useState<Array<{ label: string, value: string }>>()
 	const [personOptions, setPersonOptions] = React.useState<Array<{ label: string, value: string }>>()
 	const [bankAccounts, setBankAccounts] = useState<IBankAccount[]>()
-
 	
 	const navigate = useNavigate()
 
 	const [payment, setPayment] = React.useState<Payment>()
 
 	const [fileList, setFileList] = React.useState<UploadFile[]>([]);
+	const invertColors = Form.useWatch('invertColors', form)
+
+	const [imagePreviewUrl, setImagePreviewUrl] = useState<string | undefined>(undefined)
+	const [imagePreviewInvertedColorsUrl, setImagePreviewInvertedColorsUrl] = useState<string | undefined>(undefined)
+
+	async function updateImagePreview() {
+
+		if (imagePreviewUrl) {
+			URL.revokeObjectURL(imagePreviewUrl)
+			
+		}
+
+		if (fileList.length === 0) {
+			return setImagePreviewUrl(undefined)
+		}
+
+		const file = fileList[0].originFileObj
+		let image: any 
+
+		if (!file) {
+			let url = fileList[0].url
+			console.log({url})
+			setImagePreviewUrl(url)
+
+			return
+		}
+
+		setImagePreviewUrl(URL.createObjectURL(new Blob([file])))
+	}
+
+	console.log({imagePreviewUrl})
+
+	async function updateInvertedColorsImagePreview() {
+
+		if (imagePreviewInvertedColorsUrl) {
+			URL.revokeObjectURL(imagePreviewInvertedColorsUrl)
+		}
+
+		if (fileList.length === 0) {
+			return setImagePreviewInvertedColorsUrl(undefined)
+		}
+
+		if (!fileList[0].originFileObj && fileList[0].url) {
+			// get the image from url 
+			let image = await Jimp.read(fileList[0].url)
+
+			// invert
+			image.invert()
+
+			// get the base64 and set the imagePreviewInvertedColorsUrl
+			setImagePreviewInvertedColorsUrl(await image.getBase64("image/png"))
+			
+		} else {
+			const file = new Blob([fileList[0].originFileObj]);
+
+			const reader = new FileReader()
+
+			reader.onload = async function (e) {
+				const data = e.target?.result 
+
+				console.log("before manipulating")
+
+				if (!data || !(data instanceof ArrayBuffer)) {
+					return 
+				}
+
+				console.log('manipulating')
+
+				const image = await Jimp.fromBuffer(data)
+
+				image.invert()
+
+				setImagePreviewInvertedColorsUrl(await image.getBase64("image/png"))
+			}
+
+			reader.readAsArrayBuffer(file)
+		}
+	}
+
+	useEffect(() => {
+		updateImagePreview()
+		updateInvertedColorsImagePreview()
+	}, [fileList])
 
 	const typeOfEntity = Form.useWatch('typeOfEntity', form)
 	const isABusiness = typeOfEntity === 'Comercio'
@@ -216,7 +314,6 @@ function PaymentsEdit(): JSX.Element {
 
 			//console.log({bankAccounts, accounts, values})
 			//return 
-
 
 			let boucherImageUrl = ''
 
@@ -511,7 +608,7 @@ function PaymentsEdit(): JSX.Element {
 						</Form.Item>
 					</Flex>
 
-					<div>
+					<Flex wrap gap={20} style={{ marginBottom: 20 }}>
 						<Upload
 							name='boucher'
 							{...uploadProps}
@@ -519,7 +616,27 @@ function PaymentsEdit(): JSX.Element {
 							<Button>Seleccionar Voucher</Button>
 						</Upload>
 						<br />
-					</div>
+
+						<Form.Item name='invertColors' label='Invertir Color' valuePropName='checked'>
+							<Switch
+								checkedChildren='SI'
+								unCheckedChildren='NO'
+							/>
+						</Form.Item>
+
+					</Flex>
+
+					{
+						imagePreviewUrl && (
+							<>
+								<Image 
+									src={
+										invertColors 
+										? imagePreviewInvertedColorsUrl 
+										: imagePreviewUrl} />
+							</>
+						)
+					}
 
 					<Form.Item>
 						<Button 
