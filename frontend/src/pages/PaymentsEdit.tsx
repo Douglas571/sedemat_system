@@ -103,7 +103,6 @@ function PaymentsEdit(): JSX.Element {
 
 		if (imagePreviewUrl) {
 			URL.revokeObjectURL(imagePreviewUrl)
-			
 		}
 
 		if (fileList.length === 0) {
@@ -113,12 +112,9 @@ function PaymentsEdit(): JSX.Element {
 		const file = fileList[0].originFileObj
 		let image: any 
 
-		if (!file) {
+		if (!file && fileList[0].url) {
 			let url = fileList[0].url
-			console.log({url})
-			setImagePreviewUrl(url)
-
-			return
+			return setImagePreviewUrl(url)
 		}
 
 		setImagePreviewUrl(URL.createObjectURL(new Blob([file])))
@@ -138,10 +134,18 @@ function PaymentsEdit(): JSX.Element {
 
 		if (!fileList[0].originFileObj && fileList[0].url) {
 			// get the image from url 
-			let image = await Jimp.read(fileList[0].url)
+			console.log("before")
+
+			let res = await fetch(fileList[0].url)
+			let blob = await res.blob()
+			
+			let image = await Jimp.readFromArray()
 
 			// invert
 			image.invert()
+
+			console.log('after')
+			
 
 			// get the base64 and set the imagePreviewInvertedColorsUrl
 			setImagePreviewInvertedColorsUrl(await image.getBase64("image/png"))
@@ -154,13 +158,9 @@ function PaymentsEdit(): JSX.Element {
 			reader.onload = async function (e) {
 				const data = e.target?.result 
 
-				console.log("before manipulating")
-
 				if (!data || !(data instanceof ArrayBuffer)) {
 					return 
 				}
-
-				console.log('manipulating')
 
 				const image = await Jimp.fromBuffer(data)
 
@@ -322,16 +322,12 @@ function PaymentsEdit(): JSX.Element {
 				return ''
 			}
 
-			if (fileList.length === 0) {
-				message.error("Selecciona un boucher")
-				return ''
-			}
-
 			// if there is not image, upload the image
 			// console.log({fileList})
 			if (fileList[0]?.url?.includes(payment?.image)) {
 				console.log("using existing image")
 				boucherImageUrl = payment?.image
+				
 			} else if (fileList.length > 0) {
 				console.log("uploading image")
 				boucherImageUrl = await handleUploadBoucher()
@@ -403,6 +399,7 @@ function PaymentsEdit(): JSX.Element {
 
 			// other unexpected errors
 			message.error(error.message)
+			setLoading(false)
 		} finally {
 			setLoading(false)
 		}
@@ -450,10 +447,26 @@ function PaymentsEdit(): JSX.Element {
 			}
 
 			const formData = new FormData()
-			fileList.forEach((file) => {
-				console.log({file})
-				formData.append('image', file.originFileObj);
-			})
+
+			let originalFile = fileList[0].originFileObj
+
+			if (invertColors && imagePreviewInvertedColorsUrl) {
+				// generate a blog from imagePreviewInvertedColorsUrl
+				console.log({imagePreviewInvertedColorsUrl})
+				
+				let response = await fetch(imagePreviewInvertedColorsUrl)
+				let blob = await response.blob() 
+
+				let file = new File([blob], `${String(Date.now())}.png`, { type: 'image/png' })
+
+				formData.append('image', file)
+
+			} else {
+				// append the original file object 
+				formData.append('image', originalFile);
+			}
+
+			
 
 			const response = await fetch(`${HOST}/v1/payments/upload`, {
 				method: 'POST',
