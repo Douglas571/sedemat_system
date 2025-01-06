@@ -70,7 +70,7 @@ async function getSettlementsReportJSON({user, filters}) {
       ...where,
       settledAt: {
         [Op.gte]: filters.settlementDateStart,
-        [Op.lte]: filters.settlementDateEnd
+        [Op.lte]: dayjs(filters.settlementDateEnd).add(1, 'day').format('YYYY-MM-DD')
       }
     }
   }
