@@ -2,6 +2,7 @@ const { Payment: PaymentModel, Person, Business, Bank, GrossIncomeInvoice, Settl
 const { Op } = require('sequelize');
 
 const _ = require('lodash')
+const dayjs = require('dayjs')
 
 const ROLES = require('../utils/auth/roles');
 
@@ -56,7 +57,11 @@ exports.findAll = async ({filters}) => {
 
     if (filters.from && filters.to) {
         where.paymentDate = {
-            [Op.between]: [filters.from, filters.to]
+            // add 1 day to the 'to' date, so it don't exclude the last day
+            [Op.and]: {
+                [Op.gte]: filters.from,
+                [Op.lte]: dayjs(filters.to).add(1, 'day').format('YYYY-MM-DD')
+            }
         }
     }
 
