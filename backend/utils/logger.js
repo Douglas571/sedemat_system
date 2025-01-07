@@ -27,12 +27,10 @@ const logger = winston.createLogger({
                 customFormat
             ),
         }),
-        new winston.transports.File({
-            filename: './data/logs/backend-combined.log',
-        }),
-        new winston.transports.File({
+        new winston.transports.DailyRotateFile({
             level: 'error',
-            filename: './data/logs/backend-combined-error.log',
+            filename: './data/logs/errors/backend-errors-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
         }),
         new winston.transports.DailyRotateFile({
             filename: './data/logs/backend-%DATE%.log',
