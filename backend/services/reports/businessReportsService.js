@@ -44,7 +44,7 @@ const monthMapper = [
 
 function canDownloadGrossIncomeReport(user) {
   // if user is not an admin, director, fiscal, or collector
-  if (!user || [ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
+  if (!user || [ROLES.LEGAL_ADVISOR, ROLES.FISCAL].indexOf(user.roleId) === -1) {
     let error = new Error('User not authorized');
     error.name = 'UserNotAuthorized';
     error.statusCode = 401;
@@ -54,7 +54,7 @@ function canDownloadGrossIncomeReport(user) {
 
 function canSeeBusinessGrossIncomeSummaryReport(user) {
   // if user is not an admin, director, fiscal, or collector
-  if (!user || [ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
+  if (!user || [ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR, ROLES.FISCAL].indexOf(user.roleId) === -1) {
     let error = new Error('User not authorized');
     error.name = 'UserNotAuthorized';
     error.statusCode = 401;
@@ -124,7 +124,11 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
     4: 'ff0000',
   }
   
-  worksheet.getColumn(3).eachCell(function(cell, rowNumber) {
+  worksheet.getColumn(4).eachCell(function(cell, rowNumber) {
+    if (rowNumber === 1) {
+      return 
+    }
+
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
