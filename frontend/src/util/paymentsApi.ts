@@ -66,19 +66,18 @@ export async function updatePayment(paymentData: Payment, token: string): Promis
 }
 
 interface PaymentFilters {
+    businessId?: number,
     grossIncomeInvoiceId?: number,
 }
 
 // a function to fetch all payments
 export async function findAll(filters?: PaymentFilters) {
-    let queryParams = ''
-
-    if (filters) {
-        queryParams = '?' + new URLSearchParams(Object.entries(filters).filter(([key, value]) => value !== undefined)).toString()
-    }
-
-    const response = await fetch(`${HOST}/v1/payments${queryParams}`)
-    const data = await response.json()
+    const response = await axios.get(`${HOST}/v1/payments`, {
+        params: {
+            ...filters
+        }
+    });
+    const data = await response.data;
     return data
 }
 
