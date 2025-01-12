@@ -104,7 +104,14 @@ async function getSettlementsReportJSON({user, filters}) {
     let item = ''
     let paymentDate = dayjs()
     let paymentBank = {}
-    let paymentReference = ''
+
+    const REFERENCE_SEPARATOR = ' - '
+    let paymentReference = grossIncomeInvoice.payments
+      .reduce((acc, curr) => 
+        acc 
+          ? acc + REFERENCE_SEPARATOR + curr.reference 
+          : curr.reference
+        , '')
 
     let businessName = ''
     let businessDni = ''
