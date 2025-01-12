@@ -5,7 +5,7 @@ import type { TimeRangePickerProps } from 'antd';
 
 import { Button, Card, Flex, message, Popconfirm, Select, Space, Table, Typography, Badge, Form, Input, DatePicker, Checkbox } from 'antd';
 
-import { CheckCircleFilled, CloseCircleFilled, DeleteFilled, FilterOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, DeleteFilled, FilterOutlined, EditOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
 
@@ -386,13 +386,19 @@ function Payments(): JSX.Element {
             render: (_: any, record: Payment) => {
                 // console.log({record})
                 return (
-                <Space size="middle">
+                <Flex gap="small" align='center'>
 
                     { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
                         onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
                         shape="circle"
                     >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
-                    
+
+                    <Button 
+                        onClick={() => navigate(`/payments/${record.id}`)} 
+                        icon={<EditOutlined/>}
+                    >
+                            {/* Editar */}
+                    </Button>
 
                     <Popconfirm
                         title="Eliminar Pago"
@@ -405,22 +411,26 @@ function Payments(): JSX.Element {
                         okText="Si"
                         cancelText="No"
                     >
-                        <Button danger shape="circle"><DeleteFilled /></Button>
+                        <Button danger
+                            icon={<DeleteFilled />}>
+                                {/* Eliminar */}
+                        </Button>
                     </Popconfirm>
 
-                    <Button onClick={() => navigate(`/payments/${record.id}`)}>Editar</Button>
-
                     {
-                        <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
+                        <Button type='link'>
+                            <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
+                        </Button>
                     }
 
                     {
                         record?.grossIncomeInvoiceId && (
-                            <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}
-                        >Liquidación</Link>
+                            <Button type='link'>
+                                <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}>Liquidación</Link>
+                            </Button>
                         )
                     }
-                </Space>
+                </Flex>
             )},
         },
     ];
