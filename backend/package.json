@@ -10,13 +10,14 @@
 
     "start": "node index.js",
     "start:dev": "npx env-cmd --file ./.env.dev nodemon index.js -L",
-    "db:migrate": "npx sequelize db:migrate",
+    "db:migrate:docker": "npx sequelize db:migrate",
     "db:seed": "npx sequelize db:seed:all",
     "tz": "npx mocha test/zonations.test.js",
     "tb": "npx mocha test/business.test.js",
     "te": "npx mocha test/economicActivity.test.js",
     "tbo": "npx mocha test/economicActivity.test.js",
-    "db:migrate:nodocker": "npx env-cmd --file ./.env npx sequelize db:migrate",
+    "db:migrate": "npx env-cmd --file ./.env npx sequelize db:migrate",
+    "db:migrate:undo": "npx env-cmd --file ./.env npx sequelize db:migrate:undo",
     "db:seed:nodocker": "npx env-cmd --file ./.env npx sequelize db:seed:all --seeders-path=database/seeders-prod",
     "start:prod": "node --env-file=.env index.js",
     "start:dev:nodocker": "nodemon --env-file=.env.dev index.js -L"
