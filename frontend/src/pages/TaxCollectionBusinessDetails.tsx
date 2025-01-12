@@ -625,57 +625,6 @@ function PaymentsTable({payments}: {payments: IPayment[]}): JSX.Element {
 
     const columns = [
         {
-            title: 'Nombre o Razón Social',
-            dataIndex: '',
-            key: 'businessName',
-
-            // sortDirections: ['ascend', 'descend', 'ascend'],
-            showSorterTooltip: false,
-
-            render: (text: string, record: IPayment) => {
-                // console.log({record, text})
-                if (record.businessId) {
-                    return <Link to={`/tax-collection/${record.business.id}`}>
-                    {record.business.businessName}</Link>
-                } else {
-                    return `${record?.person?.firstName} ${record?.person?.lastName}`
-                }
-            },
-
-            sorter: (a: IPayment, b: IPayment) => {
-                
-                if (a.businessId) {
-                    return a.business.businessName.localeCompare(b.business.businessName)
-                } else {
-                    return a.person.firstName.localeCompare(b.person.firstName)
-                }
-            },
-        },
-        {
-            title: 'Rif o Cédula',
-            dataIndex: 'dni',
-            key: 'dni',
-            showSorterTooltip: false,
-            // sortDirections: ['ascend', 'descend', 'ascend'],
-
-            sorter: (a, b) => {
-                if (a.businessId) {
-                    return a.business?.dni.localeCompare(b.business?.dni)
-                } else {
-                    return a.person?.dni.localeCompare(b.person?.dni)
-                }
-            },
-
-            render: (text: string, record: IPayment) => {
-                if (record.businessId) {
-                    return record?.business?.dni
-                } else {
-                    return record?.person?.dni
-                }
-            },
-
-        },
-        {
             title: 'Referencia',
             dataIndex: 'reference',
             key: 'reference',
