@@ -2,8 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as api from '../util/api';
 import * as grossIncomeApi from '../util/grossIncomeApi';
+import * as paymentsApi from '../util/paymentsApi';
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
-import { Business, EconomicActivity, IGrossIncome, IGrossIncomeInvoice } from '../util/types';
+import { 
+    Business, 
+    EconomicActivity, 
+    IGrossIncome, 
+    IGrossIncomeInvoice,
+    IPayment
+} from '../util/types';
 import { formatBolivares, CurrencyHandler, percentHandler } from '../util/currency';
 import economicActivitiesService from '../services/EconomicActivitiesService';
 
@@ -31,6 +38,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>([]);
     const [grossIncomeInvoices, setGrossIncomeInvoices] = useState<IGrossIncomeInvoice[]>()
     const [economicActivity, setEconomicActivity] = useState<EconomicActivity>()
+    const [payments, setPayments] = useState<IPayment[]>([])
 
     const loadGrossIncomeInvoices = async () => {
         const fetchedGrossIncomeInvoices = await grossIncomeInvoiceService.getAll()
@@ -41,10 +49,45 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         setGrossIncomeInvoices([...filtered])
     }
 
+    const loadPayments = async () => {
+        // console.log("Cargando pagos...")
+        try {
+            const payments = await paymentsApi.findAll({
+                businessId: Number(businessId)
+            });
+            // console.log({payments})
+            const mappedData = payments.map(payment => {
+                const newPayment = {
+                    ...payment,
+                    paymentDate: new Date(payment.paymentDate).toLocaleDateString(),
+                }
+
+                if (payment.isVerified) {
+                    newPayment.status = "Verificado"
+                } else {
+                    newPayment.status = "No verificado"
+                }
+
+                if (payment.liquidationDate) {
+                    newPayment.status = "Liquidado"
+                }
+
+                // console.log({ newPayment })
+
+                return newPayment
+            });
+            setPayments(mappedData);
+            // console.log({ mappedData })
+        } catch (error) {
+            console.error('Error fetching payments:', error);
+        }
+    };
+
     useEffect(() => {
         loadBusiness();
         loadGrossIncomes();
-        loadGrossIncomeInvoices()
+        loadGrossIncomeInvoices();
+        loadPayments();
     }, [businessId]);
 
     useEffect(() => {
@@ -148,6 +191,10 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                     />
 
                     {/* <WasteCollectionTaxesTable /> */}
+
+                    <PaymentsTable
+                        payments={payments}
+                    />
 
                 </Flex>
             </Card>
@@ -440,7 +487,7 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                 dataSource={grossIncomesWithStatus}
                 columns={columns}
                 rowKey={(record) => record.id}
-                pagination={false}
+                pagination={true}
             />
 
         </Flex>
@@ -566,5 +613,231 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             />
         </Flex>
     );
+}
+
+function PaymentsTable({payments}: {payments: IPayment[]}): JSX.Element {
+
+    const filterIconProp = {
+        // filterIcon: (filtered: boolean) => (
+        //     <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        // ),
+    }
+
+    const columns = [
+        {
+            title: 'Nombre o Razón Social',
+            dataIndex: '',
+            key: 'businessName',
+
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+            showSorterTooltip: false,
+
+            render: (text: string, record: IPayment) => {
+                // console.log({record, text})
+                if (record.businessId) {
+                    return <Link to={`/tax-collection/${record.business.id}`}>
+                    {record.business.businessName}</Link>
+                } else {
+                    return `${record?.person?.firstName} ${record?.person?.lastName}`
+                }
+            },
+
+            sorter: (a: IPayment, b: IPayment) => {
+                
+                if (a.businessId) {
+                    return a.business.businessName.localeCompare(b.business.businessName)
+                } else {
+                    return a.person.firstName.localeCompare(b.person.firstName)
+                }
+            },
+        },
+        {
+            title: 'Rif o Cédula',
+            dataIndex: 'dni',
+            key: 'dni',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+
+            sorter: (a, b) => {
+                if (a.businessId) {
+                    return a.business?.dni.localeCompare(b.business?.dni)
+                } else {
+                    return a.person?.dni.localeCompare(b.person?.dni)
+                }
+            },
+
+            render: (text: string, record: IPayment) => {
+                if (record.businessId) {
+                    return record?.business?.dni
+                } else {
+                    return record?.person?.dni
+                }
+            },
+
+        },
+        {
+            title: 'Referencia',
+            dataIndex: 'reference',
+            key: 'reference',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+
+            sorter: (a, b) => Number(a.reference) - Number(b.reference),
+            render: (text: string, record: IPayment) => {
+                // return <Link to={`/payments/${record.id}`}>{text}</Link>
+                return text
+            },
+
+        },
+        {
+            title: 'Monto',
+            dataIndex: 'amount',
+            key: 'amount',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => a.amount - b.amount,
+            render(text: string, record: IPayment) {
+                return formatBolivares(text)
+            }
+        },
+        {
+            title: 'Cuenta Destino',
+            dataIndex: 'account',
+            key: 'account',
+            render: (text: string, record: IPayment) => {
+                return record.bank?.accountNumber.slice(-4)
+            },
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => a.account.localeCompare(b.account),
+
+            filters: [...new Set(payments.map((payment) => {
+                return payment.bank.accountNumber.slice(-4)
+            }))].map(t => {
+                return { text: t, value: t }
+            }),
+
+            onFilter: (value: string, record: IPayment) => record.bank.accountNumber.slice(-4) === (value as string),
+
+            ...filterIconProp
+        },
+        {
+            title: 'Fecha de Pago',
+            dataIndex: 'paymentDate',
+            key: 'paymentDate',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => dayjs(a.paymentDate).isBefore(b.paymentDate) ? -1 : 1,
+        },
+        {
+            title: 'Fecha de Verificación',
+            dataIndex: 'checkedAt',
+            key: 'checkedAt',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+            sorter: (a, b) => dayjs(a.checkedAt).isBefore(b.checkedAt) ? -1 : 1,
+
+            render: (text: string, record: IPayment) => {
+                
+                if (text) {
+                    return dayjs(text).format('DD/MM/YYYY')
+                } else {
+                    return '--'
+                }
+            }
+        },
+        {
+            title: 'Estado',
+            dataIndex: 'status',
+            key: 'status',
+            showSorterTooltip: false,
+            // sortDirections: ['ascend', 'descend', 'ascend'],
+
+            render: (text: string, record: IPayment) => {
+                return (<Badge status={record.isVerified ? 'success' : 'warning'} text={text} />)
+            },
+
+            sorter: (a, b) => a.status.localeCompare(b.status),
+
+            filters: [...new Set(payments.map((payment) => {
+                return payment.status
+            }))].map(t => {
+                return { text: t, value: t }
+            }),
+
+            onFilter: (value: string, record: IPayment) =>
+                record.status
+                    .toString()
+                    .toLowerCase() === ((value as string).toLowerCase()),
+
+            ...filterIconProp
+        },
+        // {
+        //     title: 'Acciones',
+        //     key: 'action',
+        //     render: (_: any, record: Payment) => {
+        //         // console.log({record})
+        //         return (
+        //         <Flex gap="small" align='center'>
+
+        //             { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
+        //                 onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
+        //                 shape="circle"
+        //             >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
+
+        //             <Button 
+        //                 onClick={() => navigate(`/payments/${record.id}`)} 
+        //                 icon={<EditOutlined/>}
+        //             >
+        //                     {/* Editar */}
+        //             </Button>
+
+        //             <Popconfirm
+        //                 title="Eliminar Pago"
+        //                 description="¿Estás seguro de que deseas eliminar el pago?"
+        //                 onConfirm={() => {
+        //                     console.log("thes payment will be deleted")
+        //                     deletePayment(record.id)
+        //                 }}
+        //                 //onCancel={cancel}
+        //                 okText="Si"
+        //                 cancelText="No"
+        //             >
+        //                 <Button danger
+        //                     icon={<DeleteFilled />}>
+        //                         {/* Eliminar */}
+        //                 </Button>
+        //             </Popconfirm>
+
+        //             {
+        //                 <Button type='link'>
+        //                     <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
+        //                 </Button>
+        //             }
+
+        //             {
+        //                 record?.grossIncomeInvoiceId && (
+        //                     <Button type='link'>
+        //                         <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}>Liquidación</Link>
+        //                     </Button>
+        //                 )
+        //             }
+        //         </Flex>
+        //     )},
+        // },
+    ];
+
+    return <>
+        <Flex gap="small" align='center' justify='space-between'>
+            <Title level={3}>Pagos</Title>
+        </Flex>
+        <Table
+            style={{ overflow: 'scroll' }}
+            dataSource={payments}
+            columns={columns}
+            rowKey="id"
+            pagination={true}
+        />
+    </>
 }
 
