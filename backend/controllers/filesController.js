@@ -87,11 +87,11 @@ const uploadFile = async (req, res) => {
         let image = sharp(file.path);
         const metadata = await image.metadata();
 
-        const newFilename = file.filename.split('.')[0] + '.webp';
+        const newFilename = file.filename.split('.')[0] + '.png';
         destinyFilePath = path.resolve(dirPath, newFilename);
 
         // get the width and height 
-        image = await image.webp({ quality: 50 })
+        image = await image.png({ quality: 50 })
 
         // if is horizontal image 
         if ((metadata.width > metadata.height) && metadata.width > 1900) {
