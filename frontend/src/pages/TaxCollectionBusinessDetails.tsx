@@ -721,59 +721,30 @@ function PaymentsTable({payments}: {payments: IPayment[]}): JSX.Element {
 
             ...filterIconProp
         },
-        // {
-        //     title: 'Acciones',
-        //     key: 'action',
-        //     render: (_: any, record: Payment) => {
-        //         // console.log({record})
-        //         return (
-        //         <Flex gap="small" align='center'>
+        {
+            title: 'Acciones',
+            key: 'action',
+            render: (_: any, record: Payment) => {
+                // console.log({record})
+                return (
+                <Flex gap="small" align='center'>
 
-        //             { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
-        //                 onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
-        //                 shape="circle"
-        //             >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
+                    {
+                        <Button type='link'>
+                            <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
+                        </Button>
+                    }
 
-        //             <Button 
-        //                 onClick={() => navigate(`/payments/${record.id}`)} 
-        //                 icon={<EditOutlined/>}
-        //             >
-        //                     {/* Editar */}
-        //             </Button>
-
-        //             <Popconfirm
-        //                 title="Eliminar Pago"
-        //                 description="¿Estás seguro de que deseas eliminar el pago?"
-        //                 onConfirm={() => {
-        //                     console.log("thes payment will be deleted")
-        //                     deletePayment(record.id)
-        //                 }}
-        //                 //onCancel={cancel}
-        //                 okText="Si"
-        //                 cancelText="No"
-        //             >
-        //                 <Button danger
-        //                     icon={<DeleteFilled />}>
-        //                         {/* Eliminar */}
-        //                 </Button>
-        //             </Popconfirm>
-
-        //             {
-        //                 <Button type='link'>
-        //                     <a href={util.completeUrl('/' + record?.image) ?? ''} target="_blank" rel="noopener noreferrer">Voucher</a>
-        //                 </Button>
-        //             }
-
-        //             {
-        //                 record?.grossIncomeInvoiceId && (
-        //                     <Button type='link'>
-        //                         <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}>Liquidación</Link>
-        //                     </Button>
-        //                 )
-        //             }
-        //         </Flex>
-        //     )},
-        // },
+                    {
+                        record?.grossIncomeInvoiceId && (
+                            <Button type='link'>
+                                <Link to={'/gross-income-invoices/' + record?.grossIncomeInvoiceId}>Liquidación</Link>
+                            </Button>
+                        )
+                    }
+                </Flex>
+            )},
+        },
     ];
 
     return <>
