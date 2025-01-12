@@ -9,7 +9,7 @@ async function compress({filePath, destination, baseFileName, quality = 50, resi
 
   let webpFilename = `${baseFileName ?? Date.now()}.png`
 
-  image = await image.png({ quality })
+  image = await image.png({ quality: 20 })
 
   if (resize && metadata.width > 1600) {
     console.log("resizing image")
