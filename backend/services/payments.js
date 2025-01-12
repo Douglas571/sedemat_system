@@ -52,7 +52,7 @@ exports.findAll = async ({filters}) => {
     logger.info('Looking into DB');
 
     let where = {
-        ..._.pick(filters, ['grossIncomeInvoiceId'])
+        ..._.pick(filters, ['grossIncomeInvoiceId', 'businessId'])
     }
 
     if (filters.from && filters.to) {
