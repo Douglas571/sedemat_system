@@ -188,6 +188,8 @@ export interface Payment {
     grossIncomeInvoiceId?: number,
 }
 
+export interface IPayment extends Payment {}
+
 export interface IBankAccount {
     id?: number,
     accountNumber: string,
