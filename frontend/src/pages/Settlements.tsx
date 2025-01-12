@@ -110,20 +110,24 @@ const SettlementPage: React.FC = () => {
   return (
     <Card title={<Typography.Title level={1}>Liquidaciones</Typography.Title>}>
       <Form form={form} layout="inline" onFinish={fetchSettlements}>
-        <Form.Item label="Fecha de Liquidación" name="settlementDate">
-          <DatePicker.RangePicker presets={datePresetRanges} />
-        </Form.Item>
-        <Form.Item>
-          <Button icon={<FilterOutlined />} htmlType="submit">
-            Filtrar
-          </Button>
+        <Flex justify='space-between' style={{width: '100%'}}>
+          <Flex>
+            <Form.Item label="Fecha de Liquidación" name="settlementDate">
+              <DatePicker.RangePicker presets={datePresetRanges} />
+            </Form.Item>
+            <Form.Item>
+              <Button icon={<FilterOutlined />} htmlType="submit">
+                Filtrar
+              </Button>
+            </Form.Item>
+          </Flex>
           <Button 
-            icon={<FileExcelOutlined />} 
-            style={{ marginLeft: 8 }} 
-            onClick={handleDonwloadExcelFiles}>
-            Descargar
+              icon={<FileExcelOutlined />} 
+              style={{ marginLeft: 8 }} 
+              onClick={handleDonwloadExcelFiles}>
+              Descargar
           </Button>
-        </Form.Item>
+        </Flex>
       </Form>
       <Table rowKey="id" columns={columns} dataSource={settlements} style={{ marginTop: 16 }} />
     </Card>
