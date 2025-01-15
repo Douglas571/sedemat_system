@@ -4,6 +4,8 @@ import CurrencyExchangeRatesService from 'services/CurrencyExchangeRatesService'
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
 
+import CustomInputNumber from "./components/FormInputNumberBs";
+
 function CurrencyExchangeRatesEditForm (): JSX.Element {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,7 +77,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               name="dolarBCVToBs"
               rules={[{ required: true, message: 'Introduce el cambio de dólares a bolívares (BCV)' }]}
           >
-              <InputNumber 
+              <CustomInputNumber 
                   min={0}  
                   step={0.01}
                   addonAfter='Bs'
@@ -88,7 +90,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               name="eurosBCVToBs"
               rules={[{ required: true, message: 'Introduce el cambio de euros a bolívares (BCV)' }]}
           >
-              <InputNumber 
+              <CustomInputNumber 
                   min={0} 
                   step={0.01} 
                   addonAfter='Bs'
@@ -108,7 +110,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               //     message: 'Please input the USD/BS (Black) rate!'
               // }]}
           >
-              <InputNumber 
+              <CustomInputNumber 
                 addonAfter='Bs'
                 min={0}
                 step={0.01}
@@ -125,7 +127,7 @@ function CurrencyExchangeRatesEditForm (): JSX.Element {
               //     message: 'Please input the EUR/BS (Black) rate!',
               // }]}
           >
-              <InputNumber 
+              <CustomInputNumber 
                 addonAfter='Bs'
                 min={0}
                 step={0.01}
