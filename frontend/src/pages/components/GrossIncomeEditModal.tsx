@@ -3,6 +3,8 @@ import { Modal, Form, InputNumber, Switch } from 'antd';
 import { IGrossIncome, IGrossIncomeInvoice } from '../../util/types';
 import { percentHandler, CurrencyHandler } from '../../util/currency';
 
+import CustomInputNumber from './FormInputNumberBs';
+
 import * as util from '../../util'
     
 function EditGrossIncomeModal({
@@ -89,60 +91,60 @@ function EditGrossIncomeModal({
                 form={form}
             >
                 <Form.Item label="Ingresos Brutos" name='amountBs'>
-                    <InputNumber
+                    <CustomInputNumber
                         style={{ width: '100%' }}
                         addonAfter='Bs'
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Tasa de Cambio MMV-BCV" name='TCMMVBCV'>
-                    <InputNumber 
+                    <CustomInputNumber 
                         style={{ width: '100%' }}
                         addonAfter='Bs'
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Alicuota" name='alicuotaTaxPercent'>
-                    <InputNumber addonAfter="%"
+                    <CustomInputNumber addonAfter="%"
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Inpuesto" name='taxInBs'>
-                    <InputNumber disabled addonAfter="Bs" 
+                    <CustomInputNumber disabled addonAfter="Bs" 
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Minimo Tributario" name='alicuotaMinTaxMMVBCV'>
-                    <InputNumber addonAfter="MMV-BCV" 
+                    <CustomInputNumber addonAfter="MMV-BCV" 
                         style={{ width: '100%' }}
                         min={0}
-                        step={0.01}
-                        decimalSeparator=','
+                        step={0.0001}
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Minimo Tributario" name='minTaxInBs' >
-                    <InputNumber addonAfter="Bs" 
+                    <CustomInputNumber addonAfter="Bs" 
                         disabled
 
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
@@ -151,32 +153,32 @@ function EditGrossIncomeModal({
                 </Form.Item>
 
                 <Form.Item label="Aseo" name='wasteCollectionTaxMMVBCV'>
-                    <InputNumber 
+                    <CustomInputNumber 
                         addonAfter="MMV-BCV" 
                         disabled={!shouldChargeWasteCollectionTax} 
                         
                         style={{ width: '100%' }}
                         min={0}
-                        step={0.01}
-                        decimalSeparator=','
+                        step={0.0001}
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Inpuesto Aseo" name="wasteCollectionTaxInBs">
-                    <InputNumber disabled addonAfter="Bs"
+                    <CustomInputNumber disabled addonAfter="Bs"
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
 
                 <Form.Item label="Total" name='totalTaxInBs'>
-                    <InputNumber disabled addonAfter="Bs"
+                    <CustomInputNumber disabled addonAfter="Bs"
                         style={{ width: '100%' }}
                         min={0}
                         step={0.01}
-                        decimalSeparator=','
+                        
                     />
                 </Form.Item>
             </Form>

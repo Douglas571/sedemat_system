@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, InputNumber } from 'antd';
 
+import CustomInputNumber from './FormInputNumberBs';
+
 function EditFormPriceModal({
     open,
     onCancel,
@@ -40,12 +42,12 @@ function EditFormPriceModal({
         >
             <Form form={form}>
                 <Form.Item label="Precio" name='formPriceBs'>
-                    <InputNumber
+                    <CustomInputNumber
                          style={{ width: '100%' }}
                          addonAfter='Bs'
                          min={0}
                          step={0.01}
-                         decimalSeparator=','
+                         
                     />
                 </Form.Item>
             </Form>
