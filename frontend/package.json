@@ -20,7 +20,8 @@
 		"validate": "run-p lint test:ci test:e2e:headless",
 		"docker:build": "docker build -t my-react-app -f Dockerfile .",
 		"docker:run": "docker run -d -p 8080:80 my-react-app",
-		"start:prod": "npm run build && npx serve -s dist -p 8080",
+		"start:prod": "npx serve -s dist -p 8080",
+		"build:start:prod": "npm run build && npx serve -s dist -p 8080",
 		"cy:open": "npx cypress open"
 	},
 	"dependencies": {
