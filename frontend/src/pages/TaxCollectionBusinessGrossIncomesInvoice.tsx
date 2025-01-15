@@ -203,8 +203,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         const fetchedGrossIncomes = await loadGrossIncomes(Number(grossIncomeInvoiceId))
 
         // console.log(JSON.stringify({fetchedInvoice}, null, 2))
+        // console.log({
+        //     businessId,
 
-        setPayments(fetchedPayments)
+        //     payments: fetchedPayments,
+        //     paymentsFiltered: fetchedPayments.filter( p => p.businessId === businessId )})
+
+        // TODO: Implement filter by businessId in payments api 
+        setPayments(fetchedPayments.filter( p => p.businessId === Number(businessId) ))
         setLastCurrencyExchangeRate(lastCER)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice({...fetchedInvoice})
@@ -246,7 +252,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
     useEffect(() => {
         loadData()
-    }, [])
+    }, [businessId])
 
     const handleDeletePayment = (id: number) => {
         loadData()
