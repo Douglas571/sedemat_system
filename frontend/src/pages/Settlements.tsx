@@ -32,7 +32,7 @@ const SettlementPage: React.FC = () => {
     };
 
     const settlementsData = await settlementService.findAll(userAuth?.token, filter);
-    setSettlements([...settlementsData.sort((a, b) => a.code.localeCompare(b.code) * -1)]);
+    setSettlements([...settlementsData.sort((a, b) => a.code > b.code ? 1 : -1)]);
   };
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const SettlementPage: React.FC = () => {
       key: 'id',
       render: (text) => text,
       showSorterTooltip: false,
-      sorter: (a, b) => a.code.localeCompare(b.code),
+      sorter: (a, b) => a.code > b.code ? 1 : -1,
     },
     {
       title: 'Fecha de Liquidación',
