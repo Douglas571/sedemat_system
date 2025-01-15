@@ -328,7 +328,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><p data-testid="settlement-code">COMPROBANTE DE INGRESO N°{grossIncomeInvoice?.settlement.code.padStart(4, '0')}</p></Flex>
+      <Flex justify='right'><p data-testid="settlement-code">COMPROBANTE DE INGRESO N°{String(grossIncomeInvoice?.settlement.code).padStart(4, '0')}</p></Flex>
       <Flex justify='right'><p data-testid="settlement-date">PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</p></Flex>
 
       <table>
