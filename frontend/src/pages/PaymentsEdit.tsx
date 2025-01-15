@@ -22,6 +22,8 @@ import {
 } from 'antd'
 import React, { useEffect, useState } from 'react'
 
+import CustomInputNumber from './components/FormInputNumberBs'
+
 import { Jimp, JimpInstance } from 'jimp'
 
 import dayjs from 'dayjs'
@@ -583,12 +585,12 @@ function PaymentsEdit(): JSX.Element {
 							name='amount'
 							style={{ flex: 1, minWidth: 250 }}
 						>
-							<InputNumber
+							<CustomInputNumber
 								addonAfter='Bs'
 								defaultValue={0}
 								min={0}
 								step={0.01}
-								decimalSeparator=','
+								
 							/>
 						</Form.Item>
 

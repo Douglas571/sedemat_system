@@ -6,6 +6,11 @@ import dayjs from 'dayjs';
 import { FilePdfOutlined, FileExcelOutlined, ReloadOutlined, InboxOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Checkbox, DatePicker, Flex, Form, Input, InputNumber, message, Select, Typography, Upload, List, Image } from 'antd';
 
+import CustomInputNumber from './components/FormInputNumberBs';
+
+
+import currency from 'currency.js'
+
 const Dragger = Upload.Dragger;
 
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -613,15 +618,18 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             layout='horizontal'
                             name="amountBs"
                             label="Ingreso Bruto"
-                            rules={[{ required: true, message: 'Por favor ingrese el ingreso bruto' }]}
+                            rules={[
+                                { 
+                                    required: true, 
+                                    message: 'Por favor ingrese el ingreso bruto' 
+                                }]}                            
                         >
-                            <InputNumber
+                            <CustomInputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='Bs'
                                 min={0}
                                 step={0.01}
-                                decimalSeparator=','
-                                />
+                            />
                         </Form.Item>
 
                         
@@ -641,12 +649,14 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
 
                             layout='horizontal'
                         >
-                            <InputNumber
+                            <CustomInputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='Bs'
                                 min={0}
                                 step={0.0001}
-                                decimalSeparator=','
+                                
+                                
+                                
                             />
                         </Form.Item>
                     
@@ -673,12 +683,13 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             label="Alicuota"
                             rules={[{ required: true, message: 'Por favor, ingrese la alicuota' }]}
                         >
-                            <InputNumber
+                            <CustomInputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='%'
                                 min={0}
                                 step={0.0001}
-                                decimalSeparator=','
+
+                                
                                 // disabled
                             />
                         </Form.Item>
@@ -688,12 +699,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             label="Min. Tributario"
                             rules={[{ required: true, message: 'Por favor, ingrese el minimo tributario' }]}
                         >
-                            <InputNumber
+                            <CustomInputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='MMVBCV'
                                 min={0}
                                 step={0.0001}
-                                decimalSeparator=','
+                                
                                 // disabled
                             />
                         </Form.Item>
@@ -704,12 +715,14 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             rules={[{ required: false, message: 'Por favor, ingrese el minimo tributario' }]}
                             
                         >
-                            <InputNumber
+                            <CustomInputNumber
                                 style={{ width: '100%' }}
                                 addonAfter='Bs'
                                 min={0}
                                 step={0.01}
-                                decimalSeparator=','
+                                
+                                
+                                
                                 disabled
                             />
                         </Form.Item>
@@ -753,12 +766,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                             rules={[{ required: true, message: 'Por favor introduzca la tasa de cambio de la MMVBCV' }]}
                                             
                                         >
-                                            <InputNumber
+                                            <CustomInputNumber
                                                 style={{ width: '100%' }}
                                                 addonAfter='Mts2'
                                                 min={0}
                                                 step={0.01}
-                                                decimalSeparator=','
+                                                
                                                 disabled={!chargeWasteCollectionTax}
                                             />
                                         </Form.Item>
@@ -780,12 +793,13 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                             rules={[{ required: true, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
                                             
                                         >
-                                            <InputNumber
+                                            <CustomInputNumber
                                                 style={{ width: '100%' }}
                                                 addonAfter='MMVBCV'
                                                 min={0}
                                                 step={0.0001}
-                                                decimalSeparator=','
+                                                precision={4}
+                                                
                                                 disabled={!chargeWasteCollectionTax}
                                             />
                                         </Form.Item>
@@ -795,7 +809,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                             label="Impuesto Aseo (Esperado)"
                                             rules={[{ required: false, message: 'Por favor introduzca el impuesto por aseo urbano en MMVBCV' }]}
                                         >
-                                            <InputNumber
+                                            <CustomInputNumber
                                                 style={{ width: '100%' }}
                                                 addonAfter='Bs'
                                                 min={0}
@@ -810,12 +824,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                                             name="totalTaxBsExpected"
                                             label="Total a pagar (Esperado)"
                                         >
-                                        <InputNumber
+                                        <CustomInputNumber
                                             style={{ width: '100%' }}
                                             addonAfter='Bs'
                                             min={0}
                                             step={0.01}
-                                            decimalSeparator=','
+                                            
                                             disabled
                                         />
                                     </Form.Item>

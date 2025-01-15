@@ -5,6 +5,8 @@ import { Table, Button, message, Typography, Form, Select, InputNumber, Tooltip,
 const { RangePicker } = DatePicker
 const {TextArea} = Input
 
+import CustomInputNumber from './components/FormInputNumberBs'
+
 import { ColumnsType } from 'antd/es/table'
 
 import dayjs from 'dayjs'
@@ -570,7 +572,10 @@ const GrossIncomeInvoice: React.FC = () => {
                 <Flex wrap gap={16}>
 
                     <Form.Item name="form" label="Coste del Formulario" rules={[{ required: true }]}>
-                        <InputNumber min={0} max={999999999} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                        <CustomInputNumber 
+                            min={0} 
+                            max={999999999.99} 
+                            addonAfter="Bs" />
                     
                     </Form.Item>
                 </Flex>
@@ -586,7 +591,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
                 <Flex wrap gap={16}>
                     <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
-                        <InputNumber min={0} addonAfter="Bs" decimalSeparator=',' precision={2} step={0.01}/>
+                        <CustomInputNumber min={0} addonAfter="Bs"/>
                     </Form.Item>
 
                     <Form.Item name="TCMMVBCVValidDateRange" label="Rango de Validez" rules={[{ required: true }]}>
