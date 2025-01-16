@@ -107,7 +107,7 @@ function Payments(): JSX.Element {
             const mappedData = payments.map(payment => {
                 const newPayment = {
                     ...payment,
-                    paymentDate: new Date(payment.paymentDate).toLocaleDateString(),
+                    paymentDate: dayjs(payment.paymentDate),
                 }
 
                 if (payment.isVerified) {
@@ -335,7 +335,14 @@ function Payments(): JSX.Element {
             key: 'paymentDate',
             showSorterTooltip: false,
             // sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a, b) => dayjs(a.paymentDate).isBefore(b.paymentDate) ? -1 : 1,
+            sorter: (a, b) => {
+
+                return a.paymentDate.isBefore(b.paymentDate, 'date')? 1 : -1
+            },
+
+            render: (value) => {
+                return value.format('DD/MM/YYYY')
+            }
         },
         {
             title: 'Fecha de Verificación',
