@@ -9,7 +9,7 @@ import useAuthentication from '../hooks/useAuthentication';
 
 import * as reportsService from '../services/reportsService';
 import dayjs from 'dayjs';
-
+import _ from 'lodash'
 
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
@@ -31,6 +31,7 @@ interface reportRow {
   lackingMonths: dayjs.Dayjs[],
   pendingMonths: dayjs.Dayjs[],
   pendingToBeSettledMonths: dayjs.Dayjs[],
+  fiscalName?: string
 }
 
 const BasicComponent: React.FC = () => {
@@ -64,6 +65,47 @@ const BasicComponent: React.FC = () => {
   // <CheckCircleOutlined />
 
   const columns = [
+    
+    {
+      title: 'Fiscal',
+      dataIndex: 'fiscalName',
+      key: 'fiscalName',
+
+      showSorterTooltip: false,
+      sorter: (a, b) => a?.fiscalName?.localeCompare(b?.fiscalName),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      render: (fiscalName: string) => {
+        if (!fiscalName) {
+          return '--'
+        }
+
+        return _.startCase(fiscalName)
+      },
+
+      
+
+      filters: [... new Set(
+        businessGrossIncomesStatus.map( b => {
+
+          return b?.fiscalName ?? '--'
+        }))].sort((a, b) => a.localeCompare(b)).map(c => ({ 
+          value: c, 
+          text: c === '--' ? '--' : _.startCase(c)
+        })),
+
+        
+        onFilter: (value, record) => {
+          if (value === '--') {
+            return !record.fiscalName
+          }
+          
+          return record.fiscalName === value
+
+        }
+
+      
+      
+    },
     {
       title: 'Contribuyente',
       dataIndex: 'businessName',
@@ -106,7 +148,7 @@ const BasicComponent: React.FC = () => {
           return '--'
         }
 
-        return category
+        return _.startCase(category)
       },
 
       
@@ -115,7 +157,10 @@ const BasicComponent: React.FC = () => {
         businessGrossIncomesStatus.map( b => {
 
           return b?.businessActivityCategoryName ?? '--'
-        }))].map(c => ({ value: c, text: c})),
+        }))].sort((a, b) => a.localeCompare(b)).map(c => ({ 
+          value: c, 
+          text: c === '--' ? '--' : _.startCase(c)
+        })),
 
         
         onFilter: (value, record) => {
@@ -244,7 +289,7 @@ const BasicComponent: React.FC = () => {
         
         return dayjs(value).format('MMMM-YY').toUpperCase()
       },
-    }
+    },
   ]
 
 

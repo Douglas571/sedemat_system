@@ -12,6 +12,8 @@ const {
   InactivityPeriod,
   BusinessActivityCategory,
   File,
+  Person,
+  User,
 } = require('../../database/models');
 
 const { Op } = require('sequelize');
@@ -84,6 +86,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
   const worksheet = workbook.addWorksheet('Reporte de ingresos brutos');
 
   const headerRow = [
+    'Fiscal',
     'Contribuyente',
     'Sede',
     'Categoría',
@@ -103,6 +106,7 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
 
   reportRows.forEach(row => {
     let formattedRow = [
+      row.fiscalName,
       row.businessName,
       row.branchOfficeNickname,
       row?.businessActivityCategoryName ?? '--',
@@ -192,6 +196,14 @@ async function getBusinessData() {
       {
         model: BusinessActivityCategory,
         as: 'businessActivityCategory'
+      },
+      {
+        model: User,
+        as: 'fiscal',
+        include: {
+          model: Person,
+          as: 'person'
+        }
       }
     ]
   })
@@ -254,7 +266,9 @@ function mapBusinessToRowReport(businessReport){
           lastMonthSettled: branchOffice.lastMonthSettled,
           lackingMonths: branchOffice.lackingMonths,
           pendingMonths: branchOffice.pendingMonths,
-          pendingToBeSettledMonths: branchOffice.pendingToBeSettledMonths
+          pendingToBeSettledMonths: branchOffice.pendingToBeSettledMonths,
+          fiscalName: business.fiscalName
+          
         })
       })        
     } else {
@@ -281,7 +295,8 @@ function mapBusinessToRowReport(businessReport){
         lastMonthSettled: business.lastMonthSettled,
         lackingMonths: business.lackingMonths,
         pendingMonths: business.pendingMonths,
-        pendingToBeSettledMonths: business.pendingToBeSettledMonths
+        pendingToBeSettledMonths: business.pendingToBeSettledMonths,
+        fiscalName: business.fiscalName
       })
     }
   })
@@ -295,11 +310,15 @@ function getBusinessesGrossIncomeReport(businesses) {
   // iterate over each branch office 
   businesses.map((business) => {
 
+    let fiscal = business?.fiscal?.person
+    let fiscalName = fiscal && fiscal.firstName + ' ' + fiscal.lastName
+
     let businessReport = {
       id: business.id,
       businessName: business.businessName,
       dni: business.dni,
       ...business,
+      fiscalName
     }
 
     // get the sing up period
