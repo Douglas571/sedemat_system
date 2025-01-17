@@ -361,16 +361,20 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             // TODO: Create a dedicated page for branch offices
             render: (value: any, record: any) => <Link to={`/business/${record.businessId}`}>{value?.nickname}</Link>,
 
-            filters: [... new Set(grossIncomesWithStatus.map((grossIncome: IGrossIncomeWithStatus) => grossIncome.branchOffice.nickname))].map((branchOffice: string) => ({text: branchOffice, value: branchOffice})),
+            filters: [... new Set(grossIncomesWithStatus.map((grossIncome: IGrossIncomeWithStatus) => grossIncome?.branchOffice?.nickname))].map((branchOffice: string) => ({text: branchOffice, value: branchOffice})),
 
             onFilter(value: string, record: IGrossIncomeWithStatus) {
-                return record.branchOffice.nickname === value
+                return record?.branchOffice?.nickname === value
             },
 
             
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
-            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.branchOffice.nickname.localeCompare(b.branchOffice.nickname),
+            sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => {
+                if (!a.branchOffice) return false;
+
+                a.branchOffice.nickname.localeCompare(b.branchOffice.nickname)
+            },
         },
         {
             title: 'Cobrar Aseo',
