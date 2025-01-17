@@ -55,6 +55,8 @@ const grossIncomeRouter = require('./routers/grossIncomeRouter');
 
 const grossIncomeInvoiceRouter = require('./routers/grossIncomeInvoiceRouter');
 
+const grossIncomeNotesRouter = require('./routers/grossIncomeNotesRouter')
+
 const bankAccountRouter = require('./routers/bankAccountRouter')
 
 const userRouter = require('./routers/userRouter')
@@ -119,7 +121,9 @@ app.use("/v1/building-docs", buildingDocsRouter)
 app.use("/v1/permit-docs", permitDocsRouter)
 app.use("/v1/currency-exchange-rates", currencyExchangeRates)
 app.use("/v1/invoice-item-types", invoiceItemTypeRouter)
+
 app.use("/v1/gross-incomes", grossIncomeRouter);
+app.use('/v1/gross-incomes/notes', grossIncomeNotesRouter)
 
 app.use('/v1/gross-income-invoices', grossIncomeInvoiceRouter);
 app.use('/v1/settlements', settlementRouter);
