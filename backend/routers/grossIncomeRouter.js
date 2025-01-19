@@ -21,6 +21,10 @@ router.post('/',
   passport.authenticate('jwt', { session: false }), 
   grossIncomeController.create);
 
+router.put('/:id/notes', 
+  passport.authenticate('jwt', { session: false }),
+  grossIncomeController.editNote);
+
 // PUT (update) an existing gross income by ID
 router.put('/:id', 
   passport.authenticate('jwt', { session: false }),
@@ -51,7 +55,6 @@ router.delete('/:id/support-files',
   passport.authenticate('jwt', { session: false }), 
   grossIncomeController.removeSupportFiles
 );
-
 
 
 

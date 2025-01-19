@@ -175,6 +175,17 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    fiscalMarkAsPaid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+    },
+    fiscalNote: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+
   }, {
     sequelize,
     modelName: 'GrossIncome',

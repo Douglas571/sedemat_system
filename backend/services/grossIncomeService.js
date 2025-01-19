@@ -460,6 +460,10 @@ class GrossIncomeService {
                 {
                     model: File, 
                     as: 'supportFiles'
+                },
+                {
+                    model: GrossIncomeInvoice,
+                    as: 'grossIncomeInvoice'
                 }
             ]
         });
@@ -715,6 +719,26 @@ class GrossIncomeService {
         }
     }
 
+
+    async editNote(id, data, user) {
+        // Check that user can edit gross income
+        canUpdateEditDeleteGrossIncomes(user);
+
+        // Get the gross income
+        const grossIncome = await GrossIncome.findByPk(id);
+
+        // Check that it exists
+        if (!grossIncome) {
+            throw new Error('Gross Income not found');
+        }
+
+        // Save the updated gross income
+        await GrossIncome.update(data, {
+            where: { id }
+        })
+        // Return edited gross income
+        return grossIncome;
+    }
 }
 
 module.exports = new GrossIncomeService();

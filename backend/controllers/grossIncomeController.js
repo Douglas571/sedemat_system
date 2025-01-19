@@ -83,6 +83,7 @@ class GrossIncomeController {
   // PUT /gross-incomes/:id
   async update(req, res) {
     try {
+      console.log("hello")
 
       const user = req.user
       console.log({body: req.body})
@@ -236,6 +237,22 @@ class GrossIncomeController {
     } catch (error) {
       console.log({error})
       res.status(error.statusCode ?? 500).json({ error });
+    }
+  }
+
+  async editNote(req, res) {
+    try {
+      const id = req.params?.id
+      const user = req?.user
+      const data = req?.body
+
+      console.log("editing note")
+
+      const updatedGrossIncome = await grossIncomeService.editNote(id, data, user);
+      res.status(200).json(updatedGrossIncome);
+    } catch (error) {
+      console.log({error})
+      res.status(error.statusCode ?? 500).json({ error: error.message });
     }
   }
 }

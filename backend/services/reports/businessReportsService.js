@@ -267,7 +267,10 @@ function mapBusinessToRowReport(businessReport){
           lackingMonths: branchOffice.lackingMonths,
           pendingMonths: branchOffice.pendingMonths,
           pendingToBeSettledMonths: branchOffice.pendingToBeSettledMonths,
-          fiscalName: business.fiscalName
+          fiscalName: business.fiscalName,
+
+          pendingMonthsForFiscal: branchOffice.pendingMonthsForFiscal,
+          
           
         })
       })        
@@ -296,7 +299,9 @@ function mapBusinessToRowReport(businessReport){
         lackingMonths: business.lackingMonths,
         pendingMonths: business.pendingMonths,
         pendingToBeSettledMonths: business.pendingToBeSettledMonths,
-        fiscalName: business.fiscalName
+        fiscalName: business.fiscalName,
+
+        pendingMonthsForFiscal: business.pendingMonthsForFiscal,
       })
     }
   })
@@ -400,7 +405,7 @@ function getBusinessesGrossIncomeReport(businesses) {
           grossIncomes: business.grossIncomes,
           inactivityPeriods: business.inactivityPeriods,
           economicLicenses: business.economicLicenses,
-        })
+        }),
       }
 
     }
@@ -457,7 +462,11 @@ function getGrossIncomeReport({
 
     lackingMonths: [],
     pendingMonths: [],
-    pendingToBeSettledMonths: []
+    pendingToBeSettledMonths: [],
+
+
+    pendingMonthsForFiscal: [],
+
   }
 
   const CURRENT_DATE = dayjs();
@@ -544,6 +553,13 @@ function getGrossIncomeReport({
         report.monthsPendingToBePaidCount += 1
         report.monthsPendingToBePaid.push(grossIncome)
         report.pendingMonths.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
+
+        // the month is not marked has paid for fiscal, so it will not appear for his report
+        
+        if (!grossIncome.fiscalMarkAsPaid) {
+
+          report.pendingMonthsForFiscal.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
+        }
       }
 
       // check if it's pending to be settled
@@ -572,6 +588,11 @@ function getGrossIncomeReport({
       if (grossIncome) {
         report.monthsWithoutDeclaration.push(grossIncome)
         
+      }
+
+      // the month is not marked has paid for fiscal, so it will not appear for his report
+      if (!grossIncome?.fiscalMarkAsPaid) {
+        report.pendingMonthsForFiscal.push(dayjs(`${startToCountSince.year()}-${startToCountSince.month() + 1}-03`))
       }
     }
 
