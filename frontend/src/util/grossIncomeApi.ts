@@ -258,4 +258,48 @@ export async function removeSupportFiles(grossIncomeId: number, filesIds: number
     return response.data
 }
 
+interface EditNoteProps {
+    data: {
+        businessId: number,
+        branchOfficeId?: number,
+        grossIncomeId: number,
+        period: typeof dayjs,
+        fiscalMarkAsPaid: boolean,
+        fiscalNote?: string,
+    },
+    token?: string
+}
+
+export async function editNote({
+    data,
+    token
+}: EditNoteProps): Promise<void> {
+    if (!token) {
+        throw new Error('Error al proporcionar credenciales');
+    }
+
+    try {
+        const response = await axios.put(`${HOST}/v1/gross-incomes/${data.grossIncomeId}/notes`, {
+            businessId: data.businessId,
+            period: data.period,
+            fiscalMarkAsPaid: data.fiscalMarkAsPaid,
+            fiscalNote: data.fiscalNote
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status !== 200) {
+            throw new Error(response.data);
+        }
+
+
+    } catch (e) {
+        console.error(e);
+        throw new Error('Error al editar la nota');
+    }
+}
+
 

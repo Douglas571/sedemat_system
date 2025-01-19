@@ -22,7 +22,7 @@ import ROLES from '../util/roles';
 
 
 
-import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip } from 'antd';
+import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip, Modal, Form, Switch, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
@@ -188,6 +188,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                         grossIncomes={grossIncomes}
                         grossIncomeInvoices={grossIncomeInvoices}
                         onDelete={handleGrossIncomeDelete}
+                        onUpdate={loadGrossIncomes}
                     />
 
                     {/* <WasteCollectionTaxesTable /> */}
@@ -262,8 +263,21 @@ const monthMapper: string[] = [
     "Diciembre"
 ];
 
-function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
-    { grossIncomes: IGrossIncome[] | undefined, grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, onDelete: (grossIncomeId: number) => void }): JSX.Element {
+function GrossIncomeTaxesTable(
+{ 
+    grossIncomes, 
+    grossIncomeInvoices, 
+    onDelete, 
+    onUpdate 
+}:{ 
+    grossIncomes: IGrossIncome[] | undefined, 
+    grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, 
+    onDelete: (grossIncomeId: number) => void, 
+    onUpdate: () => void 
+}): JSX.Element {
+
+    const { userAuth } = useAuthentication()
+    const { user } = userAuth
 
     if (!grossIncomes || !grossIncomeInvoices) {
         return <p>No hay ingresos brutos</p>
@@ -329,7 +343,52 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
         onDelete(grossIncomeId);
     };
 
+    const [ showEditGrossIncomeNoteModal, setShowEditGrossIncomeNoteModal ] = useState(false);
+    const [ grossIncomeBeingEdited, setGrossIncomeBeingEdited ] = useState<IGrossincome>(undefined)
+
     // console.log('grossIncomes', grossIncomes)
+
+    const handleShowEditGrossIncomNoteModal = (record: IGrossIncome) => {
+
+        setGrossIncomeBeingEdited(record)
+        setShowEditGrossIncomeNoteModal(true)
+
+    }
+
+    const handleEditGrossIncomeNote = async (data: IGrossIncomeNote) => {
+        console.log({data})
+
+        let currentGrossIncome = grossIncomeBeingEdited
+        try {
+            let response = await grossIncomeApi.editNote({
+                data: {
+                    businessId: Number(currentGrossIncome.businessId),
+                    branchOfficeId: Number(currentGrossIncome.branchOfficeId),
+                    grossIncomeId: Number(currentGrossIncome.id),
+                    period: currentGrossIncome.period,
+                    fiscalMarkAsPaid: data.fiscalMarkAsPaid,
+                    fiscalNote: data.fiscalNote
+                },
+                token: userAuth.token
+            })
+
+            onUpdate()
+        } catch (e) {
+            console.log({e})
+        }
+
+        // if no error, return { status: false }
+        // if error, throw exception and print message 
+
+        setShowEditGrossIncomeNoteModal(false)
+    }
+
+    
+    
+
+    const handleCancelEditModal = () => {
+        setShowEditGrossIncomeNoteModal(false)
+    }
 
     const columns = [
         {
@@ -420,10 +479,27 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
             sorter: (a: IGrossIncomeWithStatus, b: IGrossIncomeWithStatus) => a.status.localeCompare(b.status),
         },
         {
+            title: 'Nota del Fiscal',
+            dataIndex: 'fiscalNote',
+            render: (_: any, record: IGrossIncome) => {
+                let text = record.fiscalMarkAsPaid || record?.grossIncomeInvoice?.paidAt !== undefined ? "Pagado" : "Sin Pagar"
+
+                if (record.fiscalNote) {
+                    text += ' - ' + record.fiscalNote
+                }
+
+                return text
+            }
+
+
+        },
+        {
             title: 'Acciones',
             key: 'actions',
             render: (_, record: any) => {
                 let invoice = grossIncomeInvoices?.find(i => i.id === record.grossIncomeInvoiceId)
+
+                
 
                 return (
                 <Flex gap="small">
@@ -438,6 +514,17 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                         )
                         : (
                             <>
+                                {
+                                    user?.roleId === ROLES.FISCAL
+                                    && (
+                                        <Button
+                                            onClick={() => handleShowEditGrossIncomNoteModal(record)}
+                                        
+                                        >
+                                            { record?.fiscalMarkedAsPaid || record.fiscalNote ? "Modificar Nota" : "Agregar Nota" } 
+                                        </Button>
+                                    )
+                                }
                                 <Button 
                                     onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
                                     disabled={invoice?.settlement}    
@@ -488,6 +575,13 @@ function GrossIncomeTaxesTable({ grossIncomes, grossIncomeInvoices, onDelete }:
                 columns={columns}
                 rowKey={(record) => record.id}
                 pagination={true}
+            />
+
+            <GrossIncomeNoteEditModal
+                open={showEditGrossIncomeNoteModal}
+                onCancel={handleCancelEditModal}
+                onFinish={handleEditGrossIncomeNote}
+                grossIncomeNote={grossIncomeBeingEdited}
             />
 
         </Flex>
@@ -758,6 +852,65 @@ function PaymentsTable({payments}: {payments: IPayment[]}): JSX.Element {
             rowKey="id"
             pagination={true}
         />
+
+    
     </>
 }
 
+interface IGrossIncomeNote {
+    // businessId: number,
+    // grossIncomeId: number,
+    // period: number,
+
+    fiscalMarkAsPaid: boolean,
+    fiscalNote?: string,
+}
+
+interface IEditGrossIncomeNoteModalProps {
+    open: boolean,
+    onCancel: () => void,
+    onFinish: (note: IGrossIncomeNote) => Promise<void>,
+    grossIncomeNote?: { id: number, fiscalMarkAsPaid: boolean, fiscalComment: string }
+}
+
+function GrossIncomeNoteEditModal({ open, onCancel, onFinish, grossIncomeNote }: IEditGrossIncomeNoteModalProps) {
+
+    let [form] = Form.useForm()
+
+    const handleOk = () => {
+        onFinish(form.getFieldsValue())
+
+        form.resetFields()
+    }
+
+    const handleCancel = () => {
+        form.resetFields()
+        onCancel()
+    }
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...grossIncomeNote
+        })
+    }, [grossIncomeNote])
+
+    console.log({grossIncomeNote})
+
+    return (<Modal
+            title={ grossIncomeNote ? "Editando Nota" : "Nueva Nota" }
+            open={open}
+            onCancel={handleCancel}
+            onOk={handleOk}
+        >
+            <Form
+                form={form}
+            >
+                <Form.Item name={'fiscalMarkAsPaid'} label={'Ha sido pagado'}>
+                    <Switch ></Switch>
+                </Form.Item>
+                <Form.Item name={'fiscalNote'} label={'Nota'}>
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>)
+}

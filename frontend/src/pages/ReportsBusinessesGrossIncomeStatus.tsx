@@ -221,6 +221,21 @@ const BasicComponent: React.FC = () => {
       }
     },
     {
+      title: 'Meses pendiente por pagar (para el fiscal)',
+      dataIndex: 'pendingMonthsForFiscal',
+      render: (pendingMonthsForFiscal: Array<string>, record) => {
+        
+        return <Tooltip title={record
+          .pendingMonthsForFiscal
+          .sort((a, b) => dayjs(a).isBefore(dayjs(b) ? 1 : -1))
+          .map(month => dayjs(month).format('MMMM-YY').toUpperCase()).join(', ')}>
+          <Flex justify="center" align="center">
+            {pendingMonthsForFiscal?.length || 0}
+          </Flex>
+        </Tooltip>
+      }
+    },
+    {
       title: 'Meses pendientes de pagar',
       dataIndex: 'monthsPendingToBePaidCount',
       key: 'monthsPendingToBePaidCount',
