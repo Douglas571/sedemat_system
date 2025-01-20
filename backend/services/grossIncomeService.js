@@ -340,36 +340,6 @@ class GrossIncomeService {
         }
         
 
-        // if chargeWasteCollectionTax is null, then we need to disassociate the waste collection tax
-        // TODO: DELETE THIS AT SOME POINT WHEN YOU HAVE TESTS
-        let wasteCollectionTax
-
-        if (grossIncome.wasteCollectionTaxId) {
-            wasteCollectionTax = await WasteCollectionTax.findByPk(grossIncome.wasteCollectionTaxId)
-        }
-
-        if (data.chargeWasteCollection && !grossIncome.wasteCollectionTaxId) {
-            wasteCollectionTax = await WasteCollectionTax.create({
-                period: data.period,
-                branchOfficeId: data.branchOfficeId || grossIncome.branchOfficeId
-            });
-            console.log({newWasteCollectionTax: wasteCollectionTax.toJSON()})
-            data.wasteCollectionTaxId = wasteCollectionTax.id;
-        } 
-        
-        
-        if (!data.chargeWasteCollection) {
-            data.wasteCollectionTaxId = null
-
-            if (data.wasteCollectionTaxId) {
-                wasteCollectionTax.destroy()
-            }
-        }
-
-        if (wasteCollectionTax && (data.period !== wasteCollectionTax.period)){
-            wasteCollectionTax.update({period: data.period})
-        }
-        // TODO: DELETE EVERYTHING ABOVE WHEN YOU HAVE TESTS
 
         // delete old image 
         // if new data declaration image is different from the old one
