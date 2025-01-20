@@ -37,7 +37,7 @@ import _ from 'lodash';
 import ROLES from '../util/roles';
 
 
-import { IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
+import { IBranchOffice, IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
 
 import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled, ToolOutlined} from '@ant-design/icons';
 
@@ -79,7 +79,7 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const [showSettlementModal, setShowSettlementModal] = useState(false)
     const [showEditFormPriceModal, setShowEditFormPriceModal] = useState(false)
 
-    const [showToFixModal, setShowToFixModal] = useState(false)
+    const [showToFixModal, setShowToFixModal] = useState(false)    
 
     const paymentsAllocated = payments?.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))
 
@@ -400,14 +400,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 <Descriptions.Item label="Contribuyente" style={{ maxWidth: '20%' }} >{grossIncomeInvoice.businessName}</Descriptions.Item>
                 <Descriptions.Item label="Rif" style={{ maxWidth: '15%' }}>{grossIncomeInvoice.businessDNI}</Descriptions.Item>
                 <Descriptions.Item label="N°" style={{ maxWidth: '12%' }}>{business.economicActivity.code}</Descriptions.Item>
+                <Descriptions.Item label="Ramo" style={{ maxWidth: '20%' }}>{grossIncomeInvoice.economicActivityTitle ?? business.economicActivity.title}</Descriptions.Item>
 
                 {
                     branchOffice
                     ? (
                         <>
-                            <Descriptions.Item label="Ramo" style={{ maxWidth: '20%' }}>{grossIncomeInvoice.economicActivityTitle ?? business.economicActivity.title}</Descriptions.Item>
                             <Descriptions.Item label="Mts2" style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeDimensions}</Descriptions.Item>
                             <Descriptions.Item label="Tipo"  style={{ maxWidth: '5%' }}>{grossIncomeInvoice.branchOfficeType}</Descriptions.Item>
+
+                            <Descriptions.Item label="Sucursal" style={{ maxWidth: '5%' }}>{branchOffice.nickname}</Descriptions.Item>
+
+                            <Descriptions.Item label="Dirección" style={{ maxWidth: '20%' }}>{branchOffice.address}</Descriptions.Item>
+
+                            
                         </>
                     )
                     : (null)
