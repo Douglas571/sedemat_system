@@ -395,10 +395,30 @@ function Payments(): JSX.Element {
                 return (
                 <Flex gap="small" align='center'>
 
-                    { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (<Button
-                        onClick={() => updateVerifiedStatus(record.id, record.isVerified)}
-                        shape="circle"
-                    >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}</Button>) }
+                    { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (
+                        
+                        <Popconfirm
+                            title="Eliminar Pago"
+                            description={`¿Estás seguro de que deseas marcar el pago como ${record.isVerified ? 'no verificado' : 'verificado'}?`}
+                            onConfirm={() => updateVerifiedStatus(record.id, record.isVerified)}
+                            //onCancel={cancel}
+                            okText="Si"
+                            cancelText="No"
+                        >
+                            <Button
+                                
+                                shape="circle"
+                                >{record.isVerified ? <CloseCircleFilled /> : <CheckCircleFilled />}
+                            </Button>
+                        </Popconfirm>
+                        
+                        
+                        
+                    
+                    
+                    
+                    
+                    ) }
 
                     <Button 
                         onClick={() => navigate(`/payments/${record.id}`)} 
