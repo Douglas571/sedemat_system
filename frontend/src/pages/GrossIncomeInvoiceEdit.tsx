@@ -430,6 +430,10 @@ const GrossIncomeInvoice: React.FC = () => {
 
         // filter by office 
         let toDisplay: IGrossIncome = grossIncomes
+
+        if (selectedOfficeId) {
+            toDisplay = toDisplay.filter( g => g.branchOfficeId === selectedOfficeId)
+        }
     
         // if is not editing, hide those who have grossIncomeInvoiceId
         if (!isEditing) {
