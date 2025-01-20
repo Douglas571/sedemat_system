@@ -181,7 +181,11 @@ class GrossIncomeInvoiceService {
                 }
 
                 // if is paid and all payments are verified
-                if (invoice.paidAt && invoice.payments.every(payment => payment.isVerified)) {
+                if (
+                    invoice.paidAt 
+                    // && invoice.payments.every(payment => payment.isVerified)
+                    // this was commented with the intention of showing all gross incomes, no matter if the payments are not verified
+                ) {
                     return true
                 }
             });
