@@ -5,6 +5,7 @@ import * as grossIncomeApi from '../util/grossIncomeApi';
 import * as paymentsApi from '../util/paymentsApi';
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
 import { 
+    BranchOffice,
     Business, 
     EconomicActivity, 
     IGrossIncome, 
@@ -169,7 +170,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                 <Flex vertical gap="large">
                     <Descriptions bordered title="Información de la Empresa">
                         <Descriptions.Item label="Empresa">
-                            <Text>{business.businessName}</Text>
+                            <Link to={`/business/${business.id}`}>{business.businessName}</Link>
                         </Descriptions.Item>
                         <Descriptions.Item label="Rif">
                             <Text>{business.dni}</Text>
@@ -349,17 +350,31 @@ function GrossIncomeTaxesTable(
     }
 
     // ! TODO: Delete this code, and implement this in the backend as a report business, this is a prove of concept for now
-    let grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
+    let grossIncomesByBranchOffice = grossIncomesWithStatus
 
-        acc.set(grossIncome.branchOfficeId, [...(acc.get(grossIncome.branchOfficeId) ?? []), grossIncome])
+    if (grossIncomesWithStatus.branchOffice) {
+        grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
 
-        return acc
+            acc.set(grossIncome.branchOfficeId, [...(acc.get(grossIncome.branchOfficeId) ?? []), grossIncome])
+    
+            return acc
+    
+        }, new Map<string, IGrossIncomeWithStatus[]>())
 
-    }, new Map<string, IGrossIncomeWithStatus[]>())
+        for (const [key, value] of grossIncomesByBranchOffice) {
+            let { branchOffice } = value[0]
+            pushEmptyGrossIncomes(value)
+        }
+    } else {
+        pushEmptyGrossIncomes(grossIncomesWithStatus)
+    }
 
-    for (const [key, value] of grossIncomesByBranchOffice) {
-        let { branchOffice } = value[0]
-        let periods = value.sort((a, b) => a.period.isBefore(b.period) ? 1 : -1).map( grossIncome => dayjs(grossIncome.period))
+    
+
+    function pushEmptyGrossIncomes(grossIncomes) {
+        let { branchOffice } = grossIncomes[0]
+
+        let periods = grossIncomes.sort((a, b) => a.period.isBefore(b.period) ? 1 : -1).map( grossIncome => dayjs(grossIncome.period))
 
         let periodsStrings = periods.map(period => period.format('YYYY-MM'))
 
@@ -371,9 +386,9 @@ function GrossIncomeTaxesTable(
                 id: Math.random().toString(16).slice(2),
                 period: currentPeriod,
                 amountBs: null,
-                branchOfficeId: branchOffice.id,
+                branchOfficeId: branchOffice?.id,
                 branchOffice: branchOffice,
-                chargeWasteCollection: branchOffice.chargeWasteCollection,
+                chargeWasteCollection: branchOffice?.chargeWasteCollection,
                 badgeStatus: 'default',
                 status: 'Sin Declaración',
             })
@@ -609,6 +624,11 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             dataIndex: ['settlement', 'settledAt'],
             key: 'settledAt',
             render: (value: string) => value ? dayjs(value).format('DD/MM/YYYY'): '--',
+        },
+        {
+            title: 'Sucursal',
+            dataIndex: 'branchOfficeName',
+            key: 'branchOfficeNickname',
         },
         {
             title: 'Monto Total',
