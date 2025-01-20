@@ -511,7 +511,7 @@ function GrossIncomeTaxesTable(
             title: 'Nota del Fiscal',
             dataIndex: 'fiscalNote',
             render: (_: any, record: IGrossIncome) => {
-                let text = record.fiscalMarkAsPaid || record?.grossIncomeInvoice?.paidAt !== undefined ? "Pagado" : "Sin Pagar"
+                let text = record.fiscalMarkAsPaid || record?.grossIncomeInvoice?.paidAt ? "Pagado" : "Sin Pagar"
 
                 if (record.fiscalNote) {
                     text += ' - ' + record.fiscalNote
