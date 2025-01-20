@@ -233,7 +233,11 @@ const BasicComponent: React.FC = () => {
             {pendingMonthsForFiscal?.length || 0}
           </Flex>
         </Tooltip>
-      }
+      },
+
+      sorter: (a, b) => a?.pendingMonthsForFiscal?.length - b?.pendingMonthsForFiscal?.length,
+      showSorterTooltip: false,
+      sortDirections: ['ascend', 'descend', 'ascend'],
     },
     {
       title: 'Meses pendientes de pagar',
