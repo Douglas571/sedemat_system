@@ -352,37 +352,54 @@ function GrossIncomeTaxesTable(
     // ! TODO: Delete this code, and implement this in the backend as a report business, this is a prove of concept for now
     let grossIncomesByBranchOffice = grossIncomesWithStatus
 
-    if (grossIncomesWithStatus.branchOffice) {
-        grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
-
-            acc.set(grossIncome.branchOfficeId, [...(acc.get(grossIncome.branchOfficeId) ?? []), grossIncome])
     
-            return acc
-    
-        }, new Map<string, IGrossIncomeWithStatus[]>())
 
-        for (const [key, value] of grossIncomesByBranchOffice) {
-            let { branchOffice } = value[0]
-            pushEmptyGrossIncomes(value)
+    if (grossIncomesWithStatus.length > 0) {
+        if (grossIncomesWithStatus[0].branchOffice) {
+
+            grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
+    
+                acc.set(grossIncome.branchOfficeId, [...(acc.get(grossIncome.branchOfficeId) ?? []), grossIncome])
+        
+                return acc
+        
+            }, new Map<string, IGrossIncomeWithStatus[]>())
+    
+            for (const [key, value] of grossIncomesByBranchOffice) {
+                let { branchOffice } = value[0]
+                pushEmptyGrossIncomes(value, branchOffice)
+            }
+
+        } else {
+            pushEmptyGrossIncomes(grossIncomesWithStatus)     
         }
-    } else {
-        pushEmptyGrossIncomes(grossIncomesWithStatus)
     }
 
     
 
-    function pushEmptyGrossIncomes(grossIncomes) {
-        let { branchOffice } = grossIncomes[0]
+    function pushEmptyGrossIncomes(grossIncomes: Array<IGrossIncome>, branchOffice?: BranchOffice) {
+
+        if (grossIncomes.length === 0) {
+            return
+        }
 
         let periods = grossIncomes.sort((a, b) => a.period.isBefore(b.period) ? 1 : -1).map( grossIncome => dayjs(grossIncome.period))
+        
 
         let periodsStrings = periods.map(period => period.format('YYYY-MM'))
 
         let firstPeriod = periods.pop()
         let currentPeriod = firstPeriod
 
+        if (!currentPeriod) {
+            return
+        }
+
         while(currentPeriod.isBefore(dayjs(), 'month')) {
-            !periodsStrings.includes(currentPeriod.format('YYYY-MM')) && grossIncomesWithStatus.push({
+
+            !periodsStrings.includes(currentPeriod.format('YYYY-MM')) && 
+
+            grossIncomesWithStatus.push({
                 id: Math.random().toString(16).slice(2),
                 period: currentPeriod,
                 amountBs: null,
