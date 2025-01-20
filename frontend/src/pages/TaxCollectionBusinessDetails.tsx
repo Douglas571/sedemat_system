@@ -276,6 +276,11 @@ function GrossIncomeTaxesTable(
     onUpdate: () => void 
 }): JSX.Element {
 
+    const navigate = useNavigate();
+
+    const [ showEditGrossIncomeNoteModal, setShowEditGrossIncomeNoteModal ] = useState(false);
+    const [ grossIncomeBeingEdited, setGrossIncomeBeingEdited ] = useState<IGrossIncome | undefined >(undefined)
+
     const { userAuth } = useAuthentication()
     const { user } = userAuth
 
@@ -300,6 +305,48 @@ function GrossIncomeTaxesTable(
         }
     })
 
+    const handleGrossIncomeDelete = async (grossIncomeId: number) => {
+        onDelete(grossIncomeId);
+    };
+
+    const handleShowEditGrossIncomNoteModal = (record: IGrossIncome) => {
+        setGrossIncomeBeingEdited(record)
+        setShowEditGrossIncomeNoteModal(true)
+    }
+
+    const handleCancelEditModal = () => {
+        setShowEditGrossIncomeNoteModal(false)
+    }
+
+    const handleEditGrossIncomeNote = async (data: IGrossIncomeNote) => {
+        console.log({data})
+
+        let currentGrossIncome = grossIncomeBeingEdited
+        try {
+
+            if (!currentGrossIncome) {
+                return 
+            }
+            
+            let response = await grossIncomeApi.editNote({
+                data: {
+                    businessId: Number(currentGrossIncome.businessId),
+                    branchOfficeId: Number(currentGrossIncome.branchOfficeId),
+                    grossIncomeId: Number(currentGrossIncome.id),
+                    period: currentGrossIncome.period,
+                    fiscalMarkAsPaid: data.fiscalMarkAsPaid,
+                    fiscalNote: data.fiscalNote
+                },
+                token: userAuth.token
+            })
+
+            onUpdate()
+        } catch (e) {
+            console.log({e})
+        }
+
+        setShowEditGrossIncomeNoteModal(false)
+    }
 
     // ! TODO: Delete this code, and implement this in the backend as a report business, this is a prove of concept for now
     let grossIncomesByBranchOffice = grossIncomesWithStatus.reduce((acc, grossIncome) => {
@@ -335,60 +382,6 @@ function GrossIncomeTaxesTable(
         }
     }
 
-    
-
-    const navigate = useNavigate();
-
-    const handleGrossIncomeDelete = async (grossIncomeId: number) => {
-        onDelete(grossIncomeId);
-    };
-
-    const [ showEditGrossIncomeNoteModal, setShowEditGrossIncomeNoteModal ] = useState(false);
-    const [ grossIncomeBeingEdited, setGrossIncomeBeingEdited ] = useState<IGrossincome>(undefined)
-
-    // console.log('grossIncomes', grossIncomes)
-
-    const handleShowEditGrossIncomNoteModal = (record: IGrossIncome) => {
-
-        setGrossIncomeBeingEdited(record)
-        setShowEditGrossIncomeNoteModal(true)
-
-    }
-
-    const handleEditGrossIncomeNote = async (data: IGrossIncomeNote) => {
-        console.log({data})
-
-        let currentGrossIncome = grossIncomeBeingEdited
-        try {
-            let response = await grossIncomeApi.editNote({
-                data: {
-                    businessId: Number(currentGrossIncome.businessId),
-                    branchOfficeId: Number(currentGrossIncome.branchOfficeId),
-                    grossIncomeId: Number(currentGrossIncome.id),
-                    period: currentGrossIncome.period,
-                    fiscalMarkAsPaid: data.fiscalMarkAsPaid,
-                    fiscalNote: data.fiscalNote
-                },
-                token: userAuth.token
-            })
-
-            onUpdate()
-        } catch (e) {
-            console.log({e})
-        }
-
-        // if no error, return { status: false }
-        // if error, throw exception and print message 
-
-        setShowEditGrossIncomeNoteModal(false)
-    }
-
-    
-    
-
-    const handleCancelEditModal = () => {
-        setShowEditGrossIncomeNoteModal(false)
-    }
 
     const columns = [
         {
