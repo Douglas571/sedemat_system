@@ -135,7 +135,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
             totalTaxBsExpected: CurrencyHandler(taxBs > alicuotaMinTaxBsExpected ? taxBs : alicuotaMinTaxBsExpected).add(chargeWasteCollection ? wasteCollectionTaxBsExpected : 0).value
         })
 
-    }, [alicuotaMinTaxBsExpected, wasteCollectionTaxBsExpected, chargeWasteCollection])
+    }, [alicuotaMinTaxBsExpected, wasteCollectionTaxBsExpected, chargeWasteCollection, alicuotaTaxPercent, amountBs])
 
     async function loadData() {
         if (businessId) {
