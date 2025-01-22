@@ -213,7 +213,13 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
             }
             <Descriptions.Item label="Declarado el">{dayjs(grossIncome.declaredAt).format('DD [de] MMMM [de] YYYY')}</Descriptions.Item>
             <Descriptions.Item label="Periodo">{dayjs(grossIncome.period).format('MMMM YYYY').toUpperCase()}</Descriptions.Item>
-            <Descriptions.Item label="Monto Declarado">{formatBolivares(grossIncome.amountBs)}</Descriptions.Item>
+            <Descriptions.Item 
+                label="Monto Declarado"
+            >
+                
+                <div style={{ fontWeight: 'bold' }}>{formatBolivares(grossIncome.amountBs)}</div>
+
+            </Descriptions.Item>
 
             {
                 hasBranchOffice && (
@@ -226,7 +232,13 @@ const GrossIncomeInfo: React.FC<{ grossIncome: IGrossIncome | undefined }> = ({ 
             <Descriptions.Item label="Impuesto">{formatBolivares(grossIncome.taxInBs)}</Descriptions.Item>
             <Descriptions.Item label="Aseo">{formatBolivares(grossIncome.wasteCollectionTaxInBs)}</Descriptions.Item>
             <Descriptions.Item label="Min. Tributario">{formatBolivares(grossIncome.minTaxInBs)}</Descriptions.Item>
-            <Descriptions.Item label="Total a Pagar">{formatBolivares(grossIncome.totalTaxInBs)}</Descriptions.Item>
+            <Descriptions.Item 
+                label="Total a Pagar"
+            >
+                <div style={{ fontWeight: 'bold' }}>
+                    {formatBolivares(grossIncome.totalTaxInBs)}
+                </div>
+            </Descriptions.Item>
 
             
         </Descriptions>
