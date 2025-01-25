@@ -372,7 +372,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
         let fetchedBranchOffices: BranchOffice[]
 
         fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId))
-        setBranchOffices(fetchedBranchOffices);
+        setBranchOffices(fetchedBranchOffices.filter( office => office.isActive));
     }
 
     async function loadGrossIncome() {

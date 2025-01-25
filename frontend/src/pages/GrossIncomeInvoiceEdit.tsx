@@ -228,7 +228,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
     async function loadBranchOffices() {
         const fetchedBranchOffices = await api.fetchBranchOffices(Number(businessId));
-        setBranchOffices(fetchedBranchOffices)
+        setBranchOffices(fetchedBranchOffices.filter(office => office.isActive))
     }
 
     async function loadUsers() {

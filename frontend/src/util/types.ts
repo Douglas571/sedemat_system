@@ -106,6 +106,7 @@ export type BranchOffice = {
     type: string;
     dimensions: number;
     isRented: boolean;
+    isActive: boolean;
     chargeWasteCollection: boolean;
 
     EconomicLicenses?: Array<License>
