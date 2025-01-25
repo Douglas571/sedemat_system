@@ -427,14 +427,6 @@ function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[], b
 
             <Flex gap={'middle'} wrap>
 
-                <Form.Item label="Categoría" name={'businessActivityCategoryId'}
-                    style={{ flex: 1 }}
-                >
-                    <Select 
-                        options={businessActivityCategoriesOptions}
-                    />
-                </Form.Item>
-
                 <Form.Item name='pendingArchiveIndex' label='Indice en el archivo de cuentas por cobrar'>
                     <InputNumber min={0} style={{ width: '100%' }} />
                 </Form.Item>
@@ -444,15 +436,27 @@ function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[], b
                 </Form.Item>
             </Flex>
 
-            <Form.Item name="isActive" label="Activo">
-                <Switch checkedChildren="SI" unCheckedChildren="NO" />
-            </Form.Item>
+            <Flex gap={'middle'} wrap>
+                <Form.Item name="isActive" label="Activo">
+                    <Switch checkedChildren="SI" unCheckedChildren="NO" />
+                </Form.Item>
 
-            <Form.Item name={"fiscalId"} label={"Fiscal"}>
-                <Select
-                    options={fiscalsOptions}
-                />
-            </Form.Item>
+                <Form.Item label="Categoría" name={'businessActivityCategoryId'}
+                    style={{ }}
+                >
+                    <Select 
+                        options={businessActivityCategoriesOptions}
+                        style={{ minWidth: '15rem' }}
+                    />
+                </Form.Item>
+
+                <Form.Item name={"fiscalId"} label={"Fiscal"}>
+                    <Select
+                        options={fiscalsOptions}
+                        style={{ minWidth: '15rem' }}
+                    />
+                </Form.Item>
+            </Flex>
 
             <Divider />
 
