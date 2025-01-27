@@ -49,12 +49,12 @@ const deleteDeclarationImage = (relativeImagePath) => {
 
 function getWasteCollectionTaxInMMV(mts2) {
     // Return 20 if mts2 is greater than or equal to 300
-    if (mts2 >= 300) {
-        return 20;
+    if (mts2 > 300) {
+        return 15;
     }
 
     // Return 10 if mts2 is greater than or equal to 50
-    if (mts2 >= 50) {
+    if (mts2 > 50) {
         return 10;
     }
 
