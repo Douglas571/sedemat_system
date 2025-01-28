@@ -398,8 +398,8 @@ function Payments(): JSX.Element {
                     { [ROLES.LIQUIDATOR, ROLES.COORDINATOR].includes(userAuth?.user?.roleId) && (
                         
                         <Popconfirm
-                            title="Eliminar Pago"
-                            description={`¿Estás seguro de que deseas marcar el pago como ${record.isVerified ? 'no verificado' : 'verificado'}?`}
+                            title={`¿${record.isVerified ? 'Desverificar' : 'Verificar'} Pago?`}
+                            // description={`¿Estás seguro de que deseas marcar el pago como ${record.isVerified ? 'no verificado' : 'verificado'}?`}
                             onConfirm={() => updateVerifiedStatus(record.id, record.isVerified)}
                             //onCancel={cancel}
                             okText="Si"
