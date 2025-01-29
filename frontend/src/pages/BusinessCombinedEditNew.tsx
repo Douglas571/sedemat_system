@@ -110,7 +110,7 @@ export default function BusinessForm(): JSX.Element {
             ...businessData,
             businessName: businessData.businessName,
             dni: businessData.dni,
-            economicActivity: businessData.economicActivity.title,
+            economicActivity: `${businessData.economicActivity.code} - ${businessData.economicActivity.title}`,
 
             companyIncorporationDate: dayjs(businessData.companyIncorporationDate),
             companyExpirationDate: dayjs(businessData.companyExpirationDate),
@@ -204,7 +204,8 @@ export default function BusinessForm(): JSX.Element {
             }
 
             // get economic activity id
-            const economicActivityObject = economicActivities.find(e => e.title === values?.economicActivity);
+            const economicActivityObject = economicActivities
+                .find(e => `${e.code} - ${e.title}` === values?.economicActivity);
             const economicActivityId = economicActivityObject?.id;
 
             businessData.economicActivityId = economicActivityId
@@ -421,7 +422,7 @@ function BusinessBasicInformarionForm({ economicActivities, fiscalsOptions=[], b
                     data-test='business-economic-activity-input'
                     //defaultValue={economicActivities[0]?.title}
                     showSearch
-                    options={economicActivities.map(e => ({ label: e?.title, value: e?.title }))}
+                    options={economicActivities.map(e => ({ label: `${e.code} - ${e.title}`, value: `${e.code} - ${e.title}` }))}
                 />
             </Form.Item>
 
