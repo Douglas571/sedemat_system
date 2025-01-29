@@ -23,7 +23,7 @@ import ROLES from '../util/roles';
 
 
 
-import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip, Modal, Form, Switch, Input } from 'antd';
+import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip, Modal, Form, Switch, Input, Tabs } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
@@ -162,6 +162,38 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         }
     };
 
+    const pageTabs = [
+        {
+            key: '1',
+            label: <div style={{ border: '3px solid #ff6021', padding: '0.5rem'}}>FACTURAS</div>,
+            children: <GrossIncomeInvoiceTable
+                        invoices={grossIncomeInvoices}
+                        onDelete={handleDeleteGrossIncomeInvoice}
+                        disableAdd={grossIncomes.length === 0}
+                    />,
+            
+        },
+        {
+            key: '2',
+            label: <div style={{ border: '3px solid #5290fa', padding: '0.5rem'}}>DECLARACIONES</div>,
+            children: <GrossIncomeTaxesTable
+                        grossIncomes={grossIncomes}
+                        grossIncomeInvoices={grossIncomeInvoices}
+                        onDelete={handleGrossIncomeDelete}
+                        onUpdate={loadGrossIncomes}
+                    />
+            
+        },
+        {
+            key: '3',
+            label: <div style={{ border: '3px solid #6ded8f', padding: '0.5rem'}}>PAGOS</div>,
+            children: <PaymentsTable
+                        payments={payments}
+                    />
+            
+        },
+    ]
+
     return (
         <Flex vertical gap="large">
 
@@ -178,27 +210,18 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                     </Descriptions>
 
                     <EconomicActivityDescription economicActivity={economicActivity} />
-
-                    <GrossIncomeInvoiceTable
-                        invoices={grossIncomeInvoices}
-                        onDelete={handleDeleteGrossIncomeInvoice}
-                        disableAdd={grossIncomes.length === 0}
+                    
+                    <Tabs
+                        defaultActiveKey='1'
+                        items={pageTabs}
+                        size='large'
                     />
 
-                    <GrossIncomeTaxesTable
-                        grossIncomes={grossIncomes}
-                        grossIncomeInvoices={grossIncomeInvoices}
-                        onDelete={handleGrossIncomeDelete}
-                        onUpdate={loadGrossIncomes}
-                    />
-
-                    {/* <WasteCollectionTaxesTable /> */}
-
-                    <PaymentsTable
-                        payments={payments}
-                    />
 
                 </Flex>
+
+                
+                
             </Card>
 
         </Flex>
