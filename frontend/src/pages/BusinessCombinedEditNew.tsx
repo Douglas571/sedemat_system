@@ -110,6 +110,8 @@ export default function BusinessForm(): JSX.Element {
             ...businessData,
             businessName: businessData.businessName,
             dni: businessData.dni,
+
+            // todo: improve this, so you avoid formatting and deformatting the economic activity string
             economicActivity: `${businessData.economicActivity.code} - ${businessData.economicActivity.title}`,
 
             companyIncorporationDate: dayjs(businessData.companyIncorporationDate),
