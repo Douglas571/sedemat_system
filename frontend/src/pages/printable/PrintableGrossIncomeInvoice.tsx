@@ -112,8 +112,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
         setLastCurrencyExchangeRate(fetchedLastCurrencyExchangeRate)
         setBusiness(fetchedBusiness)
         setGrossIncomeInvoice(fetchedInvoice)
-        setGrossIncomes(fetchedInvoice.grossIncomes)
-
+        setGrossIncomes(fetchedInvoice.grossIncomes.sort((a, b) => {
+          if (dayjs(a.period).isBefore(dayjs(b.period))) {
+            return -1
+          } else {
+            return 1
+          }
+        }))
+        
         let branchOfficeName = fetchedInvoice?.branchOfficeName
 
         document.title = `Calculo - ${dayjs().format("MMMM YYYY")} - ${fetchedInvoice.businessName} ${branchOfficeName && "(" + branchOfficeName + ")"}`.toUpperCase()
