@@ -31,8 +31,8 @@ import dayjs from 'dayjs';
 const { Title, Text } = Typography;
 
 import { FaCashRegister } from "react-icons/fa";
-import { MdAccountBalanceWallet } from "react-icons/md";
-import { FileFilled } from '@ant-design/icons';
+
+import { FileFilled, WalletFilled } from '@ant-design/icons';
 
 
 const TaxCollectionBusinessDetails: React.FC = () => {
@@ -196,7 +196,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             key: '3',
             label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
                 // border: '3px solid #6ded8f', padding: '0.5rem'
-            }}><MdAccountBalanceWallet  style={{ fontSize: '1.5rem'}}/> PAGOS</div>,
+            }}><WalletFilled  style={{ fontSize: '1.5rem'}}/> PAGOS</div>,
             children: <PaymentsTable
                         payments={payments}
                     />
