@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { Children, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
     Card, 
@@ -21,7 +21,9 @@ import {
     DatePicker,
     Badge,
     Tooltip,
-    Switch
+    Switch,
+    Tabs,
+    
 } from 'antd';
 
 const { Title, Text } = Typography;
@@ -39,7 +41,7 @@ import ROLES from '../util/roles';
 
 import { IBranchOffice, IGrossIncomeInvoice, IGrossIncome, Business, CurrencyExchangeRate, Payment, ISettlement, IUser, IPenaltyType, IPenalty } from '../util/types';
 
-import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled, ToolOutlined} from '@ant-design/icons';
+import { PlusOutlined, PrinterOutlined, FileDoneOutlined, UndoOutlined, DeleteOutlined, EditOutlined, CheckCircleFilled, CloseCircleFilled, ToolOutlined, AlertFilled, WalletFilled} from '@ant-design/icons';
 
 
 import * as grossIncomeApi from '../util/grossIncomeApi'
@@ -334,6 +336,38 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     let canSettleInvoice = [ROLES.LIQUIDATOR].includes(user?.roleId)
     
     // ! TODO: Refactor this whole thing around settling button
+
+    const pageTabs = [
+        {
+            key: '1',
+            label: <span><AlertFilled style={{fontSize: '1.5rem'}}/> MULTAS</span>,
+            children: (<PenaltiesTable 
+                TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}
+                grossIncomeInvoiceId={Number(grossIncomeInvoiceId)}
+                penalties={grossIncomeInvoice?.penalties}
+                onUpdate={() => {
+                    loadData()
+                }}
+
+                canEdit={cadEditPenalties}
+            />)
+        },
+        {
+            key: '2',
+            label: <span><WalletFilled style={{fontSize: '1.5rem'}}/> PAGOS</span>,
+            children: (<PaymentsAllocatedTable 
+                paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
+                payments={payments}
+                onDelete={handleDeletePayment}
+                onAdd={handleAddPayment}
+
+                paidAt={grossIncomeInvoice?.paidAt}
+
+                disabled={isSettled}
+                onUpdate={() => loadData()}
+            />)
+        },
+    ]
     
     return (
         <Card title={
@@ -419,6 +453,19 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     : (null)
                 }
             </Descriptions>
+
+            <br/>
+
+            <UsersInvolved grossIncomeInvoice={grossIncomeInvoice} />
+
+            <br/>
+            {
+                isSettled && (
+                    <Settlement
+                        settlement={grossIncomeInvoice?.settlement}
+                    />
+                )
+            }
 
 
             { /** TABLE OF GROSS INCOMES */}
@@ -733,55 +780,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                     </Table>           
                 </div>
             </div>
-           
-
-            <Divider />
 
             <br/>
 
-            <PenaltiesTable 
-                TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}
-                grossIncomeInvoiceId={Number(grossIncomeInvoiceId)}
-                penalties={grossIncomeInvoice?.penalties}
-                onUpdate={() => {
-                    loadData()
-                }}
-
-                canEdit={cadEditPenalties}
+            <Tabs
+                defaultActiveKey='1'
+                items={pageTabs}
+                size='large'
             />
 
-            
-
-            <br/>
-
-            <PaymentsAllocatedTable 
-                paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
-                payments={payments}
-                onDelete={handleDeletePayment}
-                onAdd={handleAddPayment}
-
-                paidAt={grossIncomeInvoice?.paidAt}
-
-                disabled={isSettled}
-                onUpdate={() => loadData()}
-            />
-
-            <br/>
-
-            <UsersInvolved grossIncomeInvoice={grossIncomeInvoice} />
-
-            <br/>
-
-            
-
-            {
-                isSettled && (
-                    <Settlement
-                        settlement={grossIncomeInvoice?.settlement}
-                    />
-                )
-            }
-            
             <SettlementEditModal 
                 open={showSettlementModal}
                 onCancel={() => setShowSettlementModal(false)}
@@ -842,7 +849,7 @@ function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeIn
     return (
         <Descriptions 
             layout='vertical' 
-            title="Usuarios involucrados" 
+            title="Información de la factura" 
             bordered size="small" 
             items={items} />
     );
