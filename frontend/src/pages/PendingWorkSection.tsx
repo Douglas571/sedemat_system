@@ -18,7 +18,7 @@ import ROLES from "../util/roles"
 
 import { formatBolivares } from "util/currency"
 import { completeUrl } from "util"
-import { IGrossIncome, INewGrossIncome, Payment } from "../util/types"
+import { IGrossIncome, IGrossIncomeInvoice, INewGrossIncome, Payment } from "../util/types"
 
 
 const PendingWorkSection = () => {
@@ -101,7 +101,15 @@ const PendingGrossIncomesToBeSettled = () => {
                 } else {
                     return '--'
                 }
-            }
+            },
+
+            sorter: (a: IGrossIncomeInvoice, b: IGrossIncomeInvoice) => {
+                return dayjs(a.paidAt).isBefore(dayjs(b.paidAt), 'day') ? -1 : 1
+            },
+
+            defaultSortOrder: 'ascend',
+            showSorterTooltip: false,
+            
         },
         {
             title: 'Acciones',
