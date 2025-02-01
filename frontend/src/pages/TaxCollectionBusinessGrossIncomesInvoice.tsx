@@ -460,7 +460,15 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                             dataIndex="period" 
                             key="period" 
                             width={100}
-                            render={(period: Date) => _.upperFirst(dayjs(period).format('MMM-YY'))}
+                            render={(period: Date, record: IGrossIncome) => {
+                                
+                                    let textPeriod = _.upperFirst(dayjs(period).format('MMM-YY'))
+
+                                    return <Link 
+                                        to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
+                                        
+                                    >{textPeriod}</Link>
+                                }}
                         />
                         <Table.Column 
                             title="Ingreso" 
@@ -491,7 +499,14 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                             key="tax" 
                             render={(amountBs: number, record: IGrossIncome) => {
                                 const {taxInBs} = record
-                                return formatBolivares(taxInBs);
+
+                                let minTaxInBs = record.minTaxInBs
+
+                                let itApply = taxInBs >= minTaxInBs
+
+                                return <span style={{ color: itApply ? 'black' : 'red'}}>
+                                    {formatBolivares(taxInBs)}
+                                </span>
                             }}
                             width="15%"
                         />
@@ -508,9 +523,12 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                                 // // console.log({cer, economicActivity, MMVExchangeRate, minTax})
                                 // return formatBolivares(minTaxThreshold);
                                 
+                                let taxInBs = grossIncome.taxInBs
                                 let minTaxInBs = grossIncome.minTaxInBs
 
-                                return formatBolivares(minTaxInBs)
+                                let itApply = taxInBs <= minTaxInBs
+
+                                return <span>{ itApply ? formatBolivares(minTaxInBs) : '--' }</span>
                             }}
                             width="15%"
                         />

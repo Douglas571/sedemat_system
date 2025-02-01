@@ -245,11 +245,22 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                   return (<tr>
                     <td>{_.upperFirst(dayjs(grossIncome.period).format('MMM-YY')).toUpperCase()}</td>
+
                     <td>{grossIncome?.supportFiles?.length > 0 ? CurrencyHandler(grossIncome.amountBs).format() : '--'}</td>
+
                     <td>{formatPercents(grossIncome.alicuotaTaxPercent)}</td>
+
                     <td>{CurrencyHandler(grossIncome.taxInBs).format()}</td>
-                    <td>{CurrencyHandler(grossIncome.minTaxInBs).format()}</td>
+
+                    <td>{
+                      
+                        grossIncome.minTaxInBs >= grossIncome.taxInBs
+                        ? CurrencyHandler(grossIncome.minTaxInBs).format()
+                        : '--'
+                      }</td>
+
                     <td>{ grossIncome.chargeWasteCollection ? CurrencyHandler(grossIncome.wasteCollectionTaxInBs).format() : '--'}</td>
+
                     <td>{CurrencyHandler(grossIncome.totalTaxInBs).format()}</td>
                   </tr>)
                 })}
