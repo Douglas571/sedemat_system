@@ -30,6 +30,10 @@ import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
+import { FaCashRegister } from "react-icons/fa";
+import { MdAccountBalanceWallet } from "react-icons/md";
+import { FileFilled } from '@ant-design/icons';
+
 
 const TaxCollectionBusinessDetails: React.FC = () => {
     const { userAuth } = useAuthentication();
@@ -165,7 +169,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const pageTabs = [
         {
             key: '1',
-            label: <div style={{ border: '3px solid #ff6021', padding: '0.5rem'}}>FACTURAS</div>,
+            label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
+                // border: '3px solid #ff6021', padding: '0.5rem'
+            }}> <FaCashRegister style={{ fontSize: '1.5rem'}}/> FACTURAS</div>,
             children: <GrossIncomeInvoiceTable
                         invoices={grossIncomeInvoices}
                         onDelete={handleDeleteGrossIncomeInvoice}
@@ -175,7 +181,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         },
         {
             key: '2',
-            label: <div style={{ border: '3px solid #5290fa', padding: '0.5rem'}}>DECLARACIONES</div>,
+            label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
+                // border: '3px solid #5290fa', padding: '0.5rem'
+            }}><FileFilled style={{ fontSize: '1.5rem'}}/> DECLARACIONES</div>,
             children: <GrossIncomeTaxesTable
                         grossIncomes={grossIncomes}
                         grossIncomeInvoices={grossIncomeInvoices}
@@ -186,7 +194,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         },
         {
             key: '3',
-            label: <div style={{ border: '3px solid #6ded8f', padding: '0.5rem'}}>PAGOS</div>,
+            label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
+                // border: '3px solid #6ded8f', padding: '0.5rem'
+            }}><MdAccountBalanceWallet  style={{ fontSize: '1.5rem'}}/> PAGOS</div>,
             children: <PaymentsTable
                         payments={payments}
                     />
@@ -445,10 +455,11 @@ function GrossIncomeTaxesTable(
             key: 'year',
             showSorterTooltip: false,
             sortDirections: ['ascend', 'descend', 'ascend'],
+            defaultSortOrder: 'descend',
             render: (period: any) => {
                 return period.year() + ' - ' + monthMapper[period.month()];
             },
-            sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? 1 : -1,
+            sorter: (a: IGrossIncome, b: IGrossIncome) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1,
             defaultSortOrder: 'descend'
         },
         {
@@ -900,7 +911,7 @@ function PaymentsTable({payments}: {payments: IPayment[]}): JSX.Element {
 
     return <>
         <Flex gap="small" align='center' justify='space-between'>
-            <Title level={3}>Pagos</Title>
+            <Title level={3}>Pagos del Contribuyente</Title>
         </Flex>
         <Table
             style={{ overflow: 'scroll' }}
