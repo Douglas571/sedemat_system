@@ -23,6 +23,7 @@ import {
     Tooltip,
     Switch,
     Tabs,
+    Statistic
     
 } from 'antd';
 
@@ -365,6 +366,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
 
                 disabled={isSettled}
                 onUpdate={() => loadData()}
+
+                totalAllocatedInBs={totalPaymentsAllocated}
+                differenceInBs={totalLessPaymentsAllocatedBs}
             />)
         },
     ]
@@ -1089,9 +1093,9 @@ function PenaltiesTable({
     }
 
     return (
-        <Flex vertical>
-            <Flex align='center' justify='space-between'>
-                <Typography.Title level={4}>Multas</Typography.Title>
+        <Flex vertical gap='small'>
+            <Flex align='center' gap='large'>
+                <Typography.Title level={4} style={{margin: 0}}>Multas</Typography.Title>
                 <Button 
                     icon={<PlusOutlined />} 
                     onClick={() => handleToggleShowPenaltyEditModal()}
@@ -1299,13 +1303,27 @@ function PenaltyEditModal({
 }
 
 function PaymentsAllocatedTable(
-    {paidAt, paymentsAllocated, payments, onDelete, onAdd, disabled, onUpdate} : 
+    {
+        paidAt, 
+        paymentsAllocated, 
+        payments, 
+        onDelete, 
+        onAdd, 
+        disabled, 
+        onUpdate,
+
+        totalAllocatedInBs,
+        differenceInBs,
+    } : 
     {
         paidAt: Date, 
         paymentsAllocated: Payment[], 
         payments: Payment[], 
         onDelete: (id: number) => void, onAdd: (id: number) => void, disabled: boolean,
-        onUpdate: () => void
+        onUpdate: () => void,
+
+        totalAllocatedInBs: number,
+        differenceInBs: number,
     }
 ) {
 
@@ -1315,6 +1333,8 @@ function PaymentsAllocatedTable(
     const {userAuth} = useAuthentication()
 
     const [showPaymentAssociationModal, setShowPaymentAssociationModal] = useState(false)
+
+    const totalAllocated = formatBolivares(paymentsAllocated.reduce((acc, curr) => acc + curr.amount, 0))
 
     const handleDelete = async (id: number) => {
         // console.log({id})
@@ -1428,8 +1448,8 @@ function PaymentsAllocatedTable(
 
     return (
         <Flex vertical gap={10}>
-            <Flex align="center" justify="space-between">
-                <Typography.Title level={5}>Pagos Asociados</Typography.Title>
+            <Flex align="center" gap='large'>
+                <Typography.Title level={4} style={{margin: 0}}>Pagos Asociados</Typography.Title>
                 <Button 
                     icon={<PlusOutlined />} 
                     onClick={() => setShowPaymentAssociationModal(true)}
@@ -1440,6 +1460,53 @@ function PaymentsAllocatedTable(
             { paidAt
             ? (<Alert message={`Esta factura fue pagada el día ${dayjs(paidAt).format('DD/MM/YYYY')}`} type="success" showIcon />)
             : (<Alert message="Esta factura no ha sido pagada" type="warning" showIcon />)}
+
+            <Flex gap='middle'>
+                <Card 
+                    key={0} 
+                    // bordered={false} 
+                    style={{
+                        minWidth: '150px',
+                        minHeight: '150px',
+                        flexGrow: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+
+                        maxWidth: '200px',
+                    }}
+                    >
+                    <Statistic
+                        style={{fontSize: '2px',}}
+                        title={'Total Abonado'}
+                        value={formatBolivares(totalAllocatedInBs)}
+                        precision={0}
+                    />
+                </Card>
+
+                <Card 
+                    key={0} 
+                    // bordered={false} 
+                    style={{
+                        minWidth: '150px',
+                        minHeight: '150px',
+                        flexGrow: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+
+                        maxWidth: '200px',
+                    }}
+                    >
+                    <Statistic
+                        title={'Diferencia'}
+                        value={formatBolivares(differenceInBs)}
+                        valueStyle={{ color: differenceInBs < 0 ? 'red' : 'inherit'}}
+                        precision={0}
+                    />
+                </Card>
+            </Flex>
+
             <Table 
                 size='small' 
                 dataSource={paymentsAllocated} 
