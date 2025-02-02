@@ -5,6 +5,8 @@ import { percentHandler, CurrencyHandler } from '../../util/currency';
 
 import CustomInputNumber from './FormInputNumberBs';
 
+import dayjs from 'dayjs';
+
 import * as util from '../../util'
     
 function EditGrossIncomeModal({
@@ -82,7 +84,7 @@ function EditGrossIncomeModal({
 
     return <>
         <Modal
-            title='Editar Ingreso Bruto'
+            title={'Editando Ingreso Bruto (' + dayjs(grossIncome.period).format('MMM - YYYY') + ')'}
             open={open}
             onOk={handleOk}
             onCancel={onCancel}
