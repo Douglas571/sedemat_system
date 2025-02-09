@@ -428,23 +428,23 @@ function GrossIncomeTaxesTable(
             return
         }
 
-        while(currentPeriod.isBefore(dayjs(), 'month')) {
+        // while(currentPeriod.isBefore(dayjs(), 'month')) {
 
-            !periodsStrings.includes(currentPeriod.format('YYYY-MM')) && 
+            // !periodsStrings.includes(currentPeriod.format('YYYY-MM')) && 
 
-            grossIncomesWithStatus.push({
-                id: Math.random().toString(16).slice(2),
-                period: currentPeriod,
-                amountBs: null,
-                branchOfficeId: branchOffice?.id,
-                branchOffice: branchOffice,
-                chargeWasteCollection: branchOffice?.chargeWasteCollection,
-                badgeStatus: 'default',
-                status: 'Sin Declaración',
-            })
+            // grossIncomesWithStatus.push({
+            //     id: Math.random().toString(16).slice(2),
+            //     period: currentPeriod,
+            //     amountBs: null,
+            //     branchOfficeId: branchOffice?.id,
+            //     branchOffice: branchOffice,
+            //     chargeWasteCollection: branchOffice?.chargeWasteCollection,
+            //     badgeStatus: 'default',
+            //     status: 'Sin Declaración',
+            // })
             
-            currentPeriod = currentPeriod.add(1, 'month')
-        }
+            // currentPeriod = currentPeriod.add(1, 'month')
+        // }
     }
 
 
