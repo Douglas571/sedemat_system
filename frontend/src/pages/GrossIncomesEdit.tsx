@@ -220,10 +220,12 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     // Update form with fetched gross income data
     useEffect(() => {
         if(grossIncome) {
+
+            let declaredAt = grossIncome.declaredAt ?? dayjs()
             // console.log('grossIncome', grossIncome)
             form.setFieldsValue({
                 ...grossIncome,
-                declaredAt: dayjs(grossIncome.declaredAt),
+                declaredAt,
                 period: dayjs(grossIncome.period),
                 // TODO: Modify the branch office name 
                 branchOffice: grossIncome.branchOfficeId,
@@ -602,6 +604,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                         <Form.Item 
                             layout='horizontal'
                             label="Fecha de declaración" name="declaredAt"
+                            rules={[{ required: true, message: 'Por vavor ingrese la fecha de declaración'}]}
                         >
                             <DatePicker picker="date"/>
                         </Form.Item>
