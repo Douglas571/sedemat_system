@@ -42,27 +42,27 @@ const DateRangeModal: React.FC<DateRangeModalProps> = ({ visible, onCancel, onSu
 
   return (
     <Modal
-      title="Select Date Range and Branch Office"
+      title="Generando Declaraciones Vacías"
       open={visible}
       onCancel={onCancel}
       footer={[
         <Button key="cancel" onClick={onCancel}>
-          Cancel
+          Cancelar
         </Button>,
         <Button key="submit" type="primary" onClick={handleSubmit}>
-          Submit
+          Generar
         </Button>,
       ]}
     >
       <Form form={form} layout="vertical">
-        <Form.Item label="Branch Office">
+        <Form.Item label="Sede">
           <Select
-            placeholder="Selecciones Una Sede (optional)"
+            placeholder="Selecciones Una Sede"
             value={selectedBranchOfficeId}
             onChange={(value) => setSelectedBranchOfficeId(value)}
-            allowClear
+            
           >
-            <Option value={undefined}>--</Option>
+            <Option value={undefined}>NINGUNA</Option>
             {branchOffices.map((branch) => (
               <Option key={branch.id} value={branch.id}>
                 {branch.nickname}
@@ -71,7 +71,7 @@ const DateRangeModal: React.FC<DateRangeModalProps> = ({ visible, onCancel, onSu
           </Select>
         </Form.Item>
 
-        <Form.Item label="Date Range" required>
+        <Form.Item label="Rango de Fecha" required>
           <RangePicker
             picker="month" 
             value={dateRange}
