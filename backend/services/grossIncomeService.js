@@ -673,7 +673,8 @@ class GrossIncomeService {
                 branchOffice,
                 lastAlicuota,
                 TCMMVBCV,
-                period
+                period,
+                createdByUserId
             })
 
             toInsert.push(newGrossIncome)
