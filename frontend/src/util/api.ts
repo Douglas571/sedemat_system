@@ -13,6 +13,9 @@ const HOST = "http://" + IP + ":" + PORT
 
 console.log({HOST, PORT, IP})
 
+/**
+ * @deprecated use the branch office function instead
+ */
 export async function fetchBranchOffices(businessId: number): Promise<BranchOffice[]> {
     const response = await fetch(`${HOST}/v1/branch-offices?businessid=${businessId}`, {
         method: 'GET',

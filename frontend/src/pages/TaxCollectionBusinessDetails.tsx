@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as api from '../util/api';
+import * as branchOfficesApi from '../services/branchOffices';
 import * as grossIncomeApi from '../util/grossIncomeApi';
 import * as paymentsApi from '../util/paymentsApi';
 import grossIncomeInvoiceService from '../services/GrossIncomesInvoiceService'
@@ -21,6 +22,7 @@ import useAuthentication from '../hooks/useAuthentication';
 
 import ROLES from '../util/roles';
 
+import GrossIncomesEmptyFillerModal from '../pages/components/GrossIncomesEmptyFillerModal'
 
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip, Modal, Form, Switch, Input, Tabs } from 'antd';
@@ -39,6 +41,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const { userAuth } = useAuthentication();
 
     const [business, setBusiness] = useState<Business>();
+    const [ branchOffices, setBranchOffices ] = useState<BranchOffice[]>([])
     const { businessId } = useParams<{ businessId: string }>();
     const [grossIncomes, setGrossIncomes] = useState<IGrossIncome[]>([]);
     const [grossIncomeInvoices, setGrossIncomeInvoices] = useState<IGrossIncomeInvoice[]>()
@@ -90,6 +93,7 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
     useEffect(() => {
         loadBusiness();
+        loadBranchOffice();
         loadGrossIncomes();
         loadGrossIncomeInvoices();
         loadPayments();
@@ -127,6 +131,20 @@ const TaxCollectionBusinessDetails: React.FC = () => {
             }
         }
     };
+
+    async function loadBranchOffice() {
+        try {
+            const fetchedBranchOffices = await branchOfficesApi.getBranchOffices({
+                filters: { businessId: Number(businessId) },
+                token: userAuth.token || ''
+            })
+
+            setBranchOffices(fetchedBranchOffices)
+        } catch(error) {
+            console.log({error})
+            message.error("Error al buscar sedes")
+        }
+    }
 
     async function loadGrossIncomes() {
         try {
@@ -185,6 +203,8 @@ const TaxCollectionBusinessDetails: React.FC = () => {
                 // border: '3px solid #5290fa', padding: '0.5rem'
             }}><FileFilled style={{ fontSize: '1.5rem'}}/> DECLARACIONES</div>,
             children: <GrossIncomeTaxesTable
+                        business={business}
+                        branchOffices={branchOffices}
                         grossIncomes={grossIncomes}
                         grossIncomeInvoices={grossIncomeInvoices}
                         onDelete={handleGrossIncomeDelete}
@@ -229,9 +249,6 @@ const TaxCollectionBusinessDetails: React.FC = () => {
 
 
                 </Flex>
-
-                
-                
             </Card>
 
         </Flex>
@@ -299,11 +316,15 @@ const monthMapper: string[] = [
 
 function GrossIncomeTaxesTable(
 { 
+    business,
+    branchOffices,
     grossIncomes, 
     grossIncomeInvoices, 
     onDelete, 
     onUpdate 
 }:{ 
+    business: Business,
+    branchOffices: BranchOffice[]
     grossIncomes: IGrossIncome[] | undefined, 
     grossIncomeInvoices: IGrossIncomeInvoice[] | undefined, 
     onDelete: (grossIncomeId: number) => void, 
@@ -314,6 +335,8 @@ function GrossIncomeTaxesTable(
 
     const [ showEditGrossIncomeNoteModal, setShowEditGrossIncomeNoteModal ] = useState(false);
     const [ grossIncomeBeingEdited, setGrossIncomeBeingEdited ] = useState<IGrossIncome | undefined >(undefined)
+
+    const [showEmptyFillerModal, setShowEmptyFillerModal] = useState(false)
 
     const { userAuth } = useAuthentication()
     const { user } = userAuth
@@ -619,16 +642,35 @@ function GrossIncomeTaxesTable(
         }
     ];
 
+    const handleFillEmptyGrossIncomes = (values: {
+        businessId: number,
+        branchOfficeId?: number,
+        startDate: string,
+        endDate: string
+    }) => {
+        console.log({EmptyFiller: values})
+        setShowEmptyFillerModal(false)
+    }
+
+    console.log({business})
+
     return (
         <Flex vertical>
 
-            <Flex gap="small" align='center' justify='space-between'>
+            <Flex gap="small" align='center'>
                 <Title level={3}>Ingresos Brutos Declarados</Title>
                 <Button
                     onClick={() => navigate('gross-incomes/new')}
                     style={{ alignSelf: 'end', marginBottom: '12px' }}>
                     <PlusOutlined />
                     Agregar
+                </Button>
+
+                <Button
+                    onClick={() => setShowEmptyFillerModal(true)}
+                    style={{ alignSelf: 'end', marginBottom: '12px' }}>
+                    <PlusOutlined />
+                    Rellenar
                 </Button>
             </Flex>
 
@@ -646,6 +688,16 @@ function GrossIncomeTaxesTable(
                 onFinish={handleEditGrossIncomeNote}
                 grossIncomeNote={grossIncomeBeingEdited}
             />
+
+            <GrossIncomesEmptyFillerModal
+                visible={showEmptyFillerModal}
+                business={business}
+                branchOffices={branchOffices}
+
+                onSubmit={handleFillEmptyGrossIncomes}
+                onCancel={() => setShowEmptyFillerModal(false)}
+            />
+                
 
         </Flex>
     );
