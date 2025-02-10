@@ -128,7 +128,8 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
     4: 'ff0000',
   }
   
-  worksheet.getColumn(4).eachCell(function(cell, rowNumber) {
+  const LEVEL_INDEX = 5
+  worksheet.getColumn(LEVEL_INDEX).eachCell(function(cell, rowNumber) {
     if (rowNumber === 1) {
       return 
     }
