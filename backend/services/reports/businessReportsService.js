@@ -46,7 +46,7 @@ const monthMapper = [
 
 function canDownloadGrossIncomeReport(user) {
   // if user is not an admin, director, fiscal, or collector
-  if (!user || [ROLES.LEGAL_ADVISOR, ROLES.FISCAL].indexOf(user.roleId) === -1) {
+  if (!user || [ROLES.LEGAL_ADVISOR, ROLES.FISCAL, ROLES.DIRECTOR].indexOf(user.roleId) === -1) {
     let error = new Error('User not authorized');
     error.name = 'UserNotAuthorized';
     error.statusCode = 401;

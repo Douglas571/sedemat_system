@@ -136,7 +136,7 @@ const App: React.FC = () => {
 		items.push(reportsItem)
 	}
 
-	if (userAuth.user?.roleId === ROLES.LEGAL_ADVISOR || userAuth.user?.roleId === ROLES.FISCAL) { // LEGAL ADVISOR
+	if (userAuth.user?.roleId === ROLES.LEGAL_ADVISOR || userAuth.user?.roleId === ROLES.FISCAL || userAuth.user?.roleId === ROLES.DIRECTOR) { // LEGAL ADVISOR
 		reportsItem.children?.push({
 			key: '/reports/gross-income-status',
 			icon: '',
