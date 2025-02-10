@@ -302,4 +302,43 @@ export async function editNote({
     }
 }
 
+export async function fillEmptyGrossIncomes({
+    filters,
+    token,
+}: {
+    filters: {
+        businessId: number;
+        branchOfficeId?: number;
+        startDate: string;
+        endDate: string;
+    };
+    token: string;
+}) {
+    try {
+        const response = await axios.post(
+            `${HOST}/v1/gross-incomes/fill-empty`,
+            filters,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
 
+        // Handle the response
+        if (response.status === 200) {
+            console.log('Empty gross incomes filled successfully:', response.data);
+            return response.data; // Return the response data if needed
+        } else {
+            throw new Error('Failed to fill empty gross incomes');
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const errorMessage = error.response?.data?.error?.msg || error.message;
+            throw new Error(`Failed to fill empty gross incomes: ${errorMessage}`);
+        } else {
+            throw new Error(`Failed to fill empty gross incomes: ${error}`);
+        }
+    }
+}

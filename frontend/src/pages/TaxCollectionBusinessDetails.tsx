@@ -590,50 +590,43 @@ function GrossIncomeTaxesTable(
                 return (
                 <Flex gap="small">
 
-                    { record.amountBs === null
-                        ? (
-                            <>
-                                <Button onClick={() => navigate(`gross-incomes/new?branchOfficeId=${record.branchOfficeId}&period=${record.period.format('YYYY-MM')}`)}>
-                                    Registrar
-                                </Button>
-                            </>
-                        )
-                        : (
-                            <>
-                                {
-                                    user?.roleId === ROLES.FISCAL
-                                    && (
-                                        <Button
-                                            onClick={() => handleShowEditGrossIncomNoteModal(record)}
-                                        
-                                        >
-                                            { record?.fiscalMarkedAsPaid || record.fiscalNote ? "Modificar Nota" : "Agregar Nota" } 
-                                        </Button>
-                                    )
-                                }
-                                <Button 
-                                    onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
-                                    disabled={invoice?.settlement}    
-                                >Editar</Button>
-                                
-                                <Popconfirm
-                                    title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
-                                    onConfirm={() => handleGrossIncomeDelete(record.id)}
-                                    okText="Sí"
-                                    cancelText="No"
-                                >
-                                    <Button 
-                                        danger
-                                        disabled={invoice?.settlement}
-                                    >Eliminar</Button>
-                                </Popconfirm>
-            
-                                <Link 
-                                    to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
+                    { 
+                    (
+                        <>
+                            {
+                                user?.roleId === ROLES.FISCAL
+                                && (
+                                    <Button
+                                        onClick={() => handleShowEditGrossIncomNoteModal(record)}
                                     
-                                >Detalles</Link>
-                            </>
-                        )   
+                                    >
+                                        { record?.fiscalMarkedAsPaid || record.fiscalNote ? "Modificar Nota" : "Agregar Nota" } 
+                                    </Button>
+                                )
+                            }
+                            <Button 
+                                onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
+                                disabled={invoice?.settlement}    
+                            >Editar</Button>
+                            
+                            <Popconfirm
+                                title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
+                                onConfirm={() => handleGrossIncomeDelete(record.id)}
+                                okText="Sí"
+                                cancelText="No"
+                            >
+                                <Button 
+                                    danger
+                                    disabled={invoice?.settlement}
+                                >Eliminar</Button>
+                            </Popconfirm>
+        
+                            <Link 
+                                to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
+                                
+                            >Detalles</Link>
+                        </>
+                    )   
                     }
                     
                     {/* <Button onClick={() => null}>Ver Factura</Button> */}
@@ -642,14 +635,30 @@ function GrossIncomeTaxesTable(
         }
     ];
 
-    const handleFillEmptyGrossIncomes = (values: {
+    const handleFillEmptyGrossIncomes = async (values: {
         businessId: number,
         branchOfficeId?: number,
         startDate: string,
         endDate: string
     }) => {
         console.log({EmptyFiller: values})
-        setShowEmptyFillerModal(false)
+
+        try {
+            let response = await grossIncomeApi.fillEmptyGrossIncomes({
+                filters: values,
+                token: userAuth.token || ''
+            })
+
+            console.log({response})
+
+            onUpdate()
+
+            setShowEmptyFillerModal(false)
+        } catch (error) {
+            message.error('Error al rellenar con ingresos vacios')
+        }
+
+        
     }
 
     console.log({business})

@@ -255,6 +255,31 @@ class GrossIncomeController {
       res.status(error.statusCode ?? 500).json({ error: error.message });
     }
   }
+
+  async fillEmptyRecords(req, res) {
+          try {
+              const filters = req.body;
+              const user = req.user;
+  
+              console.log('Filling empty records');
+  
+              // TODO: Make validation 
+  
+              const result = await grossIncomeService.fillEmptyRecords({
+                filters,
+                user
+              });
+  
+              res.status(200).json({
+                  message: 'Empty records filled successfully',
+                  data: result,
+              });
+  
+          } catch (error) {
+              console.log({ error });
+              res.status(error.statusCode ?? 500).json({ error: error.message });
+          }
+      }
 }
 
 module.exports = new GrossIncomeController();

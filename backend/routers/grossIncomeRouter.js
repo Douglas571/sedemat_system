@@ -6,9 +6,9 @@ const grossIncomeController = require('../controllers/grossIncomeController');
 const passport = require('passport');
 
 // UTILS
-router.post('/undeclared',
+router.post('/fill-empty',
   passport.authenticate('jwt', { session: false }),
-  grossIncomeController.createUndeclaredGrossIncome);
+  grossIncomeController.fillEmptyRecords);
 
 // GET all gross incomes
 router.get('/', grossIncomeController.getAll);

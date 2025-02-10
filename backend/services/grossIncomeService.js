@@ -67,6 +67,49 @@ function getWasteCollectionTaxInMMV(mts2) {
     return 0;
 }
 
+function getEmptyGrossIncome({
+    business,
+    branchOffice,
+    lastAlicuota,
+    TCMMVBCV,
+    period,
+    createdByUserId
+}) {
+    let newGrossIncome = {
+        businessId: business.id,
+        branchOfficeId: branchOffice?.id,
+        period: period,
+        amountBs: null,
+        grossIncomeInvoiceId: null,
+        alicuotaId: lastAlicuota.id,
+        alicuotaTaxPercent: lastAlicuota.taxPercent,
+        alicuotaMinTaxMMVBCV: lastAlicuota.minTaxMMV,
+        TCMMVBCV: TCMMVBCV,
+
+        chargeWasteCollection: branchOffice?.chargeWasteCollection ?? false,
+        branchOfficeDimensionsMts2: branchOffice?.dimensions,
+        branchOfficeType: branchOffice?.type,
+
+        wasteCollectionTaxMMVBCV: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+
+        createdByUserId
+    }
+
+    const calcs = calculateTaxFields({grossIncome: newGrossIncome})
+
+    newGrossIncome.period = dayjs(newGrossIncome.period).set('date', 3).toDate()
+
+    newGrossIncome = {
+        ...newGrossIncome,
+        ...calcs,
+    }
+
+
+    return newGrossIncome
+}
+
 class GrossIncomeService {
     // Fetch all GrossIncome records
     async getAllGrossIncomes(user, filters) {
@@ -465,8 +508,207 @@ class GrossIncomeService {
         });
     }
 
-    
-    /**
+    async addSupportFiles(grossIncomeId, supportFilesIds, user) {
+        try {
+            // Perform authorization check if needed
+            canUpdateEditDeleteGrossIncomes(user)
+
+            console.log({grossIncomeId, supportFilesIds, user})
+
+            // get the gross income with all the support files 
+            let grossIncome = await GrossIncome.findOne({
+                where: {
+                    id: grossIncomeId
+                },
+                include: {
+                    model: File,
+                    as: 'supportFiles'
+                }
+            })
+
+            console.log({grossIncome: JSON.stringify(grossIncome.toJSON(), null, 2)})
+
+            // for each support files ids, create a SupportFilesToGrossIncomes record
+            let pendingPromises = supportFilesIds.map( async (id) => {
+                let createdFileAssociation = await SupportFilesToGrossIncomes.create({
+                    grossIncomeId,
+                    fileId: id
+                })
+
+                return createdFileAssociation.id
+            })
+
+            let createdSupportFilesIds = await Promise.all(pendingPromises)
+
+            console.log({createdSupportFilesIds})
+            
+            return {
+                grossIncomeId, supportFilesIds, user, createdSupportFilesIds
+            }
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    async removeSupportFiles(grossIncomeId, supportFilesIds, user) {
+        try {
+            // Perform authorization check if needed
+            canUpdateEditDeleteGrossIncomes(user)
+
+            await filesService.bulkDelete(supportFilesIds, user)
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+
+    async editNote(id, data, user) {
+        // Check that user can edit gross income
+        canUpdateEditDeleteGrossIncomes(user);
+
+        // Get the gross income
+        const grossIncome = await GrossIncome.findByPk(id);
+
+        // Check that it exists
+        if (!grossIncome) {
+            throw new Error('Gross Income not found');
+        }
+
+        // Save the updated gross income
+        await GrossIncome.update(data, {
+            where: { id }
+        })
+        // Return edited gross income
+        return grossIncome;
+    }
+
+    async fillEmptyRecords({ filters, user }) {
+        
+        console.log({filters, user})
+
+        let createdByUserId = user.id
+        
+        function canCreateUndeclaredGrossIncome(user) {
+              
+            // if user is not an admin, director, fiscal, or collector 
+            if (!user || [ROLES.ADMIN, ROLES.DIRECTOR, ROLES.FISCAL, ROLES.COLLECTOR, ROLES.LEGAL_ADVISOR].indexOf(user.roleId) === -1) {
+                let error = new Error('User not authorized');
+                error.name = 'UserNotAuthorized';
+                error.statusCode = 401;
+                throw error;
+            }
+        }
+
+        canCreateUndeclaredGrossIncome(user)
+
+        let startDate = dayjs(filters.startDate)
+        let endDate = dayjs(filters.endDate)
+
+        let business = await Business.findByPk(filters.businessId, {
+            include: [
+                {
+                    model: EconomicActivity,
+                    as: 'economicActivity',
+                    include: [
+                        {
+                            model: Alicuota,
+                            as: 'alicuotaHistory',
+                        }
+                    ]
+                },
+            ]
+        })
+
+        console.log({business})
+
+        let branchOffice = await BranchOffice.findByPk(filters.branchOfficeId)
+
+        let lastAlicuota = business.economicActivity.alicuotaHistory.sort((a, b) => b.id - a.id)[0]
+
+        const lastCurrencyExchangeRate = await CurrencyExchangeRates.findOne({
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            limit: 1
+        })
+
+        let TCMMVBCV = Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs)
+
+        // get existing gross income months for this branch office and business
+        let existingGrossincomes = await GrossIncome.findAll({
+            where: {
+                period: {
+                    [Op.between]: [
+                        startDate.startOf('month').toDate(),
+                        endDate.endOf('month').toDate()
+                    ]
+                },
+                businessId: filters.businessId,
+                branchOfficeId: filters.branchOfficeId
+            }
+        })
+        // make an array of existing months 
+        console.log({existingGrossincomes})
+        let existingMonths = existingGrossincomes.map( g => {
+            return dayjs(g.period)
+        })
+
+        let toInsert = []
+
+        // create just one record 
+        if (filters.startDate === filters.endDate) {
+
+            let period = startDate.set('date', 3).toDate()
+
+            let newGrossIncome = getEmptyGrossIncome({
+                business,
+                branchOffice,
+                lastAlicuota,
+                TCMMVBCV,
+                period
+            })
+
+            toInsert.push(newGrossIncome)
+            
+        } else { // create gross income records in the range
+            while (startDate.isSameOrBefore(endDate, 'month')) {
+                
+
+                if (!existingMonths.some( m => m.isSame(startDate, 'month'))) {
+                    console.log(startDate.format())
+
+                    let period = startDate.set('date', 3).toDate()
+
+                    let newGrossIncome = getEmptyGrossIncome({
+                        business,
+                        branchOffice,
+                        lastAlicuota,
+                        TCMMVBCV,
+                        period,
+                        createdByUserId
+                    })
+
+                    toInsert.push(newGrossIncome)
+
+                    // console.log({alreadyExists: startDate.format()})
+                }
+
+                startDate = startDate.add(1, 'month')
+            }
+        }
+
+        let response = await GrossIncome.bulkCreate(toInsert)
+
+        console.log({response})
+
+        return
+    }
+
+     /**
      * Creates a new GrossIncome record for each active business and its branch offices for the given period
      * @param {Object} data - an object with the period and year and month
      * @param {User} user - the user that is creating the gross income
@@ -630,84 +872,6 @@ class GrossIncomeService {
         return {
             grossIncomesCreated: grossIncomesToBeCreated?.length ?? 0
         }
-    }
-
-    async addSupportFiles(grossIncomeId, supportFilesIds, user) {
-        try {
-            // Perform authorization check if needed
-            canUpdateEditDeleteGrossIncomes(user)
-
-            console.log({grossIncomeId, supportFilesIds, user})
-
-            // get the gross income with all the support files 
-            let grossIncome = await GrossIncome.findOne({
-                where: {
-                    id: grossIncomeId
-                },
-                include: {
-                    model: File,
-                    as: 'supportFiles'
-                }
-            })
-
-            console.log({grossIncome: JSON.stringify(grossIncome.toJSON(), null, 2)})
-
-            // for each support files ids, create a SupportFilesToGrossIncomes record
-            let pendingPromises = supportFilesIds.map( async (id) => {
-                let createdFileAssociation = await SupportFilesToGrossIncomes.create({
-                    grossIncomeId,
-                    fileId: id
-                })
-
-                return createdFileAssociation.id
-            })
-
-            let createdSupportFilesIds = await Promise.all(pendingPromises)
-
-            console.log({createdSupportFilesIds})
-            
-            return {
-                grossIncomeId, supportFilesIds, user, createdSupportFilesIds
-            }
-
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }
-
-    async removeSupportFiles(grossIncomeId, supportFilesIds, user) {
-        try {
-            // Perform authorization check if needed
-            canUpdateEditDeleteGrossIncomes(user)
-
-            await filesService.bulkDelete(supportFilesIds, user)
-
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }
-
-
-    async editNote(id, data, user) {
-        // Check that user can edit gross income
-        canUpdateEditDeleteGrossIncomes(user);
-
-        // Get the gross income
-        const grossIncome = await GrossIncome.findByPk(id);
-
-        // Check that it exists
-        if (!grossIncome) {
-            throw new Error('Gross Income not found');
-        }
-
-        // Save the updated gross income
-        await GrossIncome.update(data, {
-            where: { id }
-        })
-        // Return edited gross income
-        return grossIncome;
     }
 }
 
