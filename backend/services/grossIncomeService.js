@@ -693,8 +693,6 @@ class GrossIncomeService {
                     })
 
                     toInsert.push(newGrossIncome)
-
-                    // console.log({alreadyExists: startDate.format()})
                 }
 
                 startDate = startDate.add(1, 'month')
@@ -702,8 +700,6 @@ class GrossIncomeService {
         }
 
         let response = await GrossIncome.bulkCreate(toInsert)
-
-        console.log({response})
 
         return
     }
