@@ -816,7 +816,7 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
 
     return (
         <Flex vertical>
-            <Flex gap="small" align='center' justify='space-between'>
+            <Flex gap="small" align='center'>
                 <Title level={3}>Facturas del Impuesto sobre Ingresos Brutos</Title>
                 <Button
                     disabled={disableAdd}
