@@ -46,7 +46,7 @@ const monthMapper = [
 
 function canDownloadGrossIncomeReport(user) {
   // if user is not an admin, director, fiscal, or collector
-  if (!user || [ROLES.LEGAL_ADVISOR, ROLES.FISCAL].indexOf(user.roleId) === -1) {
+  if (!user || [ROLES.LEGAL_ADVISOR, ROLES.FISCAL, ROLES.DIRECTOR].indexOf(user.roleId) === -1) {
     let error = new Error('User not authorized');
     error.name = 'UserNotAuthorized';
     error.statusCode = 401;
@@ -128,7 +128,8 @@ module.exports.getBusinessesGrossIncomeReportExcel = async function({user, strea
     4: 'ff0000',
   }
   
-  worksheet.getColumn(4).eachCell(function(cell, rowNumber) {
+  const LEVEL_INDEX = 5
+  worksheet.getColumn(LEVEL_INDEX).eachCell(function(cell, rowNumber) {
     if (rowNumber === 1) {
       return 
     }
@@ -247,10 +248,10 @@ function mapBusinessToRowReport(businessReport){
 
         
         // ! if there is no pending to paid or be settled months, return nothing
-        if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
+        // if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
           
-          return
-        }
+        //   return
+        // }
 
         reportRows.push({
           businessId: business.id,
@@ -277,9 +278,9 @@ function mapBusinessToRowReport(businessReport){
     } else {
 
       // ! if there is no pending to paid or be settled months, return 
-      if (business.monthsPendingToBePaid.length === 0 && business.monthsPendingToBeSettled.length === 0 && !business.lastMonthSettled) {
-        return 
-      }
+      // if (business.monthsPendingToBePaid.length === 0 && business.monthsPendingToBeSettled.length === 0 && !business.lastMonthSettled) {
+      //   return 
+      // }
 
       let monthsPendingToBePaidCount = business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount
       let classification = getBusinessClassification(monthsPendingToBePaidCount)
