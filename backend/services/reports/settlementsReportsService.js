@@ -124,7 +124,7 @@ async function getSettlementsReportJSON({user, filters}) {
       amountInBs = grossIncomeInvoice.totalBs
 
       businessName = grossIncomeInvoice.businessName
-      businessDni = grossIncomeInvoice.businessDni
+      businessDni = grossIncomeInvoice.businessDNI
       branchOfficeName = grossIncomeInvoice.branchOfficeName
 
       paymentDate = getPaymentDate(grossIncomeInvoice.payments)
@@ -194,7 +194,7 @@ module.exports.getSettlementsReportExcel = async ({
     let formattedRow = [
       settlement.number,
       settlement.businessName,
-      settlement.businessDni,
+      settlement.dni,
       settlement.code,
 
       settlement.item,
