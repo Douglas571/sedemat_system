@@ -10,6 +10,8 @@ import dayjs_es from 'dayjs/locale/es';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
+import ROLES from '../util/roles';
+
 import useAuthentication from 'hooks/useAuthentication';
 
 dayjs.locale(dayjs_es);
@@ -46,6 +48,10 @@ const GrossIncomeTable = () => {
   const [form] = Form.useForm();
 
   const { userAuth } = useAuthentication();
+  const user = userAuth.user
+  const userIsAdmin = user?.roleId === ROLES.ADMIN
+
+  console.log({user})
 
   const fetchGrossIncomes = async (rawFilters?: any) => {
 
@@ -271,9 +277,13 @@ const GrossIncomeTable = () => {
             </Button>
           </Form.Item>
 
-          <Button icon={<FormatPainterOutlined />} onClick={() => setShowFillEmptyGrossIncomesModal(true)}>
-            Rellenar
-          </Button>
+          {
+            userIsAdmin && (
+              <Button icon={<FormatPainterOutlined />} onClick={() => setShowFillEmptyGrossIncomesModal(true)}>
+                Rellenar
+              </Button>)
+          }
+          
 
         </Flex>
       </Form>

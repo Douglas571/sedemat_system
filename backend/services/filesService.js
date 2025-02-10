@@ -7,7 +7,7 @@ const { UserNotAuthorizedError } = require('../utils/errors');
 const ROLES = require('../utils/auth/roles');
 
 function canDeleteFiles(user) {
-  if ([ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+  if ([ROLES.FISCAL, ROLES.COLLECTOR, ROLES.ADMIN].indexOf(user.roleId) === -1) {
     throw new UserNotAuthorizedError('Only tax collectors and fiscal can delete files.');
   }
 }

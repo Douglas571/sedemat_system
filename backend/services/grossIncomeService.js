@@ -21,7 +21,7 @@ const _ = require('lodash')
 const filesService = require('./filesService')
 
 function canUpdateEditDeleteGrossIncomes(user) {
-    if (!user || [ROLES.FISCAL, ROLES.COLLECTOR].indexOf(user.roleId) === -1) {
+    if (!user || [ROLES.FISCAL, ROLES.COLLECTOR, ROLES.ADMIN].indexOf(user.roleId) === -1) {
         let error = new UserNotAuthorizedError("Only fiscals and collectors can upload declarations.");
     
         throw error
