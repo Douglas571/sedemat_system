@@ -247,10 +247,10 @@ function mapBusinessToRowReport(businessReport){
 
         
         // ! if there is no pending to paid or be settled months, return nothing
-        if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
+        // if (branchOffice.monthsPendingToBePaid.length === 0 && branchOffice.monthsPendingToBeSettled.length === 0 && !branchOffice.lastMonthSettled) {
           
-          return
-        }
+        //   return
+        // }
 
         reportRows.push({
           businessId: business.id,
@@ -277,9 +277,9 @@ function mapBusinessToRowReport(businessReport){
     } else {
 
       // ! if there is no pending to paid or be settled months, return 
-      if (business.monthsPendingToBePaid.length === 0 && business.monthsPendingToBeSettled.length === 0 && !business.lastMonthSettled) {
-        return 
-      }
+      // if (business.monthsPendingToBePaid.length === 0 && business.monthsPendingToBeSettled.length === 0 && !business.lastMonthSettled) {
+      //   return 
+      // }
 
       let monthsPendingToBePaidCount = business.monthsPendingToBePaidCount + business.monthsWithoutDeclarationCount
       let classification = getBusinessClassification(monthsPendingToBePaidCount)
