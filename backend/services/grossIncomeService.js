@@ -368,16 +368,20 @@ class GrossIncomeService {
         if (data.period) {
             data.period = dayjs(data.period).set('date', 3).toDate()
 
-            const existingIncome = await GrossIncome.findOne({
-                where: {
-                    period: data.period,
-                    branchOfficeId: data.branchOfficeId || grossIncome.branchOfficeId
-                }
-            })
+            let where = {
+                period: data.period,
+                branchOfficeId: data.branchOfficeId || grossIncome.branchOfficeId
+            }
+
+            if (!data.branchOffice) {
+                where.businessId = data.businessId
+            }
+
+            const existingIncome = await GrossIncome.findOne({where})
             
             if (existingIncome && existingIncome.id !== Number(id)) {
                 let err = new Error('Gross income already exists for the same period and branch office');
-                erro.name = 'GrossIncomePeriodDuplicated';
+                err.name = 'GrossIncomePeriodDuplicated';
                 throw err;
             }
         }
