@@ -67,6 +67,37 @@ function getWasteCollectionTaxInMMV(mts2) {
     return 0;
 }
 
+/**
+ * Generates a new empty gross income object with default values and calculated tax fields.
+ *
+ * @param {Object} params - The parameters for generating the empty gross income.
+ * @param {Object} params.business - The business associated with the gross income.
+ * @param {number} params.business.id - The ID of the business.
+ * @param {Object} [params.branchOffice] - The branch office associated with the gross income (optional).
+ * @param {number} [params.branchOffice.id] - The ID of the branch office.
+ * @param {boolean} [params.branchOffice.chargeWasteCollection] - Whether the branch office charges waste collection.
+ * @param {number} [params.branchOffice.dimensions] - The dimensions of the branch office in square meters.
+ * @param {string} [params.branchOffice.type] - The type of the branch office.
+ * @param {Object} params.lastAlicuota - The last applicable alicuota (tax rate) for the gross income.
+ * @param {number} params.lastAlicuota.id - The ID of the alicuota.
+ * @param {number} params.lastAlicuota.taxPercent - The tax percentage of the alicuota.
+ * @param {number} params.lastAlicuota.minTaxMMV - The minimum tax amount in MMV-BCV for the alicuota.
+ * @param {number} params.TCMMVBCV - The TCMMV-BCV (tax conversion factor) value.
+ * @param {Date|string} params.period - The period for the gross income (can be a Date object or a string).
+ * @param {number} params.createdByUserId - The ID of the user creating the gross income.
+ * @returns {Object} - A new gross income object with default values and calculated tax fields.
+ *
+ * @example
+ * const emptyGrossIncome = getEmptyGrossIncome({
+ *   business: { id: 1 },
+ *   branchOffice: { id: 2, chargeWasteCollection: true, dimensions: 100, type: 'Retail' },
+ *   lastAlicuota: { id: 3, taxPercent: 0.15, minTaxMMV: 100 },
+ *   TCMMVBCV: 500,
+ *   period: '2023-10-01',
+ *   createdByUserId: 123
+ * });
+ * console.log(emptyGrossIncome);
+ */
 function getEmptyGrossIncome({
     business,
     branchOffice,
@@ -569,7 +600,6 @@ class GrossIncomeService {
         }
     }
 
-
     async editNote(id, data, user) {
         // Check that user can edit gross income
         canUpdateEditDeleteGrossIncomes(user);
@@ -716,7 +746,12 @@ class GrossIncomeService {
      * @returns {Promise<Object>} - an object with the number of gross incomes created
      * @throws {Error} - if the user is not authorized
      */
-    async createUndeclaredGrossIncome({ user, data }) {
+    async fillEmptyManyRecords({ user, period }) {
+        period = dayjs(period).set('date', 3)
+
+        let createdByUserId = user.id
+        
+        let grossIncomesToBeCreated = []
 
         // verify that the user is admin, collector or fiscal 
         function canCreateUndeclaredGrossIncome(user) {
@@ -732,21 +767,14 @@ class GrossIncomeService {
 
         canCreateUndeclaredGrossIncome(user)
 
-        // first get the period for the gross income record 
-        let period;
-
-        if (data.year && data.month) {
-            period = dayjs(`${data.year}-${data.month}-01`).set('date', 3).toDate();
-        } else {
-            period = dayjs().subtract(1, 'month').set('date', 3).toDate();
-        }
-
         const lastCurrencyExchangeRate = await CurrencyExchangeRates.findOne({
             order: [
                 ['createdAt', 'DESC']
             ],
             limit: 1
         })
+
+        let TCMMVBCV = Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs)
 
         console.log({period, lastCurrencyExchangeRate})
 
@@ -774,18 +802,18 @@ class GrossIncomeService {
                 }
             ]
         })
-
-        let grossIncomesToBeCreated = []
         
         businesses.forEach((business) => {
             // TODO: Reimplement this using a new column called "usedSinceDate"
             let lastAlicuota = business.economicActivity.alicuotaHistory.sort((a, b) => b.id - a.id)[0]
 
+
+            // TODO: Replace this for inactivity periods or exonerated periods when implemented
             if (!business.isActive) {
                 return 
             }
             
-            if (business?.branchOffices?.length > 0) {
+            if (business?.branchOffices?.length > 0 && business?.branchOffices.some( b => b.isActive )) {
                 // otherwise, create gross incomes for each branch office
 
                 business.branchOffices.forEach((branchOffice) => {
@@ -793,70 +821,40 @@ class GrossIncomeService {
                     if (!branchOffice.isActive) {
                         return null
                     }
-
-                    // console.log(branchOffice.toJSON())
-                    const grossIncomeToInsert = {
-                        businessId: business.id,
-                        branchOfficeId: branchOffice.id,
-                        period: period,
-                        amountBs: 0,
-                        grossIncomeInvoiceId: null,
-                        alicuotaId: lastAlicuota.id,
-                        alicuotaTaxPercent: lastAlicuota.taxPercent,
-                        alicuotaMinTaxMMVBCV: lastAlicuota.minTaxMMV,
-                        TCMMVBCV: Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs),
-
-                        chargeWasteCollection: branchOffice.chargeWasteCollection,
-                        branchOfficeDimensionsMts2: branchOffice.dimensions,
-                        branchOfficeType: branchOffice.type,
-
-                        wasteCollectionTaxMMVBCV: 0,
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    }
-
+                    
                     const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year') && grossIncome.branchOfficeId === branchOffice.id)
 
                     if (!grossIncomeAlreadyExists) {
-                        // calculateTaxes
-                        let calcs = calculateTaxFields({grossIncome: grossIncomeToInsert})
-
-                        grossIncomesToBeCreated.push({
-                            ...grossIncomeToInsert,
-                            ...calcs
+                        let grossIncomeToInsert = getEmptyGrossIncome({
+                            business,
+                            branchOffice,
+                            lastAlicuota,
+                            TCMMVBCV,
+                            period,
+                            createdByUserId
                         })
+
+                        grossIncomesToBeCreated.push(grossIncomeToInsert)
                     }
                 })
 
             } else {
                 // handle if it don't have branch offices
                 // create the gross incomes
-                const grossIncomeToInsert = {
-                    businessId: business.id,
-                    period: period,
-                    amountBs: 0,
-                    grossIncomeInvoiceId: null,
-                    alicuotaId: lastAlicuota.id,
-                    alicuotaTaxPercent: lastAlicuota.taxPercent,
-                    alicuotaMinTaxMMVBCV: lastAlicuota.minTaxMMV,
-                    TCMMVBCV: Math.max(lastCurrencyExchangeRate.dolarBCVToBs, lastCurrencyExchangeRate.eurosBCVToBs),
-                    chargeWasteCollection: false,
-                    wasteCollectionTaxMMVBCV: 0,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                }
 
                 // check that the gross income didn't exists 
-                const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year'))
+                const grossIncomeAlreadyExists = business.grossIncomes.find((grossIncome) => dayjs(grossIncome.period).isSame(period, 'month') && dayjs(grossIncome.period).isSame(period, 'year') && grossIncome.branchOfficeId === null)
 
                 if (!grossIncomeAlreadyExists) {
-                    // calculateTaxes
-                    let calcs = calculateTaxFields({grossIncome: grossIncomeToInsert})                    
-
-                    grossIncomesToBeCreated.push({
-                        ...grossIncomeToInsert,
-                        ...calcs
+                    const grossIncomeToInsert = getEmptyGrossIncome({
+                        business,
+                        lastAlicuota,
+                        TCMMVBCV,
+                        period,
+                        createdByUserId
                     })
+
+                    grossIncomesToBeCreated.push(grossIncomeToInsert)
                 }
             }
 

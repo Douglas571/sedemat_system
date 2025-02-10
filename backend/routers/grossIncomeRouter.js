@@ -10,6 +10,10 @@ router.post('/fill-empty',
   passport.authenticate('jwt', { session: false }),
   grossIncomeController.fillEmptyRecords);
 
+  router.post('/fill-empty-many',
+    passport.authenticate('jwt', { session: false }),
+    grossIncomeController.fillEmptyManyRecords);
+
 // GET all gross incomes
 router.get('/', grossIncomeController.getAll);
 
