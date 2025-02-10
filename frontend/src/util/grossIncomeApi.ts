@@ -356,7 +356,7 @@ export async function fillEmptyBulkGrossIncomes({
 }) {
     try {
         const response = await axios.post(
-            `${HOST}/v1/gross-incomes/fill-empty-bulk`,
+            `${HOST}/v1/gross-incomes/fill-empty-many`,
             { period },
             {
                 headers: {

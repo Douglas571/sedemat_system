@@ -221,7 +221,7 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
     useEffect(() => {
         if(grossIncome) {
 
-            let declaredAt = grossIncome.declaredAt ?? dayjs()
+            let declaredAt = grossIncome.declaredAt ? dayjs(grossIncome.declaredAt) : dayjs()
             // console.log('grossIncome', grossIncome)
             form.setFieldsValue({
                 ...grossIncome,
