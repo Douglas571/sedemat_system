@@ -849,6 +849,24 @@ function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeIn
         children: grossIncomeInvoice?.checkedByUserPersonFullName,
     });
 
+    items.push(...[
+        {
+            key: '3',
+            label: 'Fecha de Creación',
+            children: dayjs(grossIncomeInvoice?.createdAt).format('DD [de] MMMM [del] YYYY')
+        },
+        {
+            key: '4',
+            label: 'Fecha de Actualización',
+            children: dayjs(grossIncomeInvoice?.updatedAt).format('DD [de] MMMM [del] YYYY')
+        },
+        {
+            key: '5',
+            label: 'Fecha de Emisión',
+            children: dayjs(grossIncomeInvoice?.issuedAt).format('DD [de] MMMM [del] YYYY')
+        }
+    ])
+
 
     return (
         <Descriptions 
