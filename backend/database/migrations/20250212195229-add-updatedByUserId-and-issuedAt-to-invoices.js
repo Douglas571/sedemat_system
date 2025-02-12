@@ -8,7 +8,7 @@ module.exports = {
     try {
       
       await queryInterface.addColumn(
-        'GrossIncomeInvoice',
+        'GrossIncomeInvoices',
         'updatedByUserId',
         {
           type: Sequelize.INTEGER,
@@ -24,7 +24,7 @@ module.exports = {
       );
 
       await queryInterface.addColumn(
-        'GrossIncomeInvoice',
+        'GrossIncomeInvoices',
         'issuedAt',
         {
           type: Sequelize.DATE,
@@ -49,14 +49,14 @@ module.exports = {
     try {
       
       await queryInterface.removeColumn(
-        'GrossIncomeInvoice',
+        'GrossIncomeInvoices',
         'updatedByUserId',
         { transaction }
       );
 
       
       await queryInterface.removeColumn(
-        'GrossIncomeInvoice',
+        'GrossIncomeInvoices',
         'issuedAt',
         { transaction }
       );
