@@ -1,6 +1,6 @@
 const dayjs = require('dayjs');
 const _ = require('lodash');
-const { User, GrossIncomeInvoice, GrossIncome } = require('../../database/models')
+const { User, GrossIncomeInvoice, GrossIncome, Payment } = require('../../database/models')
 
 const ROLES = require('../../utils/auth/roles');
 
@@ -49,6 +49,10 @@ const userReportsService = {
         {
           model: GrossIncome,
           as: 'grossIncomesCreated'
+        },
+        {
+          model: Payment,
+          as: 'createdPayments'
         }
       ]
     })
@@ -106,11 +110,24 @@ const userReportsService = {
 
       }, { grossIncomesCreated: 0 })
 
+      let paymentsReport = f.createdPayments.reduce((acc, curr) => {
+        let createdAt = dayjs(curr.createdAt)
+
+        if (createdAt.isSame(dayjs(), 'day')) {
+          acc.paymentsCreated = acc.paymentsCreated + 1
+        }
+
+        return acc
+      }, {
+        paymentsCreated: 0
+      })
+
 
       fiscalsReport.push(
         {
           ..._.pick(f, ['username', 'id']),
-          ...grossIncomesReport
+          ...grossIncomesReport,
+          ...paymentsReport
         })
     })
 
