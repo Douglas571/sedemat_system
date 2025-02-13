@@ -130,7 +130,13 @@ exports.findById = async (id) => {
     }
 };
 
-exports.createPayment = async (paymentData) => {
+exports.createPayment = async (paymentData, user) => {
+
+    console.log({paymentData, user})
+
+    paymentData.createdByUserId = user.id;
+    paymentData.updatedByUserId = user.id;
+
 
     // if (paymentData.grossIncomeInvoiceId === null) {
     //     await grossIncomeInvoiceService.removePayment(paymentData.id);
@@ -170,6 +176,8 @@ exports.createPayment = async (paymentData) => {
 exports.updatePayment = async (id, paymentData, user) => {
     logger.info(`Updating payment with ID ${id} with data:`, paymentData);
     console.log({paymentData, user})
+
+    paymentData.updatedByUserId = user.id;
 
     try {
         const prevPayment = await PaymentModel.findByPk(id)
