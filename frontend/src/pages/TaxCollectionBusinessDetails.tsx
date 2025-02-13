@@ -26,7 +26,7 @@ import GrossIncomesEmptyFillerModal from '../pages/components/GrossIncomesEmptyF
 
 
 import { Flex, Typography, Card, Descriptions, Table, Badge, Button, Popconfirm, message, Tooltip, Modal, Form, Switch, Input, Tabs } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, FormatPainterOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
 
@@ -678,7 +678,7 @@ function GrossIncomeTaxesTable(
                 <Button
                     onClick={() => setShowEmptyFillerModal(true)}
                     style={{ alignSelf: 'end', marginBottom: '12px' }}>
-                    <PlusOutlined />
+                    <FormatPainterOutlined />
                     Rellenar
                 </Button>
             </Flex>
