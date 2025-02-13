@@ -33,6 +33,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'grossIncomeInvoiceId',
         as: 'grossIncomeInvoice'
       });
+
+      Payment.belongsTo(User, {
+        foreignKey: 'createdByUserId',
+        as: 'createdByUser',
+      });
+
+      Payment.belongsTo(User, {
+        foreignKey: 'updatedByUserId',
+        as: 'updatedByUser',
+      });
     }
   }
   Payment.init({
@@ -122,6 +132,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
+
+    createdByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+    updatedByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+  },
 
 
   }, {
