@@ -59,6 +59,7 @@ import Logout from 'pages/Logout';
 
 import ReportsBusinessesGrossIncomeStatus from 'pages/ReportsBusinessesGrossIncomeStatus';
 import ReportsBusinessesGrossIncomeSummary from 'pages/ReportsBusinessesGrossIncomeSummary';
+import ReportsUserActivity from 'pages/ReportsUserActivity';
 
 import PendingWorkSection from 'pages/PendingWorkSection'
 
@@ -138,6 +139,7 @@ function App(): JSX.Element {
 
 								<Route path='reports/gross-income-status' element={<ReportsBusinessesGrossIncomeStatus/>}/>
 								<Route path='reports/gross-income-summary' element={<ReportsBusinessesGrossIncomeSummary/>}/>
+								<Route path='reports/user-activity' element={<ReportsUserActivity/>}/>
 								
 								<Route path='settlements' element={<Settlements />} />
 								
