@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { BranchOffice } from './../util/types'; // Adjust the import path as needed
 
-const IP = process.env.BACKEND_IP || 'localhost';
-const PORT = process.env.BACKEND_PORT || "3000"
+const IP = import.meta.env.VITE_BACKEND_IP || 'localhost';
+const PORT = import.meta.env.VITE_BACKEND_PORT || "3000"
 const HOST = 'http://' + IP + ':' + PORT;
 
 console.log({ HOST, PORT, IP });

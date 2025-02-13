@@ -3,8 +3,8 @@ import { CurrencyExchangeRate, IGrossIncome, Business } from "./types"
 import { CurrencyHandler, CurrencyHandler4, formatBolivares } from "./currency"
 import GrossIncomeInvoice from "pages/GrossIncomeInvoiceEdit"
 
-const IP = process.env.BACKEND_IP || "localhost"
-const PORT = process.env.BACKEND_PORT || "3000"
+const IP = import.meta.env.VITE_BACKEND_IP || "localhost"
+const PORT = import.meta.env.VITE_BACKEND_PORT || "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 export function completeUrl(url?: string): string | null {
