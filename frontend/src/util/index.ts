@@ -4,7 +4,7 @@ import { CurrencyHandler, CurrencyHandler4, formatBolivares } from "./currency"
 import GrossIncomeInvoice from "pages/GrossIncomeInvoiceEdit"
 
 const IP = process.env.BACKEND_IP || "localhost"
-const PORT = "3000"
+const PORT = process.env.BACKEND_PORT || "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 export function completeUrl(url?: string): string | null {

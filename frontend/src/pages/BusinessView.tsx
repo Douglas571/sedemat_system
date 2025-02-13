@@ -16,7 +16,7 @@ import useAuthentication from '../hooks/useAuthentication';
 
 
 const IP = process.env.BACKEND_IP || "localhost"
-const PORT = "3000"
+const PORT = process.env.BACKEND_PORT || "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 type Business = {
