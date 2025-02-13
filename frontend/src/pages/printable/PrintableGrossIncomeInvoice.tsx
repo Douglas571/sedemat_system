@@ -44,7 +44,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     const createdByPerson = createdByUser?.person
     console.log({grossIncomeInvoice})
 
+    const createdAt = dayjs(grossIncomeInvoice?.createdAt)
     const updatedAt = dayjs(grossIncomeInvoice?.updatedAt)
+    const issuedAt = !grossIncomeInvoice?.issuedAt ? null : dayjs(grossIncomeInvoice?.issuedAt)
 
     let TCMMVBCV = grossIncomeInvoice?.TCMMVBCV ?? 1
 
@@ -163,8 +165,10 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                   <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
                 </Flex>
             </Flex>
-            <Flex justify='right'>
-                <p>{`Puerto Cumarebo, ${updatedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</p>
+            <Flex justify='right' vertical={true} align='end'>
+                <p>PUERTO CUMAREBO</p>
+                {/* <p>{`Fecha de Creación, ${createdAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</p> */}
+                <p>{`Fecha de Emisión, ${ !issuedAt ? updatedAt.format('DD [de] MMMM [del] YYYY') : issuedAt.format('DD [de] MMMM [del] YYYY')}`.toUpperCase()}</p>
             </Flex>
 
             <Title level={5} style={{ textAlign: 'center' }}>DESCRIPCIÓN DEL CONTRIBUYENTE</Title>

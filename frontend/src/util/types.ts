@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export interface IRole {
     id: number,
     name: string
@@ -277,10 +279,15 @@ export interface IGrossIncomeInvoice {
     // checkedByUser: IUser
     
     createdByUser: IUser;
-    checkedByUser?: IUser;
+    checkedByUser: IUser;
+    updatedByUser?: IUser;
     settledByUser?: IUser;
 
-    paidAt: Date
+    paidAt: string,
+
+    createdAt: string,
+    updatedAt: string,
+    issuedAt: string | null,
 
     TCMMVBCV: number;
 
