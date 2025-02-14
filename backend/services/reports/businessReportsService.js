@@ -243,7 +243,7 @@ function mapBusinessToRowReport(businessReport){
 
   businessReport.forEach(business => {
       
-    if (business?.branchOffices?.length > 0) {
+    if (business?.branchOffices?.length > 0 && business?.branchOffices?.every( o => o.isActive)) {
       business.branchOffices.forEach(branchOffice => {
 
         
@@ -346,8 +346,8 @@ function getBusinessesGrossIncomeReport(businesses) {
     }
 
     // if it has branch office 
-    if (business.branchOffices.length > 0) {
-      businessReport.branchOffices = []
+    if (business.branchOffices.length > 0 && business.branchOffices.every( o => o.isActive)) {
+      businessReport.branchOffices = []      
 
       // for each branch office
       business.branchOffices.forEach((branchOffice) => {

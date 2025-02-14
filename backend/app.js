@@ -72,6 +72,7 @@ const businessActivityCategoriesRouter = require('./routers/businessActivityCate
 
 const reportBusinesses = require('./routers/reports/businessesReportsRouter');
 const reportSettlements = require('./routers/reports/settlementsReportsRouter');
+const reportUsers = require('./routers/reports/userReportsRouter');
 
 // UTILITY ROUTERS 
 
@@ -99,6 +100,7 @@ app.use(
 
 app.use("/v1/reports/businesses", reportBusinesses)
 app.use("/v1/reports/settlements", reportSettlements)
+app.use("/v1/reports/users", reportUsers)
 
 app.use("/v1/payments", paymentsRouter)
 

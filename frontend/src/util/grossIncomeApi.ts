@@ -2,8 +2,8 @@ import { IGrossIncome } from "../util/types"
 import dayjs from "dayjs"
 import axios from "axios"
 
-const IP = process.env.BACKEND_IP || "localhost"
-const PORT = "3000"
+const IP = import.meta.env.VITE_BACKEND_IP || "localhost"
+const PORT = import.meta.env.VITE_BACKEND_PORT || "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 export async function registerGrossIncome(grossIncome: IGrossIncome, token: string | null): Promise<IGrossIncome> {
@@ -302,4 +302,83 @@ export async function editNote({
     }
 }
 
+export async function fillEmptyGrossIncomes({
+    filters,
+    token,
+}: {
+    filters: {
+        businessId: number;
+        branchOfficeId?: number;
+        startDate: string;
+        endDate: string;
+    };
+    token: string;
+}) {
+    try {
+        const response = await axios.post(
+            `${HOST}/v1/gross-incomes/fill-empty`,
+            filters,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
 
+        // Handle the response
+        if (response.status === 200) {
+            console.log('Empty gross incomes filled successfully:', response.data);
+            return response.data; // Return the response data if needed
+        } else {
+            throw new Error('Failed to fill empty gross incomes');
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const errorMessage = error.response?.data?.error?.msg || error.message;
+            throw new Error(`Failed to fill empty gross incomes: ${errorMessage}`);
+        } else {
+            throw new Error(`Failed to fill empty gross incomes: ${error}`);
+        }
+    }
+}
+
+export async function fillEmptyBulkGrossIncomes({
+    filters,
+    period,
+    token,
+}: {
+    filters: {
+        
+    };
+    period: string
+    token: string;
+}) {
+    try {
+        const response = await axios.post(
+            `${HOST}/v1/gross-incomes/fill-empty-many`,
+            { period },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        // Handle the response
+        if (response.status === 200) {
+            console.log('Empty gross incomes filled successfully:', response.data);
+            return response.data; // Return the response data if needed
+        } else {
+            throw new Error('Failed to fill empty gross incomes');
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const errorMessage = error.response?.data?.error?.msg || error.message;
+            throw new Error(`Failed to fill empty gross incomes: ${errorMessage}`);
+        } else {
+            throw new Error(`Failed to fill empty gross incomes: ${error}`);
+        }
+    }
+}

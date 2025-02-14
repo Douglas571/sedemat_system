@@ -90,6 +90,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
 
+    updatedByUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      } 
+    },
+
     checkedByUserId: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -192,6 +201,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     economicActivityCode: {
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    issuedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
 

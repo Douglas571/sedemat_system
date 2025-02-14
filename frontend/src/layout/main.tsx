@@ -124,6 +124,14 @@ const App: React.FC = () => {
 		children: []
 	}
 
+	let userReports = {
+		key: '/reports/user-activity',
+		icon: '',
+		label: 'Reporte de Actividad de Usuarios'
+	}
+
+	reportsItem.children?.push(userReports)
+
 	let grossIncomeSummaryReportItem = {
 		key: '/reports/gross-income-summary',
 		icon: '',

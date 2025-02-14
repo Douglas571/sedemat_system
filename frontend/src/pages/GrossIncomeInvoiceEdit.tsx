@@ -471,6 +471,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 ...grossIncomeInvoice,
                 TCMMVBCV: grossIncomeInvoice.TCMMVBCV,
 
+                issuedAt: dayjs(grossIncomeInvoice.issuedAt),
                 TCMMVBCVValidDateRange: dayjs(grossIncomeInvoice.TCMMVBCVValidSince).utc()
             })
         } else {
@@ -481,6 +482,7 @@ const GrossIncomeInvoice: React.FC = () => {
 
             form.setFieldsValue({
                 TCMMVBCVValidDateRange: dayjs().utc(),
+                issuedAt: dayjs(),
                 
                 note: 'LOS PAGOS DEBEN SER CANCELADOS A LA TASA DEL DÍA POR TCMMV-BCV',
 
@@ -582,6 +584,56 @@ const GrossIncomeInvoice: React.FC = () => {
                             addonAfter="Bs" />
                     
                     </Form.Item>
+
+
+                    <Form.Item name="issuedAt" label="Fecha de Emisión"
+                        rules={[
+                        {
+                            required: true,
+                        },
+                        {
+                            message: 'La fecha debe estár en el rango de validez para la TCMMV-BCV',
+                            validator: (_, value) => {
+
+                                console.log("start validator")
+
+                                if (!value) {
+                                    return Promise.resolve(); // Skip validation if no value is provided
+                                }
+
+                                console.log('there is a value')
+
+                                let TCMMVBCVValidDateRange = form.getFieldValue('TCMMVBCVValidDateRange')
+
+                                console.log({
+                                    startDate: TCMMVBCVValidDateRange.startOf('week').toString(),
+                                    endDate: TCMMVBCVValidDateRange.endOf('week').subtract(2, 'day').toString()
+                                })
+                  
+                                // Convert the selected date to a dayjs object
+                                const selectedDate = dayjs(value);
+
+                                console.log({selectedDate})
+                  
+                                // Check if the selected date is within the valid range
+                                if (
+                                    selectedDate.isBefore(TCMMVBCVValidDateRange.startOf('week')) ||
+                                    selectedDate.isAfter(TCMMVBCVValidDateRange.endOf('week').subtract(2, 'day'))
+                                ) {
+                                    return Promise.reject(
+                                        'La fecha debe estar en el rango de validez para la TCMMV-BCV'
+                                    );
+                                }
+
+                                console.log("all good")
+                  
+                                // If the date is valid, resolve the promise
+                                return Promise.resolve();
+                            }
+                        }
+                        ]}>
+                        <DatePicker picker="date"/>
+                    </Form.Item>
                 </Flex>
 
                 <Flex align="center" gap={16}>
@@ -594,7 +646,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 </Flex>
 
                 <Flex wrap gap={16}>
-                    <Form.Item name="TCMMVBCV" label="TC-MMVBCV" rules={[{ required: true }]}>
+                    <Form.Item name="TCMMVBCV" label="TCMMV-BCV" rules={[{ required: true }]}>
                         <CustomInputNumber min={0} addonAfter="Bs"/>
                     </Form.Item>
 

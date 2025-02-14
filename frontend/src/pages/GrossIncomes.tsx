@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, Badge, Flex, Typography, Form, DatePicker} from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
+import { Table, Button, Card, Badge, Flex, Typography, Form, DatePicker, message} from 'antd';
+import { FilterOutlined, FormatPainterOutlined } from '@ant-design/icons';
 import { ColumnProps } from 'antd/lib/table';
 import { IGrossIncome } from '../util/types';
 import * as grossIncomeService from '../util/grossIncomeApi';
@@ -10,10 +10,16 @@ import dayjs_es from 'dayjs/locale/es';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
+import ROLES from '../util/roles';
+
+import useAuthentication from 'hooks/useAuthentication';
+
 dayjs.locale(dayjs_es);
 
 import * as util from '../util';
 import { useNavigate, Link } from 'react-router-dom';
+
+import GrossIncomesEmptyFillerGeneralModal from './components/GrossIncomesEmptyFillerGeneralModal'
 
 interface IGrossIncomeWithStatus extends IGrossIncome {
   status: string, 
@@ -35,9 +41,17 @@ const GrossIncomeTable = () => {
   const [initialDate, setInitialDate] = useState<Date | null>(null);
   const [finalDate, setFinalDate] = useState<Date | null>(null);
 
+  const [showFillEmptyGrossIncomesModal, setShowFillEmptyGrossIncomesModal] = useState(false)
+
   const navigate = useNavigate();
 
   const [form] = Form.useForm();
+
+  const { userAuth } = useAuthentication();
+  const user = userAuth.user
+  const userIsAdmin = user?.roleId === ROLES.ADMIN
+
+  console.log({user})
 
   const fetchGrossIncomes = async (rawFilters?: any) => {
 
@@ -82,6 +96,21 @@ const GrossIncomeTable = () => {
   useEffect(() => {
     fetchGrossIncomes();
   }, []);
+
+  const handleFillEmptyGrossIncomes = async (values: {
+    period: string
+  }) => {
+    try {
+      let result = await grossIncomeService.fillEmptyBulkGrossIncomes({
+        filters: {},
+        period: values.period,
+        token: userAuth.token || ''
+      })
+      
+    } catch (error) {
+      message.error("Error al generar las declaraciones vacías")
+    }
+  }
 
   const filtersSelectedYear = (grossIncomes: IGrossIncome[]) => {
     return [...new Set(grossIncomes.map(grossIncome => dayjs(grossIncome.period).format('YYYY')))].map(year => ({text: year, value: year}))
@@ -244,9 +273,17 @@ const GrossIncomeTable = () => {
 
           <Form.Item>
             <Button icon={<FilterOutlined/>} htmlType="submit">
-                Filtrar
+              Filtrar
             </Button>
           </Form.Item>
+
+          {
+            userIsAdmin && (
+              <Button icon={<FormatPainterOutlined />} onClick={() => setShowFillEmptyGrossIncomesModal(true)}>
+                Rellenar
+              </Button>)
+          }
+          
 
         </Flex>
       </Form>
@@ -259,6 +296,13 @@ const GrossIncomeTable = () => {
         style={{ overflow: 'auto' }}
         columns={columns} 
         dataSource={grossIncomes} />
+
+      
+      <GrossIncomesEmptyFillerGeneralModal
+        visible={showFillEmptyGrossIncomesModal}
+        onSubmit={handleFillEmptyGrossIncomes}
+        onCancel={() => setShowFillEmptyGrossIncomesModal(false)}
+      />
     </Card>
   </>);
 };

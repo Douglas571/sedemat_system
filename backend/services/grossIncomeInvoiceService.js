@@ -17,6 +17,7 @@ const {
 } = require('../database/models');
 
 const currency = require('currency.js');
+const dayjs = require('dayjs');
 
 const ROLES = require('../utils/auth/roles');
 const { UserNotAuthorizedError } = require('../utils/errors');
@@ -93,7 +94,7 @@ function canBeSettled({
     penalties = [],
 }) {
 
-    if (!TCMMVBCV) {
+    if (TCMMVBCV === null) {
         throw new Error('TCMMVBCV is required')
     }
 
@@ -404,8 +405,10 @@ class GrossIncomeInvoiceService {
         //         // assign a code to the settlement
         // }
 
-        // ensure that updateAt is handled by the orm 
-        data.updateAt = undefined;
+        // if TCMMVBCV is different, then, update the gross income date 
+        if (grossIncomeInvoice.TCMMVBCV !== data.TCMMVBCV) {
+            data.updatedAt = dayjs().toISOString()
+        }
         
         await GrossIncomeInvoice.update(data, { where: { id } });
 

@@ -339,22 +339,9 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
     // ! TODO: Refactor this whole thing around settling button
 
     const pageTabs = [
+        
         {
             key: '1',
-            label: <span><AlertFilled style={{fontSize: '1.5rem'}}/> MULTAS</span>,
-            children: (<PenaltiesTable 
-                TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}
-                grossIncomeInvoiceId={Number(grossIncomeInvoiceId)}
-                penalties={grossIncomeInvoice?.penalties}
-                onUpdate={() => {
-                    loadData()
-                }}
-
-                canEdit={cadEditPenalties}
-            />)
-        },
-        {
-            key: '2',
             label: <span><WalletFilled style={{fontSize: '1.5rem'}}/> PAGOS</span>,
             children: (<PaymentsAllocatedTable 
                 paymentsAllocated={payments.filter(p => p.grossIncomeInvoiceId === Number(grossIncomeInvoiceId))}
@@ -371,6 +358,20 @@ const GrossIncomeInvoiceDetails: React.FC = () => {
                 differenceInBs={totalLessPaymentsAllocatedBs}
             />)
         },
+        {
+            key: '2',
+            label: <span><AlertFilled style={{fontSize: '1.5rem'}}/> MULTAS</span>,
+            children: (<PenaltiesTable 
+                TCMMVBCV={grossIncomeInvoice?.TCMMVBCV || 1}
+                grossIncomeInvoiceId={Number(grossIncomeInvoiceId)}
+                penalties={grossIncomeInvoice?.penalties}
+                onUpdate={() => {
+                    loadData()
+                }}
+
+                canEdit={cadEditPenalties}
+            />)
+        }
     ]
     
     return (
@@ -848,6 +849,24 @@ function UsersInvolved({grossIncomeInvoice}: {grossIncomeInvoice: IGrossIncomeIn
         label: 'Revisado por',
         children: grossIncomeInvoice?.checkedByUserPersonFullName,
     });
+
+    items.push(...[
+        {
+            key: '3',
+            label: 'Fecha de Creación',
+            children: dayjs(grossIncomeInvoice?.createdAt).format('DD [de] MMMM [del] YYYY')
+        },
+        {
+            key: '4',
+            label: 'Fecha de Actualización',
+            children: dayjs(grossIncomeInvoice?.updatedAt).format('DD [de] MMMM [del] YYYY')
+        },
+        {
+            key: '5',
+            label: 'Fecha de Emisión',
+            children: dayjs(grossIncomeInvoice?.issuedAt).format('DD [de] MMMM [del] YYYY')
+        }
+    ])
 
 
     return (

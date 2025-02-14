@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const IP = process.env.BACKEND_IP || "localhost"
-const PORT = "3000"
+const IP = import.meta.env.VITE_BACKEND_IP || "localhost"
+const PORT = import.meta.env.VITE_BACKEND_PORT || "3000"
 const HOST = "http://" + IP + ":" + PORT
 
 import downloadFile from 'js-file-download'
