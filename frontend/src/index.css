@@ -24,3 +24,7 @@
 .printable table th {
   background: #e6e6e6;
 }
+
+.bold {
+  font-weight: bold;
+}

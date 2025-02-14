@@ -328,8 +328,8 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
           <img src={"/images/sedemat_logo.png"} width={100} alt="SEDEMAT Shield" />
       </Flex>
 
-      <Flex justify='right'><p data-testid="settlement-code">COMPROBANTE DE INGRESO N°{String(grossIncomeInvoice?.settlement.code).padStart(4, '0')}</p></Flex>
-      <Flex justify='right'><p data-testid="settlement-date">PUERTO CUMAREBO; {settledAtDisplayDate.toUpperCase()}</p></Flex>
+      <Flex justify='right'><p data-testid="settlement-code">COMPROBANTE DE INGRESO <span className='bold'>N°{String(grossIncomeInvoice?.settlement.code).padStart(4, '0')}</span></p></Flex>
+      <Flex justify='right'><p data-testid="settlement-date">PUERTO CUMAREBO; <span className='bold'>{settledAtDisplayDate.toUpperCase()}</span></p></Flex>
 
       <table>
         <tbody>
@@ -337,10 +337,10 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
             <th style={{width: 50}}>RAZON SOCIAL</th>
             <td 
               data-testid="business-name"
-              colSpan={2} style={{textAlign: "left", padding: 10}}
+              colSpan={2} style={{textAlign: "left", padding: 10, fontWeight: 'bold'}}
             >{grossIncomeInvoice.businessName.toUpperCase()} { grossIncomeInvoice.branchOfficeName && `(${grossIncomeInvoice.branchOfficeName})`.toUpperCase()}</td>
             <th style={{width: 40}}>RIF</th>
-            <td data-testid="business-rif" style={{textAlign: "left", padding: 10}}>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
+            <td data-testid="business-rif" style={{textAlign: "left", padding: 10, fontWeight: 'bold'}}>{grossIncomeInvoice.businessDNI.toUpperCase()}</td>
           </tr>
           <tr>
             <th>DESCRIPCIÓN DEL PAGO</th>
@@ -356,7 +356,10 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
             <th>
               MONTO
             </th>
-            <td style={{textAlign: "left", padding: 10}}>{formatBolivares(totalBs)}</td>
+            <td 
+              style={{textAlign: "left", padding: 10}}
+              className='bold'
+            >{formatBolivares(totalBs)}</td>
             <td 
               data-testid="amount-in-letters"           
               colSpan={3} 
@@ -394,7 +397,7 @@ const GrossIncomeInvoiceSettlement: React.FC = () => {
         <tfoot>
           <tr>
             <td colSpan={2} style={{textAlign: "right", padding: 10}}>TOTAL</td>
-            <td data-testid="total-bs">{formatBolivares(totalBs)}</td>
+            <td data-testid="total-bs"><span className='bold'>{formatBolivares(totalBs)}</span></td>
           </tr>
         </tfoot>
       </table>
