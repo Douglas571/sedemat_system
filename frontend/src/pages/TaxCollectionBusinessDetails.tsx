@@ -590,43 +590,50 @@ function GrossIncomeTaxesTable(
                 return (
                 <Flex gap="small">
 
-                    { 
-                    (
-                        <>
-                            {
-                                user?.roleId === ROLES.FISCAL
-                                && (
-                                    <Button
-                                        onClick={() => handleShowEditGrossIncomNoteModal(record)}
-                                    
-                                    >
-                                        { record?.fiscalMarkedAsPaid || record.fiscalNote ? "Modificar Nota" : "Agregar Nota" } 
-                                    </Button>
-                                )
-                            }
-                            <Button 
-                                onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
-                                disabled={invoice?.settlement}    
-                            >Editar</Button>
-                            
-                            <Popconfirm
-                                title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
-                                onConfirm={() => handleGrossIncomeDelete(record.id)}
-                                okText="Sí"
-                                cancelText="No"
-                            >
+                    { record.amountBs === null
+                        ? (
+                            <>
+                                <Button onClick={() => navigate(`gross-incomes/new?branchOfficeId=${record.branchOfficeId}&period=${record.period.format('YYYY-MM')}`)}>
+                                    Registrar
+                                </Button>
+                            </>
+                        ):
+                        (
+                            <>
+                                {
+                                    user?.roleId === ROLES.FISCAL
+                                    && (
+                                        <Button
+                                            onClick={() => handleShowEditGrossIncomNoteModal(record)}
+                                        
+                                        >
+                                            { record?.fiscalMarkedAsPaid || record.fiscalNote ? "Modificar Nota" : "Agregar Nota" } 
+                                        </Button>
+                                    )
+                                }
                                 <Button 
-                                    danger
-                                    disabled={invoice?.settlement}
-                                >Eliminar</Button>
-                            </Popconfirm>
-        
-                            <Link 
-                                to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
+                                    onClick={() => navigate(`/tax-collection/${record.businessId}/gross-incomes/${record.id}/edit`)}
+                                    disabled={invoice?.settlement}    
+                                >Editar</Button>
                                 
-                            >Detalles</Link>
-                        </>
-                    )   
+                                <Popconfirm
+                                    title="¿Estás seguro de que quieres eliminar este ingreso bruto?"
+                                    onConfirm={() => handleGrossIncomeDelete(record.id)}
+                                    okText="Sí"
+                                    cancelText="No"
+                                >
+                                    <Button 
+                                        danger
+                                        disabled={invoice?.settlement}
+                                    >Eliminar</Button>
+                                </Popconfirm>
+            
+                                <Link 
+                                    to={`/tax-collection/${record.businessId}/gross-incomes/${record.id}`}
+                                    
+                                >Detalles</Link>
+                            </>
+                        )   
                     }
                     
                     {/* <Button onClick={() => null}>Ver Factura</Button> */}
