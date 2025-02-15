@@ -14,6 +14,8 @@ const ROLES = require('../utils/auth/roles');
 const tempDir = os.tmpdir();
 const uploadsDir = path.resolve(__dirname, '../uploads');
 
+const { getFolderName } = require('../utils/files')
+
 fse.ensureDirSync(tempDir);
 
 const storage = multer.diskStorage({
@@ -76,7 +78,7 @@ const uploadFile = async (req, res) => {
       }
 
       // ensure destination folder exists
-      dirPath = path.resolve(uploadsDir, FOLDERS[folder]);
+      dirPath = path.resolve(uploadsDir, getFolderName(), FOLDERS[folder]);
       destinyFilePath = path.resolve(dirPath, file.filename)
       await fse.ensureDir(dirPath);
 

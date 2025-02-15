@@ -12,6 +12,8 @@ const logger = require('../utils/logger')
 const paymentService = require('../services/payments')
 const imageUtils = require('../utils/images')
 
+const { getFolderName } = require('../utils/files')
+
 fse.ensureDirSync(path.join(__dirname, '../uploads/payments'));
 let serverPathToPayments = 'uploads/payments'
 
@@ -202,17 +204,24 @@ router.post('/upload', function(req, res) {
 
         try {
 
+            let relativePath = path.join('uploads', getFolderName(), 'payments')
+            let destinationFolder = path.join(__dirname, '../', relativePath)
+            
+            fse.ensureDirSync(destinationFolder)
+
             let newFilename = await imageUtils.compress({
                 filePath: path.resolve(TEMP, req.file.filename),
-                destination: path.resolve(__dirname, '../uploads/payments'),
+                destination: destinationFolder,
                 baseFileName: Date.now()
                 // resize: true,
             })
 
+            let finalPath = path.join(relativePath, newFilename)
+
             res.status(200).json({ 
                 message: 'Image uploaded successfully', 
                 file: req.file,
-                path: path.join(serverPathToPayments, newFilename)
+                path: finalPath
             });
         } catch (error) {
             console.log({error})
