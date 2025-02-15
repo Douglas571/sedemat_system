@@ -11,7 +11,7 @@ function getFolderName() {
   const year = now.format('YYYY');
   
   // Combine the month and day to form the folder name (e.g., "feb25")
-  const folderName = `${year}_${month}`;
+  const folderName = `${year}-${month}`;
   
   return folderName.toLowerCase();
 }
