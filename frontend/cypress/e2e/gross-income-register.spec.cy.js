@@ -119,7 +119,7 @@ function deleteInvoice({
   cy.get(`[data-test-id="invoices-tab"]`).click()
   
   cy.get(`[data-test-id="invoices-tab"]`).click()
-  cy.get(`[data-test-id='delete-gross-income-button'][data-test-months*="${period}"]`).then(($el) => {
+  cy.get(`[data-test-id='delete-gross-income-button'][data-test-months*="${period}"]`, { timeout: 5000 }).then(($el) => {
     if ($el) {
       cy.wrap($el).click()
       cy.get('.ant-popconfirm-buttons').contains('Sí').click()
