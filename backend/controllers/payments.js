@@ -212,8 +212,8 @@ router.post('/upload', function(req, res) {
             let newFilename = await imageUtils.compress({
                 filePath: path.resolve(TEMP, req.file.filename),
                 destination: destinationFolder,
-                baseFileName: Date.now()
-                // resize: true,
+                baseFileName: Date.now(),
+                resize: true,
             })
 
             let finalPath = path.join(relativePath, newFilename)
