@@ -685,7 +685,9 @@ const GrossIncomeInvoice: React.FC = () => {
                         <Form.Item name="createdByUserPersonFullName" label="Creado por" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>
-                        <Button onClick={() => handleUpdateCreatedByUserPersonFullName()}>
+                        <Button 
+                            date-test-id='update-created-by-user-button'
+                            onClick={() => handleUpdateCreatedByUserPersonFullName()}>
                             <ReloadOutlined /> 
                             Actualizar
                         </Button>
@@ -701,12 +703,15 @@ const GrossIncomeInvoice: React.FC = () => {
                             rules={[{ required: true }]}
 
                             style={{ width: 350}}
+                            data-test-id='select-created-by-user-id'
                         >
                             <Select
                                 options={checkByUserOptions}
                             />
                         </Form.Item>
-                        <Button onClick={() => handleUpdateCheckedByUserPersonFullName()}>
+                        <Button 
+                            date-test-id='update-checked-by-user-button'
+                            onClick={() => handleUpdateCheckedByUserPersonFullName()}>
                             <ReloadOutlined /> 
                             Actualizar
                         </Button>
@@ -752,6 +757,7 @@ const GrossIncomeInvoice: React.FC = () => {
                 
                 <Form.Item>
                     <Button
+                        data-test-id='submit-form-button'
                         type='primary'
                         htmlType="submit"
                         style={{ marginTop: '20px' }}

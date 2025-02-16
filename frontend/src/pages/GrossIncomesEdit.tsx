@@ -613,6 +613,8 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             name="period"
                             label="Periodo"
                             rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
+
+                            data-test-id='period-picker'
                         >
                             <DatePicker picker="month"/>
                         </Form.Item>
@@ -640,7 +642,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                    
                     <Flex gap={16} align='center' justify='space-between'>
                         <Typography.Title level={4}>Tasa de Cambio</Typography.Title>
-                        <Button onClick={() => updateTCMMVBCV()}>
+                        <Button 
+                            data-test-id='update-tcmmv-button'
+                            onClick={() => updateTCMMVBCV()}>
                             <ReloadOutlined/>
                             Actualizar
                         </Button>
@@ -665,9 +669,11 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                     
                     <Flex align='center' justify='space-between'>
                         <Typography.Title level={4}>Alicuota</Typography.Title>
-                        <Button onClick={() => updateAlicuota()}>
-                        <ReloadOutlined/>
-                            Actualizar
+                        <Button 
+                            data-test-id='update-alicuota-button'
+                            onClick={() => updateAlicuota()}>
+                            <ReloadOutlined/>
+                                Actualizar
                         </Button>
                     </Flex>
                     <Flex gap={16} wrap>
@@ -746,7 +752,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             (<Flex vertical>
                                 <Flex align='center' justify='space-between'>
                                     <Typography.Title level={4}>Aseo Urbano</Typography.Title>
-                                    <Button onClick={() => updateWasteCollection()}>
+                                    <Button 
+                                        data-test-id='update-waste-collection-button'
+                                        onClick={() => updateWasteCollection()}>
                                         <ReloadOutlined/>
                                         Actualizar
                                     </Button>
@@ -922,7 +930,9 @@ const TaxCollectionBusinessGrossIncomesEdit: React.FC = () => {
                             loading={loading}
                             disabled={loading}
                             type="primary" 
-                            htmlType="submit">
+                            htmlType="submit"
+                            data-test-id='submit-gross-income-button'
+                        >
                             Guardar
                         </Button>
                     </Form.Item>

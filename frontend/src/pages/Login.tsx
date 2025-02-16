@@ -113,18 +113,18 @@ const LoginForm = () => {
                             name="username"
                             rules={[{ required: true, message: 'Por favor ingresa tu nombre de usuario' }]}
                         >
-                            <Input />
+                            <Input data-test-id='username-input' />
                         </Form.Item>
                         <Form.Item
                             label="Contraseña"
                             name="password"
                             rules={[{ required: true, message: 'Por favor ingresa tu contraseña' }]}
                         >
-                            <Input.Password />
+                            <Input.Password data-test-id='password-input' />
                         </Form.Item>
                         <Flex justify='center'>
                             <Form.Item>
-                                <Button type="primary" htmlType="submit">
+                                <Button type="primary" htmlType="submit" data-test-id='login-button'>
                                     Iniciar Sesión
                                 </Button>
                             </Form.Item>

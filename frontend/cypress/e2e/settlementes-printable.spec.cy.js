@@ -39,7 +39,7 @@ describe('Settlement printable page', () => {
       'description': 'PAGO POR: IMPUESTO SOBRE ACTIVIDAD ECONOMICA CORRESPONDIENTE AL MES DE OCTUBRE DEL AÑO 2024',
       'amount-in-letters': 'MIL CUATROCIENTOS SETENTA Y NUEVE BOLÍVARES CON OCHENTA Y UN CÉNTIMOS',
       'total-bs': '1.479,81 Bs.',
-      'bank-name': 'BANCO BICENTENARIO',
+      'bank-name': 'BDT',
       'bank-account-number': '0175-0162-3100-7494-9290',
       'beneficiary': 'SEDEMAT',
       'payment-date': '11/11/2024',

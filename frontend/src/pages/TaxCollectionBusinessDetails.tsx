@@ -187,7 +187,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
     const pageTabs = [
         {
             key: '1',
-            label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
+            label: <div 
+                data-test-id='invoices-tab'
+                style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
                 // border: '3px solid #ff6021', padding: '0.5rem'
             }}> <FaCashRegister style={{ fontSize: '1.5rem'}}/> FACTURAS</div>,
             children: <GrossIncomeInvoiceTable
@@ -199,7 +201,9 @@ const TaxCollectionBusinessDetails: React.FC = () => {
         },
         {
             key: '2',
-            label: <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
+            label: <div
+                data-test-id='declarations-tab' 
+                style={{ display: 'flex', alignItems: 'center', gap: '.5rem', 
                 // border: '3px solid #5290fa', padding: '0.5rem'
             }}><FileFilled style={{ fontSize: '1.5rem'}}/> DECLARACIONES</div>,
             children: <GrossIncomeTaxesTable
@@ -623,6 +627,7 @@ function GrossIncomeTaxesTable(
                                     cancelText="No"
                                 >
                                     <Button 
+                                        data-test-id={`delete-gross-income-button-${dayjs(record.period).format('YYYY-MM')}`}
                                         danger
                                         disabled={invoice?.settlement}
                                     >Eliminar</Button>
@@ -676,6 +681,7 @@ function GrossIncomeTaxesTable(
             <Flex gap="small" align='center'>
                 <Title level={3}>Ingresos Brutos Declarados</Title>
                 <Button
+                    data-test-id='declarations-add-button'
                     onClick={() => navigate('gross-incomes/new')}
                     style={{ alignSelf: 'end', marginBottom: '12px' }}>
                     <PlusOutlined />
@@ -785,7 +791,15 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
         {
             title: 'Acciones',
             key: 'actions',
-            render: (_: any, record: any) => (
+            render: (_: any, record: any) => {
+                
+                const grossIncomes = record.grossIncomes
+                    .sort((a, b) => dayjs(a.period).isBefore(dayjs(b.period)) ? -1 : 1)
+                    .map((g) => {
+                        return dayjs(g.period).format("YYYY-MM").toUpperCase()
+                    }).join(",")
+                
+                return (
                 <Flex gap="small">
 
                     {/* <Button onClick={() => null}>Descargar PDF</Button> */}
@@ -803,8 +817,11 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                                     okText="Sí"
                                     cancelText="No"
                                 >
-                                    <Button danger
-                                    disabled={record.settlement}
+                                    <Button
+                                        data-test-id='delete-gross-income-button'
+                                        data-test-months={grossIncomes}
+                                        danger
+                                        disabled={record.settlement}
                                     >Eliminar</Button>
                                 </Popconfirm>
                             </>
@@ -818,7 +835,7 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
                     <Link to={`/tax-collection/${businessId}/gross-incomes-invoice/${record.id}`}>Detalles</Link>
 
                 </Flex>
-            ),
+            )},
         }
     ];
 
@@ -827,6 +844,7 @@ function GrossIncomeInvoiceTable({ invoices, disableAdd, onDelete }): JSX.Elemen
             <Flex gap="small" align='center'>
                 <Title level={3}>Facturas del Impuesto sobre Ingresos Brutos</Title>
                 <Button
+                    data-test-id='gross-income-invoice-add-button'
                     disabled={disableAdd}
                     style={{ alignSelf: 'end', marginBottom: '12px' }}
                     onClick={() => navigate('gross-incomes-invoice/new')}
