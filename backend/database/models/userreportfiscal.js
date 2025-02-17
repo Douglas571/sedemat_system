@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.SystemUsageReport, { foreignKey: 'systemUsageReportId' });
+      this.belongsTo(models.SystemUsageReport, { foreignKey: 'systemUsageReportId', as: 'systemUsageReport' });
     }
   }
   UserReportFiscal.init({
