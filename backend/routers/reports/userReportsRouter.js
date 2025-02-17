@@ -14,4 +14,6 @@ router.get('/', authenticateJWT, userReportsController.getAllReports);
 // POST /userReports - Submit a new report
 router.post('/', authenticateJWT, userReportsController.submitReport);
 
+router.use(userReportsController.errorHandler)
+
 module.exports = router;

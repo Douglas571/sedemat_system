@@ -21,8 +21,9 @@ const userReportsService = {
    * @returns {Promise<Array>} - Array of user reports
    */
   async getAllReports() {
-    // TODO: Implement logic to fetch all reports from the database
-    throw new Error('Not implemented');
+    throw Error("foo")
+    let systemUsageReport = { empty: true }
+    return systemUsageReport
   },
 
   /**
@@ -180,7 +181,7 @@ const userReportsService = {
       })
 
     })
-    
+
     // Create the SystemUsageReport
     const systemUsageReport = await SystemUsageReport.create({
       timestamp,

@@ -7,13 +7,13 @@ const userReportsController = {
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
    */
-  async getAllReports(req, res) {
+  async getAllReports(req, res, next) {
+    // Delegate to the service
     try {
-      // Delegate to the service
       const reports = await userReportsService.getAllReports();
       res.status(200).json(reports);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching reports', error: error.message });
+      next(error)
     }
   },
 
@@ -22,7 +22,7 @@ const userReportsController = {
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
    */
-  async submitReport(req, res) {
+  async submitReport(req, res, next) {
     try {
       const user = req.user;
       const data = req.body; // Assuming the report data is sent in the request body
@@ -33,9 +33,14 @@ const userReportsController = {
       });
       res.status(201).json(newReport);
     } catch (error) {
-      res.status(500).json({ message: 'Error submitting report', error: error.message });
+      next(error)
     }
   },
+
+  async errorHandler(error, req, res, next) {
+    // TODO: Improve the error handler, parse each type of error, and return an apropiate response
+    res.status(500).json({ message: 'Error fetching reports', error: error.message });
+  }
 };
 
 module.exports = userReportsController;
