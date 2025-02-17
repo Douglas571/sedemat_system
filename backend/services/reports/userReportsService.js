@@ -1,3 +1,4 @@
+const ExcelJS = require('exceljs')
 const dayjs = require('dayjs');
 const _ = require('lodash');
 const { 
@@ -38,6 +39,50 @@ const userReportsService = {
       ]
     })
     return systemUsageReport
+  },
+
+  async getAllReportsExcel ({ stream }) {
+
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reporte de usuarios');
+  
+    // Define the header row
+    const headerRow = [
+      'Usuario',
+      'Rol',
+      'Ingresos brutos creados',
+      'Ingresos brutos emitidos',
+      'Ingresos brutos actualizados',
+      'Pagos creados',
+      'Liquidaciones creadas',
+    ];
+  
+    worksheet.addRow(headerRow);
+  
+    // Fetch the report data in JSON format
+    const reportRows = await module.exports.getAllReports();
+  
+    // Add rows to the worksheet
+    reportRows.forEach(row => {
+      let formattedRow = [
+        row.username,
+        row.role,
+        row.grossIncomeInvoicesCreated || 0,
+        row.grossIncomeInvoicesIssued || 0,
+        row.grossIncomeInvoicesUpdated || 0,
+        row.paymentsCreated || 0,
+        row.settlementsCreated || 0,
+      ];
+      worksheet.addRow(formattedRow);
+    });
+  
+    // Write the workbook to the stream
+    await workbook.xlsx.write(stream)
+      .then(function() {
+          console.log("Excel file with the report sent to client")
+      });
+
   },
 
   /**
