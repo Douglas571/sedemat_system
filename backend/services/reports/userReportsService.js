@@ -31,30 +31,11 @@ const userReportsService = {
    * @returns {Promise<Object>} - The newly created report
    */
   async submitReport({ data, user }) {
-    /*
-      the report return an object of the following structure 
 
-      [
-        {
-          userId,
-          roleId,
+    let taxCollectorReports = []
+    let fiscalReports = []
+    let settlerReports = []
 
-          grossIncomesCreated,
-          PaymentsCreated,
-          
-          grossIncomeInvoicesCreated,
-          grossIncomeInvoicesIssued,
-        }
-      ]
-    
-    */
-
-
-    // TODO: Implement logic to save the report to the database
-
-    let taxCollectorsReport = []
-    let fiscalsReport = []
-    let settlersReport = []
     let timestamp = dayjs()
 
     // get all user that are fiscals, tax collectors, coordinators and settlers 
@@ -137,7 +118,7 @@ const userReportsService = {
         grossIncomeInvoicesCreated: 0, grossIncomeInvoicesIssued: 0, grossIncomeInvoicesUpdated: 0
       })
 
-      taxCollectorsReport.push(
+      taxCollectorReports.push(
         {
           ..._.pick(t, ['username', 'id']),
           ...report
@@ -170,7 +151,7 @@ const userReportsService = {
       })
 
 
-      fiscalsReport.push(
+      fiscalReports.push(
         {
           ..._.pick(f, ['username', 'id']),
           ...grossIncomesReport,
@@ -193,19 +174,13 @@ const userReportsService = {
         settlementsCreated: 0
       })
 
-      settlersReport.push({
+      settlerReports.push({
         ..._.pick(l, ['username', 'id']),
         ...settlements
       })
 
     })
-
-    let result = {
-      timestamp,
-      taxCollectors: taxCollectorsReport,
-      fiscals: fiscalsReport,
-      settlers: settlersReport,
-    }
+    
     // Create the SystemUsageReport
     const systemUsageReport = await SystemUsageReport.create({
       timestamp,
@@ -213,7 +188,7 @@ const userReportsService = {
     });
 
     // Save tax collectors' reports
-    await Promise.all(taxCollectorsReport.map(async (report) => {
+    await Promise.all(taxCollectorReports.map(async (report) => {
       await UserReportTaxCollector.create({
         timestamp,
         username: report.username,
@@ -226,7 +201,7 @@ const userReportsService = {
     }));
 
     // Save fiscals' reports
-    await Promise.all(fiscalsReport.map(async (report) => {
+    await Promise.all(fiscalReports.map(async (report) => {
       await UserReportFiscal.create({
         timestamp,
         username: report.username,
@@ -238,7 +213,7 @@ const userReportsService = {
     }));
 
     // Save settlers' reports
-    await Promise.all(settlersReport.map(async (report) => {
+    await Promise.all(settlerReports.map(async (report) => {
       await UserReportSettler.create({
         timestamp,
         username: report.username,
@@ -249,11 +224,12 @@ const userReportsService = {
     }));
 
     return {
-      timestamp,
-      taxCollectors: taxCollectorsReport,
-      fiscals: fiscalsReport,
-      settlers: settlersReport,
-      systemUsageReportId: systemUsageReport.id
+      id: systemUsageReport.id,
+      timestamp: systemUsageReport.timestamp,
+      totalUsers: systemUsageReport.totalUsers,
+      taxCollectors: taxCollectorReports,
+      fiscals: fiscalReports,
+      settlers: settlerReports,
     };
   },
 };
