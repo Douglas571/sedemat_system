@@ -35,7 +35,7 @@ function checkUserCanVerifyPayments(user) {
 
 const deletePaymentImage = (relativeImagePath) => {
     if (relativeImagePath) {
-        // go back one level to get outside of service folder 
+        // ! go back one level to get outside of service folder 
         let imagePath = path.join(__dirname, '..', relativeImagePath)
 
         // join the url and remove the old one 
@@ -161,11 +161,10 @@ exports.createPayment = async (paymentData, user) => {
 
         // delete image
         if (paymentData.image) {
-            let { name, ext } = path.parse(paymentData.image)
-            console.log("deleting: ", name + ext)
+            console.log("deleting: ", paymentData.image)
 
             // ! go back one level to get out of service and enter uploads
-            fse.unlink(path.join(__dirname, '..', 'uploads', 'payments', name + ext))
+            fse.unlink(path.join(__dirname, '..', paymentData.image))
         }
 
         logger.error('Error creating payment:', error.name);
