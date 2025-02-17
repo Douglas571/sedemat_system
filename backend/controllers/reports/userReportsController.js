@@ -10,8 +10,14 @@ const userReportsController = {
   async getAllReports(req, res, next) {
     // Delegate to the service
     try {
-      const reports = await userReportsService.getAllReports();
+      let user = req.user;
+      let { filters } = req.body;
+      const reports = await userReportsService.getAllReports({
+        filters, user
+      });
+
       res.status(200).json(reports);
+
     } catch (error) {
       next(error)
     }

@@ -21,8 +21,22 @@ const userReportsService = {
    * @returns {Promise<Array>} - Array of user reports
    */
   async getAllReports() {
-    throw Error("foo")
-    let systemUsageReport = { empty: true }
+    let systemUsageReport = await SystemUsageReport.findAll({
+      include: [
+        {
+          model: UserReportTaxCollector,
+          as: 'taxCollectorReports'
+        },
+        {
+          model: UserReportFiscal,
+          as: 'fiscalReports'
+        },
+        {
+          model: UserReportSettler,
+          as: 'settlerReports'
+        }
+      ]
+    })
     return systemUsageReport
   },
 
