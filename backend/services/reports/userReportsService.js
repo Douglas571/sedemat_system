@@ -1,6 +1,12 @@
 const dayjs = require('dayjs');
 const _ = require('lodash');
-const { User, GrossIncomeInvoice, GrossIncome, Payment } = require('../../database/models')
+const { 
+  User, 
+  GrossIncomeInvoice, 
+  GrossIncome, 
+  Payment,
+  Settlement
+} = require('../../database/models')
 
 const ROLES = require('../../utils/auth/roles');
 
@@ -21,10 +27,30 @@ const userReportsService = {
    * @returns {Promise<Object>} - The newly created report
    */
   async submitReport({ data, user }) {
+    /*
+      the report return an object of the following structure 
+
+      [
+        {
+          userId,
+          roleId,
+
+          grossIncomesCreated,
+          PaymentsCreated,
+          
+          grossIncomeInvoicesCreated,
+          grossIncomeInvoicesIssued,
+        }
+      ]
+    
+    */
+
+
     // TODO: Implement logic to save the report to the database
 
     let taxCollectorsReport = []
     let fiscalsReport = []
+    let settlersReport = []
     let timestamp = dayjs()
 
     // get all user that are fiscals, tax collectors, coordinators and settlers 
@@ -57,6 +83,18 @@ const userReportsService = {
       ]
     })
 
+    let liquidadores = await User.findAll({
+      where: {
+        roleId: ROLES.LIQUIDATOR,
+      },
+      include: [
+        {
+          model: Settlement,
+          as: 'settlements'
+        }
+      ]
+    })
+
     // for the tax collectors 
     taxCollectors.forEach( t => {
       console.log({ name: t.username, t: t.toJSON()})
@@ -77,17 +115,17 @@ const userReportsService = {
         }
         
         if (createdAt.isSame(dayjs(), 'day')) {
-          acc.created = acc.created + 1
+          acc.grossIncomeInvoicesCreated = acc.grossIncomeInvoicesCreated + 1
         }
 
         if (issuedAt.isSame(dayjs(), 'day')) {
-          acc.issued = acc.issued + 1
+          acc.grossIncomeInvoicesIssued = acc.grossIncomeInvoicesIssued + 1
         }
 
         return acc
 
       }, {
-        created: 0, issued: 0
+        grossIncomeInvoicesCreated: 0, grossIncomeInvoicesIssued: 0
       })
 
       taxCollectorsReport.push(
@@ -131,13 +169,36 @@ const userReportsService = {
         })
     })
 
-    return {
+    // for the settlers LIQUIDATOR: 8
+    liquidadores.forEach( l => {
+      // console.log(JSON.stringify(l, null, 2))
+      let settlements = l.settlements.reduce((acc, curr) => {
+        let createdAt = dayjs(curr.createdAt)
+
+        if (createdAt.isSame(dayjs(), 'day')) {
+          acc.settlementsCreated = acc.settlementsCreated + 1
+        }
+
+        return acc
+      }, {
+        settlementsCreated: 0
+      })
+
+      settlersReport.push({
+        ..._.pick(l, ['username', 'id']),
+        ...settlements
+      })
+
+    })
+
+    let result = {
       timestamp,
       taxCollectors: taxCollectorsReport,
-      fiscals: fiscalsReport
+      fiscals: fiscalsReport,
+      settlers: settlersReport,
     }
 
-    throw new Error('Not implemented');
+    return result
   },
 };
 
