@@ -103,6 +103,7 @@ const userReportsService = {
       let report = t.grossIncomeInvoices.reduce((acc, curr) => {
         let createdAt = dayjs(curr.createdAt)
         let issuedAt = dayjs(curr.issuedAt)
+        let updatedAt = dayjs(curr.updatedAt)
 
         if (issuedAt) {
           console.log({curr})
@@ -122,10 +123,14 @@ const userReportsService = {
           acc.grossIncomeInvoicesIssued = acc.grossIncomeInvoicesIssued + 1
         }
 
+        if (updatedAt.isSame(dayjs(), 'day')) {
+          acc.grossIncomeInvoicesUpdated = acc.grossIncomeInvoicesUpdated + 1
+        }
+
         return acc
 
       }, {
-        grossIncomeInvoicesCreated: 0, grossIncomeInvoicesIssued: 0
+        grossIncomeInvoicesCreated: 0, grossIncomeInvoicesIssued: 0, grossIncomeInvoicesUpdated: 0
       })
 
       taxCollectorsReport.push(
