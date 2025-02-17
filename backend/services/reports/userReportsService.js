@@ -5,7 +5,11 @@ const {
   GrossIncomeInvoice, 
   GrossIncome, 
   Payment,
-  Settlement
+  Settlement,
+  SystemUsageReport,
+  UserReportTaxCollector,
+  UserReportFiscal,
+  UserReportSettler
 } = require('../../database/models')
 
 const ROLES = require('../../utils/auth/roles');
@@ -202,8 +206,55 @@ const userReportsService = {
       fiscals: fiscalsReport,
       settlers: settlersReport,
     }
+    // Create the SystemUsageReport
+    const systemUsageReport = await SystemUsageReport.create({
+      timestamp,
+      totalUsers: taxCollectors.length + fiscals.length + liquidadores.length
+    });
 
-    return result
+    // Save tax collectors' reports
+    await Promise.all(taxCollectorsReport.map(async (report) => {
+      await UserReportTaxCollector.create({
+        timestamp,
+        username: report.username,
+        userId: report.id,
+        grossIncomeInvoicesCreated: report.grossIncomeInvoicesCreated,
+        grossIncomeInvoicesIssued: report.grossIncomeInvoicesIssued,
+        grossIncomeInvoicesUpdated: report.grossIncomeInvoicesUpdated,
+        systemUsageReportId: systemUsageReport.id
+      });
+    }));
+
+    // Save fiscals' reports
+    await Promise.all(fiscalsReport.map(async (report) => {
+      await UserReportFiscal.create({
+        timestamp,
+        username: report.username,
+        userId: report.id,
+        grossIncomesCreated: report.grossIncomesCreated,
+        paymentsCreated: report.paymentsCreated,
+        systemUsageReportId: systemUsageReport.id
+      });
+    }));
+
+    // Save settlers' reports
+    await Promise.all(settlersReport.map(async (report) => {
+      await UserReportSettler.create({
+        timestamp,
+        username: report.username,
+        userId: report.id,
+        settlementsCreated: report.settlementsCreated,
+        systemUsageReportId: systemUsageReport.id
+      });
+    }));
+
+    return {
+      timestamp,
+      taxCollectors: taxCollectorsReport,
+      fiscals: fiscalsReport,
+      settlers: settlersReport,
+      systemUsageReportId: systemUsageReport.id
+    };
   },
 };
 
