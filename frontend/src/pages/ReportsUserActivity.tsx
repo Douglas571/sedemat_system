@@ -20,9 +20,9 @@ const ReportsUserActivity = () => {
         filters: {
           period: values.period.format('YYYY-MM-DD')
         },
-        format: 'json'
+        format: 'excel'
       })
-      console.log({report})
+      // console.log({report})
 
 
 

@@ -81,16 +81,14 @@ const userReportsService = {
   },
 
 
-  async getAllReportsExcel ({ filters, stream }) {
-
-  
+  async getAllReportsExcel({ filters, stream }) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Reporte de usuarios');
   
-    // Define the header row
+    // Define the header row for the first table
     const headerRow = [
-      'Usuario',
-      'Rol',
+      'PERSONAL (USUARIO)',
+      'ROL',
       'Ingresos brutos creados',
       'Ingresos brutos emitidos',
       'Ingresos brutos actualizados',
@@ -101,9 +99,9 @@ const userReportsService = {
     worksheet.addRow(headerRow);
   
     // Fetch the report data in JSON format
-    const reportRows = await module.exports.getAllReports({filters});
+    const reportRows = await this.getAllReports({ filters });
   
-    // Add rows to the worksheet
+    // Add rows to the worksheet for the first table
     reportRows.forEach(row => {
       let formattedRow = [
         row.username,
@@ -117,12 +115,39 @@ const userReportsService = {
       worksheet.addRow(formattedRow);
     });
   
-    // Write the workbook to the stream
-    await workbook.xlsx.write(stream)
-      .then(function() {
-          console.log("Excel file with the report sent to client")
-      });
+    // Add a title row for "SEGUIMIENTO DIARIO YYYY-MM"
+    const periodTitle = `SEGUIMIENTO DIARIO ${dayjs(filters.period).format('YYYY-MM')}`;
+    worksheet.addRow([]); // Blank line
+    worksheet.addRow([periodTitle]); // Title row
+    worksheet.addRow([]); // Blank line
+  
+    // Prepare the header for the second table (Tax Collectors)
+    const daysInMonth = dayjs(filters.period).daysInMonth(); // Number of days in the month
+    const taxCollectorHeader = ['PERSONAL', 'ACTIVIDAD'];
+  
+    // Add columns for each day of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      taxCollectorHeader.push(day);
+    }
+  
+    worksheet.addRow(taxCollectorHeader);
+  
+    // Fetch tax collector data for the second table
+    const systemUsageReport = await module.exports.getAllReports({ filters });
 
+    // sort the usage report
+
+    systemUsageReport.forEach( systemUsageReport => {
+      // get the tax collectors 
+
+      // get the settlers 
+
+      // get the tax fiscals 
+    })
+  
+    // Write the workbook to the stream
+    await workbook.xlsx.write(stream);
+    console.log('Excel file with the report sent to the client');
   },
 
   /**
