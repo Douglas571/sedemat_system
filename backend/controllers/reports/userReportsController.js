@@ -1,5 +1,3 @@
-
-
 // controllers/userReportsController.js
 const userReportsService = require('../../services/reports/userReportsService');
 
@@ -11,10 +9,14 @@ const userReportsController = {
    */
   async getAllReports(req, res, next) {
     try {
-      const { format = 'json' } = req.query;
+      const { format = 'json', period } = req.query;
 
       let user = req.user;
-      let { filters } = req.body;
+      
+      // TODO: Search why this route is not accepting body from axios
+      let filters = {
+        period
+      }
 
       if (format === 'excel') {
         // Set headers for Excel download
@@ -28,10 +30,10 @@ const userReportsController = {
         );
 
         // Generate and stream the Excel file
-        await userReportsService.getAllReportsExcel({ user: req.user, stream: res });
+        await userReportsService.getAllReportsExcel({ user, stream: res, filters });
       } else if (format === 'json') {
         // Return JSON data
-        const reports = await userReportsService.getAllReports();
+        const reports = await userReportsService.getAllReports({filters});
         res.json(reports);
       } else {
         // Handle invalid format

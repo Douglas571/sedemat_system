@@ -65,16 +65,28 @@ axiosInstance.interceptors.request.use(
 
 // Function to get all reports
 export async function getAllReports(data: {
+  filters: {
+    period: Date,
+  },
   format: 'excel' | 'json'
-}): Promise<Report[]> {
+}): Promise<Report[] | void> {
   try {
-    let { format } = data
+    console.log({data})
+    let { format, filters } = data
+    
     
     if (format === 'excel') {
       const response: AxiosResponse = await axiosInstance.get('/', {
         responseType: 'blob',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         params: {
-          format
+          format,
+          period: filters?.period
+        },
+        data: {
+          filters
         }
       });
   
@@ -84,8 +96,15 @@ export async function getAllReports(data: {
       downloadFile(data, `reporte-usuarios-${dayjs().format('DD-MM-YYYY')}.xlsx`);
     } else if (format === 'json') {
       const response: AxiosResponse<Report[]> = await axiosInstance.get('/', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
         params: {
-          format
+          format,
+          period: filters?.period
+        },
+        data: {
+          filters
         }
       });
   
@@ -125,9 +144,9 @@ export async function deleteOneReport(reportId: number): Promise<void> {
 }
 
 // Function to create a new report
-export async function createReport(newReport: Omit<Report, 'id'>): Promise<Report> {
+export async function createReport(): Promise<Report> {
   try {
-    const response: AxiosResponse<Report> = await axiosInstance.post('/', newReport);
+    const response: AxiosResponse<Report> = await axiosInstance.post('/');
     return response.data;
   } catch (error) {
     console.error('Error creating report:', error);

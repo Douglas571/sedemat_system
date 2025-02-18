@@ -14,14 +14,13 @@ const ReportsUserActivity = () => {
   const { userAuth } = useAuthentication();
 
   const onFinish = async (values) => {
-    console.log(values);
-
     try {
-
-
       // reportsService.downloadBusinessesGrossIncomeSummary({ token: userAuth.token, format: 'excel', month: values.period.month() + 1, year: values.period.year() })
       let report = await userReportsService.getAllReports({
-        format: 'excel'
+        filters: {
+          period: values.period.format('YYYY-MM-DD')
+        },
+        format: 'json'
       })
       console.log({report})
 
@@ -31,8 +30,17 @@ const ReportsUserActivity = () => {
       console.error({error})
       alert(error)  
     }
-    
   };
+
+  const handleCreateReport = async () => {
+    try {
+      let result = await userReportsService.createReport()
+      console.log({result})
+    } catch (error) {
+      console.error({error})
+      alert(error)  
+    }
+  }
 
   useEffect(() => {
     form.setFieldsValue({ period: dayjs().subtract(1, 'month') })
@@ -43,7 +51,7 @@ const ReportsUserActivity = () => {
       <Typography.Title level={3}>Reporte de Actividad de Usuario</Typography.Title>
     }>
       <div>
-      <Button>
+      <Button onClick={handleCreateReport}>
         <PlusOutlined/> Crear un Reporte
       </Button>
       </div>
@@ -57,13 +65,13 @@ const ReportsUserActivity = () => {
         layout="horizontal"
       >
         <Flex gap={10}>
-          {/* <Form.Item
+          <Form.Item
             label="periodo"
             name="period"
             rules={[{ required: true, message: 'Ingrese el periodo' }]}
           >
             <DatePicker picker='month'/>
-          </Form.Item> */}
+          </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" icon={<FileExcelOutlined />}>

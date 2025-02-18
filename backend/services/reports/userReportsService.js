@@ -12,36 +12,76 @@ const {
   UserReportFiscal,
   UserReportSettler
 } = require('../../database/models')
+const { Op } = require('sequelize');
 
 const ROLES = require('../../utils/auth/roles');
 
 // services/userReportsService.js
 const userReportsService = {
+
   /**
    * Get all user reports
+   * @param {Object} options - Options for filtering reports.
+   * @param {Object} options.filters - Filters to apply (e.g., period).
    * @returns {Promise<Array>} - Array of user reports
    */
-  async getAllReports() {
-    let systemUsageReport = await SystemUsageReport.findAll({
+  async getAllReports({ filters } = {}) {
+    let where = {};
+
+    // Apply period filter if provided
+    if (filters?.period) {
+      const dateStart = dayjs(filters.period).startOf('month').format('YYYY-MM-DD');
+      const dateEnd = dayjs(filters.period).endOf('month').format('YYYY-MM-DD');
+
+      where = {
+        ...where,
+        timestamp: {
+          [Op.gte]: dateStart,
+          [Op.lte]: dateEnd,
+        },
+      };
+    }
+
+    // Fetch system usage reports with associated user reports
+    const systemUsageReports = await SystemUsageReport.findAll({
+      where,
       include: [
         {
           model: UserReportTaxCollector,
-          as: 'taxCollectorReports'
+          as: 'taxCollectorReports',
         },
         {
           model: UserReportFiscal,
-          as: 'fiscalReports'
+          as: 'fiscalReports',
         },
         {
           model: UserReportSettler,
-          as: 'settlerReports'
-        }
-      ]
-    })
-    return systemUsageReport
+          as: 'settlerReports',
+        },
+      ],
+      order: [['timestamp', 'DESC']], // Order by timestamp descending
+    });
+
+    // Group reports by day and select the latest report for each day
+    const reportsByDay = systemUsageReports.reduce((acc, report) => {
+      const day = dayjs(report.timestamp).format('YYYY-MM-DD'); // Extract the day
+
+      // If no report exists for this day or the current report is newer, update the entry
+      if (!acc[day] || dayjs(report.timestamp).isAfter(acc[day].timestamp)) {
+        acc[day] = report;
+      }
+
+      return acc;
+    }, {});
+
+    // Convert the grouped reports back into an array
+    const latestReports = Object.values(reportsByDay);
+
+    return latestReports;
   },
 
-  async getAllReportsExcel ({ stream }) {
+
+  async getAllReportsExcel ({ filters, stream }) {
 
   
     const workbook = new ExcelJS.Workbook();
@@ -61,7 +101,7 @@ const userReportsService = {
     worksheet.addRow(headerRow);
   
     // Fetch the report data in JSON format
-    const reportRows = await module.exports.getAllReports();
+    const reportRows = await module.exports.getAllReports({filters});
   
     // Add rows to the worksheet
     reportRows.forEach(row => {
