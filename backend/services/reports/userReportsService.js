@@ -80,6 +80,66 @@ const userReportsService = {
     return latestReports;
   },
 
+  mapSystemUsageReportToUsers(systemUsageReports) {
+    const usersMap = new Map(); // Use a Map to group users by username and role
+  
+    systemUsageReports.forEach(report => {
+      const { timestamp, taxCollectorReports, fiscalReports, settlerReports } = report;
+  
+      // Process tax collectors (roleId = 1)
+      taxCollectorReports.forEach(taxCollector => {
+        const userKey = `${taxCollector.username}-1`; // Combine username and roleId for uniqueness
+        if (!usersMap.has(userKey)) {
+          usersMap.set(userKey, {
+            username: taxCollector.username,
+            roleId: ROLES.COLLECTOR, // Replace with actual role name or ID
+            reports: [],
+          });
+        }
+
+        usersMap.get(userKey).reports.push({
+          timestamp,
+          ...taxCollector.dataValues, // Include all activities related to the role
+        });
+      });
+  
+      // Process fiscals (roleId = 2)
+      fiscalReports.forEach(fiscal => {
+        const userKey = `${fiscal.username}-2`;
+        if (!usersMap.has(userKey)) {
+          usersMap.set(userKey, {
+            username: fiscal.username,
+            roleId: ROLES.FISCAL, // Replace with actual role name or ID
+            reports: [],
+          });
+        }
+        usersMap.get(userKey).reports.push({
+          timestamp,
+          ...fiscal.dataValues, // Include all activities related to the role
+        });
+      });
+  
+      // Process settlers (roleId = 3)
+      settlerReports.forEach(settler => {
+        const userKey = `${settler.username}-3`;
+        if (!usersMap.has(userKey)) {
+          usersMap.set(userKey, {
+            username: settler.username,
+            roleId: ROLES.LIQUIDATOR, // Replace with actual role name or ID
+            reports: [],
+          });
+        }
+        usersMap.get(userKey).reports.push({
+          timestamp,
+          ...settler.dataValues, // Include all activities related to the role
+        });
+      });
+    });
+  
+    // Convert the Map to an array of users
+    return Array.from(usersMap.values());
+  },
+
 
   async getAllReportsExcel({ filters, stream }) {
     const workbook = new ExcelJS.Workbook();
@@ -93,73 +153,130 @@ const userReportsService = {
   
     // Prepare the header for the second table (Tax Collectors)
     const daysInMonth = dayjs(filters.period).daysInMonth(); // Number of days in the month
-    const taxCollectorHeader = ['PERSONAL', 'CARGO', 'ACTIVIDAD'];
+    const tableHeader = ['PERSONAL', 'CARGO', 'ACTIVIDAD'];
   
     // Add columns for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      taxCollectorHeader.push(day);
+      tableHeader.push(day);
     }
   
-    worksheet.addRow(taxCollectorHeader);
+    worksheet.addRow(tableHeader);
   
     const systemUsageReport = await module.exports.getAllReports({ filters });
 
     let rowOffset = 2
 
-    systemUsageReport.forEach( systemUsageReport => {
+    let users = module.exports.mapSystemUsageReportToUsers(systemUsageReport)
+    // console.log(JSON.stringify(users, null, 2))
 
-      // TAX COLLECTORS
-      systemUsageReport.taxCollectorReports.forEach( taxCollector => {
-        let day = dayjs(systemUsageReport.timestamp).get('date')
-
+    users.forEach( user => {
+      if (user.roleId === ROLES.COLLECTOR) {
         let table = [
-          [taxCollector.username, 'RECAUDADOR', "Facturas Creadas", ...Array(daysInMonth).fill('--')],
-          [taxCollector.username, 'RECAUDADOR', "Facturas Enviadas", ...Array(daysInMonth).fill('--')],
-          [taxCollector.username,  'RECAUDADOR', "Facturas Actualizadas", ...Array(daysInMonth).fill('--')],
+          [user.username, 'RECAUDADOR', "Facturas Creadas", ...Array(daysInMonth).fill('--')],
+          [user.username, 'RECAUDADOR', "Facturas Enviadas", ...Array(daysInMonth).fill('--')],
+          [user.username,  'RECAUDADOR', "Facturas Actualizadas", ...Array(daysInMonth).fill('--')],
           ['']
         ]
 
-        table[0][day+rowOffset] = taxCollector.grossIncomeInvoicesCreated
-        table[1][day+rowOffset] = taxCollector.grossIncomeInvoicesIssued
-        table[2][day+rowOffset] = taxCollector.grossIncomeInvoicesUpdated
+        user.reports.forEach((report) => {
+          let day = dayjs(report.timestamp).get('date')
+
+          table[0][day+rowOffset] = report.grossIncomeInvoicesCreated
+          table[1][day+rowOffset] = report.grossIncomeInvoicesIssued
+          table[2][day+rowOffset] = report.grossIncomeInvoicesUpdated
+        })
 
         table.forEach( row => worksheet.addRow(row))
-      })
+      }
+
+
+      if (user.roleId === ROLES.FISCAL) {
+        let table = [
+          [user.username, 'FISCAL', "Declaraciones Registradas", ...Array(daysInMonth).fill('--')],
+          [user.username,'FISCAL', "Pagos Registrados", ...Array(daysInMonth).fill('--')],
+          ['']
+        ]
+
+        user.reports.forEach((report) => {
+          let day = dayjs(report.timestamp).get('date')
+
+          table[0][day+rowOffset] = report.grossIncomesCreated
+          table[1][day+rowOffset] = report.paymentsCreated
+        })
+
+        table.forEach( row => worksheet.addRow(row))
+      }
+
+      if (user.roleId === ROLES.LIQUIDATOR) {
+        let day = dayjs(systemUsageReport.timestamp).get('date')
+
+        let table = [
+          [user.username, 'LIQUIDADOR', "Liquidaciones", ...Array(daysInMonth).fill('--')],
+          ['']
+        ]
+
+        user.reports.forEach((report) => {
+          table[0][day+rowOffset] = report.settlementsCreated
+        })
+
+        table.forEach( row => worksheet.addRow(row))
+      }
+    })
+
+    // systemUsageReport.forEach( systemUsageReport => {
+
+    //   // TAX COLLECTORS
+    //   systemUsageReport.taxCollectorReports.forEach( taxCollector => {
+    //     let day = dayjs(systemUsageReport.timestamp).get('date')
+
+    //     let table = [
+    //       [taxCollector.username, 'RECAUDADOR', "Facturas Creadas", ...Array(daysInMonth).fill('--')],
+    //       [taxCollector.username, 'RECAUDADOR', "Facturas Enviadas", ...Array(daysInMonth).fill('--')],
+    //       [taxCollector.username,  'RECAUDADOR', "Facturas Actualizadas", ...Array(daysInMonth).fill('--')],
+    //       ['']
+    //     ]
+
+    //     table[0][day+rowOffset] = taxCollector.grossIncomeInvoicesCreated
+    //     table[1][day+rowOffset] = taxCollector.grossIncomeInvoicesIssued
+    //     table[2][day+rowOffset] = taxCollector.grossIncomeInvoicesUpdated
+
+    //     table.forEach( row => worksheet.addRow(row))
+    //   })
 
       
 
-      // FISCALS
-      systemUsageReport.fiscalReports.forEach( fiscal => {
-        let day = dayjs(systemUsageReport.timestamp).get('date')
+    //   // FISCALS
+    //   systemUsageReport.fiscalReports.forEach( fiscal => {
+    //     let day = dayjs(systemUsageReport.timestamp).get('date')
 
-        let table = [
-          [fiscal.username, 'FISCAL', "Declaraciones Registradas", ...Array(daysInMonth).fill('--')],
-          [fiscal.username,'FISCAL', "Pagos Registrados", ...Array(daysInMonth).fill('--')],
-          ['']
-        ]
+    //     let table = [
+    //       [fiscal.username, 'FISCAL', "Declaraciones Registradas", ...Array(daysInMonth).fill('--')],
+    //       [fiscal.username,'FISCAL', "Pagos Registrados", ...Array(daysInMonth).fill('--')],
+    //       ['']
+    //     ]
 
-        table[0][day+rowOffset] = fiscal.grossIncomesCreated
-        table[1][day+rowOffset] = fiscal.paymentsCreated
+    //     table[0][day+rowOffset] = fiscal.grossIncomesCreated
+    //     table[1][day+rowOffset] = fiscal.paymentsCreated
 
-        table.forEach( row => worksheet.addRow(row))
-      })
+    //     table.forEach( row => worksheet.addRow(row))
+    //   })
 
-      // SETTLERS
-      systemUsageReport.settlerReports.forEach( settler => {
-        let day = dayjs(systemUsageReport.timestamp).get('date')
-        // get the tax collectors 
+    //   // SETTLERS
+    //   systemUsageReport.settlerReports.forEach( settler => {
+    //     let day = dayjs(systemUsageReport.timestamp).get('date')
+    //     // get the tax collectors 
 
-        // 1th 
-        let table = [
-          [settler.username, 'LIQUIDADOR', "Liquidaciones", ...Array(daysInMonth).fill('--')],
-          ['']
-        ]
+    //     // 1th 
+    //     let table = [
+    //       [settler.username, 'LIQUIDADOR', "Liquidaciones", ...Array(daysInMonth).fill('--')],
+    //       ['']
+    //     ]
 
-        table[0][day+rowOffset] = settler.settlementsCreated
+    //     table[0][day+rowOffset] = settler.settlementsCreated
 
-        table.forEach( row => worksheet.addRow(row))
-      })
-    })
+    //     table.forEach( row => worksheet.addRow(row))
+    //   })
+    // })
   
     // Write the workbook to the stream
     await workbook.xlsx.write(stream);
