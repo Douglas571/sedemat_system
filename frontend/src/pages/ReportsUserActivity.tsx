@@ -22,10 +22,6 @@ const ReportsUserActivity = () => {
         },
         format: 'excel'
       })
-      // console.log({report})
-
-
-
     } catch (error) {
       console.error({error})
       alert(error)  
@@ -36,6 +32,7 @@ const ReportsUserActivity = () => {
     try {
       let result = await userReportsService.createReport()
       console.log({result})
+      alert("Reporte del día creado exitosamente")
     } catch (error) {
       console.error({error})
       alert(error)  
@@ -50,38 +47,36 @@ const ReportsUserActivity = () => {
     <Card title={
       <Typography.Title level={3}>Reporte de Actividad de Usuario</Typography.Title>
     }>
-      <div>
-      <Button onClick={handleCreateReport}>
-        <PlusOutlined/> Crear un Reporte
-      </Button>
-      </div>
-      
-      <br/>
+      <Flex vertical>
+        <Form
+          form={form}
+          name="download"
+          onFinish={onFinish}
+          layout="horizontal"
+        >
+          <Flex gap={10}>
+            <Form.Item
+              label="Periodo"
+              name="period"
+              rules={[{ required: true, message: 'Ingrese el periodo' }]}
+            >
+              <DatePicker picker='month'/>
+            </Form.Item>
 
-      <Form
-        form={form}
-        name="download"
-        onFinish={onFinish}
-        layout="horizontal"
-      >
-        <Flex gap={10}>
-          <Form.Item
-            label="periodo"
-            name="period"
-            rules={[{ required: true, message: 'Ingrese el periodo' }]}
-          >
-            <DatePicker picker='month'/>
-          </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" icon={<FileExcelOutlined />}>
+                Descargar
+              </Button>
+            </Form.Item>
+          </Flex>
+        </Form>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<FileExcelOutlined />}>
-              Descargar
-            </Button>
-          </Form.Item>
-        </Flex>
-      </Form>
-
-      
+        <div>
+          <Button onClick={handleCreateReport}>
+            <PlusOutlined/> Crear un Reporte
+          </Button>
+        </div>
+      </Flex>
     </Card>
   );
 };
