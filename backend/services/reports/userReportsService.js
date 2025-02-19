@@ -84,37 +84,7 @@ const userReportsService = {
   async getAllReportsExcel({ filters, stream }) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Reporte de usuarios');
-  
-    // Define the header row for the first table
-    const headerRow = [
-      'PERSONAL (USUARIO)',
-      'ROL',
-      'Ingresos brutos creados',
-      'Ingresos brutos emitidos',
-      'Ingresos brutos actualizados',
-      'Pagos creados',
-      'Liquidaciones creadas',
-    ];
-  
-    worksheet.addRow(headerRow);
-  
-    // Fetch the report data in JSON format
-    const reportRows = await this.getAllReports({ filters });
-  
-    // Add rows to the worksheet for the first table
-    reportRows.forEach(row => {
-      let formattedRow = [
-        row.username,
-        row.role,
-        row.grossIncomeInvoicesCreated || 0,
-        row.grossIncomeInvoicesIssued || 0,
-        row.grossIncomeInvoicesUpdated || 0,
-        row.paymentsCreated || 0,
-        row.settlementsCreated || 0,
-      ];
-      worksheet.addRow(formattedRow);
-    });
-  
+
     // Add a title row for "SEGUIMIENTO DIARIO YYYY-MM"
     const periodTitle = `SEGUIMIENTO DIARIO ${dayjs(filters.period).format('YYYY-MM')}`;
     worksheet.addRow([]); // Blank line
@@ -123,7 +93,7 @@ const userReportsService = {
   
     // Prepare the header for the second table (Tax Collectors)
     const daysInMonth = dayjs(filters.period).daysInMonth(); // Number of days in the month
-    const taxCollectorHeader = ['PERSONAL', 'ACTIVIDAD'];
+    const taxCollectorHeader = ['PERSONAL', 'CARGO', 'ACTIVIDAD'];
   
     // Add columns for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
@@ -132,17 +102,63 @@ const userReportsService = {
   
     worksheet.addRow(taxCollectorHeader);
   
-    // Fetch tax collector data for the second table
     const systemUsageReport = await module.exports.getAllReports({ filters });
 
-    // sort the usage report
+    let rowOffset = 2
 
     systemUsageReport.forEach( systemUsageReport => {
-      // get the tax collectors 
 
-      // get the settlers 
+      // TAX COLLECTORS
+      systemUsageReport.taxCollectorReports.forEach( taxCollector => {
+        let day = dayjs(systemUsageReport.timestamp).get('date')
 
-      // get the tax fiscals 
+        let table = [
+          [taxCollector.username, 'RECAUDADOR', "Facturas Creadas", ...Array(daysInMonth).fill('--')],
+          [taxCollector.username, 'RECAUDADOR', "Facturas Enviadas", ...Array(daysInMonth).fill('--')],
+          [taxCollector.username,  'RECAUDADOR', "Facturas Actualizadas", ...Array(daysInMonth).fill('--')],
+          ['']
+        ]
+
+        table[0][day+rowOffset] = taxCollector.grossIncomeInvoicesCreated
+        table[1][day+rowOffset] = taxCollector.grossIncomeInvoicesIssued
+        table[2][day+rowOffset] = taxCollector.grossIncomeInvoicesUpdated
+
+        table.forEach( row => worksheet.addRow(row))
+      })
+
+      
+
+      // FISCALS
+      systemUsageReport.fiscalReports.forEach( fiscal => {
+        let day = dayjs(systemUsageReport.timestamp).get('date')
+
+        let table = [
+          [fiscal.username, 'FISCAL', "Declaraciones Registradas", ...Array(daysInMonth).fill('--')],
+          [fiscal.username,'FISCAL', "Pagos Registrados", ...Array(daysInMonth).fill('--')],
+          ['']
+        ]
+
+        table[0][day+rowOffset] = fiscal.grossIncomesCreated
+        table[1][day+rowOffset] = fiscal.paymentsCreated
+
+        table.forEach( row => worksheet.addRow(row))
+      })
+
+      // SETTLERS
+      systemUsageReport.settlerReports.forEach( settler => {
+        let day = dayjs(systemUsageReport.timestamp).get('date')
+        // get the tax collectors 
+
+        // 1th 
+        let table = [
+          [settler.username, 'LIQUIDADOR', "Liquidaciones", ...Array(daysInMonth).fill('--')],
+          ['']
+        ]
+
+        table[0][day+rowOffset] = settler.settlementsCreated
+
+        table.forEach( row => worksheet.addRow(row))
+      })
     })
   
     // Write the workbook to the stream
