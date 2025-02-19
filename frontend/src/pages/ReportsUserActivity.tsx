@@ -43,7 +43,7 @@ const ReportsUserActivity = () => {
   }
 
   useEffect(() => {
-    form.setFieldsValue({ period: dayjs().subtract(1, 'month') })
+    form.setFieldsValue({ period: dayjs() })
   }, [])
 
   return (
