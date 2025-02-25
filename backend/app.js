@@ -68,6 +68,8 @@ const inactivityPeriodRouter = require('./routers/inactivityPeriodRoutes');
 
 const businessActivityCategoriesRouter = require('./routers/businessActivityCategoriesRouter');
 
+const vehiclesRouter = require('./routers/vehiclesRouter')
+
 // REPORTS
 
 const reportBusinesses = require('./routers/reports/businessesReportsRouter');
@@ -137,6 +139,8 @@ app.use('/v1/users', userRouter)
 app.use('/v1/auth', authRouter);
 
 app.use('/v1/files', filesRouter);
+
+app.use('/v1/vehicles', vehiclesRouter);
 
 // Middleware to serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

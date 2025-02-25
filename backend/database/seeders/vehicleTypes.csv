@@ -1,0 +1,10 @@
+﻿id;type;taxMMVBCV
+1;automóvil particular;10
+2;camioneta particular;10
+3;motocicleta;5
+4;carro por puerto o taxi;5
+5;minibus, camioneta de pasajeros, transporte colectivo;10
+6;autobuses con más de 32 puestos;10
+7;vehículo de carga pesada tipo camión 350, 750, 800;12
+8;gandola;20
+9;remolque;20
