@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       year: {
-        type: DataTypes.DATEONLY, // Store only the date (YYYY-MM-DD)
+        type: DataTypes.STRING, // Store only the date (YYYY-MM-DD)
         allowNull: false,
       },
       usage: {

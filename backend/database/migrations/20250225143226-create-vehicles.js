@@ -26,7 +26,7 @@ module.exports = {
         allowNull: false,
       },
       year: {
-        type: Sequelize.DATEONLY,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       usage: {
