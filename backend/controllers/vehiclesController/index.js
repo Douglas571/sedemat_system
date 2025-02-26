@@ -30,6 +30,16 @@ const vehiclesController = {
     }
   },
 
+  async getOneVehicle(req, res) {
+    try {
+      let { id } = req.params
+      const vehicles = await vehiclesService.getOneVehicle(id);
+      res.json(vehicles);
+    } catch (error) {
+      throw error
+    }
+  },
+
   async createVehicle(req, res) {
     try {
       const newVehicle = await vehiclesService.createVehicle(req.body);

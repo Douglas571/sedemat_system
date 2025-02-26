@@ -1,4 +1,4 @@
-const { VehicleType, Vehicle } = require('../../database/models');
+const { VehicleType, Vehicle, Person, Business } = require('../../database/models');
 
 const vehiclesService = {
   // Vehicle Type Methods
@@ -31,6 +31,20 @@ const vehiclesService = {
         // { model: Model, as: 'model' },
       ],
     });
+  },
+
+  async getOneVehicle(id) {
+    const vehicle = await Vehicle.findByPk(id, {
+      include: [
+        { model: VehicleType, as: 'vehicleType' },
+        { model: Person, as: 'owner' },
+        { model: Business, as: 'businessOwner' },
+        // { model: Brand, as: 'brand' },
+        // { model: Model, as: 'model' },
+      ],
+    });
+    if (!vehicle) throw new Error('Vehicle not found');
+    return vehicle;
   },
 
   async createVehicle(data) {

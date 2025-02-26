@@ -14,6 +14,7 @@ router.get('/types', vehiclesController.getAllVehicleTypes);
 router.post('/types', vehiclesController.createVehicleType);
 
 // Vehicle Routes
+router.get('/:id', vehiclesController.getOneVehicle);
 router.get('/', vehiclesController.getAllVehicles);
 router.post('/', vehiclesController.createVehicle);
 
