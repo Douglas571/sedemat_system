@@ -1,4 +1,4 @@
-import { CertificateOfIncorporation } from "./types";
+import { CertificateOfIncorporation, Business } from "./types";
 import axios from "axios";
 
 const IP = import.meta.env.VITE_BACKEND_IP || "localhost"
@@ -187,4 +187,18 @@ export async function getBusinessEconomicActivityIndex(token: string) {
         }
     });
     return response.data
+}
+
+export async function getAll(): Promise<Business[]> {
+    try {
+        const response = await fetch(`${HOST}/v1/businesses`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching business data:', error);
+        throw error;
+    }
 }

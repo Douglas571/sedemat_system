@@ -36,6 +36,11 @@ export async function fetchBranchOffices(businessId: number): Promise<BranchOffi
 // Business
 
 // TODO: Fiend all references to this method and replace them with fetchBusinesses
+/**
+ * @deprecated Use businessApi.getAll() instead.
+ * Fetches all businesses.
+ * @returns Promise that resolves to an array of Business objects.
+ */
 export async function fetchBusiness() {
     try {
         const response = await fetch(`${HOST}/v1/businesses`);
