@@ -1,5 +1,3 @@
-import { Dayjs } from "dayjs";
-
 export interface IRole {
     id: number,
     name: string
@@ -333,4 +331,30 @@ export interface IPenalty {
     // TODO: Remove the optional
     createdByUserId?: number,
     createdByUser?: IUser,
+}
+
+export interface IVehicle {
+    id: number;
+    plate: string;
+    isPublicTransport: boolean;
+    brand: string;
+    model: string;
+    year: Date;
+    color: string;
+    usage: string;
+    vehicleType: IVehicleType,
+    vehicleTypeId: number;
+    ownerId: number | null;
+    businessOwnerId: number | null;
+    createdAt: string;
+    updatedAt: string;
+}
+  
+export interface IVehicleType {
+    id: number;
+    type: string;
+    taxMMVBCV: number;
+    isValid: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
