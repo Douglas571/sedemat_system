@@ -65,6 +65,11 @@ import PendingWorkSection from 'pages/PendingWorkSection'
 
 import Settlements from 'pages/Settlements'
 
+// Vehicles
+import Vehicles from 'pages/vehicles/Vehicles'
+import VehiclesEdit from 'pages/vehicles/VehiclesEdit'
+import VehiclesDetails from 'pages/vehicles/VehiclesDetail'
+
 function App(): JSX.Element {
 	return (
 		<div>
@@ -142,7 +147,11 @@ function App(): JSX.Element {
 								<Route path='reports/user-activity' element={<ReportsUserActivity/>}/>
 								
 								<Route path='settlements' element={<Settlements />} />
-								
+
+								<Route path='vehicles' element={<Vehicles />} />
+								<Route path='vehicles/new' element={<VehiclesEdit />} />
+								<Route path='vehicles/:id' element={<VehiclesDetails />} />
+								<Route path='vehicles/:id/edit' element={<VehiclesEdit />} />
 							</Route>
 							
 

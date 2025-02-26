@@ -85,6 +85,11 @@ const App: React.FC = () => {
 					icon: '',
 					label: 'Contactos'
 				},
+				{
+					key: '/vehicles',
+					icon: '',
+					label: 'Vehículos'
+				}
 			]
 		},
 		{
@@ -114,6 +119,7 @@ const App: React.FC = () => {
 				},
 			]
 		},
+
 	]
 
 
